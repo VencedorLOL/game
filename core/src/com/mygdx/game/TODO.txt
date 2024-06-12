@@ -1,0 +1,6 @@
+TODO:
+Enemies: Make more types of enemies. Make enemies follow you.
+Motor: Inventory mechanics. Make speed and attack mechanics. Implement GUI. Implement ability interface.
+Character: Implement characters. Implement character stats.
+Camara: Make camara zoom adjustable.
+Game: The rest of the game.
