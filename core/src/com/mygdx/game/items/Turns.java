@@ -44,7 +44,7 @@ public class Turns {
 		amountOfEnemies = stage.enemyGetter().size();
 		if(!characterTurn && canCallNextTurn)
 			for (Enemy e : stage.enemyGetter())
-				if (!e.isOnTurn && !e.hasHadItsTurn){
+				if (!e.isOnTurn && !e.hasHadItsTurn && !e.isDead){
 					e.isOnTurn = true;
 					e.hasHadItsTurn = true;
 					canCallNextTurn = false;

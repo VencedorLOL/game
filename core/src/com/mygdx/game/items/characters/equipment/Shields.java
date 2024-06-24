@@ -1,13 +1,6 @@
-package com.mygdx.game.items.characters;
+package com.mygdx.game.items.characters.equipment;
 
 public class Shields{
-	public void ShieldInitializer (){
-		BlessedShield BlessedShieldInitializer = new BlessedShield();
-		if (BlessedShieldInitializer.isEquipped){
-
-			BlessedShieldInitializer.BlessedShieldSender();
-		}
-	}
 	public Class[] ShieldCounter() throws ClassNotFoundException {
 		Class[] classCollector = Shields.class.getClasses();
 		return classCollector;
@@ -29,10 +22,6 @@ public class Shields{
 
 		public boolean isOnInventory = true;
 
-		public void BlessedShieldSender(){
-			Healer.EquippedShieldReceiver(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldHealingPerTurn);
-		}
 	}
 
 

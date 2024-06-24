@@ -1,23 +1,13 @@
-package com.mygdx.game.items.characters;
+package com.mygdx.game.items.characters.equipment;
 
 public class Weapons {
-
-	@SuppressWarnings("unused")
-	public void WeaponInitializer(){
-		BlessedSword BlessedSwordInitializer = new BlessedSword();
-		BestSword BestSwordInitializer= new BestSword();;
-		if (BlessedSwordInitializer.isEquipped){
-			BlessedSwordInitializer.BlessedSwordSender();}
-		else if (BestSwordInitializer.isEquipped){
-			BestSwordInitializer.BestSwordSender();
-		}}
 
 	public Class[] WeaponCounter() throws ClassNotFoundException {
 		Class[] classCollector = Weapons.class.getClasses();
 		return classCollector;
 	}
 
-	public class BlessedSword{
+	public static class BlessedSword{
 		public String weaponName = "BlessedSword";
 		public double weaponHealth = 0;
 		public double weaponDamage = 10;
@@ -33,13 +23,9 @@ public class Weapons {
 
 		public boolean isOnInventory = true;
 
-		public void BlessedSwordSender(){
-			Healer.EquippedWeaponryReceiver(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponHealingAbilityBonus);
-		}
 	}
 
-	public class BestSword{
+	public static class BestSword{
 		public String weaponName = "BestSword";
 		public double weaponHealth = 0;
 		public double weaponDamage = 100;
@@ -55,9 +41,5 @@ public class Weapons {
 
 		public boolean isOnInventory = true;
 
-		public void BestSwordSender(){
-			Healer.EquippedWeaponryReceiver(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponHealingAbilityBonus);
-		}
 	}
 }

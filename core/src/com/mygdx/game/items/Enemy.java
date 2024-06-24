@@ -1,24 +1,30 @@
 package com.mygdx.game.items;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.game.GameScreen;
+
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.animationSpeedGetter;
 import static com.mygdx.game.Settings.visualSpeedMultiplierGetter;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.ceil;
+import static java.lang.Math.max;
 
 public class Enemy extends Entity{
+	public float health = 20;
+	public float defense = 5;
 	Texture enemyTexture = new Texture("EvilGuy.jpg");
 	float x, y;
-	float base, height = 128;
-	Stage checker;
+	static float base, height = 128;
+	Stage stage;
 	public Entity testCollision = new Entity();
 	long time = 0;
-	int previousPressLocation = 0;
+	int movementStage = 0;
 	int animationSpeed;
 	int visualSpeedMultiplier;
 	boolean isDivisibleBy128 = false;
@@ -31,14 +37,17 @@ public class Enemy extends Entity{
 	static boolean fastMode;
 	boolean localFastMode;
 	boolean isRendered;
-	public Enemy(float x, float y, float base, float height, Texture texture){
+	boolean isDead = false;
+
+	public Enemy(float x, float y, Texture texture, float health){
 		super(x,y,base,height);
+		this.health = health;
 		this.x = x;
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
-		testCollision.base = this.base;
-		testCollision.height = this.height;
+		testCollision.base = base;
+		testCollision.height = height;
 		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		animationSpeed = animationSpeedGetter();
 		enemyTexture = texture;
@@ -75,14 +84,14 @@ public class Enemy extends Entity{
 
 	}
 
-	public Enemy(float x, float y, float base, float height) {
+	public Enemy(float x, float y) {
 		super(x,y,base,height);
 		this.x = x;
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
-		testCollision.base = this.base;
-		testCollision.height = this.height;
+		testCollision.base = Enemy.base;
+		testCollision.height = Enemy.height;
 		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		animationSpeed = animationSpeedGetter();
 		if(!(128 % visualSpeedMultiplier == 0)) {
@@ -128,7 +137,7 @@ public class Enemy extends Entity{
 				return true;
 		}
 		for (Enemy e : stage.enemy) {
-			if (tester != e.testCollision) {
+			if (tester != e.testCollision && !e.isDead) {
 				if (tester.x == e.x && tester.y == e.y)
 					return true;
 				if (tester.x == e.testCollision.x && tester.y == e.testCollision.y)
@@ -140,24 +149,20 @@ public class Enemy extends Entity{
 				tester.y == stage.startY - 128 || tester.x == stage.finalX + 128 || tester.x == stage.startX - 128;
 	}
 
-	public void checkerGetterAndUpdater (Stage stage){
-		checkerGetter(stage);
-		update();
-	}
-
-	public void checkerGetter(Stage stage){
-		checker = stage;
-	}
-
 	public void isItMyTurn(){
-		whatEnemiesTurnIsIt(checker);
+		if (!isDead)
+			whatEnemiesTurnIsIt(stage);
+		else {
+			hasHadItsTurn = true;
+			isOnTurn = false;
+		}
 	}
 
 	public void amIRendered(){
-		isRendered = x - 128*2<= checker.camaraX + checker.camaraBase / 2 &&
-				x + 128*2>= checker.camaraX - checker.camaraBase / 2 &&
-				y - 128*2<= checker.camaraY + checker.camaraHeight / 2 &&
-				y + 128*2>= checker.camaraY - checker.camaraHeight / 2;
+		isRendered = x - 128*2 <= stage.camaraX + stage.camaraBase / 2 &&
+				x + 128*2 >= stage.camaraX - stage.camaraBase / 2 &&
+				y - 128*2 <= stage.camaraY + stage.camaraHeight / 2 &&
+				y + 128*2 >= stage.camaraY - stage.camaraHeight / 2;
 
 	}
 	public void fastModeSetter(){
@@ -177,35 +182,35 @@ public class Enemy extends Entity{
 	protected void freeSpaceDetector(){
 		testCollision.x = x;
 		testCollision.y = y + 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[0] = 'U';
 		testCollision.x = x + 128;
 		testCollision.y = y + 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[1] = 'E';
 		testCollision.x = x + 128;
 		testCollision.y = y;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[2] = 'R';
 		testCollision.x = x + 128;
 		testCollision.y = y - 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[3] = 'C';
 		testCollision.x = x;
 		testCollision.y = y - 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[4] = 'D';
 		testCollision.x = x - 128;
 		testCollision.y = y - 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[5] = 'Z';
 		testCollision.x = x - 128;
 		testCollision.y = y;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[6] = 'L';
 		testCollision.x = x - 128;
 		testCollision.y = y + 128;
-		if (!overlapsWithStage(checker, testCollision))
+		if (!overlapsWithStage(stage, testCollision))
 			availableSpaces[7] = 'Q';
 
 		if (availableSpaces[0] == 'N' && availableSpaces[1] == 'N' && availableSpaces[2] == 'N' &&
@@ -227,7 +232,7 @@ public class Enemy extends Entity{
 		freeSpaceDetector();
 		hasMovedBefore = true;
 		canMove = false;
-		previousPressLocation -= visualSpeedMultiplier;
+		movementStage -= visualSpeedMultiplier;
 	}
 
 	protected void movementSlowMode(){
@@ -378,29 +383,29 @@ public class Enemy extends Entity{
 	protected void movementOnFinalize(){
 		move = 'N';
 		availableSpaces = new char[]{'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'};
-		previousPressLocation = 0;
+		movementStage = 0;
 		canMove = true;
 		spendTurn();
 	}
 
 	public void movement(){
-		if(previousPressLocation < 128 && !localFastMode)
+		if(movementStage < 128 && !localFastMode)
 			movementSlowMode();
 		if (canMove)
 			movementDirection();
-		if(previousPressLocation >= 128)
+		if(movementStage >= 128)
 			movementOnFinalize();
-		if (previousPressLocation < 128 && localFastMode)
+		if (movementStage < 128 && localFastMode)
 			movementFastMode();
 		if(hasMovedBefore && !localFastMode)
-			previousPressLocation += visualSpeedMultiplier;
+			movementStage += visualSpeedMultiplier;
 		hasMovedBefore = false;
 		super.refresh(x, y, base, height);
 		isOnTheGrid();
 	}
 
 	protected void isOnTheGrid(){
-		if (previousPressLocation == 0) {
+		if (movementStage == 0 && !isDead) {
 			if (!(x % 128 == 0)) {
 				System.out.println("Offset in x caused at: " + x + " :by: " + this + " :New x is: " + 128 * ceil(x / 128));
 				x = (float) (128 * ceil(x / 128));
@@ -413,8 +418,10 @@ public class Enemy extends Entity{
 	}
 
 
-	public void update(){
-		if (haveWallsBeenRendered && haveEnemiesBeenRendered && haveGrassBeenRendered && haveScreenWarpsBeenRendered) {
+	public void update(Stage stage){
+		if (haveWallsBeenRendered && haveEnemiesBeenRendered && haveGrassBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+			this.stage = stage;
+			onDeath();
 			amIRendered();
 			isItMyTurn();
 			if (isOnTurn)
@@ -427,7 +434,7 @@ public class Enemy extends Entity{
 				System.out.println("availableSpaces RIGHT: " + availableSpaces[2] + " :availableSpaces DOWN-RIGHT: " + availableSpaces[3]);
 				System.out.println("availableSpaces DOWN: " + availableSpaces[4] + " :availableSpaces DOWN-LEFT: " + availableSpaces[5]);
 				System.out.println("availableSpaces LEFT: " + availableSpaces[6] + " :availableSpaces UP-LEFT: " + availableSpaces[7]);
-				System.out.println("previousPressedKeyState: " + previousPressLocation);
+				System.out.println("previousPressedKeyState: " + movementStage);
 				System.out.println("onTurn: " + isOnTurn);
 				System.out.println("x: " + x);
 				System.out.println("testX: " + testCollision.x);
@@ -440,5 +447,18 @@ public class Enemy extends Entity{
 			else
 				visualSpeedMultiplier = 8;
 		}
+	}
+
+	public void onDeath(){
+		if (health <= 0) {
+			isDead = true;
+			x = 100000000;
+			y = 100000000;
+		}
+	}
+
+	public void damage(float damage){
+		health = health - max(damage - defense,0);
+
 	}
 }

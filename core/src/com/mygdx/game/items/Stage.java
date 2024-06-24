@@ -146,9 +146,16 @@ public class Stage implements Utils {
 			haveEnemiesBeenRendered = true;
 		}
 		for (Enemy e : enemy){
-			e.checkerGetterAndUpdater(stage);
-			gs.batch.draw(e.enemyTexture, e.x, e.y);
+			if (!e.isDead) {
+				e.update(stage);
+				gs.batch.draw(e.enemyTexture, e.x, e.y);
+				//dies();
+			}
 		}
+	}
+
+	public void dies(){
+		enemy.removeIf(e -> e.health <= 0);
 	}
 
 	public void grassSetter(Stage stage){
@@ -189,7 +196,6 @@ public class Stage implements Utils {
 	public void wallRenderer(GameScreen gs){
 		if (!haveWallsBeenRendered){
 			wallSetter();
-
 		}
 		for (Wall b : walls){
 			if(b.doesItHaveATexture)
@@ -242,8 +248,6 @@ public class Stage implements Utils {
 		for(ScreenWarp s : screenWarpGetter())
 			if (characterX == s.x && characterY == s.y) {
 				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.screenWarpID)];
-				System.out.println(pos);
-				System.out.println(s.screenWarpID);
 				betweenStages = true;
 				gs.stage = getScreenWarpStage(pos);
 				gs.stage.reStage(gs.chara);
@@ -283,13 +287,13 @@ public class Stage implements Utils {
 	public Enemy enemyClass(int x, int y, int enemyType){
 		switch (enemyType){
 			case 1:{
-				return new EvilGuy(128 * x, 128 * y, 128, 128, new Texture("EvilGuy.jpg"));
+				return new EvilGuy(128 * x, 128 * y);
 			}
 			case 2 :{
-				return new LoopingHat(128 * x, 128 * y, 128, 128, new Texture("LoopingHat.png"));
+				return new LoopingHat(128 * x, 128 * y);
 			}
 		}
-		return new Enemy(128 * x, 128 * y, 128, 128);
+		return new Enemy(128 * x, 128 * y);
 
 	}
 

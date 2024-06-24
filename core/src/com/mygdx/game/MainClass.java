@@ -5,6 +5,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.mygdx.game.items.Camara;
 
+import static com.mygdx.game.Settings.camaraZoom;
+
 public class MainClass extends Game implements Utils, ApplicationListener {
 	BitmapFont font;
 	GameScreen gameScreen;
@@ -13,7 +15,7 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 	@Override
 	public void create () {
 		gameScreen = new GameScreen(this);
-		camara.camaraStarter();
+		camara.camaraStarter(camaraZoom);
 		this.setGameScreen();
 		this.setStartScreen();
 		font = new BitmapFont();

@@ -3,12 +3,18 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.game.GameScreen;
+import com.mygdx.game.Utils;
+
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Turns.*;
-import static java.lang.Math.ceil;
+import static java.lang.Math.*;
 
-public class Character extends Entity{
+public class Character extends Entity implements Utils {
+	public float health = 10;
+	public int range = 3;
 	public Texture character;
 	public float x, y, base, height;
 	Stage stage;
@@ -24,17 +30,17 @@ public class Character extends Entity{
 	boolean hasMovedBefore;
 	boolean canMove = true;
 	public boolean isOnTurn;
-	long cooldown;
-	byte speed = 1;
+	byte speed = 3;
 	byte speedState = 0;
-
+	int distance;
+	int distanceAux;
 	public boolean overlapsWithStage(Stage stage, Entity entity){
 		for(Wall b : stage.walls){
 			if (entity.overlaps(b))
 				return true;
 		}
 		for(Enemy e : stage.enemy) {
-			if (entity.x == e.x && entity.y == e.y)
+			if (entity.x == e.x && entity.y == e.y && !e.isDead)
 				return true;
 		}
 		return false;
@@ -84,15 +90,6 @@ public class Character extends Entity{
 				isDivisibleBy128 = true;
 			}
 		}
-	}
-
-	public void checkerGetterAndUpdater (Stage stage){
-		checkerGetter(stage);
-		update();
-	}
-
-	public void checkerGetter(Stage stage){
-		this.stage = stage;
 	}
 
 	public void spendTurn(){
@@ -240,7 +237,7 @@ public class Character extends Entity{
 	protected void movementOnFinalize(){
 		for (Enemy e : stage.enemy)
 			for (Enemy n : stage.enemy){
-				if (n.x == e.x && n.y == e.y && n != e) {
+				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
 					System.out.println("Discrepancy with enemy: " + n + " :and enemy: " + e);
 					System.out.println("In x: " + n.x + " :in y: " + e.y);
 				}
@@ -334,12 +331,13 @@ public class Character extends Entity{
 
 	}
 
-	public void update(){
+	public void update(Stage stage, GameScreen cam){
+		this.stage = stage;
 		isItMyTurn();
-		if (isOnTurn)
+		if (isOnTurn){
 			movement();
-		if (Gdx.input.isKeyPressed(Input.Keys.G))
-			System.out.println(isOnTurn);
+			attack(cam);
+		}
 		if (Gdx.input.isKeyPressed(Input.Keys.B)) {
 			isOnTurn = true;
 			spendNotCharacterTurn();
@@ -356,8 +354,7 @@ public class Character extends Entity{
 			System.out.println("onTurn: " + isOnTurn);
 		}
 		textureUpdater();
-		if(Gdx.input.isKeyPressed(Input.Keys.V) && TimeUtils.millis() - cooldown > 300 && whatTurnIsIt()) {
-			cooldown = TimeUtils.millis();
+		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && whatTurnIsIt()) {
 			Enemy.fastMode = !Enemy.fastMode;
 			System.out.println(Enemy.fastMode);
 			if (Enemy.fastMode){
@@ -370,6 +367,181 @@ public class Character extends Entity{
 			}
 		}
 	}
+
+
+
+	public void attack(GameScreen cam) {
+		if (!hasMovedBefore) {
+			if (Gdx.input.isTouched()) {
+				if (attackRayCasting(cam) != null && range >= distance) {
+					attackRayCasting(cam).damage(20);
+					System.out.println(distance);
+					spendTurn();
+				}
+			}
+		}
+	}
+
+
+	public Enemy attackRayCasting(GameScreen cam){
+		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
+				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;
+		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
+		cam.camara.camara.unproject(touchedPosition);
+		touchedPosition.x = (float) (128 * floor((touchedPosition.x)/ 128));
+		touchedPosition.y = (float) (128 * floor((touchedPosition.y) / 128));
+		for (Enemy e : stage.enemy) {
+			if (touchedPosition.x == e.x && touchedPosition.y == e.y && !e.isDead) {
+				distance = (int) round((sqrt(pow(x - e.x,2) + pow(y - e.y,2)))/128);
+				System.out.println(distance);
+				float rect = ((e.y + 64) - (y + 64)) / ((e.x + 64) - (x + 64));
+				Entity rayCheckerCenter = new Entity(x + 64, y + 64, 4, 4);
+				Entity rayCheckerDownLeft = new Entity(x, y, 4, 4);
+				Entity rayCheckerDownRight = new Entity(x + 128, y, 4, 4);
+				Entity rayCheckerUpLeft = new Entity(x, y + 128, 4, 4);
+				Entity rayCheckerUpRight = new Entity(x + 128, y + 128, 4, 4);
+				rayCheckerDownLeft.x += 1;
+				rayCheckerDownRight.x -= 1;
+				rayCheckerUpLeft.x += 1;
+				rayCheckerUpRight.x -= 1;
+				int sign = 1;
+				if (e.x < x)
+					sign = -1;
+				if (rect == (float) 1/0 || rect == (float) -1/0)
+					sign = 0;
+				for (int i = 0; i < pickValueAUnlessEqualsZeroThenPickB(abs(e.x-x),abs(e.y-y)); i++){
+					rayCheckerCenter.x += sign;
+					rayCheckerDownLeft.x += sign;
+					rayCheckerDownRight.x += sign;
+					rayCheckerUpLeft.x += sign;
+					rayCheckerUpRight.x += sign;
+					if (sign != 0) {
+						rayCheckerCenter.y += rect * sign;
+						rayCheckerDownLeft.y += rect * sign;
+						rayCheckerDownRight.y += rect * sign;
+						rayCheckerUpLeft.y += rect * sign;
+						rayCheckerUpRight.y += rect * sign;
+					}
+					else if (rect == (float) 1/0) {
+						rayCheckerCenter.y++;
+						rayCheckerDownLeft.y++;
+						rayCheckerDownRight.y++;
+						rayCheckerUpLeft.y++;
+						rayCheckerUpRight.y++;
+					}
+					else if (rect == (float) -1/0) {
+						rayCheckerCenter.y--;
+						rayCheckerDownLeft.y--;
+						rayCheckerDownRight.y--;
+						rayCheckerUpLeft.y--;
+						rayCheckerUpRight.y--;
+					}
+					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerCenter.x,rayCheckerCenter.y);
+					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerUpLeft.x,rayCheckerUpLeft.y);
+					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerUpRight.x,rayCheckerUpRight.y);
+					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerDownLeft.x,rayCheckerDownLeft.y);
+					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerDownRight.x,rayCheckerDownRight.y);
+
+					for (Wall w : stage.walls) {
+						if(rayCheckerCenter.x < w.x + 128 && rayCheckerCenter.x + 1 > w.x && rayCheckerCenter.y < w.y + 128 && rayCheckerCenter.y + 1 > w.y) {
+							timesRayTouchedWall++;
+							touchedC++;
+						}
+						if (rayCheckerDownLeft.x < w.x + 128 && rayCheckerDownLeft.x + 1 > w.x && rayCheckerDownLeft.y < w.y + 128 && rayCheckerDownLeft.y + 1 > w.y){
+							timesRayTouchedWall++;
+							touchedDL++;
+						}
+						if (rayCheckerDownRight.x < w.x + 128 && rayCheckerDownRight.x + 1 > w.x && rayCheckerDownRight.y < w.y + 128 && rayCheckerDownRight.y + 1 > w.y) {
+							timesRayTouchedWall++;
+							touchedDR++;
+						}
+						if (rayCheckerUpLeft.x < w.x + 128 && rayCheckerUpLeft.x + 1 > w.x && rayCheckerUpLeft.y < w.y + 128 && rayCheckerUpLeft.y + 1 > w.y) {
+							timesRayTouchedWall++;
+							touchedUL++;
+						}
+						if (rayCheckerUpRight.x < w.x + 128 && rayCheckerUpRight.x + 1 > w.x && rayCheckerUpRight.y < w.y + 128 && rayCheckerUpRight.y + 1 > w.y) {
+							timesRayTouchedWall++;
+							touchedUR++;
+						}
+						if (touchedC >= 64) {
+							raysThroughWalls++;
+							touchedC = -256;
+						}
+						if (touchedDL >= 64) {
+							raysThroughWalls++;
+							touchedDL = -256;
+						}
+						if (touchedDR >= 64) {
+							raysThroughWalls++;
+							touchedDR = -256;
+						}
+						if (touchedUL >= 64) {
+							raysThroughWalls++;
+							touchedUL = -256;
+						}
+						if (touchedUR >= 64) {
+							raysThroughWalls++;
+							touchedUR = -256;
+						}
+						if (timesRayTouchedWall >= 325 || raysThroughWalls >= 3) {
+							return null;
+						}
+					}
+					for (Enemy en : stage.enemy) {
+						if (!en.isDead){
+							distanceAux = (int) round((sqrt(pow(x - en.x,2) + pow(y - en.y,2)))/128);
+							if(rayCheckerCenter.x < en.x + 128 && rayCheckerCenter.x + 1 > en.x && rayCheckerCenter.y < en.y + 128 && rayCheckerCenter.y + 1 > en.y) {
+								timesRayTouchedOtherEnemy++;
+								touchedEC++;
+							}
+							if (rayCheckerDownLeft.x < en.x + 128 && rayCheckerDownLeft.x + 1 > en.x && rayCheckerDownLeft.y < en.y + 128 && rayCheckerDownLeft.y + 1 > en.y) {
+								timesRayTouchedOtherEnemy++;
+								touchedEDL++;
+							}
+							if (rayCheckerDownRight.x < en.x + 128 && rayCheckerDownRight.x + 1 > en.x && rayCheckerDownRight.y < en.y + 128 && rayCheckerDownRight.y + 1 > en.y) {
+								timesRayTouchedOtherEnemy++;
+								touchedEDR++;
+							}
+							if (rayCheckerUpLeft.x < en.x + 128 && rayCheckerUpLeft.x + 1 > en.x && rayCheckerUpLeft.y < en.y + 128 && rayCheckerUpLeft.y + 1 > en.y) {
+								timesRayTouchedOtherEnemy++;
+								touchedEUL++;
+							}
+							if (rayCheckerUpRight.x < en.x + 128 && rayCheckerUpRight.x + 1 > en.x && rayCheckerUpRight.y < en.y + 128 && rayCheckerUpRight.y + 1 > en.y) {
+								timesRayTouchedOtherEnemy++;
+								touchedEUR++;
+							}
+							if (touchedEC >= 64) {
+								raysThroughEnemies++;
+								touchedEC = -256;
+							}
+							if (touchedEDL >= 64) {
+								raysThroughEnemies++;
+								touchedEDL = -256;
+							}
+							if (touchedEDR >= 64) {
+								raysThroughEnemies++;
+								touchedEDR = -256;
+							}
+							if (touchedEUL >= 64) {
+								raysThroughEnemies++;
+								touchedEUL = -256;
+							}
+							if (touchedEUR >= 64) {
+								raysThroughEnemies++;
+								touchedEUR = -256;
+							}
+							if ((timesRayTouchedOtherEnemy >= 128 || raysThroughEnemies >= 3) && range >= distanceAux) {
+								return en;
+							}
+						}
+					}
+				}
+				return e;
+			}
+		}
+		return null;
+	}
+
 
 	int previousTexture = 3;
 	public int texture() {

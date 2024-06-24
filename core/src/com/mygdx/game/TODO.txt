@@ -1,6 +1,7 @@
 TODO:
-Enemies: Make more types of enemies. Make enemies follow you.
-Motor: Inventory mechanics. Make speed and attack mechanics. Implement GUI. Implement ability interface.
-Character: Implement characters. Implement character stats.
-Camara: Make camara zoom adjustable.
+Enemies: Make more types of enemies (Done?). Make enemies follow you, AKA giving them proper AI.
+Motor: Inventory mechanics. Implement GUI. Implement ability interface.
+Character: Implement characters. Implement character stats. Create abilities (paired with the implement characters one)
+Make a zone to be able to change your character
+TextureAtlas: Migrate to atlases.
 Game: The rest of the game.

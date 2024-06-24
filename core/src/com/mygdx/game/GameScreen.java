@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.StageOne;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Turns.*;
+import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
 	public MainClass mainClass;
@@ -22,7 +24,9 @@ public class GameScreen implements Screen, Utils {
 	public boolean isScreenChanging = false;
 	public void create () {
 		batch = new SpriteBatch();
-		camara.camaraStarter();
+		if (camaraZoom <= 0)
+			camaraZoom = 2;
+		camara.camaraStarter(camaraZoom);
 		stage = stage.setStage(new StageOne());
 		stage.reStage(chara);
 	}
@@ -41,13 +45,11 @@ public class GameScreen implements Screen, Utils {
 		if(!isScreenChanging) {
 			screenSizeChangeDetector();
 			camara.updater(chara);
-			chara.checkerGetterAndUpdater(stage);
 			stage.characterRefresher(chara.getX(), chara.getY());
 			stage.stageRenderer(this, stage);
+			chara.update(stage, this);
 			if (!betweenStages)
 				batch.draw(chara.character, chara.getX(), chara.getY());
-			if(betweenStages)
-				System.out.println("charaSholdntBeRendering");
 			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
 				mainClass.setPauseScreen();
 			}
@@ -65,6 +67,20 @@ public class GameScreen implements Screen, Utils {
 				betweenStages = true;
 			if (Gdx.input.isKeyPressed(Input.Keys.O))
 				betweenStages = false;
+			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
+				camara.setToOrtho(++camaraZoom);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
+				camara.setToOrtho(camaraZoom += .5f);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4)
+				camara.setToOrtho(camaraZoom += .125f);
+			if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 4)
+				camara.setToOrtho(--camaraZoom);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 1 && camaraZoom <= 4)
+				camara.setToOrtho(camaraZoom -= .5f);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
+				camara.setToOrtho(camaraZoom -= .125f);
+			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
+				System.out.println(camaraZoom);
 		}
 	}
 
@@ -74,7 +90,7 @@ public class GameScreen implements Screen, Utils {
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 			isScreenChanging = true;
-			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
+			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camaraZoom);
 		}
 		else
 			isScreenChanging = false;

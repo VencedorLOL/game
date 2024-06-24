@@ -8,7 +8,7 @@ public class Camara {
 	OrthographicCamera camara;
 	float x,y,base,height;
 	float zoom = (float) 2;
-	public void camaraStarter(){
+	public void camaraStarter(float zoom){
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
 		camara = new OrthographicCamera(0,0);
@@ -39,6 +39,9 @@ public class Camara {
 	public void ySetter(float y){
 		this.y = y;
 	}
+	public float zoomGetter(){
+		return zoom;
+	}
 	public void fixedUpdater(){
 		camara.update();
 	}
@@ -47,23 +50,27 @@ public class Camara {
 		base = x * zoom;
 		height = y * zoom;
 		camara.setToOrtho(yDown,base,height);
+		updater();
 	}
 	public void setToOrtho(boolean yDown, float x, float y){
 		base = x;
 		height = y;
 		camara.setToOrtho(yDown,base,height);
+		updater();
 	}
 	public void setToOrtho(){
 		zoom = 1;
 		base = Gdx.graphics.getWidth();
 		height = Gdx.graphics.getHeight();
 		camara.setToOrtho(false, base , height);
+		updater();
 	}
 	public void setToOrtho(float zoom){
 		this.zoom = zoom;
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
 		camara.setToOrtho(false, base , height);
+		updater();
 	}
 	public void finalizer(SpriteBatch batch){
 		batch.setProjectionMatrix(camara.combined);
