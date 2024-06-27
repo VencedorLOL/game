@@ -23,6 +23,7 @@ public class Wall extends Entity{
         this.doesItHaveATexture = false;
     }
     public Wall(){}
+
     public void refresh(float x, float y, float base, float height){
         this.x = x;
         this.y = y;

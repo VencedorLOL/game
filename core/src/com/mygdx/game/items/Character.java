@@ -7,15 +7,20 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
+import com.mygdx.game.items.characters.CharacterClasses;
+import com.mygdx.game.items.characters.classes.Healer;
+import com.mygdx.game.items.characters.classes.Melee;
+import com.mygdx.game.items.characters.equipment.Shields;
+import com.mygdx.game.items.characters.equipment.Weapons;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
-	public float health = 10;
+	public CharacterClasses character = new CharacterClasses();
 	public int range = 3;
-	public Texture character;
+	public Texture characterTexture;
 	public float x, y, base, height;
 	Stage stage;
 	Entity testCollision = new Entity();
@@ -30,10 +35,10 @@ public class Character extends Entity implements Utils {
 	boolean hasMovedBefore;
 	boolean canMove = true;
 	public boolean isOnTurn;
-	byte speed = 3;
 	byte speedState = 0;
 	int distance;
 	int distanceAux;
+	boolean isDead;
 	public boolean overlapsWithStage(Stage stage, Entity entity){
 		for(Wall b : stage.walls){
 			if (entity.overlaps(b))
@@ -247,7 +252,7 @@ public class Character extends Entity implements Utils {
 		previousPressKey = 'N';
 		previousPressLocation = 0;
 		speedState++;
-		if (speedState >= speed)
+		if (speedState >= round((float) character.speed / 2))
 			spendTurn();
 		canMove = true;
 	}
@@ -337,6 +342,7 @@ public class Character extends Entity implements Utils {
 		if (isOnTurn){
 			movement();
 			attack(cam);
+			changeTo();
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.B)) {
 			isOnTurn = true;
@@ -352,6 +358,9 @@ public class Character extends Entity implements Utils {
 			System.out.println("previousPressedKeySecondary: " + previousPressKeySecondary);
 			System.out.println("previousPressedKeyState: " + previousPressLocation);
 			System.out.println("onTurn: " + isOnTurn);
+			System.out.println("Weapon" + character.weapon);
+			System.out.println("Health: " + character.totalHealth);
+			System.out.println("Damage: " + character.totalDamage);
 		}
 		textureUpdater();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && whatTurnIsIt()) {
@@ -373,8 +382,8 @@ public class Character extends Entity implements Utils {
 	public void attack(GameScreen cam) {
 		if (!hasMovedBefore) {
 			if (Gdx.input.isTouched()) {
-				if (attackRayCasting(cam) != null && range >= distance) {
-					attackRayCasting(cam).damage(20);
+				if (attackRayCasting(cam) != null && character.range >= distance) {
+					attackRayCasting(cam).damage(character.outgoingDamage(0));
 					System.out.println(distance);
 					spendTurn();
 				}
@@ -596,37 +605,82 @@ public class Character extends Entity implements Utils {
 	public void textureUpdater(){
 		switch (texture()){
 			case 1 : {
-				character = new Texture("CharaLeft.png");
+				characterTexture = new Texture("CharaLeft.png");
 				break;
 			}
 			case 2: {
-				character = new Texture("CharaRight.png");
+				characterTexture = new Texture("CharaRight.png");
 				break;
 			}
 			case 3 : {
-				character = new Texture("char.jpg");
+				characterTexture = new Texture("char.jpg");
 				break;
 			}
 			case 4 :{
-				character = new Texture("CharaUp.png");
+				characterTexture = new Texture("CharaUp.png");
 				break;
 			}
 			case 5 :{
-				character = new Texture("CharaDiagonalDownRight.png");
+				characterTexture = new Texture("CharaDiagonalDownRight.png");
 				break;
 			}
 			case 6 :{
-				character = new Texture("CharaDiagonalDownLeft.png");
+				characterTexture = new Texture("CharaDiagonalDownLeft.png");
 				break;
 			}
 			case 7 :{
-				character = new Texture("CharaDiagonalUpRight.png");
+				characterTexture = new Texture("CharaDiagonalUpRight.png");
 				break;
 			}
 			case 8 :{
-				character = new Texture("CharaDiagonalUpLeft.png");
+				characterTexture = new Texture("CharaDiagonalUpLeft.png");
 				break;
 			}
 		}
 	}
+	public void onDeath(){
+		if (character.currentHealth <= 0) {
+			isDead = true;
+		}
+	}
+
+	public void changeTo(){
+		changeToHealer();
+		changeToMelee();
+		equipBestSword();
+		equipBlessedShield();
+		equipBlessedSword();
+	}
+
+
+	public void changeToHealer(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
+			character = new Healer();
+		}
+	}
+
+	public void changeToMelee(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
+			character = new Melee();
+		}
+	}
+
+	public void equipBlessedSword(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
+			character.equipWeapon(new Weapons.BlessedSword());
+		}
+	}
+
+	public void equipBestSword(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+			character.equipWeapon(new Weapons.BestSword());
+		}
+	}
+
+	public void equipBlessedShield(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
+			character.equipShield(new Shields.BlessedShield());
+		}
+	}
+
 }

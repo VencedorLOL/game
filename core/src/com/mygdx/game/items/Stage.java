@@ -89,6 +89,7 @@ public class Stage implements Utils {
 	public int finalYGetter(){
 		return finalY;
 	}
+
 	public void refresh(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
 						 int[] wallX, int[] wallY, int[] enemyX, int[] enemyY, int[] screenWarpX, int[] screenWarpY,
 						ArrayList<Stage> screenWarpDestination, Texture floorTexture,

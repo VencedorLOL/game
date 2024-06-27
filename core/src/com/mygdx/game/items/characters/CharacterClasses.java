@@ -1,6 +1,12 @@
 package com.mygdx.game.items.characters;
 
+import com.mygdx.game.items.characters.equipment.Shields;
+import com.mygdx.game.items.characters.equipment.Weapons;
+
+import static java.lang.Math.max;
+
 public class CharacterClasses {
+	public CharacterClasses chara;
 	public String name;
 	public float health;
 	public float tempDefense;
@@ -17,37 +23,9 @@ public class CharacterClasses {
 	public float magicDamage;
 	public float magicHealing;
 
-	public String weaponName;
-	public float weaponHealth;
-	public float weaponTempDefense;
-	public float weaponDamage;
-	public byte weaponSpeed;
-	public byte weaponAttackSpeed;
-	public float weaponDefense;
-	public float weaponRainbowDefense;
-	public float weaponMagicDefense;
-	public int weaponRange;
-	public float weaponMana;
-	public float weaponManaPerTurn;
-	public float weaponManaPerUse;
-	public float weaponMagicDamage;
-	public float weaponMagicHealing;
+	public Weapons weapon;
 
-	public String shieldName;
-	public float shieldHealth;
-	public float shieldTempDefense;
-	public float shieldDamage;
-	public byte shieldSpeed;
-	public byte shieldAttackSpeed;
-	public float shieldDefense;
-	public float shieldRainbowDefense;
-	public float shieldMagicDefense;
-	public int shieldRange;
-	public float shieldMana;
-	public float shieldManaPerTurn;
-	public float shieldManaPerUse;
-	public float shieldMagicDamage;
-	public float shieldMagicHealing;
+	public Shields shield;
 
 	public float totalHealth;
 	public float totalDamage;
@@ -63,6 +41,8 @@ public class CharacterClasses {
 	public float totalRainbowDefense;
 	public float totalMagicDefense;
 	public int totalRange;
+
+	public float currentHealth;
 
 	public CharacterClasses(String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
@@ -84,103 +64,60 @@ public class CharacterClasses {
 		this.manaPerTurn = manaPerTurn;
 		this.manaPerUse = manaPerUse;
 		this.magicHealing = magicHealing;
+
 	}
 
-	public void equippedWeaponryGetter(String weaponName, float weaponHealth, float weaponDamage,
-											  byte weaponSpeed, byte weaponAttackSpeed, float weaponDefense,
-											  int weaponRange, float weaponTempDefense, float weaponRainbowDefense,
-									   float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-									   float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing) {
-		this.weaponName = weaponName;
-		this.weaponHealth = weaponHealth;
-		this.weaponDamage = weaponDamage;
-		this.weaponSpeed = weaponSpeed;
-		this.weaponAttackSpeed = weaponAttackSpeed;
-		this.weaponDefense = weaponDefense;
-		this.weaponRange = weaponRange;
-		this.weaponTempDefense = weaponTempDefense;
-		this.weaponRainbowDefense = weaponRainbowDefense;
-		this.weaponMana = weaponMana;
-		this.weaponMagicDefense = weaponMagicDefense;
-		this.weaponMagicDamage = weaponMagicDamage;
-		this.weaponManaPerTurn = weaponManaPerTurn;
-		this.weaponManaPerUse = weaponManaPerUse;
-		this.weaponMagicHealing = weaponMagicHealing;
-	}
-
-	public void equippedWeaponryGetter(String weaponName, float weaponHealth, float weaponDamage,
-									   byte weaponSpeed, byte weaponAttackSpeed, float weaponDefense,
-									   int weaponRange, float weaponTempDefense, float weaponRainbowDefense,
-									   float weaponMagicDefense) {
-		this.weaponName = weaponName;
-		this.weaponHealth = weaponHealth;
-		this.weaponDamage = weaponDamage;
-		this.weaponSpeed = weaponSpeed;
-		this.weaponAttackSpeed = weaponAttackSpeed;
-		this.weaponDefense = weaponDefense;
-		this.weaponRange = weaponRange;
-		this.weaponTempDefense = weaponTempDefense;
-		this.weaponRainbowDefense = weaponRainbowDefense;
-		this.weaponMagicDefense = weaponMagicDefense;
-	}
-
-	public void equippedShieldGetter(String shieldName, float shieldHealth, float shieldDamage,
-									   byte shieldSpeed, byte shieldAttackSpeed, float shieldDefense,
-									   int shieldRange, float shieldTempDefense, float shieldRainbowDefense,
-									   float shieldMana, float shieldMagicDefense, float shieldMagicDamage,
-									   float shieldManaPerTurn, float shieldManaPerUse, float shieldMagicHealing) {
-		this.shieldName = shieldName;
-		this.shieldHealth = shieldHealth;
-		this.shieldDamage = shieldDamage;
-		this.shieldSpeed = shieldSpeed;
-		this.shieldAttackSpeed = shieldAttackSpeed;
-		this.shieldDefense = shieldDefense;
-		this.shieldRange = shieldRange;
-		this.shieldTempDefense = shieldTempDefense;
-		this.shieldRainbowDefense = shieldRainbowDefense;
-		this.shieldMana = shieldMana;
-		this.shieldMagicDefense = shieldMagicDefense;
-		this.shieldMagicDamage = shieldMagicDamage;
-		this.shieldManaPerTurn = shieldManaPerTurn;
-		this.shieldManaPerUse = shieldManaPerUse;
-		this.shieldMagicHealing = shieldMagicHealing;
-	}
-
-	public void equippedShieldGetter(String shieldName, float shieldHealth, float shieldDamage,
-									 byte shieldSpeed, byte shieldAttackSpeed, float shieldDefense,
-									 int shieldRange, float shieldTempDefense, float shieldRainbowDefense,
-									 float shieldMagicDefense) {
-		this.shieldName = shieldName;
-		this.shieldHealth = shieldHealth;
-		this.shieldDamage = shieldDamage;
-		this.shieldSpeed = shieldSpeed;
-		this.shieldAttackSpeed = shieldAttackSpeed;
-		this.shieldDefense = shieldDefense;
-		this.shieldRange = shieldRange;
-		this.shieldTempDefense = shieldTempDefense;
-		this.shieldRainbowDefense = shieldRainbowDefense;
-		this.shieldMagicDefense = shieldMagicDefense;
-	}
+	public CharacterClasses(){}
 
 	public void totalStatsCalculator(){
-		totalHealth = health + shieldHealth + weaponHealth;
-		totalDamage = damage + shieldDamage + weaponDamage;
-		totalSpeed = (byte) (speed + shieldSpeed + weaponSpeed);
-		totalAttackSpeed = (byte) (attackSpeed + shieldAttackSpeed + weaponAttackSpeed);
-		totalDefense = defense + shieldDefense + weaponDefense;
-		totalRange = range + shieldRange + weaponRange;
-		totalMana = mana + weaponMana + shieldMana;
-		totalManaPerTurn = manaPerTurn + weaponMana + shieldMana;
-		totalManaPerUse = manaPerUse + weaponManaPerUse + shieldManaPerUse;
-		totalMagicDamage = magicDamage + weaponMagicDamage + shieldMagicDamage;
-		totalMagicHealing = magicHealing + weaponMagicHealing + shieldMagicHealing;
-		totalTempDefense = tempDefense + weaponTempDefense + shieldTempDefense;
-		totalRainbowDefense = rainbowDefense + weaponRainbowDefense + shieldRainbowDefense;
-		totalMagicDefense = magicDefense + weaponMagicDefense + shieldMagicDefense;
+		totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
+		totalDamage = damage + shield.shieldDamage + weapon.weaponDamage;
+		totalSpeed = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
+		totalAttackSpeed = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
+		totalDefense = defense + shield.shieldDefense + weapon.weaponDefense;
+		totalRange = range + shield.shieldRange + weapon.weaponRange;
+		totalMana = mana + weapon.weaponMana + shield.shieldMana;
+		totalManaPerTurn = manaPerTurn + weapon.weaponMana + shield.shieldMana;
+		totalManaPerUse = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
+		totalMagicDamage = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
+		totalMagicHealing = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
+		totalTempDefense = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
+		totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
+		totalMagicDefense = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
 	}
 
-	public float outgoingDamageCalculator (float otherMultiplicativeStatusEffects){
+	public float outgoingDamage(float otherMultiplicativeStatusEffects){
 		return totalDamage * (otherMultiplicativeStatusEffects + 1);
+	}
+
+	public void damage(float damage){
+		currentHealth = currentHealth - max(damage - totalDefense, 0);
+	}
+
+	public void equipWeapon(Weapons targetWeapon) {
+		System.out.println(targetWeapon.weaponName);
+		System.out.println("a");
+		if (targetWeapon.equipableBy == name || targetWeapon.equipableBy == null) {
+			weapon = targetWeapon;
+			System.out.println("New Weapon Equipped");
+			reset();
+		}
+	}
+
+	public void equipShield(Shields targetShield) {
+		if (name.equals(targetShield.equipableBy) || targetShield.equipableBy == null) {
+			shield = targetShield;
+			reset();
+		}
+	}
+
+	public void reset(){
+		if (shield == null)
+			shield = new Shields.NoShield();
+		if(weapon == null)
+			weapon = new Weapons.NoWeapon();
+		totalStatsCalculator();
+		currentHealth = totalHealth;
 	}
 
 }

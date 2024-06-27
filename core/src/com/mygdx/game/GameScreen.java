@@ -49,7 +49,7 @@ public class GameScreen implements Screen, Utils {
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
 			if (!betweenStages)
-				batch.draw(chara.character, chara.getX(), chara.getY());
+				batch.draw(chara.characterTexture, chara.getX(), chara.getY());
 			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
 				mainClass.setPauseScreen();
 			}
