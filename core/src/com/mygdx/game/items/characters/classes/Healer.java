@@ -1,6 +1,11 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.items.characters.CharacterClasses;
+import com.mygdx.game.items.Character;
+import com.mygdx.game.items.characters.equipment.Shields;
+import com.mygdx.game.items.characters.equipment.Weapons;
+import static com.mygdx.game.items.characters.equipment.Weapons.HealerSwords.*;
+import java.lang.reflect.Method;
 
 public class Healer extends CharacterClasses {
 	public static String name = "Healer";
@@ -23,6 +28,7 @@ public class Healer extends CharacterClasses {
 	public float weaponHealingAbilityBonus;
 	public float shieldHealingPerTurn;
 
+	public boolean hasHealedInThisTurn = false;
 
 	public Healer(){
 		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
@@ -30,18 +36,38 @@ public class Healer extends CharacterClasses {
 	}
 
 
-	public float outgoingDamage(float otherMultiplicativeStatusEffects){
-		return (totalDamage * (otherMultiplicativeStatusEffects + 1) ) / 2;
-
-	}
-
-	public double abilityHealing(){
+	public float outgoingDamage(){
+		float damage = totalDamage / 2;
 		if (weaponHealingAbilityBonus == 0)
 			weaponHealingAbilityBonus = 1;
-		return outgoingDamage(healingFromAbility * weaponHealingAbilityBonus);
+		currentHealth += damage * healingFromAbility * weaponHealingAbilityBonus;
+		return damage;
 	}
-	public double shieldAbilityHealing(){
-		return shieldHealingPerTurn;
+
+	public float shieldAbilityHealing(CharacterClasses characterClasses)  {
+		if(characterClasses.shield instanceof Shields.HealerShield)
+			return ((Shields.HealerShield) characterClasses.shield).shieldHealingPerTurn;
+		return 0;
+	}
+
+	public float weaponHealingAbilityBonus(CharacterClasses characterClasses){
+		if (characterClasses.weapon instanceof HealerSwords)
+			return ((HealerSwords) characterClasses.weapon).weaponHealingAbilityBonus;
+		return 0;
+	}
+
+	@Override
+	public void update(Character character){
+		shieldHealingPerTurn = shieldAbilityHealing(this);
+		weaponHealingAbilityBonus = weaponHealingAbilityBonus(this);
+		if (character.isOnTurn && !hasHealedInThisTurn){
+			currentHealth += shieldHealingPerTurn;
+			hasHealedInThisTurn = true;
+		}
+		if (!character.isOnTurn && hasHealedInThisTurn) {
+			hasHealedInThisTurn = false;
+		}
+		refresh(this);
 	}
 
 }

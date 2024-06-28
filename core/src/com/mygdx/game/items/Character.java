@@ -339,6 +339,7 @@ public class Character extends Entity implements Utils {
 	public void update(Stage stage, GameScreen cam){
 		this.stage = stage;
 		isItMyTurn();
+		character.update(this);
 		if (isOnTurn){
 			movement();
 			attack(cam);
@@ -361,6 +362,8 @@ public class Character extends Entity implements Utils {
 			System.out.println("Weapon" + character.weapon);
 			System.out.println("Health: " + character.totalHealth);
 			System.out.println("Damage: " + character.totalDamage);
+
+			System.out.println("Current health: " + character.currentHealth);
 		}
 		textureUpdater();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && whatTurnIsIt()) {
@@ -383,7 +386,7 @@ public class Character extends Entity implements Utils {
 		if (!hasMovedBefore) {
 			if (Gdx.input.isTouched()) {
 				if (attackRayCasting(cam) != null && character.range >= distance) {
-					attackRayCasting(cam).damage(character.outgoingDamage(0));
+					attackRayCasting(cam).damage(character.outgoingDamage());
 					System.out.println(distance);
 					spendTurn();
 				}
@@ -673,7 +676,7 @@ public class Character extends Entity implements Utils {
 
 	public void equipBestSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
-			character.equipWeapon(new Weapons.BestSword());
+			character.equipWeapon(new Weapons.BestHealerSword());
 		}
 	}
 

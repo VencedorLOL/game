@@ -2,7 +2,7 @@ package com.mygdx.game.items.characters;
 
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
-
+import com.mygdx.game.items.Character;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
@@ -64,7 +64,6 @@ public class CharacterClasses {
 		this.manaPerTurn = manaPerTurn;
 		this.manaPerUse = manaPerUse;
 		this.magicHealing = magicHealing;
-
 	}
 
 	public CharacterClasses(){}
@@ -86,8 +85,8 @@ public class CharacterClasses {
 		totalMagicDefense = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
 	}
 
-	public float outgoingDamage(float otherMultiplicativeStatusEffects){
-		return totalDamage * (otherMultiplicativeStatusEffects + 1);
+	public float outgoingDamage(){
+		return totalDamage;
 	}
 
 	public void damage(float damage){
@@ -96,16 +95,15 @@ public class CharacterClasses {
 
 	public void equipWeapon(Weapons targetWeapon) {
 		System.out.println(targetWeapon.weaponName);
-		System.out.println("a");
 		if (targetWeapon.equipableBy == name || targetWeapon.equipableBy == null) {
 			weapon = targetWeapon;
-			System.out.println("New Weapon Equipped");
 			reset();
 		}
 	}
 
 	public void equipShield(Shields targetShield) {
-		if (name.equals(targetShield.equipableBy) || targetShield.equipableBy == null) {
+		System.out.println(targetShield.shieldName);
+		if (name == targetShield.equipableBy || targetShield.equipableBy == null) {
 			shield = targetShield;
 			reset();
 		}
@@ -119,5 +117,28 @@ public class CharacterClasses {
 		totalStatsCalculator();
 		currentHealth = totalHealth;
 	}
+
+	public void refresh(CharacterClasses characterClasses){
+		health = characterClasses.health;
+		damage = characterClasses.damage;
+		speed = characterClasses.speed;
+		attackSpeed = characterClasses.attackSpeed;
+		defense = characterClasses.defense;
+		range = characterClasses.range;
+		tempDefense = characterClasses.tempDefense;
+		rainbowDefense = characterClasses.rainbowDefense;
+		mana = characterClasses.mana;
+		magicDefense = characterClasses.magicDefense;
+		magicDamage = characterClasses.magicDamage;
+		manaPerTurn = characterClasses.manaPerTurn;
+		manaPerUse = characterClasses.manaPerUse;
+		magicHealing = characterClasses.magicHealing;
+		currentHealth = characterClasses.currentHealth;
+		if(currentHealth > health)
+			currentHealth = health;
+	}
+
+
+	public void update(Character character) {}
 
 }

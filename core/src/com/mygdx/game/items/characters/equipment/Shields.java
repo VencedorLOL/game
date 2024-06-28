@@ -88,7 +88,23 @@ public class Shields{
 	}
 
 
-	public static class BlessedShield extends Shields {
+	public static class HealerShield extends Shields{
+		public float shieldHealingPerTurn;
+
+		public HealerShield(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
+							byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
+							float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
+							float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
+							float shieldMagicHealing, String equipableBy, float shieldHealingPerTurn ) {
+
+			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
+					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
+					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
+			this.shieldHealingPerTurn = shieldHealingPerTurn;
+		}
+	}
+
+	public static class BlessedShield extends HealerShield {
 		public static String shieldName = "BlessedShield";
 		public static float shieldHealth = 30;
 		public static float shieldDamage = 0;
@@ -112,7 +128,7 @@ public class Shields{
 		public BlessedShield() {
 			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
 					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
+					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy, shieldHealingPerTurn);
 		}
 
 	}

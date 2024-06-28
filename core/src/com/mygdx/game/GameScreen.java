@@ -63,10 +63,6 @@ public class GameScreen implements Screen, Utils {
 				System.out.println(chara.x);
 			if (Gdx.input.isKeyPressed(Input.Keys.Y))
 				System.out.println(chara.y);
-			if (Gdx.input.isKeyPressed(Input.Keys.B))
-				betweenStages = true;
-			if (Gdx.input.isKeyPressed(Input.Keys.O))
-				betweenStages = false;
 			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 				camara.setToOrtho(++camaraZoom);
 			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)

@@ -18,24 +18,7 @@ public class Melee extends CharacterClasses {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
-
-	public String weaponName;
-	public float weaponHealth;
-	public float weaponDamage;
-	public byte weaponSpeed;
-	public byte weaponAttackSpeed;
-	public float weaponDefense;
-	public int weaponRange;
-	public String shieldName;
-	public float shieldHealth;
-	public float shieldDamage;
-	public byte shieldSpeed;
-	public byte shieldAttackSpeed;
-	public float shieldDefense;
-	public int shieldRange;
-
 	public int abilityCooldown;
-	public double totalHealth, totalDamage, totalSpeed, totalAttackSpeed, totalDefense, totalRange;
 
 
 	public Melee() {

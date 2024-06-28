@@ -1,11 +1,9 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.mygdx.game.GameScreen;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.animationSpeedGetter;

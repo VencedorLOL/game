@@ -86,9 +86,26 @@ public class Weapons {
 		}
 	}
 
+	public static class HealerSwords extends Weapons {
+		public float weaponHealingAbilityBonus;
+
+		public HealerSwords(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
+							byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
+							float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
+							float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy,
+					float weaponHealingAbilityBonus) {
+
+			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
+					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+			this.weaponHealingAbilityBonus = weaponHealingAbilityBonus;
+		}
+	}
 
 
-	public static class BlessedSword extends Weapons{
+
+
+	public static class BlessedSword extends HealerSwords{
 		public static String weaponName = "BlessedSword";
 		public static float weaponHealth = 0;
 		public static float weaponDamage = 10;
@@ -110,11 +127,12 @@ public class Weapons {
 		public BlessedSword() {
 			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
 					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, weaponHealingAbilityBonus);
 		}
+
 	}
 
-	public static class BestSword extends Weapons{
+	public static class BestHealerSword extends HealerSwords{
 		public static String weaponName = "BestSword";
 		public static float weaponHealth = 0;
 		public static float weaponDamage = 100;
@@ -130,14 +148,14 @@ public class Weapons {
 		public static float weaponManaPerTurn = 0;
 		public static float weaponManaPerUse = 0;
 		public static float weaponMagicHealing = 0;
-		public double weaponHealingAbilityBonus = 6;
+		public static float weaponHealingAbilityBonus = 6;
+		public static String equipableBy = "Healer";
 
-		public static String equipableBy;
-
-		public BestSword() {
+		public BestHealerSword() {
 			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
 					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy,
+					weaponHealingAbilityBonus);
 		}
 	}
 }
