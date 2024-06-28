@@ -85,7 +85,7 @@ public class Weapons {
 					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
 		}
 	}
-
+	// HEALER
 	public static class HealerSwords extends Weapons {
 		public float weaponHealingAbilityBonus;
 
@@ -158,4 +158,43 @@ public class Weapons {
 					weaponHealingAbilityBonus);
 		}
 	}
+	// MELEE
+	public static class MeleeSwords extends Weapons {
+
+		public MeleeSwords(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
+							byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
+							float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
+							float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy) {
+
+			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
+					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+		}
+	}
+
+	public static class MeleeSword extends MeleeSwords{
+		public static String weaponName = "MeleeSword";
+		public static float weaponHealth = 0;
+		public static float weaponDamage = 40;
+		public static byte weaponSpeed = 0;
+		public static byte weaponAttackSpeed = 0;
+		public static float weaponDefense = 0;
+		public static int weaponRange = 0;
+		public static float weaponTempDefense = 0;
+		public static float weaponRainbowDefense = 0;
+		public static float weaponMana = 0;
+		public static float weaponMagicDefense = 0;
+		public static float weaponMagicDamage = 0;
+		public static float weaponManaPerTurn = 0;
+		public static float weaponManaPerUse = 0;
+		public static float weaponMagicHealing = 0;
+		public static String equipableBy = "Melee";
+
+		public MeleeSword() {
+			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
+					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+		}
+	}
+
 }

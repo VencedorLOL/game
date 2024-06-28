@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Stage;
-import com.mygdx.game.items.ScreenWarp;
 
 import java.util.ArrayList;
 

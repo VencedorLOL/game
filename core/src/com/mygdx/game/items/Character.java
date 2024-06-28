@@ -15,6 +15,8 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Turns.*;
+import static java.lang.Float.NEGATIVE_INFINITY;
+import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
@@ -338,6 +340,7 @@ public class Character extends Entity implements Utils {
 
 	public void update(Stage stage, GameScreen cam){
 		this.stage = stage;
+		onDeath();
 		isItMyTurn();
 		character.update(this);
 		if (isOnTurn){
@@ -388,7 +391,19 @@ public class Character extends Entity implements Utils {
 				if (attackRayCasting(cam) != null && character.range >= distance) {
 					attackRayCasting(cam).damage(character.outgoingDamage());
 					System.out.println(distance);
-					spendTurn();
+
+
+					if(character instanceof Melee && ((Melee)character).FoA) {
+						if (((Melee)character).attackState >= ((Melee) character).FoANumberOfExtraHits) {
+							spendTurn();
+							((Melee)character).FoA = false;
+							((Melee)character).attackState = 0;
+						}
+						else
+							((Melee)character).attackState++;
+					}
+					else
+						spendTurn();
 				}
 			}
 		}
@@ -399,6 +414,7 @@ public class Character extends Entity implements Utils {
 		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
 				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;
 		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
+		// Just remove one '.camara' when transforming GameScreen to Camara.
 		cam.camara.camara.unproject(touchedPosition);
 		touchedPosition.x = (float) (128 * floor((touchedPosition.x)/ 128));
 		touchedPosition.y = (float) (128 * floor((touchedPosition.y) / 128));
@@ -419,7 +435,10 @@ public class Character extends Entity implements Utils {
 				int sign = 1;
 				if (e.x < x)
 					sign = -1;
-				if (rect == (float) 1/0 || rect == (float) -1/0)
+				// For some reason if I put 1/0 a warning pops up,
+				// but if I put these constants, which are literally the same thing as I had
+				// (1/0 and -1/0) it doesn't. Bruh.
+				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
 					sign = 0;
 				for (int i = 0; i < pickValueAUnlessEqualsZeroThenPickB(abs(e.x-x),abs(e.y-y)); i++){
 					rayCheckerCenter.x += sign;
@@ -434,14 +453,14 @@ public class Character extends Entity implements Utils {
 						rayCheckerUpLeft.y += rect * sign;
 						rayCheckerUpRight.y += rect * sign;
 					}
-					else if (rect == (float) 1/0) {
+					else if (rect == POSITIVE_INFINITY) {
 						rayCheckerCenter.y++;
 						rayCheckerDownLeft.y++;
 						rayCheckerDownRight.y++;
 						rayCheckerUpLeft.y++;
 						rayCheckerUpRight.y++;
 					}
-					else if (rect == (float) -1/0) {
+					else if (rect == NEGATIVE_INFINITY) {
 						rayCheckerCenter.y--;
 						rayCheckerDownLeft.y--;
 						rayCheckerDownRight.y--;
@@ -653,6 +672,8 @@ public class Character extends Entity implements Utils {
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
+		equipMeleeShield();
+		equipMeleeSword();
 	}
 
 
@@ -669,20 +690,32 @@ public class Character extends Entity implements Utils {
 	}
 
 	public void equipBlessedSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.B)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
 			character.equipWeapon(new Weapons.BlessedSword());
 		}
 	}
 
 	public void equipBestSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.L)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
 			character.equipWeapon(new Weapons.BestHealerSword());
 		}
 	}
 
 	public void equipBlessedShield(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
-			character.equipShield(new Shields.BlessedShield());
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
+			character.equipShield(new Shields.BlessedShields());
+		}
+	}
+
+	public void equipMeleeSword(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
+			character.equipWeapon(new Weapons.MeleeSword());
+		}
+	}
+
+	public void equipMeleeShield(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
+			character.equipShield(new Shields.MeleeShield());
 		}
 	}
 

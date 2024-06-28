@@ -87,15 +87,15 @@ public class Shields{
 		}
 	}
 
-
-	public static class HealerShield extends Shields{
+	// HEALER
+	public static class HealerShields extends Shields{
 		public float shieldHealingPerTurn;
 
-		public HealerShield(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
-							byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
-							float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
-							float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
-							float shieldMagicHealing, String equipableBy, float shieldHealingPerTurn ) {
+		public HealerShields(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
+							 byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
+							 float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
+							 float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
+							 float shieldMagicHealing, String equipableBy, float shieldHealingPerTurn ) {
 
 			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
 					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
@@ -104,8 +104,8 @@ public class Shields{
 		}
 	}
 
-	public static class BlessedShield extends HealerShield {
-		public static String shieldName = "BlessedShield";
+	public static class BlessedShields extends HealerShields {
+		public static String shieldName = "BlessedShields";
 		public static float shieldHealth = 30;
 		public static float shieldDamage = 0;
 		public static byte shieldSpeed = 0;
@@ -123,12 +123,50 @@ public class Shields{
 		public static float shieldHealingPerTurn = 5;
 		public static String equipableBy = "Healer";
 
-		public boolean isEquipped = false;
-
-		public BlessedShield() {
+		public BlessedShields() {
 			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
 					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
 					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy, shieldHealingPerTurn);
+		}
+
+	}
+	// MELEE
+	public static class MeleeShields extends Shields{
+
+		public MeleeShields(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
+							byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
+							float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
+							float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
+							float shieldMagicHealing, String equipableBy) {
+
+			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
+					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
+					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
+		}
+	}
+
+	public static class MeleeShield extends MeleeShields {
+		public static String shieldName = "MeleeShield";
+		public static float shieldHealth = 20;
+		public static float shieldDamage = 0;
+		public static byte shieldSpeed = 0;
+		public static byte shieldAttackSpeed = 0;
+		public static float shieldDefense = 5;
+		public static int shieldRange = 0;
+		public static float shieldTempDefense = 0;
+		public static float shieldRainbowDefense = 0;
+		public static float shieldMana = 0;
+		public static float shieldMagicDefense = 0;
+		public static float shieldMagicDamage = 0;
+		public static float shieldManaPerTurn = 0;
+		public static float shieldManaPerUse = 0;
+		public static float shieldMagicHealing = 0;
+		public static String equipableBy = "Melee";
+
+		public MeleeShield() {
+			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
+					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
+					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
 		}
 
 	}

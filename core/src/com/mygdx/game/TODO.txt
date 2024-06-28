@@ -1,7 +1,6 @@
 TODO:
 Enemies: Make more types of enemies (Done?). Make enemies follow you, AKA giving them proper AI.
 Motor: Inventory mechanics. Implement GUI. Implement ability interface.
-Character: (WIP) Implement characters. Implement character stats.
-Make a zone to be able to change your character
+Character: Code the +80 characters :D. Make a zone to be able to change your character
 TextureAtlas: Migrate to atlases.
 Game: The rest of the game.

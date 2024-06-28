@@ -22,7 +22,6 @@ public class Wall extends Entity{
         this.height = height;
         this.doesItHaveATexture = false;
     }
-    public Wall(){}
 
     public void refresh(float x, float y, float base, float height){
         this.x = x;
@@ -30,11 +29,6 @@ public class Wall extends Entity{
         this.base = base;
         this.height = height;
     }
-
-    public Texture textureGetter(){
-        return box = new Texture("BoxToTestCollisionsAndHitboxes.png");
-    }
-
 }
 
 

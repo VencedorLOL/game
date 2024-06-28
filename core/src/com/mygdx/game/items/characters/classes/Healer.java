@@ -3,9 +3,7 @@ package com.mygdx.game.items.characters.classes;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
-import com.mygdx.game.items.characters.equipment.Weapons;
 import static com.mygdx.game.items.characters.equipment.Weapons.HealerSwords.*;
-import java.lang.reflect.Method;
 
 public class Healer extends CharacterClasses {
 	public static String name = "Healer";
@@ -45,8 +43,8 @@ public class Healer extends CharacterClasses {
 	}
 
 	public float shieldAbilityHealing(CharacterClasses characterClasses)  {
-		if(characterClasses.shield instanceof Shields.HealerShield)
-			return ((Shields.HealerShield) characterClasses.shield).shieldHealingPerTurn;
+		if(characterClasses.shield instanceof Shields.HealerShields)
+			return ((Shields.HealerShields) characterClasses.shield).shieldHealingPerTurn;
 		return 0;
 	}
 

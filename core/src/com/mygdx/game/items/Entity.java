@@ -1,10 +1,7 @@
 package com.mygdx.game.items;
 
-import java.util.ArrayList;
-
 public class Entity {
 	float x, y, base, height;
-	public ArrayList<Entity> entity = new ArrayList<>();
 	public Entity(float x, float y, float base, float height){
 		this.x = x;
 		this.y = y;

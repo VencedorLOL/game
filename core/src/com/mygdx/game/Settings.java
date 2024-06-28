@@ -11,10 +11,4 @@ public class Settings {
 	public static int visualSpeedMultiplierGetter(){
 		return visualSpeedMultiplier;
 	}
-	public static float camaraZoomGetter(){
-		return camaraZoom;
-	}
-	public static void camaraZoomSetter(float camaraZoom){
-		Settings.camaraZoom = camaraZoom;
-	}
 }

@@ -3,10 +3,11 @@ package com.mygdx.game.items.characters;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
+
+import static com.mygdx.game.items.Turns.whatTurnIsIt;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
-	public CharacterClasses chara;
 	public String name;
 	public float health;
 	public float tempDefense;
@@ -64,6 +65,7 @@ public class CharacterClasses {
 		this.manaPerTurn = manaPerTurn;
 		this.manaPerUse = manaPerUse;
 		this.magicHealing = magicHealing;
+		reset();
 	}
 
 	public CharacterClasses(){}
@@ -140,5 +142,19 @@ public class CharacterClasses {
 
 
 	public void update(Character character) {}
+
+
+	byte turnPasserAid;
+	public boolean turnHasPassed() {
+		if(whatTurnIsIt() && turnPasserAid == 0)
+			turnPasserAid++;
+		if(!whatTurnIsIt() && turnPasserAid == 1)
+			turnPasserAid++;
+		if(whatTurnIsIt() && turnPasserAid == 2) {
+			turnPasserAid = 0;
+			return true;
+		}
+		return false;
+	}
 
 }
