@@ -1,4 +1,4 @@
-Untitled
+DamageEffect
 - Delay -
 active: false
 - Duration - 
@@ -60,8 +60,8 @@ timeline0: 0.0
 - X Scale - 
 lowMin: 0.0
 lowMax: 0.0
-highMin: 1024.0
-highMax: 1024.0
+highMin: 128.0
+highMax: 128.0
 relative: false
 scalingCount: 1
 scaling0: 1.0
@@ -73,8 +73,8 @@ active: false
 active: true
 lowMin: 0.0
 lowMax: 0.0
-highMin: 10000.0
-highMax: 10000.0
+highMin: 100.0
+highMax: 100.0
 relative: false
 scalingCount: 1
 scaling0: 1.0
@@ -98,12 +98,20 @@ active: false
 - Gravity - 
 active: false
 - Tint - 
-colorsCount: 3
+colorsCount: 9
 colors0: 1.0
 colors1: 0.0
 colors2: 0.0
-timelineCount: 1
+colors3: 1.0
+colors4: 1.0
+colors5: 0.0
+colors6: 0.078431375
+colors7: 0.0
+colors8: 1.0
+timelineCount: 3
 timeline0: 0.0
+timeline1: 0.15281501
+timeline2: 0.9396783
 - Transparency - 
 lowMin: 0.0
 lowMax: 0.0
@@ -120,10 +128,10 @@ timeline1: 1.0
 attached: false
 continuous: true
 aligned: false
-additive: false
+additive: true
 behind: false
 premultipliedAlpha: false
 spriteMode: single
 - Image Paths -
-AttackMode.png
+DamageSplash.png
 

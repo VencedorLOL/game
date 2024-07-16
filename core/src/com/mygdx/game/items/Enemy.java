@@ -16,7 +16,7 @@ import static java.lang.Math.max;
 public class Enemy extends Entity{
 	public float health = 20;
 	public float defense = 5;
-	Texture enemyTexture = new Texture("EvilGuy.jpg");
+	String enemyTexture = "EvilGuy";
 	float x, y;
 	static float base, height = 128;
 	Stage stage;
@@ -37,7 +37,7 @@ public class Enemy extends Entity{
 	boolean isRendered;
 	boolean isDead = false;
 
-	public Enemy(float x, float y, Texture texture, float health){
+	public Enemy(float x, float y, String texture, float health){
 		super(x,y,base,height);
 		this.health = health;
 		this.x = x;

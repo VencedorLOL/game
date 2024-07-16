@@ -22,7 +22,7 @@ import static java.lang.Math.*;
 public class Character extends Entity implements Utils {
 	public CharacterClasses character = new CharacterClasses();
 	public int range = 3;
-	public Texture characterTexture;
+	public String characterTexture;
 	public float x, y, base, height;
 	Stage stage;
 	Entity testCollision = new Entity();
@@ -467,11 +467,11 @@ public class Character extends Entity implements Utils {
 						rayCheckerUpLeft.y--;
 						rayCheckerUpRight.y--;
 					}
-					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerCenter.x,rayCheckerCenter.y);
-					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerUpLeft.x,rayCheckerUpLeft.y);
-					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerUpRight.x,rayCheckerUpRight.y);
-					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerDownLeft.x,rayCheckerDownLeft.y);
-					cam.batch.draw(new Texture("FourByFour.png"), rayCheckerDownRight.x,rayCheckerDownRight.y);
+					cam.textureManager.drawer("FourByFour", rayCheckerCenter.x,rayCheckerCenter.y);
+					cam.textureManager.drawer("FourByFour", rayCheckerUpLeft.x,rayCheckerUpLeft.y);
+					cam.textureManager.drawer("FourByFour", rayCheckerUpRight.x,rayCheckerUpRight.y);
+					cam.textureManager.drawer("FourByFour", rayCheckerDownLeft.x,rayCheckerDownLeft.y);
+					cam.textureManager.drawer("FourByFour", rayCheckerDownRight.x,rayCheckerDownRight.y);
 
 					for (Wall w : stage.walls) {
 						if(rayCheckerCenter.x < w.x + 128 && rayCheckerCenter.x + 1 > w.x && rayCheckerCenter.y < w.y + 128 && rayCheckerCenter.y + 1 > w.y) {
@@ -627,35 +627,35 @@ public class Character extends Entity implements Utils {
 	public void textureUpdater(){
 		switch (texture()){
 			case 1 : {
-				characterTexture = new Texture("CharaLeft.png");
+				characterTexture ="CharaLeft";
 				break;
 			}
 			case 2: {
-				characterTexture = new Texture("CharaRight.png");
+				characterTexture = "CharaRight";
 				break;
 			}
 			case 3 : {
-				characterTexture = new Texture("char.jpg");
+				characterTexture = "char";
 				break;
 			}
 			case 4 :{
-				characterTexture = new Texture("CharaUp.png");
+				characterTexture = "CharaUp";
 				break;
 			}
 			case 5 :{
-				characterTexture = new Texture("CharaDiagonalDownRight.png");
+				characterTexture = "CharaDiagonalDownRight";
 				break;
 			}
 			case 6 :{
-				characterTexture = new Texture("CharaDiagonalDownLeft.png");
+				characterTexture = "CharaDiagonalDownLeft";
 				break;
 			}
 			case 7 :{
-				characterTexture = new Texture("CharaDiagonalUpRight.png");
+				characterTexture = "CharaDiagonalUpRight";
 				break;
 			}
 			case 8 :{
-				characterTexture = new Texture("CharaDiagonalUpLeft.png");
+				characterTexture = "CharaDiagonalUpLeft";
 				break;
 			}
 		}

@@ -7,7 +7,7 @@ public class ScreenWarp {
 	protected Stage stage;
 	protected int base, height;
 	protected int x,y;
-	protected Texture screenWarpTexture = new Texture("ScreenWarp.png");
+	protected String screenWarpTexture = "ScreenWarp";
 	public int screenWarpID;
 	public static int IDState = 0;
 

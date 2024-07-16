@@ -1,18 +1,15 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.graphics.Texture;
-import java.util.ArrayList;
-
 public class Grass {
 	public float x,y;
 	public int base,height;
-	public Texture grass;
+	public String grass;
 	public Grass(float x, float y, int base, int height) {
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
-		grass = new Texture("Grass.png");
+		grass = "Grass";
 	}
 	public Grass() {
 		this.base = 128;

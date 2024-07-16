@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Wall extends Entity{
     float x, y, base, height;
-    public Texture box;
+    public String box;
     public boolean doesItHaveATexture = true;
     public Wall(float x, float y, float base, float height) {
         super(x,y,base,height);
@@ -12,7 +12,7 @@ public class Wall extends Entity{
         this.y = y;
         this.base = base;
         this.height = height;
-        box = new Texture("BoxToTestCollisionsAndHitboxes.png");
+        box = "BoxToTestCollisionsAndHitboxes";
     }
     public Wall(float x, float y, float base, float height, boolean doesItHaveATexture) {
         super(x,y,base,height);

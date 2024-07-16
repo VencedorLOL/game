@@ -33,14 +33,14 @@ public class Stage implements Utils {
 
 	public ArrayList<Grass> grass = new ArrayList<>();
 	public static boolean haveGrassBeenRendered;
-	public Texture floorTexture = new Texture("default.png");
+	public String floorTexture = "default";
 
 	public Border border = new Border();
 
 	public float camaraX, camaraY, camaraBase, camaraHeight;
 	public Stage(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
 				 int[] wallX, int[] wallY, int[] enemyX, int[] enemyY, int[] screenWarpX, int[] screenWarpY,
-				 ArrayList<Stage> screenWarpDestination, Texture floorTexture,
+				 ArrayList<Stage> screenWarpDestination, String floorTexture,
 				 byte[] screenWarpDestinationSpecification, int[] enemyType){
 		this.startX = startX;
 		this.startY = startY;
@@ -92,7 +92,7 @@ public class Stage implements Utils {
 
 	public void refresh(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
 						 int[] wallX, int[] wallY, int[] enemyX, int[] enemyY, int[] screenWarpX, int[] screenWarpY,
-						ArrayList<Stage> screenWarpDestination, Texture floorTexture,
+						ArrayList<Stage> screenWarpDestination, String floorTexture,
 						byte[] screenWarpDestinationSpecification, int[] enemyType){
 		this.startX = startX;
 		this.startY = startY;
@@ -124,13 +124,13 @@ public class Stage implements Utils {
 		haveScreenWarpsBeenRendered = true;
 	}
 
-	public void screenWarpRenderer(GameScreen gs){
+	public void screenWarpRenderer(TextureManager tm){
 		if (!haveScreenWarpsBeenRendered){
 			screenWarpSetter();
 			haveScreenWarpsBeenRendered = true;
 		}
 		for (ScreenWarp s : screenWarp){
-			gs.batch.draw(s.screenWarpTexture, s.x, s.y);
+			tm.drawer(s.screenWarpTexture, s.x, s.y);
 		}
 	}
 
@@ -141,7 +141,7 @@ public class Stage implements Utils {
 		haveEnemiesBeenRendered = true;
 	}
 
-	public void enemyRenderer(GameScreen gs, Stage stage){
+	public void enemyRenderer(TextureManager tm, Stage stage){
 		if (!haveEnemiesBeenRendered){
 			enemySetter();
 			haveEnemiesBeenRendered = true;
@@ -149,7 +149,7 @@ public class Stage implements Utils {
 		for (Enemy e : enemy){
 			if (!e.isDead) {
 				e.update(stage);
-				gs.batch.draw(e.enemyTexture, e.x, e.y);
+				tm.drawer(e.enemyTexture, e.x, e.y);
 				//dies();
 			}
 		}
@@ -168,13 +168,13 @@ public class Stage implements Utils {
 		haveGrassBeenRendered = true;
 	}
 
-	public void grassRenderer(GameScreen gs){
+	public void grassRenderer(TextureManager tm){
 		if(!haveGrassBeenRendered) {
 			grassSetter(this);
 			haveGrassBeenRendered = true;
 		}
 		for (Grass g : grass){
-			gs.batch.draw(floorTexture(), g.x , g.y);
+			tm.drawer(floorTexture(), g.x , g.y);
 		}
 	}
 
@@ -194,13 +194,13 @@ public class Stage implements Utils {
 		haveWallsBeenRendered = true;
 	}
 
-	public void wallRenderer(GameScreen gs){
+	public void wallRenderer(TextureManager tm){
 		if (!haveWallsBeenRendered){
 			wallSetter();
 		}
 		for (Wall b : walls){
 			if(b.doesItHaveATexture)
-				gs.batch.draw(b.box, b.x, b.y);
+				tm.drawer(b.box, b.x, b.y);
 		}
 	}
 
@@ -235,10 +235,10 @@ public class Stage implements Utils {
 			camaraY = gs.camara.y;
 			camaraBase = gs.camara.base;
 			camaraHeight = gs.camara.height;
-			grassRenderer(gs);
-			enemyRenderer(gs, stage);
-			screenWarpRenderer(gs);
-			wallRenderer(gs);
+			grassRenderer(gs.textureManager);
+			enemyRenderer(gs.textureManager, stage);
+			screenWarpRenderer(gs.textureManager);
+			wallRenderer(gs.textureManager);
 			border.border(gs.chara, this);
 			border.border(this);
 			stageChanger(gs);
@@ -281,7 +281,7 @@ public class Stage implements Utils {
 		return stage;
 	}
 
-	public Texture floorTexture(){
+	public String floorTexture(){
 		return floorTexture;
 	}
 

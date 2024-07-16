@@ -22,7 +22,7 @@ public class StageTwo extends Stage {
 	public int[] screenWarpX = {-2,-1,2,3,4,5,6,7,8,-3,0,1};
 	public int[] screenWarpY = {8,8,8,8,8,8,8,8,8,8,8,8};
 	public byte[] screenWarpDestinationSpecification = {0,0,0,0,0,0,0,0,0,0,0,0};
-	public Texture floorTexture = new Texture("Sand.png");
+	public String floorTexture = "Sand";
 	public ArrayList<Stage> screenWarpDestination = new ArrayList<Stage>(){};
 	public StageTwo(){
 		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, enemyX, enemyY, screenWarpX,

@@ -3,7 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
@@ -13,8 +12,10 @@ import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
+	public GUI testUi;
+	public Particles particle;
 	public MainClass mainClass;
-	public SpriteBatch batch;
+	public TextureManager textureManager = new TextureManager();
 	public Character chara = new Character(512, 512, 128, 128);
 	public Camara camara = new Camara();
 	public Stage stage = new Stage();
@@ -22,12 +23,14 @@ public class GameScreen implements Screen, Utils {
 	public int screenSizeY = Gdx.graphics.getHeight();
 	public boolean isScreenChanging = false;
 	public void create () {
-		batch = new SpriteBatch();
 		if (camaraZoom <= 0)
 			camaraZoom = 2;
 		camara.camaraStarter(camaraZoom);
 		stage = stage.setStage(new StageOne());
 		stage.reStage(chara);
+		testUi = new GUI();
+		testUi.testButton();
+		particle = new Particles(this);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -39,7 +42,7 @@ public class GameScreen implements Screen, Utils {
 	public void start(){
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 		// System.out.println(Gdx.graphics.getFramesPerSecond());
-		batch.begin();
+		textureManager.batch.begin();
 		screenSizeChangeDetector();
 		if(!isScreenChanging) {
 			screenSizeChangeDetector();
@@ -48,7 +51,8 @@ public class GameScreen implements Screen, Utils {
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
 			if (!betweenStages)
-				batch.draw(chara.characterTexture, chara.getX(), chara.getY());
+				textureManager.drawer(chara.characterTexture, chara.getX(), chara.getY());
+			// Hotkeys and zoom management
 			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
 				mainClass.setPauseScreen();
 			}
@@ -92,8 +96,10 @@ public class GameScreen implements Screen, Utils {
 	}
 
 	public void finish(){
-		camara.finalizer(batch);
-		batch.end();
+		particle.damageParticle(chara.x + 64, chara.y + 64, this);
+
+		camara.finalizer(textureManager.batch);
+		textureManager.batch.end();
 	}
 
 	@Override
