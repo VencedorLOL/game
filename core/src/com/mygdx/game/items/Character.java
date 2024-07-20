@@ -2,7 +2,6 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.GameScreen;
@@ -308,11 +307,11 @@ public class Character extends Entity implements Utils {
 	protected void isOnTheGrid(){
 		if (previousPressLocation == 0) {
 			if (!(x % 128 == 0)) {
-				System.out.println("Offset in x");
+				System.out.println("Offset in x. Coordinate was: " + x);
 				x = (float) (128 * ceil(x / 128));
 			}
 			if (!(y % 128 == 0)) {
-				System.out.println("Offset in y");
+				System.out.println("Offset in y. Coordinate was: " + y);
 				y = (float) (128 * ceil(y / 128));
 			}
 		}
@@ -335,7 +334,6 @@ public class Character extends Entity implements Utils {
 		hasMovedBefore = false;
 		isOnTheGrid();
 		super.refresh(x, y, base, height);
-
 	}
 
 	public void update(Stage stage, GameScreen cam){
@@ -365,7 +363,6 @@ public class Character extends Entity implements Utils {
 			System.out.println("Weapon" + character.weapon);
 			System.out.println("Health: " + character.totalHealth);
 			System.out.println("Damage: " + character.totalDamage);
-
 			System.out.println("Current health: " + character.currentHealth);
 		}
 		textureUpdater();
@@ -381,6 +378,9 @@ public class Character extends Entity implements Utils {
 				visualSpeedMultiplier = 8;
 			}
 		}
+		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
+			cam.particle.particleEmitter("BLOB",x+64,y+64,1, 0,true,false);
+		}
 	}
 
 
@@ -389,10 +389,7 @@ public class Character extends Entity implements Utils {
 		if (!hasMovedBefore) {
 			if (Gdx.input.isTouched()) {
 				if (attackRayCasting(cam) != null && character.range >= distance) {
-					attackRayCasting(cam).damage(character.outgoingDamage());
-					System.out.println(distance);
-
-
+					attackRayCasting(cam).damage(character.outgoingDamage(), "Melee");
 					if(character instanceof Melee && ((Melee)character).FoA) {
 						if (((Melee)character).attackState >= ((Melee) character).FoANumberOfExtraHits) {
 							spendTurn();
@@ -414,14 +411,12 @@ public class Character extends Entity implements Utils {
 		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
 				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;
 		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
-		// Just remove one '.camara' when transforming GameScreen to Camara.
 		cam.camara.camara.unproject(touchedPosition);
 		touchedPosition.x = (float) (128 * floor((touchedPosition.x)/ 128));
 		touchedPosition.y = (float) (128 * floor((touchedPosition.y) / 128));
 		for (Enemy e : stage.enemy) {
 			if (touchedPosition.x == e.x && touchedPosition.y == e.y && !e.isDead) {
 				distance = (int) round((sqrt(pow(x - e.x,2) + pow(y - e.y,2)))/128);
-				System.out.println(distance);
 				float rect = ((e.y + 64) - (y + 64)) / ((e.x + 64) - (x + 64));
 				Entity rayCheckerCenter = new Entity(x + 64, y + 64, 4, 4);
 				Entity rayCheckerDownLeft = new Entity(x, y, 4, 4);
@@ -467,11 +462,11 @@ public class Character extends Entity implements Utils {
 						rayCheckerUpLeft.y--;
 						rayCheckerUpRight.y--;
 					}
-					cam.textureManager.drawer("FourByFour", rayCheckerCenter.x,rayCheckerCenter.y);
-					cam.textureManager.drawer("FourByFour", rayCheckerUpLeft.x,rayCheckerUpLeft.y);
-					cam.textureManager.drawer("FourByFour", rayCheckerUpRight.x,rayCheckerUpRight.y);
-					cam.textureManager.drawer("FourByFour", rayCheckerDownLeft.x,rayCheckerDownLeft.y);
-					cam.textureManager.drawer("FourByFour", rayCheckerDownRight.x,rayCheckerDownRight.y);
+					cam.textureManager.addToList("FourByFour", rayCheckerCenter.x,rayCheckerCenter.y);
+					cam.textureManager.addToList("FourByFour", rayCheckerUpLeft.x,rayCheckerUpLeft.y);
+					cam.textureManager.addToList("FourByFour", rayCheckerUpRight.x,rayCheckerUpRight.y);
+					cam.textureManager.addToList("FourByFour", rayCheckerDownLeft.x,rayCheckerDownLeft.y);
+					cam.textureManager.addToList("FourByFour", rayCheckerDownRight.x,rayCheckerDownRight.y);
 
 					for (Wall w : stage.walls) {
 						if(rayCheckerCenter.x < w.x + 128 && rayCheckerCenter.x + 1 > w.x && rayCheckerCenter.y < w.y + 128 && rayCheckerCenter.y + 1 > w.y) {

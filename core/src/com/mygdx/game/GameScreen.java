@@ -12,8 +12,13 @@ import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
+	// ---------------
+	public static float delta;
+	// ---------------
 	public GUI testUi;
-	public Particles particle;
+	// ---------------
+	public ParticleManager particle;
+	// ---------------
 	public MainClass mainClass;
 	public TextureManager textureManager = new TextureManager();
 	public Character chara = new Character(512, 512, 128, 128);
@@ -30,7 +35,7 @@ public class GameScreen implements Screen, Utils {
 		stage.reStage(chara);
 		testUi = new GUI();
 		testUi.testButton();
-		particle = new Particles(this);
+		particle = new ParticleManager(textureManager);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -40,6 +45,7 @@ public class GameScreen implements Screen, Utils {
 
 
 	public void start(){
+		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 		// System.out.println(Gdx.graphics.getFramesPerSecond());
 		textureManager.batch.begin();
@@ -51,7 +57,8 @@ public class GameScreen implements Screen, Utils {
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
 			if (!betweenStages)
-				textureManager.drawer(chara.characterTexture, chara.getX(), chara.getY());
+				textureManager.addToList(chara.characterTexture, chara.getX(), chara.getY());
+			textureManager.render();
 			// Hotkeys and zoom management
 			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
 				mainClass.setPauseScreen();
@@ -96,8 +103,7 @@ public class GameScreen implements Screen, Utils {
 	}
 
 	public void finish(){
-		particle.damageParticle(chara.x + 64, chara.y + 64, this);
-
+		particle.particleRenderer();
 		camara.finalizer(textureManager.batch);
 		textureManager.batch.end();
 	}

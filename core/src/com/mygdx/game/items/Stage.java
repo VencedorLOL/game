@@ -130,7 +130,7 @@ public class Stage implements Utils {
 			haveScreenWarpsBeenRendered = true;
 		}
 		for (ScreenWarp s : screenWarp){
-			tm.drawer(s.screenWarpTexture, s.x, s.y);
+			tm.addToList(s.screenWarpTexture, s.x, s.y);
 		}
 	}
 
@@ -141,15 +141,19 @@ public class Stage implements Utils {
 		haveEnemiesBeenRendered = true;
 	}
 
-	public void enemyRenderer(TextureManager tm, Stage stage){
+	public void enemyRenderer(TextureManager tm, Stage stage
+							  // --------------
+								, GameScreen gs
+							  // --------------
+	){
 		if (!haveEnemiesBeenRendered){
 			enemySetter();
 			haveEnemiesBeenRendered = true;
 		}
 		for (Enemy e : enemy){
 			if (!e.isDead) {
-				e.update(stage);
-				tm.drawer(e.enemyTexture, e.x, e.y);
+				e.update(stage,gs);
+				tm.addToList(e.enemyTexture, e.x, e.y);
 				//dies();
 			}
 		}
@@ -174,7 +178,7 @@ public class Stage implements Utils {
 			haveGrassBeenRendered = true;
 		}
 		for (Grass g : grass){
-			tm.drawer(floorTexture(), g.x , g.y);
+			tm.addToList(floorTexture(), g.x , g.y);
 		}
 	}
 
@@ -200,7 +204,7 @@ public class Stage implements Utils {
 		}
 		for (Wall b : walls){
 			if(b.doesItHaveATexture)
-				tm.drawer(b.box, b.x, b.y);
+				tm.addToList(b.box, b.x, b.y);
 		}
 	}
 
@@ -236,7 +240,11 @@ public class Stage implements Utils {
 			camaraBase = gs.camara.base;
 			camaraHeight = gs.camara.height;
 			grassRenderer(gs.textureManager);
-			enemyRenderer(gs.textureManager, stage);
+			enemyRenderer(gs.textureManager, stage
+					// --------------
+					, gs
+					// --------------
+					);
 			screenWarpRenderer(gs.textureManager);
 			wallRenderer(gs.textureManager);
 			border.border(gs.chara, this);

@@ -2,8 +2,10 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.game.GameScreen;
+
+import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.animationSpeedGetter;
@@ -416,8 +418,15 @@ public class Enemy extends Entity{
 	}
 
 
-	public void update(Stage stage){
+	public void update(Stage stage
+	// -----------
+	, GameScreen gs
+	// -----------
+	){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && haveGrassBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+			// ---------------
+			gameScreenGetter(gs);
+			// ---------------
 			this.stage = stage;
 			onDeath();
 			amIRendered();
@@ -455,8 +464,14 @@ public class Enemy extends Entity{
 		}
 	}
 
-	public void damage(float damage){
+	public void damage(float damage, String damageReason){
 		health = health - max(damage - defense,0);
+		if (Objects.equals(damageReason, "Melee")){
+			gs.particle.particleEmitter("BLOB",x + 64,y + 64,10);
+		}
 
 	}
+
+	public GameScreen gs;
+	public void gameScreenGetter(GameScreen gs){ this.gs = gs; }
 }
