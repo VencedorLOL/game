@@ -1,17 +1,17 @@
 package com.mygdx.game.items;
 
-public class Grass {
+public class Floor {
 	public float x,y;
 	public int base,height;
-	public String grass;
-	public Grass(float x, float y, int base, int height) {
+	public String texture;
+	public Floor(String texture,float x, float y, int base, int height) {
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
-		grass = "Grass";
+		this.texture = texture;
 	}
-	public Grass() {
+	public Floor() {
 		this.base = 128;
 		this.height = 128;
 	}

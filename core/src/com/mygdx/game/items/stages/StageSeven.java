@@ -1,6 +1,5 @@
 package com.mygdx.game.items.stages;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Stage;
@@ -23,7 +22,7 @@ public class StageSeven extends Stage {
 	public int[] screenWarpY = {1,1};
 	public byte[] screenWarpDestinationSpecification = {0,1};
 	public ArrayList<Stage> screenWarpDestination = new ArrayList<Stage>(){};
-	public String floorTexture = "Grass";
+	public String floorTexture = "Floor";
 	public StageSeven(){
 		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, enemyX, enemyY, screenWarpX,
 				screenWarpY,screenWarpDestination,floorTexture,
@@ -38,11 +37,11 @@ public class StageSeven extends Stage {
 	public void reStage(Character character){
 		ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
 		betweenStages = true;
-		character.x = spawnX;
-		character.y = spawnY;
+		character.setX(spawnX);
+		character.setY(spawnY);
 		enemy = new ArrayList<>();
 		walls = new ArrayList<>();
-		grass = new ArrayList<>();
+		floor = new ArrayList<>();
 		screenWarp = new ArrayList<>();
 		screenWarpDestination.add(new StageFive());
 		screenWarpDestination.add(new StageSix());

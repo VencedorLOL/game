@@ -4,6 +4,7 @@ public class Settings {
 	static int animationSpeed = 1;
 	static int visualSpeedMultiplier = 8;
 	static float camaraZoom;
+	static float sCCamaraZoom;
 
 	public static int animationSpeedGetter(){
 		return animationSpeed;

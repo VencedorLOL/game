@@ -23,27 +23,27 @@ public class Turns {
 
 	public static void reset(Stage stage){
 		characterTurn = true;
-		amountOfEnemies = stage.enemyGetter().size();
+		amountOfEnemies = stage.enemy.size();
 	}
 
 	public static void swapToCharacterTurn(Stage stage) {
-		amountOfEnemies = stage.enemyGetter().size();
-		for (Enemy e : stage.enemyGetter()) {
+		amountOfEnemies = stage.enemy.size();
+		for (Enemy e : stage.enemy) {
 			if (!e.isOnTurn) {
 				amountOfEnemies--;
 			}
 		}
 		if (amountOfEnemies == 0) {
 			characterTurn = true;
-			for (Enemy e : stage.enemyGetter())
+			for (Enemy e : stage.enemy)
 				e.hasHadItsTurn = false;
 		}
 	}
 
 	public static void whatEnemiesTurnIsIt(Stage stage){
-		amountOfEnemies = stage.enemyGetter().size();
+		amountOfEnemies = stage.enemy.size();
 		if(!characterTurn && canCallNextTurn)
-			for (Enemy e : stage.enemyGetter())
+			for (Enemy e : stage.enemy)
 				if (!e.isOnTurn && !e.hasHadItsTurn && !e.isDead){
 					e.isOnTurn = true;
 					e.hasHadItsTurn = true;

@@ -9,6 +9,7 @@ import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Healer;
 import com.mygdx.game.items.characters.classes.Melee;
+import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
@@ -22,7 +23,6 @@ public class Character extends Entity implements Utils {
 	public CharacterClasses character = new CharacterClasses();
 	public int range = 3;
 	public String characterTexture;
-	public float x, y, base, height;
 	Stage stage;
 	Entity testCollision = new Entity();
 	long time = 0;
@@ -55,7 +55,7 @@ public class Character extends Entity implements Utils {
 	public Character(){}
 
 	public Character(float x, float y, float base, float height) {
-		super(x,y,base,height);
+		super("char",x,y,base,height);
 		this.x = x;
 		this.y = y;
 		this.base = base;
@@ -333,7 +333,7 @@ public class Character extends Entity implements Utils {
 		numberOfKeysPressed = 0;
 		hasMovedBefore = false;
 		isOnTheGrid();
-		super.refresh(x, y, base, height);
+		super.refresh(characterTexture,x, y, base, height);
 	}
 
 	public void update(Stage stage, GameScreen cam){
@@ -418,11 +418,11 @@ public class Character extends Entity implements Utils {
 			if (touchedPosition.x == e.x && touchedPosition.y == e.y && !e.isDead) {
 				distance = (int) round((sqrt(pow(x - e.x,2) + pow(y - e.y,2)))/128);
 				float rect = ((e.y + 64) - (y + 64)) / ((e.x + 64) - (x + 64));
-				Entity rayCheckerCenter = new Entity(x + 64, y + 64, 4, 4);
-				Entity rayCheckerDownLeft = new Entity(x, y, 4, 4);
-				Entity rayCheckerDownRight = new Entity(x + 128, y, 4, 4);
-				Entity rayCheckerUpLeft = new Entity(x, y + 128, 4, 4);
-				Entity rayCheckerUpRight = new Entity(x + 128, y + 128, 4, 4);
+				Entity rayCheckerCenter = new Entity("FourByFour",x + 64, y + 64, 4, 4);
+				Entity rayCheckerDownLeft = new Entity("FourByFour",x, y, 4, 4);
+				Entity rayCheckerDownRight = new Entity("FourByFour",x + 128, y, 4, 4);
+				Entity rayCheckerUpLeft = new Entity("FourByFour",x, y + 128, 4, 4);
+				Entity rayCheckerUpRight = new Entity("FourByFour",x + 128, y + 128, 4, 4);
 				rayCheckerDownLeft.x += 1;
 				rayCheckerDownRight.x -= 1;
 				rayCheckerUpLeft.x += 1;
@@ -509,9 +509,9 @@ public class Character extends Entity implements Utils {
 							raysThroughWalls++;
 							touchedUR = -256;
 						}
-						if (timesRayTouchedWall >= 325 || raysThroughWalls >= 3) {
+						if (timesRayTouchedWall >= 325 || raysThroughWalls >= 3)
 							return null;
-						}
+
 					}
 					for (Enemy en : stage.enemy) {
 						if (!en.isDead){
@@ -556,9 +556,8 @@ public class Character extends Entity implements Utils {
 								raysThroughEnemies++;
 								touchedEUR = -256;
 							}
-							if ((timesRayTouchedOtherEnemy >= 128 || raysThroughEnemies >= 3) && range >= distanceAux) {
+							if ((timesRayTouchedOtherEnemy >= 128 || raysThroughEnemies >= 3) && range >= distanceAux)
 								return en;
-							}
 						}
 					}
 				}
@@ -664,25 +663,34 @@ public class Character extends Entity implements Utils {
 	public void changeTo(){
 		changeToHealer();
 		changeToMelee();
+		changeToVencedor();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
 		equipMeleeShield();
 		equipMeleeSword();
+		equipVencedorSword();
 	}
 
 
 	public void changeToHealer(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
 			character = new Healer();
 		}
 	}
 
 	public void changeToMelee(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
 			character = new Melee();
 		}
 	}
+
+	public void changeToVencedor(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
+			character = new Vencedor();
+		}
+	}
+
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
@@ -711,6 +719,12 @@ public class Character extends Entity implements Utils {
 	public void equipMeleeShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
 			character.equipShield(new Shields.MeleeShield());
+		}
+	}
+
+	public void equipVencedorSword(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)){
+			character.equipWeapon(new Weapons.VencedorSword());
 		}
 	}
 

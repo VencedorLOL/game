@@ -32,6 +32,10 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 		PauseScreen pauseScreen = new PauseScreen(this);
 		setScreen(pauseScreen);
 	}
+	public void setStageCreatorScreen() {
+		StageCreatorScreen sCScreen = new StageCreatorScreen(this);
+		setScreen(sCScreen);
+	}
 
 	@Override
 	public void render () {

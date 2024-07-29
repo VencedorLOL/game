@@ -47,6 +47,7 @@ public class Melee extends CharacterClasses {
 			activateFlurryOfAttacks();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F2))
 			activateHardHitter();
+		refresh(this);
 	}
 
 	public void activateFlurryOfAttacks(){

@@ -141,7 +141,7 @@ public class CharacterClasses {
 	}
 
 
-	public void update(Character character) {}
+	public void update(Character character) {refresh(this);}
 
 
 	byte turnPasserAid;

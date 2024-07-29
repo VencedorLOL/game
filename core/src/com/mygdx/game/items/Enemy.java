@@ -3,8 +3,6 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.mygdx.game.GameScreen;
-
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
@@ -18,8 +16,6 @@ import static java.lang.Math.max;
 public class Enemy extends Entity{
 	public float health = 20;
 	public float defense = 5;
-	String enemyTexture = "EvilGuy";
-	float x, y;
 	static float base, height = 128;
 	Stage stage;
 	public Entity testCollision = new Entity();
@@ -40,7 +36,7 @@ public class Enemy extends Entity{
 	boolean isDead = false;
 
 	public Enemy(float x, float y, String texture, float health){
-		super(x,y,base,height);
+		super(texture,x,y,base,height);
 		this.health = health;
 		this.x = x;
 		this.y = y;
@@ -50,7 +46,7 @@ public class Enemy extends Entity{
 		testCollision.height = height;
 		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		animationSpeed = animationSpeedGetter();
-		enemyTexture = texture;
+		this.texture = texture;
 		if(!(128 % visualSpeedMultiplier == 0)) {
 			if(visualSpeedMultiplier > 128 && !isDivisibleBy128) {
 				visualSpeedMultiplier = 128;
@@ -85,7 +81,7 @@ public class Enemy extends Entity{
 	}
 
 	public Enemy(float x, float y) {
-		super(x,y,base,height);
+		super("EvilGuy",x,y,base,height);
 		this.x = x;
 		this.y = y;
 		testCollision.x = x;
@@ -145,8 +141,11 @@ public class Enemy extends Entity{
 
 			}
 		}
-		return stage.characterX == tester.x && stage.characterY == tester.y || tester.y == stage.finalY + 128 ||
-				tester.y == stage.startY - 128 || tester.x == stage.finalX + 128 || tester.x == stage.startX - 128;
+		return stage.characterX == tester.x && stage.characterY == tester.y ||
+				tester.y == stage.finalY + 128 ||
+				tester.y == stage.startY - 128 ||
+				tester.x == stage.finalX + 128 ||
+				tester.x == stage.startX - 128;
 	}
 
 	public void isItMyTurn(){
@@ -400,7 +399,7 @@ public class Enemy extends Entity{
 		if(hasMovedBefore && !localFastMode)
 			movementStage += visualSpeedMultiplier;
 		hasMovedBefore = false;
-		super.refresh(x, y, base, height);
+		super.refresh(texture,x, y, base, height);
 		isOnTheGrid();
 	}
 
@@ -418,15 +417,9 @@ public class Enemy extends Entity{
 	}
 
 
-	public void update(Stage stage
-	// -----------
-	, GameScreen gs
-	// -----------
-	){
-		if (haveWallsBeenRendered && haveEnemiesBeenRendered && haveGrassBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			// ---------------
-			gameScreenGetter(gs);
-			// ---------------
+	public void update(Stage stage, ParticleManager pm){
+		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+			gameScreenGetter(pm);
 			this.stage = stage;
 			onDeath();
 			amIRendered();
@@ -467,11 +460,11 @@ public class Enemy extends Entity{
 	public void damage(float damage, String damageReason){
 		health = health - max(damage - defense,0);
 		if (Objects.equals(damageReason, "Melee")){
-			gs.particle.particleEmitter("BLOB",x + 64,y + 64,10);
+			pm.particleEmitter("BLOB",x + 64,y + 64,10);
 		}
 
 	}
 
-	public GameScreen gs;
-	public void gameScreenGetter(GameScreen gs){ this.gs = gs; }
+	public ParticleManager pm;
+	public void gameScreenGetter(ParticleManager pm){ this.pm = pm; }
 }

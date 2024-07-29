@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -33,6 +34,15 @@ public class StartScreen implements Screen, Utils {
 			mainClass.setGameScreen();
 			dispose();
 		}
+		if (Gdx.input.isKeyPressed(Input.Keys.ALT_LEFT) &&
+			Gdx.input.isKeyPressed(Input.Keys.F) &&
+			Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
+			mainClass.setStageCreatorScreen();
+			dispose();
+		}
+
+
+
 
 	}
 

@@ -12,13 +12,11 @@ import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
-	// ---------------
 	public static float delta;
 	// ---------------
 	public GUI testUi;
 	// ---------------
 	public ParticleManager particle;
-	// ---------------
 	public MainClass mainClass;
 	public TextureManager textureManager = new TextureManager();
 	public Character chara = new Character(512, 512, 128, 128);
@@ -70,9 +68,9 @@ public class GameScreen implements Screen, Utils {
 				reset(stage);
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
-				System.out.println(chara.x);
+				System.out.println(chara.getX());
 			if (Gdx.input.isKeyPressed(Input.Keys.Y))
-				System.out.println(chara.y);
+				System.out.println(chara.getY());
 			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 				camara.setToOrtho(++camaraZoom);
 			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)

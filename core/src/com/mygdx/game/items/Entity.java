@@ -1,22 +1,36 @@
 package com.mygdx.game.items;
 
+import java.util.ArrayList;
+
 public class Entity {
 	float x, y, base, height;
-	public Entity(float x, float y, float base, float height){
+	String texture;
+	public Entity(String texture, float x, float y, float base, float height){
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
+		this.texture = texture;
 	}
 	public Entity(){}
-	public void refresh(float x, float y, float base, float height){
+	public void refresh(String texture, float x, float y, float base, float height){
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
+		this.texture = texture;
 	}
+
 	public boolean overlaps (Entity entity) {
 		return x < entity.x + entity.base && x + base > entity.x && y < entity.y + entity.height && y + height > entity.y;
+	}
+
+	public boolean overlaps (ArrayList<Entity> entityList){
+		for (Entity e : entityList){
+			if(e != this)
+				return e.x == this.x && e.y == this.y;
+		}
+		return false;
 	}
 
 	public float getX (){
@@ -30,6 +44,25 @@ public class Entity {
 	}
 	public float getHeight () {
 		return height;
+	}
+	public String getTexture() { return texture; }
+
+	public void setX (float x){
+		this.x = x;
+	}
+	public void setY (float y){
+		this.y = y;
+	}
+	public void setBase (float base){
+		this.base = base;
+	}
+	public void setHeight (float height) {
+		this.height = height;
+	}
+	public void setTexture(String texture) { this.texture = texture; }
+
+	public void render(){
+
 	}
 
 }

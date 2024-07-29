@@ -1,5 +1,7 @@
 package com.mygdx.game.items.characters.equipment;
 
+import static java.lang.Float.POSITIVE_INFINITY;
+
 public class Weapons {
 
 	public String weaponName;
@@ -196,5 +198,35 @@ public class Weapons {
 					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
 		}
 	}
+
+	// VENCEDOR
+	public static class VencedorSword extends Weapons {
+		public static String weaponName = "Vencedor's Sword";
+		public static float weaponHealth = 0;
+		public static float weaponDamage = 295;
+		public static byte weaponSpeed = 0;
+		public static byte weaponAttackSpeed = 0;
+		public static float weaponDefense = POSITIVE_INFINITY;
+		public static int weaponRange = 0;
+		public static float weaponTempDefense = 0;
+		public static float weaponRainbowDefense = 0;
+		public static float weaponMana = 0;
+		public static float weaponMagicDefense = POSITIVE_INFINITY;
+		public static float weaponMagicDamage = 0;
+		public static float weaponManaPerTurn = 0;
+		public static float weaponManaPerUse = 0;
+		public static float weaponMagicHealing = 0;
+		public static String equipableBy = "Vencedor";
+
+		public VencedorSword() {
+
+			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
+					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+		}
+	}
+
+
+
 
 }
