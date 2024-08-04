@@ -14,6 +14,7 @@ import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.ClickDetector.click;
 import static com.mygdx.game.items.Turns.*;
 import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.POSITIVE_INFINITY;
@@ -343,7 +344,7 @@ public class Character extends Entity implements Utils {
 		character.update(this);
 		if (isOnTurn){
 			movement();
-			attack(cam);
+			attack();
 			changeTo();
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.B)) {
@@ -381,15 +382,50 @@ public class Character extends Entity implements Utils {
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
 			cam.particle.particleEmitter("BLOB",x+64,y+64,1, 0,true,false);
 		}
+
+		if(Gdx.input.isKeyJustPressed(Input.Keys.N))
+			camaraShake(50,55,cam);
+
+		camaraShake(50,0,cam);
+		render();
+	}
+
+	float frames;
+	byte state = 0;
+	public void camaraShake(float intensity,int frameDuration,GameScreen gs){
+
+		frames += frameDuration;
+
+		if(frames > 0) {
+			if (state == 0) {
+				gs.camara.camara.rotate(2 * intensity);
+				state++;
+			} else if (state == 1){
+				gs.camara.camara.rotate(-4 * intensity);
+				state++;
+			} else if (state == 2){
+				gs.camara.camara.rotate(4 * intensity);
+				state--;
+			}
+
+			frames--;
+			if(frames <= 0) {
+				gs.camara.camara.rotate(-2*intensity);
+				state = 0;
+			}
+
+		}
+
 	}
 
 
 
-	public void attack(GameScreen cam) {
+
+	public void attack() {
 		if (!hasMovedBefore) {
 			if (Gdx.input.isTouched()) {
-				if (attackRayCasting(cam) != null && character.range >= distance) {
-					attackRayCasting(cam).damage(character.outgoingDamage(), "Melee");
+				if (attackRayCasting() != null && character.range >= distance) {
+					attackRayCasting().damage(character.outgoingDamage(), "Melee");
 					if(character instanceof Melee && ((Melee)character).FoA) {
 						if (((Melee)character).attackState >= ((Melee) character).FoANumberOfExtraHits) {
 							spendTurn();
@@ -406,35 +442,45 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
-
-	public Enemy attackRayCasting(GameScreen cam){
-		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
+	// Gonna comment this one cuz might be hard to read. Not the obvious stuff, tho.
+	// prolly gonna migrate this to a ClickDetector method.
+	public Enemy attackRayCasting(){
+		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,
+				timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
 				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;
-		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
-		cam.camara.camara.unproject(touchedPosition);
-		touchedPosition.x = (float) (128 * floor((touchedPosition.x)/ 128));
-		touchedPosition.y = (float) (128 * floor((touchedPosition.y) / 128));
+		Vector3 touchedPosition = click();
 		for (Enemy e : stage.enemy) {
 			if (touchedPosition.x == e.x && touchedPosition.y == e.y && !e.isDead) {
+				// distance gathered using pythagorean theorem.
 				distance = (int) round((sqrt(pow(x - e.x,2) + pow(y - e.y,2)))/128);
+				// gettin' the rect following (y2 - y2) / (x2 - x1)
 				float rect = ((e.y + 64) - (y + 64)) / ((e.x + 64) - (x + 64));
 				Entity rayCheckerCenter = new Entity("FourByFour",x + 64, y + 64, 4, 4);
 				Entity rayCheckerDownLeft = new Entity("FourByFour",x, y, 4, 4);
 				Entity rayCheckerDownRight = new Entity("FourByFour",x + 128, y, 4, 4);
 				Entity rayCheckerUpLeft = new Entity("FourByFour",x, y + 128, 4, 4);
 				Entity rayCheckerUpRight = new Entity("FourByFour",x + 128, y + 128, 4, 4);
+				// just centring the rays.
 				rayCheckerDownLeft.x += 1;
 				rayCheckerDownRight.x -= 1;
 				rayCheckerUpLeft.x += 1;
 				rayCheckerUpRight.x -= 1;
 				int sign = 1;
+				//so the detector rays go negative if e.x < x. This one didn't explain much bruh.
 				if (e.x < x)
 					sign = -1;
 				// For some reason if I put 1/0 a warning pops up,
 				// but if I put these constants, which are literally the same thing as I had
 				// (1/0 and -1/0) it doesn't. Bruh.
+				// for later math, when the rect isn't a function.
 				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
 					sign = 0;
+				//if horizontal difference == 0, use vertical as the number of times the loop will go on.
+				// this algorithm uses a linear function approach for the ray casting.
+				// increases x coords by 1 (or -1) and y by 1 * rect. If it isn't a function (multiple values of y
+				// aka, the lines go straight up or straight down), sign must be 0, x isn't changed at all and y
+				//goes up and down accordingly. Then just detect if the ray's colliding with something.
+				// more explanation below.
 				for (int i = 0; i < pickValueAUnlessEqualsZeroThenPickB(abs(e.x-x),abs(e.y-y)); i++){
 					rayCheckerCenter.x += sign;
 					rayCheckerDownLeft.x += sign;
@@ -462,12 +508,14 @@ public class Character extends Entity implements Utils {
 						rayCheckerUpLeft.y--;
 						rayCheckerUpRight.y--;
 					}
-					cam.textureManager.addToList("FourByFour", rayCheckerCenter.x,rayCheckerCenter.y);
-					cam.textureManager.addToList("FourByFour", rayCheckerUpLeft.x,rayCheckerUpLeft.y);
-					cam.textureManager.addToList("FourByFour", rayCheckerUpRight.x,rayCheckerUpRight.y);
-					cam.textureManager.addToList("FourByFour", rayCheckerDownLeft.x,rayCheckerDownLeft.y);
-					cam.textureManager.addToList("FourByFour", rayCheckerDownRight.x,rayCheckerDownRight.y);
+					rayCheckerCenter.render();
+					rayCheckerDownLeft.render();
+					rayCheckerDownRight.render();
+					rayCheckerUpLeft.render();
+					rayCheckerUpRight.render();
 
+					//if it collides with a wall, it'll raise the total number of times rays have ever touched a wall
+					// on this calculation; and by one which ray touched a wall.
 					for (Wall w : stage.walls) {
 						if(rayCheckerCenter.x < w.x + 128 && rayCheckerCenter.x + 1 > w.x && rayCheckerCenter.y < w.y + 128 && rayCheckerCenter.y + 1 > w.y) {
 							timesRayTouchedWall++;
@@ -489,6 +537,8 @@ public class Character extends Entity implements Utils {
 							timesRayTouchedWall++;
 							touchedUR++;
 						}
+						// then if a particular ray touched the wall 64 times (half a tile)  'raysThroughWalls' (rTW from now on)
+						// goes up by one. If rTW >= 3, or if rays touched in total walls 325 times, the attack doesn't happen.
 						if (touchedC >= 64) {
 							raysThroughWalls++;
 							touchedC = -256;
@@ -513,6 +563,10 @@ public class Character extends Entity implements Utils {
 							return null;
 
 					}
+					// with enemies is same as walls, but if the checks of touching another enemy go through,
+					// it returns the other enemy instead of returning nothing.
+					//TODO Yes, ik there's a fundamental flaw in here (That's your homework for today: detect the flaw)
+					// Buuuuttttt... i don't care atm
 					for (Enemy en : stage.enemy) {
 						if (!en.isDead){
 							distanceAux = (int) round((sqrt(pow(x - en.x,2) + pow(y - en.y,2)))/128);
@@ -558,6 +612,7 @@ public class Character extends Entity implements Utils {
 							}
 							if ((timesRayTouchedOtherEnemy >= 128 || raysThroughEnemies >= 3) && range >= distanceAux)
 								return en;
+
 						}
 					}
 				}

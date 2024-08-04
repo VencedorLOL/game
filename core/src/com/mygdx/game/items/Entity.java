@@ -62,7 +62,7 @@ public class Entity {
 	public void setTexture(String texture) { this.texture = texture; }
 
 	public void render(){
-
+		TextureManager.addToList(texture,x,y);
 	}
 
 }

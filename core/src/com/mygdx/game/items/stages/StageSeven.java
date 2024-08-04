@@ -35,18 +35,7 @@ public class StageSeven extends Stage {
 
 	@Override
 	public void reStage(Character character){
-		ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
-		betweenStages = true;
-		character.setX(spawnX);
-		character.setY(spawnY);
-		enemy = new ArrayList<>();
-		walls = new ArrayList<>();
-		floor = new ArrayList<>();
-		screenWarp = new ArrayList<>();
 		screenWarpDestination.add(new StageFive());
 		screenWarpDestination.add(new StageSix());
-		super.refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,enemyX,enemyY,screenWarpX,
-				screenWarpY,screenWarpDestination,floorTexture,
-				screenWarpDestinationSpecification,enemyType);
 	}
 }

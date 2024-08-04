@@ -38,17 +38,67 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.ui.Tooltip;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
-;
+
 public class GUI {
 	public Stage stage;
 	Skin skin;
 	Table table;
+	final String[] size = new String[1];
+
 
 	public GUI(){
 		skin = new Skin(Gdx.files.internal("uiskin.json"));
 		stage = new Stage(new ScreenViewport());
 		table =  new Table();
 	}
+
+
+	public void textBox(){
+		Gdx.input.setInputProcessor(stage);
+		stage.addActor(table);
+		final TextField textSize = new TextField("", skin);
+		textSize.setMessageText("size");
+		textSize.setTextFieldListener(new TextFieldListener() {
+			public void keyTyped (TextField textField, char key) {
+				if (key == '\n')
+					size[0] = textSize.getText();
+			}
+		});
+		Window window = new Window("SizeWindow", skin);
+		window.getTitleTable().add(new TextButton("X", skin)).height(window.getPadTop());
+		window.setPosition(Gdx.graphics.getWidth(), (float) Gdx.graphics.getHeight() / 2);
+		window.defaults().spaceBottom(10);
+		window.row().fill().expandX();
+		window.add(textSize).minWidth(100).expandX().fillX().colspan(2);
+		window.pack();
+		stage.addActor(window);
+	}
+
+	public int[] textBoxDetector(){
+		if (size[0] != null) {
+			String[] numbers = size[0].split("x");
+			if (numbers.length != 2)
+				System.err.println("ERROR, you put more than or less than an 'x'.");
+			else {
+				try {
+					int[] size = new int[2];
+					size[0] = Integer.parseInt(numbers[0]);
+					size[1] = Integer.parseInt(numbers[1]);
+					return size;
+				} catch (NumberFormatException e){
+					System.err.println("Not numeric data introduced withing the textbox");
+				}
+			}
+		}
+		return new int[2];
+	}
+
+
+
+
+
+
+
 
 	// tests from libgdx's github -----
 
@@ -221,7 +271,7 @@ public class GUI {
 				"The meaning of life4", "Is hard to come by4", "This is a list entry5", "And another one5", "The meaning of life5",
 				"Is hard to come by5"};
 		Texture texture1 = new Texture(Gdx.files.internal("Sprites/char.jpg"));
-		Texture texture2 = new Texture(Gdx.files.internal("Sprites/Floor.png"));
+		Texture texture2 = new Texture(Gdx.files.internal("Sprites/Grass.png"));
 		TextureRegion image = new TextureRegion(texture1);
 		TextureRegion imageFlipped = new TextureRegion(image);
 		imageFlipped.flip(true, true);
@@ -268,7 +318,7 @@ public class GUI {
 		selectBox.setItems("Android1", "Windows1 long text in item", "Linux1", "OSX1", "Android2", "Windows2", "Linux2", "OSX2",
 				"Android3", "Windows3", "Linux3", "OSX3", "Android4", "Windows4", "Linux4", "OSX4", "Android5", "Windows5", "Linux5",
 				"OSX5", "Android6", "Windows6", "Linux6", "OSX6", "Android7", "Windows7", "Linux7", "OSX7", "Windows11");
-		selectBox.setSelected("Windows12");
+		selectBox.setSelected("Windows11");
 		Image imageActor = new Image(image2);
 		ScrollPane scrollPane = new ScrollPane(imageActor);
 		List list = new List(skin);
@@ -354,6 +404,7 @@ public class GUI {
 				Gdx.graphics.setContinuousRendering(checkBox.isChecked());
 			}
 		});
+		System.out.println(textfield.getText());
 	}
 
 
@@ -485,6 +536,7 @@ public class GUI {
 	public void renderGUI(){
 		stage.act(Gdx.graphics.getDeltaTime());
 		stage.draw();
+		textBoxDetector();
 	}
 
 

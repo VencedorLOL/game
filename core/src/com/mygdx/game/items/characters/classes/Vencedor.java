@@ -1,8 +1,6 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.mygdx.game.items.Character;
+import static java.lang.Float.POSITIVE_INFINITY;
 import com.mygdx.game.items.Entity;
 import com.mygdx.game.items.characters.CharacterClasses;
 
@@ -32,6 +30,12 @@ public class Vencedor extends CharacterClasses {
 
 
 	public class VenceSword extends Entity {
+		float defense = POSITIVE_INFINITY;
+		Entity owner;
+
+		public VenceSword(Entity owner){
+			this.owner = owner;
+		}
 
 	}
 

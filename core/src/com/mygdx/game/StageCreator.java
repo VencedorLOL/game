@@ -1,6 +1,14 @@
 package com.mygdx.game;
 
+
+import com.mygdx.game.items.Camara;
+import com.mygdx.game.items.Character;
+import com.mygdx.game.items.GUI;
+import com.mygdx.game.items.Stage;
+import com.mygdx.game.items.TextureManager;
+
 public class StageCreator {
+	GUI gui;
 	String emptyStage =
 			"package com.mygdx.game.items.stages;\n" +
 			"\n" +
@@ -26,6 +34,7 @@ public class StageCreator {
 			"\tpublic byte[] screenWarpDestinationSpecification = {};\n" +
 			"\tpublic ArrayList<Stage> screenWarpDestination = new ArrayList<Stage>(){};\n" +
 			"\tpublic String floorTexture = \"\";\n" +
+
 			"\tpublic (){\n" +
 			"\t\tsuper.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, enemySpawnX, enemySpawnY, screenWarpX,\n" +
 			"\t\t\t\tscreenWarpY,screenWarpDestination,floorTexture,\n" +
@@ -38,22 +47,46 @@ public class StageCreator {
 			"\n" +
 			"\t@Override\n" +
 			"\tpublic void reStage(Character character){\n" +
-			"\t\tScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);\n" +
-			"\t\tbetweenStages = true;\n" +
-			"\t\tcharacter.setX(spawnX);\n" +
-			"\t\tcharacter.setY(spawnY);\n" +
-			"\t\tenemy = new ArrayList<>();\n" +
-			"\t\twalls = new ArrayList<>();\n" +
-			"\t\tfloor = new ArrayList<>();\n" +
-			"\t\tscreenWarp = new ArrayList<>();\n" +
-			"\t\tscreenWarpDestination.add(new );\n" +
-			"\t\tscreenWarpDestination.add(new );\n" +
-			"\t\tsuper.refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,enemySpawnX,enemySpawnY,screenWarpX,\n" +
-			"\t\t\t\tscreenWarpY,screenWarpDestination,floorTexture,\n" +
-			"\t\t\t\tscreenWarpDestinationSpecification,enemyType);\n" +
+			"\t\tscreenWarpDestination.add(new   );\n" +
 			"\t}\n" +
-			"}\n";
+			"}\n"	;
 
+	Stage stage;
+	TextureManager tm;
+	Camara camara;
+	int sizeX, sizeY;
+	boolean hasStageBeenCreated = false;
+	Character chara;
+
+	public StageCreator(GUI gui, TextureManager tm, Camara camara, Character chara){
+		this.gui = gui;
+		this.tm = tm;
+		this.camara = camara;
+		this.chara = chara;
+		gui.textBox();
+	}
+
+	public void update() {
+		sizeX = gui.textBoxDetector()[0];
+		sizeY = gui.textBoxDetector()[1];
+		if (sizeX > 0 && sizeY > 0 && !hasStageBeenCreated) {
+			stage = new Stage();
+			stage.emptyStageInitializer();
+			stage.startX = 0;
+			stage.startY = 0;
+			stage.finalX = sizeX * 128;
+			stage.finalY = sizeY * 128;
+			stage.reseter(chara);
+			hasStageBeenCreated = true;
+			System.out.println("created");
+		}
+		if (hasStageBeenCreated) {
+			stage.characterRefresher(chara.getX(), chara.getY());
+			stage.stageRenderer(camara, stage, tm);
+		}
+
+
+	}
 
 
 }

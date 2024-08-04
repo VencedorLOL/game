@@ -68,6 +68,33 @@ public class Stage implements Utils {
 
 	public Stage(){	}
 
+	public void emptyStageInitializer() {
+		this.startX = 0;
+		this.startY = 0;
+		this.finalX = 0;
+		this.finalY = 0;
+		this.spawnX = 0;
+		this.spawnY = 0;
+		this.wallX = new int[0];
+		this.wallY =  new int[0];
+		this.enemySpawnX =  new int[0];
+		this.enemySpawnY =  new int[0];
+		this.screenWarpX =  new int[0];
+		this.screenWarpY =  new int[0];
+		this.screenWarpDestination =  new ArrayList<>();
+		this.floorTexture = "Grass";
+		this.enemyType =  new int[0];
+		this.screenWarpDestinationSpecification = new byte[0];
+		haveEnemiesBeenRendered = false;
+		haveWallsBeenRendered = false;
+		haveScreenWarpsBeenRendered = false;
+		hasFloorBeenRendered = false;
+		IDState = 0;
+	}
+
+
+
+
 	public void characterRefresher(float characterX, float characterY){
 		this.characterX = characterX;
 		this.characterY = characterY;
@@ -112,13 +139,13 @@ public class Stage implements Utils {
 		haveScreenWarpsBeenRendered = true;
 	}
 
-	public void screenWarpRenderer(TextureManager tm){
+	public void screenWarpRenderer(){
 		if (!haveScreenWarpsBeenRendered){
 			screenWarpSetter();
 			haveScreenWarpsBeenRendered = true;
 		}
 		for (ScreenWarp s : screenWarp){
-			tm.addToList(s.screenWarpTexture, s.x, s.y);
+			TextureManager.addToList(s.screenWarpTexture, s.x, s.y);
 		}
 	}
 
@@ -129,7 +156,7 @@ public class Stage implements Utils {
 		haveEnemiesBeenRendered = true;
 	}
 
-	public void enemyRenderer(TextureManager tm, Stage stage, ParticleManager pm){
+	public void enemyRenderer(Stage stage, ParticleManager pm){
 		if (!haveEnemiesBeenRendered){
 			enemySetter();
 			haveEnemiesBeenRendered = true;
@@ -137,7 +164,7 @@ public class Stage implements Utils {
 		for (Enemy e : enemy){
 			if (!e.isDead) {
 				e.update(stage,pm);
-				tm.addToList(e.texture, e.x, e.y);
+				e.render();
 			}
 		}
 	}
@@ -146,19 +173,19 @@ public class Stage implements Utils {
 	public void floorSetter(Stage stage){
 		for (int y = stage.startY; y <= stage.finalY ; y += 128) {
 			for (int x = stage.startX ; x <= stage.finalX ; x += 128) {
-				floor.add(new Floor(floorTexture,x, y, 128, 128));
+				floor.add(new Floor(floorTexture,x, y));
 			}
 		}
 		hasFloorBeenRendered = true;
 	}
 
-	public void floorRenderer(TextureManager tm){
+	public void floorRenderer(){
 		if(!hasFloorBeenRendered) {
 			floorSetter(this);
 			hasFloorBeenRendered = true;
 		}
 		for (Floor g : floor){
-			tm.addToList(floorTexture(), g.x , g.y);
+			g.render();
 		}
 	}
 
@@ -178,19 +205,19 @@ public class Stage implements Utils {
 		haveWallsBeenRendered = true;
 	}
 
-	public void wallRenderer(TextureManager tm){
+	public void wallRenderer(){
 		if (!haveWallsBeenRendered){
 			wallSetter();
 		}
 		for (Wall b : walls){
 			if(b.doesItHaveATexture)
-				tm.addToList(b.texture, b.x, b.y);
+				TextureManager.addToList(b.texture, b.x, b.y);
 		}
 	}
 
 	public void stageRenderer(GameScreen gs, Stage stage){
 		if (betweenStages){
-			ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
+			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			floorSetter(this);
 			enemySetter();
 			screenWarpSetter();
@@ -203,30 +230,58 @@ public class Stage implements Utils {
 			camaraY = gs.camara.y;
 			camaraBase = gs.camara.base;
 			camaraHeight = gs.camara.height;
-			floorRenderer(gs.textureManager);
-			enemyRenderer(gs.textureManager, stage, gs.particle);
-			screenWarpRenderer(gs.textureManager);
-			wallRenderer(gs.textureManager);
+			floorRenderer();
+			enemyRenderer(stage, gs.particle);
+			screenWarpRenderer();
+			wallRenderer();
 			border.border(gs.chara, this);
 			border.border(this);
-			stageChanger(gs);
+			screenWarpTrigger(gs);
 		}
 	}
 
-	public void stageChanger(GameScreen gs){
+	public void stageRenderer(Camara camara, Stage stage, TextureManager tm){
+		if (betweenStages){
+			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
+			floorSetter(this);
+			enemySetter();
+			screenWarpSetter();
+			wallSetter();
+			betweenStages = false;
+
+		}
+		else {
+			camaraX = camara.x;
+			camaraY = camara.y;
+			camaraBase = camara.base;
+			camaraHeight = camara.height;
+			floorRenderer();
+			enemyRenderer(stage, new ParticleManager(tm));
+			screenWarpRenderer();
+			wallRenderer();
+		}
+	}
+
+	public void screenWarpTrigger(GameScreen gs){
 		for(ScreenWarp s : screenWarp)
 			if (characterX == s.x && characterY == s.y) {
-				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.screenWarpID)];
 				betweenStages = true;
+				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.screenWarpID)];
 				gs.stage = getScreenWarpStage(pos);
-				gs.stage.reStage(gs.chara);
+				gs.stage.reseter(gs.chara);
 			}
 	}
 
-	public void reStage(Character character){
+	public void reseter(Character character){
+		reseter();
+		character.setX(spawnX);
+		character.setY(spawnY);
+		reStage(character);
+	}
+
+	public void reseter(){
+		ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
 		betweenStages = true;
-		character.x = spawnX;
-		character.y = spawnY;
 		haveEnemiesBeenRendered = false;
 		haveWallsBeenRendered = false;
 		haveScreenWarpsBeenRendered = false;
@@ -240,17 +295,10 @@ public class Stage implements Utils {
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 	}
 
+	public void reStage(Character character){ }
+
 	public Stage getScreenWarpStage(int pos){
 		return screenWarpDestination.get(pos);
-	}
-
-
-	public Stage setStage(Stage stage){
-		return stage;
-	}
-
-	public String floorTexture(){
-		return floorTexture;
 	}
 
 	public Enemy enemyClass(int x, int y, int enemyType){

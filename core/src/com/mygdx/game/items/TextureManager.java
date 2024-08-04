@@ -13,8 +13,8 @@ public class TextureManager {
 	public TextureAtlas atlas;
 	public Sprite sprite;
 	TextureRegion region;
-	ArrayList<DrawableObject> drawables;
-	ArrayList<DrawableObject> priorityDrawables;
+	static ArrayList<DrawableObject> drawables;
+	static ArrayList<DrawableObject> priorityDrawables;
 
 	public TextureManager (){
 		drawables = new ArrayList<>();
@@ -35,22 +35,23 @@ public class TextureManager {
 		sprite.draw(batch);
 	}
 
-	public void addToList(String texture, float x, float y){
+	public static void addToList(String texture, float x, float y){
 		drawables.add(new DrawableObject(texture, x, y));
 	}
 
-	public void addToPriorityList(String texture, float x, float y){
+	public static void addToPriorityList(String texture, float x, float y){
 		priorityDrawables.add(new DrawableObject(texture, x, y));
 	}
 
 	public void render(){
 		for (TextureManager.DrawableObject d : drawables){
-			drawer(d.texture,d.x,d.y);
+			if (d.texture != null)
+				drawer(d.texture,d.x,d.y);
 		}
 		drawables.clear();
 		for (TextureManager.DrawableObject d : priorityDrawables){
-			drawer(d.texture,d.x,d.y);
-			priorityDrawables.remove(d);
+			if (d.texture != null)
+				drawer(d.texture,d.x,d.y);
 		}
 		priorityDrawables.clear();
 	}

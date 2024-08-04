@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.StageOne;
-import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
@@ -25,15 +24,17 @@ public class GameScreen implements Screen, Utils {
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
 	public boolean isScreenChanging = false;
+	public ClickDetector clickDetector;
 	public void create () {
 		if (camaraZoom <= 0)
 			camaraZoom = 2;
 		camara.camaraStarter(camaraZoom);
-		stage = stage.setStage(new StageOne());
-		stage.reStage(chara);
+		stage = new StageOne();
+		stage.reseter(chara);
 		testUi = new GUI();
 		testUi.testButton();
 		particle = new ParticleManager(textureManager);
+		clickDetector = new ClickDetector(camara);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -49,28 +50,28 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.begin();
 		screenSizeChangeDetector();
 		if(!isScreenChanging) {
+			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
 			camara.updater(chara);
 			stage.characterRefresher(chara.getX(), chara.getY());
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
-			if (!betweenStages)
-				textureManager.addToList(chara.characterTexture, chara.getX(), chara.getY());
 			textureManager.render();
-			// Hotkeys and zoom management
+			// Hotkeys
 			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
 				mainClass.setPauseScreen();
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
 				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
 			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-				stage.reStage(chara);
+				stage.reseter(chara);
 				reset(stage);
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
 				System.out.println(chara.getX());
 			if (Gdx.input.isKeyPressed(Input.Keys.Y))
 				System.out.println(chara.getY());
+			// Zoom management
 			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 				camara.setToOrtho(++camaraZoom);
 			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
@@ -88,6 +89,13 @@ public class GameScreen implements Screen, Utils {
 		}
 	}
 
+
+	public void finish(){
+		particle.particleRenderer();
+		camara.finalizer(textureManager.batch);
+		textureManager.batch.end();
+	}
+
 	public void screenSizeChangeDetector(){
 		if(screenSizeX != Gdx.graphics.getWidth() || screenSizeY != Gdx.graphics.getHeight()){
 			screenSizeX = Gdx.graphics.getWidth();
@@ -98,12 +106,6 @@ public class GameScreen implements Screen, Utils {
 		}
 		else
 			isScreenChanging = false;
-	}
-
-	public void finish(){
-		particle.particleRenderer();
-		camara.finalizer(textureManager.batch);
-		textureManager.batch.end();
 	}
 
 	@Override
