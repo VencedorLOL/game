@@ -452,8 +452,6 @@ public class Enemy extends Entity{
 	public void onDeath(){
 		if (health <= 0) {
 			isDead = true;
-			x = 100000000;
-			y = 100000000;
 		}
 	}
 

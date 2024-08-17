@@ -21,53 +21,80 @@ public class Melee extends CharacterClasses {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
+
 	public byte abilityCooldown;
 	public byte attackState;
 	public boolean FoA;
-	public byte FoANumberOfExtraHits = 4;
-	public boolean HH;
-	public byte HHMultiplier = 6;
+	public final byte FoANumberOfExtraHits = 4;
+	public boolean OfA;
+	public byte OfAMultiplier = 6;
 
 	public Melee() {
 		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
-				magicDamage, manaPerTurn, manaPerUse, magicHealing);
+				magicDamage, manaPerTurn, manaPerUse, magicHealing,true);
 	}
 
-	public void update(Character character) {
+	public void updateOverridable(Character character) {
 		if (turnHasPassed())
 			abilityCooldown++;
-
+		turnHandler(character);
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
 			System.out.println("abilityCD is : "+abilityCooldown);
 			System.out.println("attackState is: "+ attackState);
 			System.out.println("FoA is: " + FoA);
-			System.out.println("HH is: " + HH);
+			System.out.println("OfA is: " + OfA);
 		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F1))
-			activateFlurryOfAttacks();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
+			System.out.println(activateFlurryOfAttacks());
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F2))
-			activateHardHitter();
-		refresh(this);
+			System.out.println(activateOneForAll());
 	}
 
-	public void activateFlurryOfAttacks(){
+	public String activateFlurryOfAttacks(){
 		if (abilityCooldown >= 4){
 			abilityCooldown = 0;
 			FoA = true;
+			return "Flurry Of Attacks activated";
 		}
+		return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - abilityCooldown)+" turns";
 	}
 
-	public void activateHardHitter(){
+	public String activateOneForAll(){
 		if (abilityCooldown >= 4) {
 			abilityCooldown = 0;
-			HH = true;
+			OfA = true;
+			return "One For All activated";
+		}
+		return "Couldn't activate One For All. You still have to wait " +(4 - abilityCooldown)+" turns";
+	}
+
+	public void turnHandler(Character character){
+		if (FoA){
+			if (attackState >= FoANumberOfExtraHits) {
+				character.spendTurn();
+				FoA = false;
+				attackState = 0;
+			} else
+				attackState++;
+		}
+		else {
+			if (character.hasAttacked){
+				character.spendTurn();
+				character.hasAttacked = false;
+			}
+
 		}
 	}
 
+
+
+
+
+
 	public float outgoingDamage(){
-		if (HH) {
-			HH = false;
-			return totalDamage * HHMultiplier;
+		if (OfA) {
+			OfA = false;
+			return totalDamage * OfAMultiplier;
 		}
 		else
 			return totalDamage;

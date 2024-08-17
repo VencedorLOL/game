@@ -1,20 +1,31 @@
 package com.mygdx.game.items;
 
+/* TODO: Need to redo this so it has: turn counter, system in which the faster moves first but character can choose what
+ to do first, even if it doesn't necessarily move first (pokemon-like), method that returns true if a turn passed (takes nº of
+ turn, compares it to this nº of turn, if not the same returns true)
+ */
 public class Turns {
-	public static boolean characterTurn = true;
-	public static boolean canCallNextTurn = true;
-	public static int amountOfEnemies;
+	// true means is character's turn
+	static boolean turn = true;
+	static boolean canCallNextTurn = true;
+	static int amountOfEnemies;
+	static boolean didTurnJustPass;
 
-	public static void spendCharacterTurn() {
-		characterTurn = false;
+
+	public static boolean didTurnJustPass(){
+		return false;
 	}
 
-	public static void spendNotCharacterTurn() {
-		characterTurn = true;
+	public static void spendTurn() {
+		turn = false;
+	}
+
+	public static void spendTurnReverse() {
+		turn = true;
 	}
 
 	public static boolean whatTurnIsIt() {
-		return characterTurn;
+		return turn;
 	}
 
 	public static void nextEnemyTurnCaller(){
@@ -22,7 +33,7 @@ public class Turns {
 	}
 
 	public static void reset(Stage stage){
-		characterTurn = true;
+		turn = true;
 		amountOfEnemies = stage.enemy.size();
 	}
 
@@ -34,7 +45,7 @@ public class Turns {
 			}
 		}
 		if (amountOfEnemies == 0) {
-			characterTurn = true;
+			spendTurnReverse();
 			for (Enemy e : stage.enemy)
 				e.hasHadItsTurn = false;
 		}
@@ -42,7 +53,7 @@ public class Turns {
 
 	public static void whatEnemiesTurnIsIt(Stage stage){
 		amountOfEnemies = stage.enemy.size();
-		if(!characterTurn && canCallNextTurn)
+		if(!turn && canCallNextTurn)
 			for (Enemy e : stage.enemy)
 				if (!e.isOnTurn && !e.hasHadItsTurn && !e.isDead){
 					e.isOnTurn = true;

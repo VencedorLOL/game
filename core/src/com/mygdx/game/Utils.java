@@ -44,7 +44,7 @@ public interface Utils {
 		return -1;
 	}
 
-	default float pickValueAUnlessEqualsZeroThenPickB(float a, float b){
+	static float pickValueAUnlessEqualsZeroThenPickB(float a, float b){
 		if (a == 0)
 			return b;
 		return a;

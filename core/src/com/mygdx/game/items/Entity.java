@@ -5,12 +5,14 @@ import java.util.ArrayList;
 public class Entity {
 	float x, y, base, height;
 	String texture;
+	public static ArrayList<Entity> entityList = new ArrayList<>();
 	public Entity(String texture, float x, float y, float base, float height){
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
 		this.texture = texture;
+		entityList.add(this);
 	}
 	public Entity(){}
 	public void refresh(String texture, float x, float y, float base, float height){
@@ -19,6 +21,7 @@ public class Entity {
 		this.base = base;
 		this.height = height;
 		this.texture = texture;
+		entityList.add(this);
 	}
 
 	public boolean overlaps (Entity entity) {
@@ -32,6 +35,7 @@ public class Entity {
 		}
 		return false;
 	}
+
 
 	public float getX (){
 		return x;
@@ -64,5 +68,10 @@ public class Entity {
 	public void render(){
 		TextureManager.addToList(texture,x,y);
 	}
+
+	// Override this
+	public void damage(float damage, String damageReason){
+	}
+
 
 }

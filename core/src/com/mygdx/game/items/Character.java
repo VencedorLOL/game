@@ -2,7 +2,6 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
@@ -14,15 +13,12 @@ import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.ClickDetector.click;
+import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Turns.*;
-import static java.lang.Float.NEGATIVE_INFINITY;
-import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
 	public CharacterClasses character = new CharacterClasses();
-	public int range = 3;
 	public String characterTexture;
 	Stage stage;
 	Entity testCollision = new Entity();
@@ -39,8 +35,9 @@ public class Character extends Entity implements Utils {
 	public boolean isOnTurn;
 	byte speedState = 0;
 	int distance;
-	int distanceAux;
 	boolean isDead;
+	// Used for when the turn is being controlled by classes
+	public boolean hasAttacked;
 	public boolean overlapsWithStage(Stage stage, Entity entity){
 		for(Wall b : stage.walls){
 			if (entity.overlaps(b))
@@ -102,7 +99,7 @@ public class Character extends Entity implements Utils {
 	public void spendTurn(){
 		speedState = 0;
 		isOnTurn = false;
-		spendCharacterTurn();
+		Turns.spendTurn();
 	}
 
 	public void isItMyTurn(){
@@ -347,10 +344,6 @@ public class Character extends Entity implements Utils {
 			attack();
 			changeTo();
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.B)) {
-			isOnTurn = true;
-			spendNotCharacterTurn();
-		}
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canMove)
 			spendTurn();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
@@ -424,203 +417,18 @@ public class Character extends Entity implements Utils {
 	public void attack() {
 		if (!hasMovedBefore) {
 			if (Gdx.input.isTouched()) {
-				if (attackRayCasting() != null && character.range >= distance) {
-					attackRayCasting().damage(character.outgoingDamage(), "Melee");
-					if(character instanceof Melee && ((Melee)character).FoA) {
-						if (((Melee)character).attackState >= ((Melee) character).FoANumberOfExtraHits) {
-							spendTurn();
-							((Melee)character).FoA = false;
-							((Melee)character).attackState = 0;
-						}
-						else
-							((Melee)character).attackState++;
-					}
-					else
+				if (clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range) != null && character.range >= distance) {
+					clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range).damage(character.outgoingDamage(), "Melee");
+					if (!character.shouldTurnCompletionBeLeftToClass)
 						spendTurn();
+					else {
+						hasAttacked = true;
+					}
 				}
 			}
 		}
 	}
 
-	// Gonna comment this one cuz might be hard to read. Not the obvious stuff, tho.
-	// prolly gonna migrate this to a ClickDetector method.
-	public Enemy attackRayCasting(){
-		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,
-				timesRayTouchedOtherEnemy = 0,raysThroughWalls = 0,
-				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;
-		Vector3 touchedPosition = click();
-		for (Enemy e : stage.enemy) {
-			if (touchedPosition.x == e.x && touchedPosition.y == e.y && !e.isDead) {
-				// distance gathered using pythagorean theorem.
-				distance = (int) round((sqrt(pow(x - e.x,2) + pow(y - e.y,2)))/128);
-				// gettin' the rect following (y2 - y2) / (x2 - x1)
-				float rect = ((e.y + 64) - (y + 64)) / ((e.x + 64) - (x + 64));
-				Entity rayCheckerCenter = new Entity("FourByFour",x + 64, y + 64, 4, 4);
-				Entity rayCheckerDownLeft = new Entity("FourByFour",x, y, 4, 4);
-				Entity rayCheckerDownRight = new Entity("FourByFour",x + 128, y, 4, 4);
-				Entity rayCheckerUpLeft = new Entity("FourByFour",x, y + 128, 4, 4);
-				Entity rayCheckerUpRight = new Entity("FourByFour",x + 128, y + 128, 4, 4);
-				// just centring the rays.
-				rayCheckerDownLeft.x += 1;
-				rayCheckerDownRight.x -= 1;
-				rayCheckerUpLeft.x += 1;
-				rayCheckerUpRight.x -= 1;
-				int sign = 1;
-				//so the detector rays go negative if e.x < x. This one didn't explain much bruh.
-				if (e.x < x)
-					sign = -1;
-				// For some reason if I put 1/0 a warning pops up,
-				// but if I put these constants, which are literally the same thing as I had
-				// (1/0 and -1/0) it doesn't. Bruh.
-				// for later math, when the rect isn't a function.
-				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
-					sign = 0;
-				//if horizontal difference == 0, use vertical as the number of times the loop will go on.
-				// this algorithm uses a linear function approach for the ray casting.
-				// increases x coords by 1 (or -1) and y by 1 * rect. If it isn't a function (multiple values of y
-				// aka, the lines go straight up or straight down), sign must be 0, x isn't changed at all and y
-				//goes up and down accordingly. Then just detect if the ray's colliding with something.
-				// more explanation below.
-				for (int i = 0; i < pickValueAUnlessEqualsZeroThenPickB(abs(e.x-x),abs(e.y-y)); i++){
-					rayCheckerCenter.x += sign;
-					rayCheckerDownLeft.x += sign;
-					rayCheckerDownRight.x += sign;
-					rayCheckerUpLeft.x += sign;
-					rayCheckerUpRight.x += sign;
-					if (sign != 0) {
-						rayCheckerCenter.y += rect * sign;
-						rayCheckerDownLeft.y += rect * sign;
-						rayCheckerDownRight.y += rect * sign;
-						rayCheckerUpLeft.y += rect * sign;
-						rayCheckerUpRight.y += rect * sign;
-					}
-					else if (rect == POSITIVE_INFINITY) {
-						rayCheckerCenter.y++;
-						rayCheckerDownLeft.y++;
-						rayCheckerDownRight.y++;
-						rayCheckerUpLeft.y++;
-						rayCheckerUpRight.y++;
-					}
-					else if (rect == NEGATIVE_INFINITY) {
-						rayCheckerCenter.y--;
-						rayCheckerDownLeft.y--;
-						rayCheckerDownRight.y--;
-						rayCheckerUpLeft.y--;
-						rayCheckerUpRight.y--;
-					}
-					rayCheckerCenter.render();
-					rayCheckerDownLeft.render();
-					rayCheckerDownRight.render();
-					rayCheckerUpLeft.render();
-					rayCheckerUpRight.render();
-
-					//if it collides with a wall, it'll raise the total number of times rays have ever touched a wall
-					// on this calculation; and by one which ray touched a wall.
-					for (Wall w : stage.walls) {
-						if(rayCheckerCenter.x < w.x + 128 && rayCheckerCenter.x + 1 > w.x && rayCheckerCenter.y < w.y + 128 && rayCheckerCenter.y + 1 > w.y) {
-							timesRayTouchedWall++;
-							touchedC++;
-						}
-						if (rayCheckerDownLeft.x < w.x + 128 && rayCheckerDownLeft.x + 1 > w.x && rayCheckerDownLeft.y < w.y + 128 && rayCheckerDownLeft.y + 1 > w.y){
-							timesRayTouchedWall++;
-							touchedDL++;
-						}
-						if (rayCheckerDownRight.x < w.x + 128 && rayCheckerDownRight.x + 1 > w.x && rayCheckerDownRight.y < w.y + 128 && rayCheckerDownRight.y + 1 > w.y) {
-							timesRayTouchedWall++;
-							touchedDR++;
-						}
-						if (rayCheckerUpLeft.x < w.x + 128 && rayCheckerUpLeft.x + 1 > w.x && rayCheckerUpLeft.y < w.y + 128 && rayCheckerUpLeft.y + 1 > w.y) {
-							timesRayTouchedWall++;
-							touchedUL++;
-						}
-						if (rayCheckerUpRight.x < w.x + 128 && rayCheckerUpRight.x + 1 > w.x && rayCheckerUpRight.y < w.y + 128 && rayCheckerUpRight.y + 1 > w.y) {
-							timesRayTouchedWall++;
-							touchedUR++;
-						}
-						// then if a particular ray touched the wall 64 times (half a tile)  'raysThroughWalls' (rTW from now on)
-						// goes up by one. If rTW >= 3, or if rays touched in total walls 325 times, the attack doesn't happen.
-						if (touchedC >= 64) {
-							raysThroughWalls++;
-							touchedC = -256;
-						}
-						if (touchedDL >= 64) {
-							raysThroughWalls++;
-							touchedDL = -256;
-						}
-						if (touchedDR >= 64) {
-							raysThroughWalls++;
-							touchedDR = -256;
-						}
-						if (touchedUL >= 64) {
-							raysThroughWalls++;
-							touchedUL = -256;
-						}
-						if (touchedUR >= 64) {
-							raysThroughWalls++;
-							touchedUR = -256;
-						}
-						if (timesRayTouchedWall >= 325 || raysThroughWalls >= 3)
-							return null;
-
-					}
-					// with enemies is same as walls, but if the checks of touching another enemy go through,
-					// it returns the other enemy instead of returning nothing.
-					//TODO Yes, ik there's a fundamental flaw in here (That's your homework for today: detect the flaw)
-					// Buuuuttttt... i don't care atm
-					for (Enemy en : stage.enemy) {
-						if (!en.isDead){
-							distanceAux = (int) round((sqrt(pow(x - en.x,2) + pow(y - en.y,2)))/128);
-							if(rayCheckerCenter.x < en.x + 128 && rayCheckerCenter.x + 1 > en.x && rayCheckerCenter.y < en.y + 128 && rayCheckerCenter.y + 1 > en.y) {
-								timesRayTouchedOtherEnemy++;
-								touchedEC++;
-							}
-							if (rayCheckerDownLeft.x < en.x + 128 && rayCheckerDownLeft.x + 1 > en.x && rayCheckerDownLeft.y < en.y + 128 && rayCheckerDownLeft.y + 1 > en.y) {
-								timesRayTouchedOtherEnemy++;
-								touchedEDL++;
-							}
-							if (rayCheckerDownRight.x < en.x + 128 && rayCheckerDownRight.x + 1 > en.x && rayCheckerDownRight.y < en.y + 128 && rayCheckerDownRight.y + 1 > en.y) {
-								timesRayTouchedOtherEnemy++;
-								touchedEDR++;
-							}
-							if (rayCheckerUpLeft.x < en.x + 128 && rayCheckerUpLeft.x + 1 > en.x && rayCheckerUpLeft.y < en.y + 128 && rayCheckerUpLeft.y + 1 > en.y) {
-								timesRayTouchedOtherEnemy++;
-								touchedEUL++;
-							}
-							if (rayCheckerUpRight.x < en.x + 128 && rayCheckerUpRight.x + 1 > en.x && rayCheckerUpRight.y < en.y + 128 && rayCheckerUpRight.y + 1 > en.y) {
-								timesRayTouchedOtherEnemy++;
-								touchedEUR++;
-							}
-							if (touchedEC >= 64) {
-								raysThroughEnemies++;
-								touchedEC = -256;
-							}
-							if (touchedEDL >= 64) {
-								raysThroughEnemies++;
-								touchedEDL = -256;
-							}
-							if (touchedEDR >= 64) {
-								raysThroughEnemies++;
-								touchedEDR = -256;
-							}
-							if (touchedEUL >= 64) {
-								raysThroughEnemies++;
-								touchedEUL = -256;
-							}
-							if (touchedEUR >= 64) {
-								raysThroughEnemies++;
-								touchedEUR = -256;
-							}
-							if ((timesRayTouchedOtherEnemy >= 128 || raysThroughEnemies >= 3) && range >= distanceAux)
-								return en;
-
-						}
-					}
-				}
-				return e;
-			}
-		}
-		return null;
-	}
 
 
 	int previousTexture = 3;

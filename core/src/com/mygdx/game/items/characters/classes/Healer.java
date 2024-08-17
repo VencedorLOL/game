@@ -1,11 +1,12 @@
 package com.mygdx.game.items.characters.classes;
 
+import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
 import static com.mygdx.game.items.characters.equipment.Weapons.HealerSwords.*;
 
-public class Healer extends CharacterClasses {
+public class Healer extends CharacterClasses implements Utils {
 	public static String name = "Healer";
 	public static float health = 40;
 	public static float damage = 5;
@@ -23,8 +24,6 @@ public class Healer extends CharacterClasses {
 	public static float magicHealing = 0;
 
 	public float healingFromAbility = 4;
-	public float weaponHealingAbilityBonus;
-	public float shieldHealingPerTurn;
 
 	public boolean hasHealedInThisTurn = false;
 
@@ -36,9 +35,8 @@ public class Healer extends CharacterClasses {
 
 	public float outgoingDamage(){
 		float damage = totalDamage / 2;
-		if (weaponHealingAbilityBonus == 0)
-			weaponHealingAbilityBonus = 1;
-		currentHealth += damage * healingFromAbility * weaponHealingAbilityBonus;
+		currentHealth += damage * healingFromAbility * Utils.pickValueAUnlessEqualsZeroThenPickB(
+				weaponHealingAbilityBonus(this),1);
 		return damage;
 	}
 
@@ -55,17 +53,14 @@ public class Healer extends CharacterClasses {
 	}
 
 	@Override
-	public void update(Character character){
-		shieldHealingPerTurn = shieldAbilityHealing(this);
-		weaponHealingAbilityBonus = weaponHealingAbilityBonus(this);
+	public void updateOverridable(Character character){
 		if (character.isOnTurn && !hasHealedInThisTurn){
-			currentHealth += shieldHealingPerTurn;
+			currentHealth += shieldAbilityHealing(this);
 			hasHealedInThisTurn = true;
 		}
 		if (!character.isOnTurn && hasHealedInThisTurn) {
 			hasHealedInThisTurn = false;
 		}
-		refresh(this);
 	}
 
 }

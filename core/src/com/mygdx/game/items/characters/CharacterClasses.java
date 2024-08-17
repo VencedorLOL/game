@@ -45,6 +45,9 @@ public class CharacterClasses {
 
 	public float currentHealth;
 
+	// If true, turn completion will be handled by classes instead of normal procedure
+	public boolean shouldTurnCompletionBeLeftToClass;
+
 	public CharacterClasses(String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
 							int range, float tempDefense, float rainbowDefense,
@@ -65,6 +68,7 @@ public class CharacterClasses {
 		this.manaPerTurn = manaPerTurn;
 		this.manaPerUse = manaPerUse;
 		this.magicHealing = magicHealing;
+		this.shouldTurnCompletionBeLeftToClass = false;
 		reset();
 	}
 
@@ -140,8 +144,13 @@ public class CharacterClasses {
 			currentHealth = health;
 	}
 
+	public void update(Character character){
+		updateOverridable(character);
+		refresh(this);
+	}
 
-	public void update(Character character) {refresh(this);}
+
+	public void updateOverridable(Character character) {}
 
 
 	byte turnPasserAid;
@@ -152,9 +161,34 @@ public class CharacterClasses {
 			turnPasserAid++;
 		if(whatTurnIsIt() && turnPasserAid == 2) {
 			turnPasserAid = 0;
+			System.out.println("A turn has passed");
 			return true;
 		}
 		return false;
+	}
+
+	public CharacterClasses(String name, float health, float damage,
+							byte speed, byte attackSpeed, float defense,
+							int range, float tempDefense, float rainbowDefense,
+							float mana, float magicDefense, float magicDamage,
+							float manaPerTurn, float manaPerUse, float magicHealing,boolean shouldTurnCompletionBeLeftToClass){
+		this.name = name;
+		this.health = health;
+		this.damage = damage;
+		this.speed = speed;
+		this.attackSpeed = attackSpeed;
+		this.defense = defense;
+		this.range = range;
+		this.tempDefense = tempDefense;
+		this.rainbowDefense = rainbowDefense;
+		this.mana = mana;
+		this.magicDefense = magicDefense;
+		this.magicDamage = magicDamage;
+		this.manaPerTurn = manaPerTurn;
+		this.manaPerUse = manaPerUse;
+		this.magicHealing = magicHealing;
+		this.shouldTurnCompletionBeLeftToClass = shouldTurnCompletionBeLeftToClass;
+		reset();
 	}
 
 }

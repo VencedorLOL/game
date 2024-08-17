@@ -1,7 +1,5 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.graphics.Texture;
-
 public class Wall extends Entity{
 
     public boolean doesItHaveATexture = true;
