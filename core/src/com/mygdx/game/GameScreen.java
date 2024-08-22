@@ -7,6 +7,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.StageOne;
+
+import java.util.ArrayList;
+
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
@@ -89,6 +92,13 @@ public class GameScreen implements Screen, Utils {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
 				System.out.println(camaraZoom);
 		}
+		ArrayList<Character> cl = new ArrayList<>();
+		boolean didAddChara = false;
+		if(!didAddChara) {
+			cl.add(chara);
+			didAddChara = true;
+		}
+		turnLogic(stage.enemy,cl);
 	}
 
 

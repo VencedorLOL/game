@@ -34,7 +34,7 @@ public class ClickDetector implements Utils {
 
 	public static Entity rayCasting(float fromX, float fromY, float toX, float toY, Entity entityToIgnore,
 									ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, float range) {
-		// clue: the flaw starts here. This doesn't make sense if you don't read the rest of the method, so, do it
+		// clue: the flaw starts here. This comment doesn't make sense if you don't read the rest of the method, so, do it
 		short timesRayTouchedWall = 0, touchedDL = 0, touchedDR = 0, touchedUL = 0, touchedUR = 0, touchedC = 0,
 				timesRayTouchedOtherEnemy = 0, raysThroughWalls = 0,
 				touchedEDL = 0, touchedEDR = 0, touchedEUL = 0, touchedEUR = 0, touchedEC = 0, raysThroughEnemies = 0;

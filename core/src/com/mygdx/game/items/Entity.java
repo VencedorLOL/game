@@ -36,6 +36,10 @@ public class Entity {
 		return false;
 	}
 
+	//Override
+	public boolean isPermittedToMove(){return true;};
+	//Override
+	public void permitToMove(){};
 
 	public float getX (){
 		return x;

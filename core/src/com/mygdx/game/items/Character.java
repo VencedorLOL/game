@@ -2,7 +2,7 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
@@ -11,6 +11,8 @@ import com.mygdx.game.items.characters.classes.Melee;
 import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
+
+import java.util.Objects;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
@@ -22,22 +24,27 @@ public class Character extends Entity implements Utils {
 	public String characterTexture;
 	Stage stage;
 	Entity testCollision = new Entity();
-	long time = 0;
-	int previousPressLocation = 0;
-	char previousPressKey = 'N';
-	char previousPressKeySecondary = 'N';
+	int[] speedLeft = new int[2];
+	char direction = 'N';
+	char secondaryDirection = 'N';
 	long animationSpeed = 1000000;
 	int numberOfKeysPressed = 0;
 	int visualSpeedMultiplier = 8;
-	boolean isDivisibleBy128 = false;
-	boolean hasMovedBefore;
-	boolean canMove = true;
+	boolean canDecide = true;
 	public boolean isOnTurn;
 	byte speedState = 0;
 	int distance;
 	boolean isDead;
-	// Used for when the turn is being controlled by classes
+	// Used when the turn is being controlled by classes
 	public boolean hasAttacked;
+
+	// Turns overhaul
+	public boolean permittedToMove;
+	public Vector3 attacksCoordinate;
+	// Turns overhaul
+
+
+
 	public boolean overlapsWithStage(Stage stage, Entity entity){
 		for(Wall b : stage.walls){
 			if (entity.overlaps(b))
@@ -65,41 +72,27 @@ public class Character extends Entity implements Utils {
 		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		animationSpeed = animationSpeedGetter();
 		if(!(128 % visualSpeedMultiplier == 0)) {
-			if(visualSpeedMultiplier > 128 && !isDivisibleBy128) {
+			if(visualSpeedMultiplier > 128)
 				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 4 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 4 )
 				visualSpeedMultiplier = 4;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 8 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 8 )
 				visualSpeedMultiplier = 8;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 16 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 16 )
 				visualSpeedMultiplier = 16;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 32 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 32 )
 				visualSpeedMultiplier = 32;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 64 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 64 )
 				visualSpeedMultiplier = 64;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 128 && !isDivisibleBy128) {
+			else if(visualSpeedMultiplier < 128)
 				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
 		}
 	}
 
 	public void spendTurn(){
 		speedState = 0;
 		isOnTurn = false;
-		Turns.spendTurn();
+		permittedToMove = false;
 	}
 
 	public void isItMyTurn(){
@@ -107,134 +100,35 @@ public class Character extends Entity implements Utils {
 		swapToCharacterTurn(stage);
 	}
 
+	private void actionDecided(){
+		Turns.characterFinalizedToChooseAction();
+	}
 
-	public void secondaryMovement(){
-		switch (previousPressKeySecondary) {
-			case 'A': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						x -= visualSpeedMultiplier;
-						if (previousPressKey == 'N')
-							previousPressKey = 'A';
-						else
-							previousPressKeySecondary = 'A';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'D': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						x += visualSpeedMultiplier;
-						if (previousPressKey == 'N')
-							previousPressKey = 'D';
-						else
-							previousPressKeySecondary = 'D';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'S': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						y -= visualSpeedMultiplier;
-						if (previousPressKey == 'N')
-							previousPressKey = 'S';
-						else
-							previousPressKeySecondary = 'S';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'W': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						y += visualSpeedMultiplier;
-						if (previousPressKey == 'N')
-							previousPressKey = 'W';
-						else
-							previousPressKeySecondary = 'W';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-		}
+	public void permitToMove(){
+		permittedToMove = true;
+	}
+
+	@Override
+	public boolean isPermittedToMove() {
+		return permittedToMove;
 	}
 
 	protected void primaryMovement(){
-		switch (previousPressKey) {
-			case 'A': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						x -= visualSpeedMultiplier;
-						if (previousPressKey == 'N' || previousPressKey == 'A')
-							previousPressKey = 'A';
-						else
-							previousPressKeySecondary = 'A';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'D': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						x += visualSpeedMultiplier;
-						if (previousPressKey == 'N' || previousPressKey == 'D')
-							previousPressKey = 'D';
-						else
-							previousPressKeySecondary = 'D';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'S': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						y -= visualSpeedMultiplier;
-						if (previousPressKey == 'N' || previousPressKey == 'S')
-							previousPressKey = 'S';
-						else
-							previousPressKeySecondary = 'S';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
-			case 'W': {
-				time = TimeUtils.nanoTime();
-				while (true)
-					if (TimeUtils.nanoTime() - time > animationSpeed) {
-						y += visualSpeedMultiplier;
-						if (previousPressKey == 'N' || previousPressKey == 'W')
-							previousPressKey = 'W';
-						else
-							previousPressKeySecondary = 'W';
-						hasMovedBefore = true;
-						break;
-					}
-				canMove = false;
-				break;
-			}
+		if (speedLeft[0] > 0) {
+			x += visualSpeedMultiplier;
+			speedLeft[0] -= visualSpeedMultiplier;
+		}
+		else if (speedLeft[0] < 0) {
+			x -= visualSpeedMultiplier;
+			speedLeft[0] += visualSpeedMultiplier;
+		}
+		if (speedLeft[1] > 0) {
+			y += visualSpeedMultiplier;
+			speedLeft[1] -= visualSpeedMultiplier;
+		}
+		else if (speedLeft[1] < 0) {
+			y -= visualSpeedMultiplier;
+			speedLeft[1] += visualSpeedMultiplier;
 		}
 	}
 
@@ -246,70 +140,75 @@ public class Character extends Entity implements Utils {
 					System.out.println("In x: " + n.x + " :in y: " + e.y);
 				}
 			}
-
-		previousPressKeySecondary = 'N';
-		previousPressKey = 'N';
-		previousPressLocation = 0;
+		secondaryDirection = 'N';
+		direction = 'N';
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
 		speedState++;
 		if (speedState >= round((float) character.speed / 2))
 			spendTurn();
-		canMove = true;
+		canDecide = true;
+		attacksCoordinate = null;
 	}
 
 	protected void movementInput(){
 		if (Gdx.input.isKeyPressed(Input.Keys.A) && numberOfKeysPressed < 2) {
 			numberOfKeysPressed++;
 			testCollision.x -= 128;
-			if (previousPressKey == 'N' || previousPressKey == 'A')
-				previousPressKey = 'A';
+			if (direction == 'N' || direction == 'A')
+				direction = 'A';
 			else
-				previousPressKeySecondary = 'A';
+				secondaryDirection = 'A';
+			speedLeft[0] = -128;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.D) && numberOfKeysPressed < 2) {
 			numberOfKeysPressed++;
 			testCollision.x += 128;
-			if (previousPressKey == 'N' || previousPressKey == 'D')
-				previousPressKey = 'D';
+			if (direction == 'N' || direction == 'D')
+				direction = 'D';
 			else
-				previousPressKeySecondary = 'D';
+				secondaryDirection = 'D';
+			speedLeft[0] = 128;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.W) && numberOfKeysPressed < 2) {
 			numberOfKeysPressed++;
 			testCollision.y += 128;
-			if (previousPressKey == 'N' || previousPressKey == 'W')
-				previousPressKey = 'W';
+			if (direction == 'N' || direction == 'W')
+				direction = 'W';
 			else
-				previousPressKeySecondary = 'W';
+				secondaryDirection = 'W';
+			speedLeft[1] = 128;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.S) && numberOfKeysPressed < 2) {
 			numberOfKeysPressed++;
 			testCollision.y -= 128;
-			if (previousPressKey == 'N' || previousPressKey == 'S')
-				previousPressKey = 'S';
+			if (direction == 'N' || direction == 'S')
+				direction = 'S';
 			else
-				previousPressKeySecondary = 'S';
+				secondaryDirection = 'S';
+			speedLeft[1] = -128;
 		}
-		if (!overlapsWithStage(stage,testCollision) && previousPressKey != 'N'){
-			hasMovedBefore = true;
-			canMove = false;
-			previousPressLocation -= visualSpeedMultiplier;
+		if (!overlapsWithStage(stage,testCollision) && direction != 'N'){
+			canDecide = false;
+			actionDecided();
 		}
 		else {
-			previousPressKeySecondary = 'N';
-			previousPressKey = 'N';
-			previousPressLocation = 0;
-			canMove = true;
+			secondaryDirection = 'N';
+			direction = 'N';
+			speedLeft[0] = 0;
+			speedLeft[1] = 0;
+			canDecide = true;
 		}
 	}
 
 	protected void isOnTheGrid(){
-		if (previousPressLocation == 0) {
+		if (speedLeft[0] == 0 && speedLeft[1] == 0) {
 			if (!(x % 128 == 0)) {
-				System.out.println("Offset in x. Coordinate was: " + x);
+				System.err.println("Offset in x. Coordinate was: " + x);
 				x = (float) (128 * ceil(x / 128));
 			}
 			if (!(y % 128 == 0)) {
-				System.out.println("Offset in y. Coordinate was: " + y);
+				System.err.println("Offset in y. Coordinate was: " + y);
 				y = (float) (128 * ceil(y / 128));
 			}
 		}
@@ -318,18 +217,18 @@ public class Character extends Entity implements Utils {
 	public void movement(){
 		testCollision.x = x;
 		testCollision.y = y;
-		if (previousPressLocation < 128) {
-			secondaryMovement();
-			primaryMovement();
+		if (permittedToMove) {
+			if (speedLeft[0] != 0 || speedLeft[1] != 0 /*&& permittedToMove*/) {
+				primaryMovement();
+			}
+
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && direction != 'N' /*&& permittedToMove*/)
+				movementOnFinalize();
 		}
-		if (canMove)
+
+		if (canDecide)
 			movementInput();
-		if (previousPressLocation >= 128)
-			movementOnFinalize();
-		if (hasMovedBefore)
-			previousPressLocation += visualSpeedMultiplier;
 		numberOfKeysPressed = 0;
-		hasMovedBefore = false;
 		isOnTheGrid();
 		super.refresh(characterTexture,x, y, base, height);
 	}
@@ -342,17 +241,19 @@ public class Character extends Entity implements Utils {
 		if (isOnTurn){
 			movement();
 			attack();
+			if(canDecide)
+				attackDecider();
 			changeTo();
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canMove)
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canDecide)
 			spendTurn();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
-			System.out.println("speedState: " + speedState);
-			System.out.println("canMove: " + canMove);
-			System.out.println("hasMovedBefore: " + hasMovedBefore);
-			System.out.println("previousPressedKey: " + previousPressKey);
-			System.out.println("previousPressedKeySecondary: " + previousPressKeySecondary);
-			System.out.println("previousPressedKeyState: " + previousPressLocation);
+			System.out.println("speedState on y: " + speedState);
+			System.out.println("canDecide: " + canDecide);
+			System.out.println("previousPressedKey: " + direction);
+			System.out.println("previousPressedKeySecondary: " + secondaryDirection);
+			System.out.println("speedLeft on x: " + speedLeft[0]);
+			System.out.println("speedLeft on y: " + speedLeft[1]);
 			System.out.println("onTurn: " + isOnTurn);
 			System.out.println("Weapon" + character.weapon);
 			System.out.println("Health: " + character.totalHealth);
@@ -362,114 +263,83 @@ public class Character extends Entity implements Utils {
 		textureUpdater();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && whatTurnIsIt()) {
 			Enemy.fastMode = !Enemy.fastMode;
-			System.out.println(Enemy.fastMode);
-			if (Enemy.fastMode){
-				animationSpeed = 12500;
+			System.out.println("FastMode is now "+Enemy.fastMode);
+			if (Enemy.fastMode)
 				visualSpeedMultiplier = 32;
-			}
-			else {
-				animationSpeed = 1000000;
+			else
 				visualSpeedMultiplier = 8;
-			}
+
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
 			cam.particle.particleEmitter("BLOB",x+64,y+64,1, 0,true,false);
 		}
-
-		if(Gdx.input.isKeyJustPressed(Input.Keys.N))
-			camaraShake(50,55,cam);
-
-		camaraShake(50,0,cam);
 		render();
 	}
 
-	float frames;
-	byte state = 0;
-	public void camaraShake(float intensity,int frameDuration,GameScreen gs){
 
-		frames += frameDuration;
-
-		if(frames > 0) {
-			if (state == 0) {
-				gs.camara.camara.rotate(2 * intensity);
-				state++;
-			} else if (state == 1){
-				gs.camara.camara.rotate(-4 * intensity);
-				state++;
-			} else if (state == 2){
-				gs.camara.camara.rotate(4 * intensity);
-				state--;
-			}
-
-			frames--;
-			if(frames <= 0) {
-				gs.camara.camara.rotate(-2*intensity);
-				state = 0;
-			}
-
-		}
-
-	}
-
-
-
-
-	public void attack() {
-		if (!hasMovedBefore) {
+	public void attackDecider() {
+		if (canDecide) {
 			if (Gdx.input.isTouched()) {
-				if (clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range) != null && character.range >= distance) {
-					clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range).damage(character.outgoingDamage(), "Melee");
-					if (!character.shouldTurnCompletionBeLeftToClass)
-						spendTurn();
-					else {
-						hasAttacked = true;
-					}
+				if (clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range) != null) {
+					attacksCoordinate = click();
+					actionDecided();
 				}
 			}
 		}
 	}
 
+	public void attack(){
+		if(attacksCoordinate != null)
+			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls, character.range) != null && character.range >= distance){
+			Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls, character.range)).damage(character.outgoingDamage(), "Melee");
+			if (!character.shouldTurnCompletionBeLeftToClass)
+				spendTurn();
+			else
+				hasAttacked = true;
+
+		}
+	}
 
 
 	int previousTexture = 3;
 	public int texture() {
-		switch(previousPressKey){
+		switch(direction){
 			case 'A': {
 				previousTexture = 1;
-				if(previousPressKeySecondary == 'S'){
+				if(secondaryDirection == 'S'){
 					previousTexture = 6;
 				}
-				if(previousPressKeySecondary == 'W'){
+				if(secondaryDirection == 'W'){
 					previousTexture = 8;
 				}
 				break;
 			}
 			case 'D': {
 				previousTexture = 2;
-				if(previousPressKeySecondary == 'S'){
+				if(secondaryDirection == 'S'){
 					previousTexture = 5;
 				}
-				if(previousPressKeySecondary == 'W'){
+				if(secondaryDirection == 'W'){
 					previousTexture = 7;
 				}
 				break;
 			}
 			case 'W': {
 				previousTexture = 4;
-				if(previousPressKeySecondary == 'A'){
+				if(secondaryDirection == 'A'){
 					previousTexture = 8;
 				}
-				if(previousPressKeySecondary == 'D'){
+				if(secondaryDirection == 'D'){
 					previousTexture = 7;
 				}
 				break;
 			}
 			case 'S': {
 				previousTexture = 3;
-				if(previousPressKeySecondary == 'A'){
+				if(secondaryDirection == 'A'){
 					previousTexture = 6;
 				}
-				if(previousPressKeySecondary == 'D'){
+				if(secondaryDirection == 'D'){
 					previousTexture = 5;
 				}
 				break;
