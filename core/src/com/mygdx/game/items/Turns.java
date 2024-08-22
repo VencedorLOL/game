@@ -44,6 +44,7 @@ public class Turns implements Utils {
 		}
 		didTurnJustPass = true;
 		turnCount++;
+		startOfTurn = false;
 
 		}
 
