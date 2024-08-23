@@ -16,7 +16,6 @@ import java.util.Objects;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
-import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
@@ -30,8 +29,7 @@ public class Character extends Entity implements Utils {
 	long animationSpeed = 1000000;
 	int numberOfKeysPressed = 0;
 	int visualSpeedMultiplier = 8;
-	boolean canDecide = true;
-	public boolean isOnTurn;
+	public boolean canDecide = true;
 	byte speedState = 0;
 	int distance;
 	boolean isDead;
@@ -91,20 +89,16 @@ public class Character extends Entity implements Utils {
 
 	public void spendTurn(){
 		speedState = 0;
-		isOnTurn = false;
 		permittedToMove = false;
 	}
 
-	public void isItMyTurn(){
-		isOnTurn = whatTurnIsIt();
-		swapToCharacterTurn(stage);
-	}
 
 	private void actionDecided(){
 		Turns.characterFinalizedToChooseAction();
 	}
 
 	public void permitToMove(){
+		System.out.println("permitted to move");
 		permittedToMove = true;
 	}
 
@@ -236,15 +230,12 @@ public class Character extends Entity implements Utils {
 	public void update(Stage stage, GameScreen cam){
 		this.stage = stage;
 		onDeath();
-		isItMyTurn();
 		character.update(this);
-		if (isOnTurn){
-			movement();
-			attack();
-			if(canDecide)
-				attackDecider();
-			changeTo();
-		}
+		movement();
+		attack();
+		if(canDecide)
+			attackDecider();
+		changeTo();
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canDecide)
 			spendTurn();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
@@ -254,14 +245,14 @@ public class Character extends Entity implements Utils {
 			System.out.println("previousPressedKeySecondary: " + secondaryDirection);
 			System.out.println("speedLeft on x: " + speedLeft[0]);
 			System.out.println("speedLeft on y: " + speedLeft[1]);
-			System.out.println("onTurn: " + isOnTurn);
+			System.out.println("permittedToAct: " + permittedToMove);
 			System.out.println("Weapon" + character.weapon);
 			System.out.println("Health: " + character.totalHealth);
 			System.out.println("Damage: " + character.totalDamage);
 			System.out.println("Current health: " + character.currentHealth);
 		}
 		textureUpdater();
-		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && whatTurnIsIt()) {
+		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide) {
 			Enemy.fastMode = !Enemy.fastMode;
 			System.out.println("FastMode is now "+Enemy.fastMode);
 			if (Enemy.fastMode)

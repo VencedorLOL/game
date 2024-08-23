@@ -2,7 +2,6 @@ package com.mygdx.game.items.characters.classes;
 
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.TextureManager.addToListFixatedScreenCoordinates;
-import static com.mygdx.game.items.Turns.whatTurnIsIt;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 import com.badlogic.gdx.Gdx;
@@ -49,11 +48,11 @@ public class Vencedor extends CharacterClasses {
 
 
 	public void VenceSword(Character character){
-		if (whatTurnIsIt() && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
+		if (character.canDecide && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
 			attackMode = true;
 			return;
 		}
-		if (whatTurnIsIt() && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
+		if (character.canDecide && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
 			attackMode = false;
 			return;
 		}

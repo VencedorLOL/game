@@ -8,7 +8,6 @@ import java.util.Objects;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.visualSpeedMultiplierGetter;
 import static com.mygdx.game.items.Stage.*;
-import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 
@@ -23,7 +22,6 @@ public class Enemy extends Entity{
 	boolean isDivisibleBy128 = false;
 	boolean canDecide = true;
 	boolean allowedToMove = false;
-	boolean hasHadItsTurn = false;
 	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
 	char move;
 	static boolean fastMode;
@@ -150,14 +148,6 @@ public class Enemy extends Entity{
 		return permittedToMove;
 	}
 
-	public void isItMyTurn(){
-		if (!isDead)
-			whatEnemiesTurnIsIt(stage);
-		else {
-			hasHadItsTurn = true;
-			allowedToMove = false;
-		}
-	}
 
 	public void amIRendered(){
 		isRendered = x - 128*2 <= stage.camaraX + stage.camaraBase / 2 &&
@@ -175,7 +165,7 @@ public class Enemy extends Entity{
 
 	public void spendTurn(){
 		allowedToMove = false;
-		nextEnemyTurnCaller();
+		permittedToMove = false;
 	}
 
 	// Movement version: 4.0
@@ -264,6 +254,7 @@ public class Enemy extends Entity{
 				break;
 			}
 			case 'S': {
+				System.out.println("Trapped");
 				movementOnFinalize();
 			}
 		}
@@ -310,6 +301,7 @@ public class Enemy extends Entity{
 		if (canDecide) {
 			if (localFastMode) visualSpeedMultiplier = 128;
 			else visualSpeedMultiplier = visualSpeedMultiplierGetter();
+			System.out.println(visualSpeedMultiplier);
 			movementDirection();
 		}
 		if (!canDecide) {
@@ -319,9 +311,10 @@ public class Enemy extends Entity{
 			if (speedLeft[0] == 0 && speedLeft[1] == 0 && (
 					availableSpaces[0] != 'N' || availableSpaces[1] != 'N' || availableSpaces[2] != 'N' ||
 							availableSpaces[3] != 'N' || availableSpaces[4] != 'N' || availableSpaces[5] != 'N' ||
-							availableSpaces[6] != 'N' || availableSpaces[7] != 'N'))
-
+							availableSpaces[6] != 'N' || availableSpaces[7] != 'N')) {
+				System.out.println("Finalized moving");
 				movementOnFinalize();
+			}
 		}
 		super.refresh(texture,x, y, base, height);
 		isOnTheGrid();
@@ -347,8 +340,7 @@ public class Enemy extends Entity{
 			this.stage = stage;
 			onDeath();
 			amIRendered();
-			isItMyTurn();
-			if (allowedToMove)
+			if (isPermittedToMove())
 				movement();
 			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
 				System.out.println("canDecide: " + canDecide);

@@ -4,7 +4,6 @@ import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
 
-import static com.mygdx.game.items.Turns.whatTurnIsIt;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
@@ -155,7 +154,7 @@ public class CharacterClasses {
 
 	byte turnPasserAid;
 	public boolean turnHasPassed() {
-		if(whatTurnIsIt() && turnPasserAid == 0)
+		/*if(whatTurnIsIt() && turnPasserAid == 0)
 			turnPasserAid++;
 		if(!whatTurnIsIt() && turnPasserAid == 1)
 			turnPasserAid++;
@@ -163,7 +162,8 @@ public class CharacterClasses {
 			turnPasserAid = 0;
 			System.out.println("A turn has passed");
 			return true;
-		}
+		}*/
+		System.out.println("Broke, WIP");
 		return false;
 	}
 

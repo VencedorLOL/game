@@ -2,8 +2,7 @@ package com.mygdx.game.items;
 
 import com.mygdx.game.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /* TODO: Need to redo this so it has: turn counter, system in which the faster moves first but character can choose what
  to do first, even if it doesn't necessarily move first (pokemon-like), method that returns true if a turn passed (takes nº of
@@ -11,14 +10,13 @@ import java.util.List;
  */
 public class Turns implements Utils {
 	// true means is character's turn
-	static boolean turn = true;
 	static boolean canCallNextTurn = true;
 	static int amountOfEnemies;
 	static boolean didTurnJustPass;
-
 	static long turnCount;
-	static boolean startOfTurn;
-
+	static boolean startOfTurn = true;
+	static boolean startedToDoTurns = false;
+	static int currentTurn;
 
 	public static void characterFinalizedToChooseAction(){
 		startOfTurn = false;
@@ -35,20 +33,45 @@ public class Turns implements Utils {
 			listOfSpeeds.add(new EntityAndSpeed(c.character.speed, c));
 		}
 
-		listOfSpeeds = Utils.sort(listOfSpeeds, 0, listOfSpeeds.size() - 1);
-		listOfSpeeds.reversed();
+		listOfSpeeds.sort(new Comparator<EntityAndSpeed>() {
+			@Override
+			public int compare(EntityAndSpeed o1, EntityAndSpeed o2) {
+				return Integer.compare(o2.getSpeed(), o1.getSpeed());
+			}
+		});
 
-		for (EntityAndSpeed e : listOfSpeeds){
-			e.getEntity().permitToMove();
-			while (!e.getEntity().isPermittedToMove()){}
+		System.out.println(currentTurn);
+
+
+		if(currentTurn != 0) {
+			if (!listOfSpeeds.get(currentTurn - 1).getEntity().isPermittedToMove()
+					&& !((currentTurn - 1) >= listOfSpeeds.size())) {
+				listOfSpeeds.get(currentTurn).getEntity().permitToMove();
+				currentTurn++;
+			}
 		}
-		didTurnJustPass = true;
-		turnCount++;
-		startOfTurn = false;
+		else {
+				listOfSpeeds.get(currentTurn).getEntity().permitToMove();
+				currentTurn++;
+			}
 
+		if ((currentTurn) >= listOfSpeeds.size()){
+			System.out.println(currentTurn);
+			didTurnJustPass = true;
+			turnCount++;
+			startOfTurn = true;
+			startedToDoTurns = false;
+			currentTurn = 0;
+			System.out.println("Turn passed");
+			}
 		}
 
 	}
+
+
+
+
+	public void moveNext() {}
 
 
 	public static class EntityAndSpeed {
@@ -78,56 +101,8 @@ public class Turns implements Utils {
 	}
 
 
-
-
-	public static boolean didTurnJustPass(){
-		return false;
-	}
-
-	public static void spendTurn() {
-		turn = false;
-	}
-
-	public static void spendTurnReverse() {
-		turn = true;
-	}
-
-	public static boolean whatTurnIsIt() {
-		return turn;
-	}
-
-	public static void nextEnemyTurnCaller(){
-		canCallNextTurn = true;
-	}
-
 	public static void reset(Stage stage){
-		turn = true;
 		amountOfEnemies = stage.enemy.size();
 	}
 
-	public static void swapToCharacterTurn(Stage stage) {
-		amountOfEnemies = stage.enemy.size();
-		for (Enemy e : stage.enemy) {
-			if (!e.allowedToMove) {
-				amountOfEnemies--;
-			}
-		}
-		if (amountOfEnemies == 0) {
-			spendTurnReverse();
-			for (Enemy e : stage.enemy)
-				e.hasHadItsTurn = false;
-		}
-	}
-
-	public static void whatEnemiesTurnIsIt(Stage stage){
-		amountOfEnemies = stage.enemy.size();
-		if(!turn && canCallNextTurn)
-			for (Enemy e : stage.enemy)
-				if (!e.allowedToMove && !e.hasHadItsTurn && !e.isDead){
-					e.allowedToMove = true;
-					e.hasHadItsTurn = true;
-					canCallNextTurn = false;
-					break;
-				}
-	}
 }

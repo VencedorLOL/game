@@ -53,8 +53,6 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.begin();
 		screenSizeChangeDetector();
 		if(!isScreenChanging) {
-			if(!whatTurnIsIt())
-				System.out.println("NotUrTurn");
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
 			camara.updater(chara);
