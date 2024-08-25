@@ -320,8 +320,6 @@ public class ClickDetector implements Utils {
 		public int getTimesTheRayTouchedTheEnemy(){
 			return timesTheRayTouchedTheEnemy;
 		}
-
-
 	}
 
 
