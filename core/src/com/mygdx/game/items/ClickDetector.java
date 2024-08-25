@@ -39,59 +39,51 @@ public class ClickDetector implements Utils {
 
 
 	public static ArrayList<Enemy> rayCasting(float fromX, float fromY, float toX, float toY, Entity entityToIgnore,
-									ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, float range, boolean phases) {
-		// clue: the flaw starts here. This comment doesn't make sense if you don't read the rest of the method, so, do it
-		ArrayList<Enemy> useful = new ArrayList<>();
-
+											  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, boolean pierces) {
+		ArrayList<Enemy> piercesEnemyArrayOfTargets = new ArrayList<>();
+		Ray rayCheckerCenter = new Ray(fromX + 64, fromY + 64);
+		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1);
+		Ray rayCheckerDownRight = new Ray(fromX + 127, fromY + 1);
+		Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + 127);
+		Ray rayCheckerUpRight = new Ray(fromX + 127, fromY + 127);
+		ArrayList<Ray> rayCheckerList = new ArrayList<>();
+		rayCheckerList.add(rayCheckerCenter);
+		rayCheckerList.add(rayCheckerDownLeft);
+		rayCheckerList.add(rayCheckerDownRight);
+		rayCheckerList.add(rayCheckerUpLeft);
+		rayCheckerList.add(rayCheckerUpRight);
 		for (Enemy e : enemyList) {
 			if (toX == e.x && toY == e.y && !e.isDead) {
-				Ray rayCheckerCenter = new Ray(fromX + 64, fromY + 64);
-				Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1);
-				Ray rayCheckerDownRight = new Ray(fromX + 127, fromY + 1);
-				Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + 127);
-				Ray rayCheckerUpRight = new Ray(fromX + 127, fromY + 127);
-				ArrayList<Ray> rayCheckerList = new ArrayList<>();
-				rayCheckerList.add(rayCheckerCenter);
-				rayCheckerList.add(rayCheckerDownLeft);
-				rayCheckerList.add(rayCheckerDownRight);
-				rayCheckerList.add(rayCheckerUpLeft);
-				rayCheckerList.add(rayCheckerUpRight);
-
 				float rect = ((e.y + 64) - (fromY + 64)) / ((e.x + 64) - (fromX + 64));
 				int sign = 1;
 				if (e.x < fromX)
 					sign = -1;
-				// For some reason if I put 1/0 a warning pops up,
-				// but if I put these constants, which are literally the same thing as I had
-				// (1/0 and -1/0) it doesn't. Bruh.
-				// for later math, when the rect isn't a function.
 				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
 					sign = 0;
 				for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(e.x - fromX), abs(e.y - fromY)); i++) {
-					for (Entity r : rayCheckerList) {
+					for (Entity r : rayCheckerList)
 						r.x += sign;
-					}
 					if (sign != 0) {
-						for (Entity r : rayCheckerList) {
+						for (Entity r : rayCheckerList)
 							r.y += rect * sign;;
-						}
+
 					} else if (rect == POSITIVE_INFINITY) {
-						for (Entity r : rayCheckerList) {
+						for (Entity r : rayCheckerList)
 							r.y++;
-						}
+
 					} else if (rect == NEGATIVE_INFINITY) {
-						for (Entity r : rayCheckerList) {
+						for (Entity r : rayCheckerList)
 							r.y--;
-						}
+
 					}
 					if(isDevMode())
-						for (Entity r : rayCheckerList) {
+						for (Entity r : rayCheckerList)
 							r.render();
-						}
-					if(phases)
+
+					if(pierces)
 						for (Ray r: rayCheckerList)
-							// it's alright, if phases, then this returns an ArrayList<Enemy>
-							useful = (ArrayList<Enemy>) r.enemyRayCheck(enemyList);
+							// it's alright, if pierces, then this returns an ArrayList<Enemy>
+							piercesEnemyArrayOfTargets = (ArrayList<Enemy>) r.enemyRayCheck(enemyList);
 					else
 						for(Ray r: rayCheckerList)
 							if(!r.getEnemiesThatGotHit().isEmpty())
@@ -102,20 +94,14 @@ public class ClickDetector implements Utils {
 										return temporal;
 									}
 
-
-					for(Ray r: rayCheckerList){
+					for(Ray r: rayCheckerList)
 						r.wallRayCheck(wallList);
-					}
 					if((rayCheckerCenter.timesRayTouchedWall + rayCheckerUpLeft.timesRayTouchedWall +
 							rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
-							rayCheckerDownRight.timesRayTouchedWall) >= 325){
+							rayCheckerDownRight.timesRayTouchedWall) >= 325)
 						return null;
-					}
-
-
-
 				}
-				return useful;
+				return piercesEnemyArrayOfTargets;
 			}
 		}
 		return null;
@@ -124,12 +110,12 @@ public class ClickDetector implements Utils {
 
 	// lmao ure now useless dw ill find a use for u later
 	public static ArrayList<Enemy> clickAndRayCasting(float fromX, float fromY, Entity entityToIgnore,
-													  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, float range, boolean phases){
+													  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, boolean phases){
 		Vector3 utilVector = click();
 		float toX = utilVector.x;
 		float toY = utilVector.y;
 
-		return rayCasting(fromX,fromY,toX,toY,entityToIgnore,enemyList,wallList,range,phases);
+		return rayCasting(fromX,fromY,toX,toY,entityToIgnore,enemyList,wallList, phases);
 	}
 
 	public static boolean clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(float fromX, float fromY,
@@ -160,10 +146,6 @@ public class ClickDetector implements Utils {
 				int sign = 1;
 				if (toX < fromX)
 					sign = -1;
-				// For some reason if I put 1/0 a warning pops up,
-				// but if I put these constants, which are literally the same thing as I had
-				// (1/0 and -1/0) it doesn't. Bruh.
-				// for later math, when the rect isn't a function.
 				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
 					sign = 0;
 				for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(toX - fromX), abs(toY - fromY)); i++) {
@@ -178,6 +160,7 @@ public class ClickDetector implements Utils {
 							r.y++;
 					// just ignore the warning.
 					} else if (rect == NEGATIVE_INFINITY) {
+						System.out.println("negative rect hit");
 						for (Entity r : rayCheckerList)
 							r.y--;
 					}
@@ -185,19 +168,12 @@ public class ClickDetector implements Utils {
 						for (Entity r : rayCheckerList)
 							r.render();
 
-					// TODO: optimize this so it is more readable, aka make a class called RayChecker, put the "touched"
-					//  floats into RayChecker and make this run with an ArrayList for loop. This'll also solve below's
-					//  problem.
-					//  copied the method, copied the to-do ig
-					for (Ray r : rayCheckerList) {
+					for (Ray r : rayCheckerList)
 						r.wallRayCheck(wallList);
-					}
-
 					if((rayCheckerCenter.timesRayTouchedWall + rayCheckerUpLeft.timesRayTouchedWall +
 							rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
-							rayCheckerDownRight.timesRayTouchedWall) >= 325){
+							rayCheckerDownRight.timesRayTouchedWall) >= 325)
 						return false;
-					}
 				}
 		return true;
 	}
@@ -212,6 +188,7 @@ public class ClickDetector implements Utils {
 		ArrayList<Enemy> hitEnemies;
 		ArrayList<EnemyAndTimesTheRayTouchedIt> enemiesThatGotHit;
 
+		// chillllll, idea, might use them later
 		public Ray(String texture,float x, float y, float base, float height, boolean phases){
 			super(texture,x,y,base,height);
 			if(phases) {
@@ -221,7 +198,6 @@ public class ClickDetector implements Utils {
 			else
 				enemiesThatGotHit = new ArrayList<>();
 		}
-
 
 		public Ray(String texture,float x, float y, float base, float height){
 			super(texture,x,y,base,height);
@@ -290,8 +266,7 @@ public class ClickDetector implements Utils {
 			return enemiesThatGotHit;
 		}
 
-
-
+		// intellij wont let me have anything i might use in the future without shouting me for it.
 		public void rayCheck(ArrayList<Enemy> enemyList, ArrayList<Wall> wallList){
 			wallRayCheck(wallList);
 			enemyRayCheck(enemyList);

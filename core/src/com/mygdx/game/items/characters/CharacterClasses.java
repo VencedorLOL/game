@@ -44,6 +44,7 @@ public class CharacterClasses {
 
 	public float currentHealth;
 
+	public boolean pierces;
 	// If true, turn completion will be handled by classes instead of normal procedure
 	public boolean shouldTurnCompletionBeLeftToClass;
 

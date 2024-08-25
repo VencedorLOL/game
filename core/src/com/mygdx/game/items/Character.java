@@ -342,10 +342,15 @@ public class Character extends Entity implements Utils {
 
 	public void attack(){
 		if(attacksCoordinate != null && isPermittedToAct())
-			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls, character.range)
-					!= null && character.range >= distance){
-			Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls, character.range))
-					.damage(character.outgoingDamage(), "Melee");
+			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls,
+					character.pierces) != null && character.range >= distance){
+
+				for (Enemy e : Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
+						this, stage.enemy, stage.walls, character.pierces))){
+					e.damage(character.outgoingDamage(), "Melee");
+				}
+
+
 			if (!character.shouldTurnCompletionBeLeftToClass)
 				finalizedAttack();
 			else
