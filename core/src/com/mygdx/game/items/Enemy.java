@@ -6,20 +6,19 @@ import com.badlogic.gdx.Input;
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
-import static com.mygdx.game.Settings.visualSpeedMultiplierGetter;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 
 public class Enemy extends Entity{
+	int thisTurnVSM;
 	public int speed = 3;
 	public float health = 20;
 	public float defense = 5;
 	Stage stage;
 	public Entity testCollision = new Entity();
 	int[] speedLeft = new int[2];
-	int visualSpeedMultiplier;
-	boolean isDivisibleBy128 = false;
 	boolean canDecide = true;
 	boolean allowedToMove = false;
 	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
@@ -27,11 +26,10 @@ public class Enemy extends Entity{
 	static boolean fastMode;
 	boolean localFastMode;
 	boolean isRendered;
-	boolean isDead = false;
-	boolean permittedToMove = false;
-	public Enemy(float x, float y, String texture, float health){
-		super(texture,x,y,128,128);
-		speed = random(1,7);
+	boolean permittedToAct = false;
+	public Enemy(float x, float y, String texture, float health) {
+		super(texture, x, y, 128, 128);
+		speed = random(1, 7);
 		this.health = health;
 		this.x = x;
 		this.y = y;
@@ -39,39 +37,7 @@ public class Enemy extends Entity{
 		testCollision.y = y;
 		testCollision.base = base;
 		testCollision.height = height;
-		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		this.texture = texture;
-		if(!(128 % visualSpeedMultiplier == 0)) {
-			if(visualSpeedMultiplier > 128 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 4 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 4;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 8 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 8;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 16 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 16;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 32 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 32;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 64 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 64;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 128 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
-		}
-
 	}
 
 	public Enemy(float x, float y) {
@@ -80,37 +46,6 @@ public class Enemy extends Entity{
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
-		visualSpeedMultiplier = visualSpeedMultiplierGetter();
-		if(!(128 % visualSpeedMultiplier == 0)) {
-			if(visualSpeedMultiplier > 128 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 4 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 4;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 8 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 8;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 16 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 16;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 32 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 32;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 64 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 64;
-				isDivisibleBy128 = true;
-			}
-			if(visualSpeedMultiplier < 128 && !isDivisibleBy128) {
-				visualSpeedMultiplier = 128;
-				isDivisibleBy128 = true;
-			}
-		}
 	}
 	// Movement
 
@@ -140,12 +75,12 @@ public class Enemy extends Entity{
 	}
 
 	public void permitToMove(){
-		permittedToMove = true;
+		permittedToAct = true;
 	}
 
 	@Override
-	public boolean isPermittedToMove() {
-		return permittedToMove;
+	public boolean isPermittedToAct() {
+		return permittedToAct;
 	}
 
 
@@ -165,7 +100,7 @@ public class Enemy extends Entity{
 
 	public void spendTurn(){
 		allowedToMove = false;
-		permittedToMove = false;
+		permittedToAct = false;
 	}
 
 	// Movement version: 4.0
@@ -254,14 +189,15 @@ public class Enemy extends Entity{
 				break;
 			}
 			case 'S': {
-				System.out.println("Trapped");
-				movementOnFinalize();
+				speedLeft[0] = 0;
+				speedLeft[1] = 0;
+				break;
 			}
 		}
+		System.out.println(move);
 	}
 
 	protected void movementDirection(){
-		fastModeSetter();
 		testCollision.x = x;
 		testCollision.y = y;
 		freeSpaceDetector();
@@ -269,21 +205,25 @@ public class Enemy extends Entity{
 	}
 
 	protected void movementSlowMode(){
+		System.out.println("Speed on x: " +speedLeft[0]);
+		System.out.println("Speed on y: "+speedLeft[1]);
+		System.out.println("VisualSpeedMultiplier is of: " +thisTurnVSM);
+
 		if (speedLeft[0] > 0) {
-			x += visualSpeedMultiplier;
-			speedLeft[0] -= visualSpeedMultiplier;
+			x += thisTurnVSM;
+			speedLeft[0] -= thisTurnVSM;
 		}
 		else if (speedLeft[0] < 0) {
-			x -= visualSpeedMultiplier;
-			speedLeft[0] += visualSpeedMultiplier;
+			x -= thisTurnVSM;
+			speedLeft[0] += thisTurnVSM;
 		}
 		if (speedLeft[1] > 0) {
-			y += visualSpeedMultiplier;
-			speedLeft[1] -= visualSpeedMultiplier;
+			y += thisTurnVSM;
+			speedLeft[1] -= thisTurnVSM;
 		}
 		else if (speedLeft[1] < 0) {
-			y -= visualSpeedMultiplier;
-			speedLeft[1] += visualSpeedMultiplier;
+			y -= thisTurnVSM;
+			speedLeft[1] += thisTurnVSM;
 		}
 	}
 
@@ -299,19 +239,16 @@ public class Enemy extends Entity{
 
 	public void movement(){
 		if (canDecide) {
-			if (localFastMode) visualSpeedMultiplier = 128;
-			else visualSpeedMultiplier = visualSpeedMultiplierGetter();
-			System.out.println(visualSpeedMultiplier);
+			fastModeSetter();
+			if (localFastMode) thisTurnVSM = 128;
+			else thisTurnVSM = getVisualSpeedMultiplier();
 			movementDirection();
 		}
 		if (!canDecide) {
 			if (speedLeft[0] != 0 || speedLeft[1] != 0)
 				movementSlowMode();
 
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && (
-					availableSpaces[0] != 'N' || availableSpaces[1] != 'N' || availableSpaces[2] != 'N' ||
-							availableSpaces[3] != 'N' || availableSpaces[4] != 'N' || availableSpaces[5] != 'N' ||
-							availableSpaces[6] != 'N' || availableSpaces[7] != 'N')) {
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && move != 'N') {
 				System.out.println("Finalized moving");
 				movementOnFinalize();
 			}
@@ -340,7 +277,7 @@ public class Enemy extends Entity{
 			this.stage = stage;
 			onDeath();
 			amIRendered();
-			if (isPermittedToMove())
+			if (isPermittedToAct())
 				movement();
 			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
 				System.out.println("canDecide: " + canDecide);
@@ -358,23 +295,20 @@ public class Enemy extends Entity{
 				System.out.println("testY: " + testCollision.y);
 				System.out.println("-");
 			}
-			if (localFastMode)
-				visualSpeedMultiplier = 128;
-			else
-				visualSpeedMultiplier = 8;
 		}
 	}
 
 	public void onDeath(){
 		if (health <= 0) {
 			isDead = true;
+			permittedToAct = false;
 		}
 	}
 
 	public void damage(float damage, String damageReason){
 		health = health - max(damage - defense,0);
 		if (Objects.equals(damageReason, "Melee")){
-			pm.particleEmitter("BLOB",x + 64,y + 64,10);
+		pm.particleEmitter("BLOB",x + 64,y + 64,10);
 		}
 
 	}

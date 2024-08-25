@@ -93,7 +93,7 @@ public class Vencedor extends CharacterClasses {
 
 
 	public static class VenceSword extends Entity {
-		float defense = POSITIVE_INFINITY;
+		final float defense = POSITIVE_INFINITY;
 		boolean isBeingControlled = false;
 
 

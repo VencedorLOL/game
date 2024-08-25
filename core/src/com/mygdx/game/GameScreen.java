@@ -68,7 +68,6 @@ public class GameScreen implements Screen, Utils {
 				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
 			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
 				stage.reseter(chara);
-				reset(stage);
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
 				System.out.println(chara.getX());

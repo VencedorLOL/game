@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 public class Entity {
+	boolean isDead;
 	float x, y, base, height;
 	String texture;
 	public static ArrayList<Entity> entityList = new ArrayList<>();
@@ -37,23 +38,16 @@ public class Entity {
 	}
 
 	//Override
-	public boolean isPermittedToMove(){return true;};
+	public boolean isPermittedToAct(){return true;};
 	//Override
 	public void permitToMove(){};
 
-	public float getX (){
-		return x;
-	}
-	public float getY (){
-		return y;
-	}
-	public float getBase (){
-		return base;
-	}
-	public float getHeight () {
-		return height;
-	}
-	public String getTexture() { return texture; }
+	public float getX (){ return x; }
+	public float getY (){ return y; }
+	public float getBase (){ return base; }
+	public float getHeight () { return height; }
+	public String getTexture() { return texture;}
+	public boolean getIsDead() {return isDead; }
 
 	public void setX (float x){
 		this.x = x;

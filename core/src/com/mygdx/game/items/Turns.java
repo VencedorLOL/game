@@ -4,26 +4,26 @@ import com.mygdx.game.Utils;
 
 import java.util.*;
 
-/* TODO: Need to redo this so it has: turn counter, system in which the faster moves first but character can choose what
- to do first, even if it doesn't necessarily move first (pokemon-like), method that returns true if a turn passed (takes nº of
- turn, compares it to this nº of turn, if not the same returns true)
- */
+//TODO: Redid, but it still needs this:  method that returns true if a turn passed
+// (takes nº of  turn, compares it to this nº of turn, if not the same returns true)
 public class Turns implements Utils {
-	// true means is character's turn
-	static boolean canCallNextTurn = true;
-	static int amountOfEnemies;
 	static boolean didTurnJustPass;
 	static long turnCount;
-	static boolean startOfTurn = true;
-	static boolean startedToDoTurns = false;
+	static boolean characterFinalizedToChoose = true;
 	static int currentTurn;
 
 	public static void characterFinalizedToChooseAction(){
-		startOfTurn = false;
+		characterFinalizedToChoose = true;
+		System.out.println("Turn just started");
+	}
+
+	public static boolean isCharacterDecidingWhatToDo(){
+		return !characterFinalizedToChoose;
 	}
 
 	public static void turnLogic(ArrayList<Enemy> listOfEnemies, ArrayList<Character> listOfCharacters){
-		if (!startOfTurn){
+		if (characterFinalizedToChoose){
+			didTurnJustPass = false;
 		List<EntityAndSpeed> listOfSpeeds = new ArrayList<>();
 
 		for (Enemy e : listOfEnemies){
@@ -41,14 +41,21 @@ public class Turns implements Utils {
 		});
 
 		System.out.println(currentTurn);
-
+		System.out.println("Is dead?: " + listOfSpeeds.get(currentTurn).getEntity().getIsDead());
 
 		if(currentTurn != 0) {
-			if (!listOfSpeeds.get(currentTurn - 1).getEntity().isPermittedToMove()
-					&& !((currentTurn - 1) >= listOfSpeeds.size())) {
+
+			if ((!listOfSpeeds.get(currentTurn - 1).getEntity().isPermittedToAct() ||
+					listOfSpeeds.get(currentTurn).getEntity().getIsDead())
+
+					&& !((currentTurn - 1) >= listOfSpeeds.size()))
+			{
 				listOfSpeeds.get(currentTurn).getEntity().permitToMove();
 				currentTurn++;
 			}
+
+			else if(listOfSpeeds.get(currentTurn).getEntity().getIsDead())
+				currentTurn++;
 		}
 		else {
 				listOfSpeeds.get(currentTurn).getEntity().permitToMove();
@@ -56,11 +63,9 @@ public class Turns implements Utils {
 			}
 
 		if ((currentTurn) >= listOfSpeeds.size()){
-			System.out.println(currentTurn);
 			didTurnJustPass = true;
 			turnCount++;
-			startOfTurn = true;
-			startedToDoTurns = false;
+			characterFinalizedToChoose = false;
 			currentTurn = 0;
 			System.out.println("Turn passed");
 			}
@@ -69,9 +74,6 @@ public class Turns implements Utils {
 	}
 
 
-
-
-	public void moveNext() {}
 
 
 	public static class EntityAndSpeed {
@@ -98,11 +100,6 @@ public class Turns implements Utils {
 			setSpeed(speed);
 			setEntity(entity);
 		}
-	}
-
-
-	public static void reset(Stage stage){
-		amountOfEnemies = stage.enemy.size();
 	}
 
 }

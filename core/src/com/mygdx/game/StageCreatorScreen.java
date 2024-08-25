@@ -11,7 +11,6 @@ import com.mygdx.game.items.stages.StageOne;
 
 import static com.mygdx.game.Settings.camaraZoom;
 import static com.mygdx.game.items.Stage.betweenStages;
-import static com.mygdx.game.items.Turns.reset;
 
 public class StageCreatorScreen implements Screen, Utils {
 	public GUI testUi;
@@ -58,7 +57,6 @@ public class StageCreatorScreen implements Screen, Utils {
 				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
 			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
 				sc.stage.reseter(chara);
-				reset(sc.stage);
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
 				System.out.println(chara.getX());

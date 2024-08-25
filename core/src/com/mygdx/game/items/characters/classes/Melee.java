@@ -71,7 +71,7 @@ public class Melee extends CharacterClasses {
 	public void turnHandler(Character character){
 		if (FoA){
 			if (attackState >= FoANumberOfExtraHits) {
-				character.spendTurn();
+				character.finalizedAttack();
 				FoA = false;
 				attackState = 0;
 			} else

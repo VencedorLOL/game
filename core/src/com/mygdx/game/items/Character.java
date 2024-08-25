@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.GameScreen;
+import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Healer;
@@ -16,9 +17,11 @@ import java.util.Objects;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
+	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
 	public String characterTexture;
 	Stage stage;
@@ -28,7 +31,6 @@ public class Character extends Entity implements Utils {
 	char secondaryDirection = 'N';
 	long animationSpeed = 1000000;
 	int numberOfKeysPressed = 0;
-	int visualSpeedMultiplier = 8;
 	public boolean canDecide = true;
 	byte speedState = 0;
 	int distance;
@@ -37,19 +39,25 @@ public class Character extends Entity implements Utils {
 	public boolean hasAttacked;
 
 	// Turns overhaul
-	public boolean permittedToMove;
+	public boolean permittedToAct;
 	public Vector3 attacksCoordinate;
 	// Turns overhaul
 
 
 
 	public boolean overlapsWithStage(Stage stage, Entity entity){
-		for(Wall b : stage.walls){
-			if (entity.overlaps(b))
-				return true;
-		}
+		if (overlapsWithWalls(stage,entity))
+			return true;
 		for(Enemy e : stage.enemy) {
 			if (entity.x == e.x && entity.y == e.y && !e.isDead)
+				return true;
+		}
+		return false;
+	}
+
+	public boolean overlapsWithWalls(Stage stage, Entity entity){
+		for(Wall b : stage.walls){
+			if (entity.overlaps(b))
 				return true;
 		}
 		return false;
@@ -67,29 +75,12 @@ public class Character extends Entity implements Utils {
 		testCollision.y = y;
 		testCollision.base = base;
 		testCollision.height = height;
-		visualSpeedMultiplier = visualSpeedMultiplierGetter();
 		animationSpeed = animationSpeedGetter();
-		if(!(128 % visualSpeedMultiplier == 0)) {
-			if(visualSpeedMultiplier > 128)
-				visualSpeedMultiplier = 128;
-			else if(visualSpeedMultiplier < 4 )
-				visualSpeedMultiplier = 4;
-			else if(visualSpeedMultiplier < 8 )
-				visualSpeedMultiplier = 8;
-			else if(visualSpeedMultiplier < 16 )
-				visualSpeedMultiplier = 16;
-			else if(visualSpeedMultiplier < 32 )
-				visualSpeedMultiplier = 32;
-			else if(visualSpeedMultiplier < 64 )
-				visualSpeedMultiplier = 64;
-			else if(visualSpeedMultiplier < 128)
-				visualSpeedMultiplier = 128;
-		}
 	}
 
 	public void spendTurn(){
 		speedState = 0;
-		permittedToMove = false;
+		permittedToAct = false;
 	}
 
 
@@ -99,34 +90,39 @@ public class Character extends Entity implements Utils {
 
 	public void permitToMove(){
 		System.out.println("permitted to move");
-		permittedToMove = true;
+		permittedToAct = true;
 	}
 
-	@Override
-	public boolean isPermittedToMove() {
-		return permittedToMove;
+	public boolean isPermittedToAct() {
+		return permittedToAct;
 	}
 
 	protected void primaryMovement(){
 		if (speedLeft[0] > 0) {
-			x += visualSpeedMultiplier;
-			speedLeft[0] -= visualSpeedMultiplier;
+			x += thisTurnVSM;
+			speedLeft[0] -= thisTurnVSM;
 		}
 		else if (speedLeft[0] < 0) {
-			x -= visualSpeedMultiplier;
-			speedLeft[0] += visualSpeedMultiplier;
+			x -= thisTurnVSM;
+			speedLeft[0] += thisTurnVSM;
 		}
 		if (speedLeft[1] > 0) {
-			y += visualSpeedMultiplier;
-			speedLeft[1] -= visualSpeedMultiplier;
+			y += thisTurnVSM;
+			speedLeft[1] -= thisTurnVSM;
 		}
 		else if (speedLeft[1] < 0) {
-			y -= visualSpeedMultiplier;
-			speedLeft[1] += visualSpeedMultiplier;
+			y -= thisTurnVSM;
+			speedLeft[1] += thisTurnVSM;
 		}
 	}
 
-	protected void movementOnFinalize(){
+	public void finalizedAttack(){
+		spendTurn();
+		canDecide = true;
+		attacksCoordinate = null;
+	}
+
+	public void finalizedMove(){
 		for (Enemy e : stage.enemy)
 			for (Enemy n : stage.enemy){
 				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
@@ -182,8 +178,9 @@ public class Character extends Entity implements Utils {
 				secondaryDirection = 'S';
 			speedLeft[1] = -128;
 		}
-		if (!overlapsWithStage(stage,testCollision) && direction != 'N'){
+		if (!overlapsWithWalls(stage,testCollision) && direction != 'N'){
 			canDecide = false;
+			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();
 		}
 		else {
@@ -194,6 +191,68 @@ public class Character extends Entity implements Utils {
 			canDecide = true;
 		}
 	}
+
+	public void directionChecker(char firstDirection, char secondDirection){
+		int[] speedChecker = new int[2];
+
+		switch(firstDirection){
+			case 'W': {
+				speedChecker[1] = 128;
+				break;
+			}
+			case 'S': {
+				speedChecker[1] = -128;
+				break;
+			}
+			case 'D': {
+				speedChecker[0] = 128;
+				break;
+			}
+			case 'A': {
+				speedChecker[0] = -128;
+				break;
+			}
+			default:{
+				break;
+			}
+		}
+		switch(secondDirection) {
+			case 'W': {
+				speedChecker[1] = 128;
+				break;
+			}
+			case 'S': {
+				speedChecker[1] = -128;
+				break;
+			}
+			case 'D': {
+				speedChecker[0] = 128;
+				break;
+			}
+			case 'A': {
+				speedChecker[0] = -128;
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+		testCollision.x = x + speedChecker[0];
+		testCollision.y = y + speedChecker[1];
+		if(overlapsWithStage(stage,testCollision))
+			finalizedMove();
+
+	}
+
+
+
+
+
+
+
+
+
+
 
 	protected void isOnTheGrid(){
 		if (speedLeft[0] == 0 && speedLeft[1] == 0) {
@@ -211,15 +270,15 @@ public class Character extends Entity implements Utils {
 	public void movement(){
 		testCollision.x = x;
 		testCollision.y = y;
-		if (permittedToMove) {
-			if (speedLeft[0] != 0 || speedLeft[1] != 0 /*&& permittedToMove*/) {
+		if (permittedToAct) {
+			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
+				directionChecker(direction,secondaryDirection);
 				primaryMovement();
 			}
 
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && direction != 'N' /*&& permittedToMove*/)
-				movementOnFinalize();
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && direction != 'N')
+				finalizedMove();
 		}
-
 		if (canDecide)
 			movementInput();
 		numberOfKeysPressed = 0;
@@ -239,13 +298,13 @@ public class Character extends Entity implements Utils {
 		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canDecide)
 			spendTurn();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
-			System.out.println("speedState on y: " + speedState);
+			System.out.println("speedState: " + speedState);
 			System.out.println("canDecide: " + canDecide);
 			System.out.println("previousPressedKey: " + direction);
 			System.out.println("previousPressedKeySecondary: " + secondaryDirection);
 			System.out.println("speedLeft on x: " + speedLeft[0]);
 			System.out.println("speedLeft on y: " + speedLeft[1]);
-			System.out.println("permittedToAct: " + permittedToMove);
+			System.out.println("permittedToAct: " + permittedToAct);
 			System.out.println("Weapon" + character.weapon);
 			System.out.println("Health: " + character.totalHealth);
 			System.out.println("Damage: " + character.totalDamage);
@@ -256,9 +315,9 @@ public class Character extends Entity implements Utils {
 			Enemy.fastMode = !Enemy.fastMode;
 			System.out.println("FastMode is now "+Enemy.fastMode);
 			if (Enemy.fastMode)
-				visualSpeedMultiplier = 32;
+				Settings.setVisualSpeedMultiplier(32);
 			else
-				visualSpeedMultiplier = 8;
+				Settings.setVisualSpeedMultiplier(8);
 
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
@@ -267,11 +326,13 @@ public class Character extends Entity implements Utils {
 		render();
 	}
 
-
+// TODO fix attack
 	public void attackDecider() {
-		if (canDecide) {
+		if (canDecide && isCharacterDecidingWhatToDo()) {
 			if (Gdx.input.isTouched()) {
-				if (clickAndRayCasting(x, y,this, stage.enemy, stage.walls, character.range) != null) {
+				if (clickDistance(x,y) <= character.range &&
+						clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(x,y,stage.walls)) {
+					System.out.println("Check passed");
 					attacksCoordinate = click();
 					actionDecided();
 				}
@@ -280,11 +341,13 @@ public class Character extends Entity implements Utils {
 	}
 
 	public void attack(){
-		if(attacksCoordinate != null)
-			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls, character.range) != null && character.range >= distance){
-			Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls, character.range)).damage(character.outgoingDamage(), "Melee");
+		if(attacksCoordinate != null && isPermittedToAct())
+			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls, character.range)
+					!= null && character.range >= distance){
+			Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls, character.range))
+					.damage(character.outgoingDamage(), "Melee");
 			if (!character.shouldTurnCompletionBeLeftToClass)
-				spendTurn();
+				finalizedAttack();
 			else
 				hasAttacked = true;
 
@@ -380,7 +443,8 @@ public class Character extends Entity implements Utils {
 	}
 	public void onDeath(){
 		if (character.currentHealth <= 0) {
-			isDead = true;
+			isDead = false;
+			// shut the fuck up
 		}
 	}
 
