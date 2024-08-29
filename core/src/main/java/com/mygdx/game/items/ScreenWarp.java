@@ -1,0 +1,19 @@
+package com.mygdx.game.items;
+
+public class ScreenWarp {
+	protected Stage stage;
+	protected int base, height;
+	protected int x,y;
+	protected String screenWarpTexture = "ScreenWarp";
+	public int screenWarpID;
+	public static int IDState = 0;
+
+	public ScreenWarp(int x, int y, int base, int height) {
+		this.x = x;
+		this.y = y;
+		this.base = base;
+		this.height = height;
+		screenWarpID = IDState + 1;
+		IDState++;
+	}
+}
