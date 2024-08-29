@@ -41,6 +41,5 @@ public class Settings {
 			else if(Settings.visualSpeedMultiplier < 128)
 				Settings.visualSpeedMultiplier = 128;
 		}
-
 	}
 }

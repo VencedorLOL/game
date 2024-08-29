@@ -41,7 +41,7 @@ public class Turns implements Utils {
 		});
 
 		System.out.println(currentTurn);
-		System.out.println("Is dead?: " + listOfSpeeds.get(currentTurn).getEntity().getIsDead());
+		System.out.println(listOfSpeeds.get(currentTurn).getEntity().toString());
 
 		if(currentTurn != 0) {
 

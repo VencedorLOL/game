@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.mygdx.game.items.Enemy;
 
 public class LoopingHat extends Enemy {
-	public static float health = 50;
+	public static float health = 1;
 	public static String enemyTexture = "LoopingHat";
 	public LoopingHat(float x, float y) {
 		super(x, y, enemyTexture, health);

@@ -158,9 +158,7 @@ public class ClickDetector implements Utils {
 					} else if (rect == POSITIVE_INFINITY) {
 						for (Entity r : rayCheckerList)
 							r.y++;
-					// just ignore the warning.
-					} else if (rect == NEGATIVE_INFINITY) {
-						System.out.println("negative rect hit");
+					} else {
 						for (Entity r : rayCheckerList)
 							r.y--;
 					}

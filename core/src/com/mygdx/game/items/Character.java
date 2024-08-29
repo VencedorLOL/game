@@ -21,6 +21,7 @@ import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
+	float startOfTurnx, startOfTurnY;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
 	public String characterTexture;
@@ -79,8 +80,10 @@ public class Character extends Entity implements Utils {
 	}
 
 	public void spendTurn(){
+		System.err.println("Called Spend Turn");
 		speedState = 0;
 		permittedToAct = false;
+		isOnTheGrid();
 	}
 
 
@@ -120,6 +123,8 @@ public class Character extends Entity implements Utils {
 		spendTurn();
 		canDecide = true;
 		attacksCoordinate = null;
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
 	}
 
 	public void finalizedMove(){
@@ -181,6 +186,8 @@ public class Character extends Entity implements Utils {
 		if (!overlapsWithWalls(stage,testCollision) && direction != 'N'){
 			canDecide = false;
 			thisTurnVSM = getVisualSpeedMultiplier();
+			startOfTurnx = x;
+			startOfTurnY = y;
 			actionDecided();
 		}
 		else {
@@ -237,11 +244,12 @@ public class Character extends Entity implements Utils {
 				break;
 			}
 		}
-		testCollision.x = x + speedChecker[0];
-		testCollision.y = y + speedChecker[1];
+		testCollision.x = startOfTurnx + speedChecker[0];
+		testCollision.y = startOfTurnY + speedChecker[1];
+		System.out.println("startOfX is: " + startOfTurnx);
+		System.out.println("startOfy is: " + startOfTurnY);
 		if(overlapsWithStage(stage,testCollision))
 			finalizedMove();
-
 	}
 
 
@@ -270,7 +278,7 @@ public class Character extends Entity implements Utils {
 	public void movement(){
 		testCollision.x = x;
 		testCollision.y = y;
-		if (permittedToAct) {
+		if (isPermittedToAct()) {
 			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
 				directionChecker(direction,secondaryDirection);
 				primaryMovement();
@@ -282,7 +290,7 @@ public class Character extends Entity implements Utils {
 		if (canDecide)
 			movementInput();
 		numberOfKeysPressed = 0;
-		isOnTheGrid();
+
 		super.refresh(characterTexture,x, y, base, height);
 	}
 
@@ -341,21 +349,27 @@ public class Character extends Entity implements Utils {
 	}
 
 	public void attack(){
-		if(attacksCoordinate != null && isPermittedToAct())
-			if(rayCasting(x,y, attacksCoordinate.x,attacksCoordinate.y,this,stage.enemy,stage.walls,
-					character.pierces) != null && character.range >= distance){
-
+		if(attacksCoordinate != null && isPermittedToAct()) {
+			System.err.println("Attacked previous turn");
+			if (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls,
+					character.pierces) != null && character.range >= distance) {
+				System.err.println("Attack Succeded");
 				for (Enemy e : Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
-						this, stage.enemy, stage.walls, character.pierces))){
+						this, stage.enemy, stage.walls, character.pierces))) {
 					e.damage(character.outgoingDamage(), "Melee");
 				}
 
-
-			if (!character.shouldTurnCompletionBeLeftToClass)
-				finalizedAttack();
+			}
 			else
-				hasAttacked = true;
+				System.err.println("Attack failed");
 
+			if (!character.shouldTurnCompletionBeLeftToClass) {
+				System.out.println("finalized attack");
+				finalizedAttack();
+			} else {
+				System.err.println("Attack finalization left to classes");
+				hasAttacked = true;
+			}
 		}
 	}
 

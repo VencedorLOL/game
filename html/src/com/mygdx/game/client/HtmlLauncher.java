@@ -1,13 +1,15 @@
 package com.mygdx.game.client;
 
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.backends.gwt.GwtApplication;
+/*import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
+
+ */
 import com.mygdx.game.MainClass;
 
-public class HtmlLauncher extends GwtApplication {
+public class HtmlLauncher /* extends GwtApplication */{
 
-        @Override
+       /* @Override
         public GwtApplicationConfiguration getConfig () {
                 // Resizable application, uses available space in browser
                 return new GwtApplicationConfiguration(true);
@@ -18,5 +20,5 @@ public class HtmlLauncher extends GwtApplication {
         @Override
         public ApplicationListener createApplicationListener () {
                 return new MainClass();
-        }
+        }*/
 }
