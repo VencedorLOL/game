@@ -48,7 +48,6 @@ public class GameScreen implements Screen, Utils {
 		create();
 	}
 
-
 	public void start(){
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
