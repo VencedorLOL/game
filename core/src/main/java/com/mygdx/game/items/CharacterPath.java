@@ -78,7 +78,7 @@ public class CharacterPath {
 	public boolean pathBegin(){
 		render();
 		if (currentPath < steps) {
-			try { path.get(currentPath);
+			try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
 			} catch (java.lang.IndexOutOfBoundsException ignored) {
 				path.add(currentPath, new PathStep());
 			}
@@ -232,6 +232,8 @@ public class CharacterPath {
 		}
 	}
 
-
+	public void doNothingSoIntelliJShutsUpAlready(PathStep shutUpAlready){
+		shutUpAlready.base = globalSize();
+	}
 
 }
