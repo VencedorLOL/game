@@ -81,7 +81,7 @@ public class ClickDetector implements Utils {
 						for (Entity r : rayCheckerList)
 							r.render();
 
-					if(pierces)
+					if (pierces)
 						for (Ray r: rayCheckerList)
 							// it's alright, if pierces, then this returns an ArrayList<Enemy>
 							piercesEnemyArrayOfTargets = (ArrayList<Enemy>) r.enemyRayCheck(enemyList);

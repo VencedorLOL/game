@@ -17,33 +17,23 @@ import java.util.Objects;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
-import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
 	CharacterPath characterPath;
-	float startOfTurnX, startOfTurnY;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
 	public String characterTexture;
 	Stage stage;
 	Entity testCollision = new Entity();
 	int[] speedLeft = new int[2];
-	int numberOfKeysPressed = 0;
 	public boolean canDecide = true;
-	int distance;
 	boolean isDead;
 	// Used when the turn is being controlled by classes
 	public boolean hasAttacked;
-
-	// Turns overhaul
 	public boolean permittedToAct;
 	public Vector3 attacksCoordinate;
-	// Turns overhaul
-
-
-
 
 
 	public Character(){}
@@ -125,15 +115,10 @@ public class Character extends Entity implements Utils {
 	}
 
 	protected void movementInput(){
-//		if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A)
-//		|| Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)
-//		|| Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
 			if (characterPath.pathBegin()) {
 				printErr("True");
 				canDecide = false;
 				thisTurnVSM = getVisualSpeedMultiplier();
-				startOfTurnX = x;
-				startOfTurnY = y;
 				actionDecided();
 			}
 	}
@@ -168,7 +153,6 @@ public class Character extends Entity implements Utils {
 		}
 		if (canDecide)
 			movementInput();
-		numberOfKeysPressed = 0;
 
 		super.refresh(characterTexture,x, y, base, height);
 	}
@@ -230,7 +214,7 @@ public class Character extends Entity implements Utils {
 		if(attacksCoordinate != null && isPermittedToAct()) {
 			printErr("Attacked previous turn");
 			if (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls,
-					character.pierces) != null && character.range >= distance) {
+					character.pierces) != null /* uh oh && character.range <= distance */ ) {
 				printErr("Attack Succeeded");
 				for (Enemy e : Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
 						this, stage.enemy, stage.walls, character.pierces))) {
@@ -252,7 +236,7 @@ public class Character extends Entity implements Utils {
 	}
 
 
-	int previousTexture = 3;
+//	int previousTexture = 3;
 	public int texture() {
 		/*switch(characterPath.path.get(characterPath.currentPath).direction){
 			case 'A': {
@@ -343,7 +327,7 @@ public class Character extends Entity implements Utils {
 	public void onDeath(){
 		if (character.currentHealth <= 0) {
 			isDead = false;
-			// shut the fuck up
+			// shut up
 		}
 	}
 

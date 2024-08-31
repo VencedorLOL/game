@@ -29,6 +29,7 @@ public class CharacterPath {
 		int[] speedLeft = new int[2];
 		if(currentPath >= steps) currentPath = 0;
 		if (!canContinue(path.get(currentPath).direction,path.get(currentPath).secondaryDirection)){
+			print("Path artificially stopped");
 			pathEnded = true;
 			return new int[]{0,0};
 		}
