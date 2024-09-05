@@ -268,7 +268,7 @@ public class Stage implements Utils {
 		for(ScreenWarp s : screenWarp)
 			if (characterX == s.x && characterY == s.y) {
 				betweenStages = true;
-				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.screenWarpID)];
+				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.ID)];
 				gs.stage = getScreenWarpStage(pos);
 				gs.stage.reseter(gs.chara);
 			}

@@ -62,6 +62,7 @@ public class Entity {
 	public void setTexture(String texture) { this.texture = texture; }
 	public void setRender (boolean render) { this.render = render; }
 
+
 	public void render(){
 		if(render)
 			TextureManager.addToList(texture,x,y);

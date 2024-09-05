@@ -8,27 +8,27 @@ import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Healer;
-import com.mygdx.game.items.characters.classes.Melee;
+import com.mygdx.game.items.characters.classes.Tank;
 import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
-
-import java.util.Objects;
+import com.mygdx.game.items.pathfinding.element.Tile;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
-	CharacterPath characterPath;
+	Path path;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
 	public String characterTexture;
 	Stage stage;
 	Entity testCollision = new Entity();
 	int[] speedLeft = new int[2];
-	public boolean canDecide = true;
+	public boolean[] canDecide = {true, true};
 	boolean isDead;
 	// Used when the turn is being controlled by classes
 	public boolean hasAttacked;
@@ -48,13 +48,13 @@ public class Character extends Entity implements Utils {
 		testCollision.y = y;
 		testCollision.base = base;
 		testCollision.height = height;
-		characterPath = new CharacterPath(x,y,character.speed,stage);
+		path = new Path(x,y,character.speed,stage);
 	}
 
 	public void spendTurn(){
 		printErr("Called Spend Turn");
 		permittedToAct = false;
-		characterPath.pathStarter();
+		path.pathStart();
 		isOnTheGrid();
 	}
 
@@ -64,7 +64,7 @@ public class Character extends Entity implements Utils {
 	}
 
 	public void permitToMove(){
-		print("permitted to move");
+		//print("permitted to move");
 		permittedToAct = true;
 	}
 
@@ -93,8 +93,8 @@ public class Character extends Entity implements Utils {
 
 	public void finalizedAttack(){
 		spendTurn();
-		canDecide = true;
 		attacksCoordinate = null;
+		canDecide[0] = true;
 		speedLeft[0] = 0;
 		speedLeft[1] = 0;
 	}
@@ -109,15 +109,15 @@ public class Character extends Entity implements Utils {
 			}
 		speedLeft[0] = 0;
 		speedLeft[1] = 0;
+		canDecide[0] = true;
 		spendTurn();
-		canDecide = true;
 		attacksCoordinate = null;
 	}
 
 	protected void movementInput(){
-			if (characterPath.pathBegin()) {
-				printErr("True");
-				canDecide = false;
+			if (path.pathCreate(x,y,character.speed,stage)) {
+				//printErr("True");
+				canDecide = new boolean[] {false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
 				actionDecided();
 			}
@@ -140,37 +140,37 @@ public class Character extends Entity implements Utils {
 		testCollision.x = x;
 		testCollision.y = y;
 		if (isPermittedToAct()) {
-			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !characterPath.pathEnded){
-				speedLeft = characterPath.pathProcess();
+			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
+				speedLeft = path.pathProcess();
 			}
 
 			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
 				primaryMovement();
 			}
 
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && characterPath.pathEnded)
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
 				finalizedMove();
 		}
-		if (canDecide)
+		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo())
 			movementInput();
 
 		super.refresh(characterTexture,x, y, base, height);
 	}
 
 	public void update(Stage stage, GameScreen cam){
+		if(didTurnJustPass)
+			canDecide[1] = true;
 		this.stage = stage;
 		onDeath();
 		character.update(this);
-		characterPath.getStats(x,y,character.speed,stage);
+		path.getStats(x,y,character.speed,stage);
 		movement();
 		attack();
-		if(canDecide)
+		if(canDecide[1] && canDecide[0])
 			attackDecider();
 		changeTo();
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && canDecide)
-			spendTurn();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
-			print("canDecide: " + canDecide);
+			print("canDecide: " + (canDecide[1] && canDecide[0]));
 			print("speedLeft on x: " + speedLeft[0]);
 			print("speedLeft on y: " + speedLeft[1]);
 			print("permittedToAct: " + permittedToAct);
@@ -180,7 +180,7 @@ public class Character extends Entity implements Utils {
 			print("Current health: " + character.currentHealth);
 		}
 		textureUpdater();
-		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide) {
+		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
 			Enemy.fastMode = !Enemy.fastMode;
 			print("FastMode is now "+Enemy.fastMode);
 			if (Enemy.fastMode)
@@ -191,14 +191,32 @@ public class Character extends Entity implements Utils {
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
 			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
-				y+ (float) globalSize() /2,1, 0,true,false);
+				y+ (float) globalSize() /2,1, 10,true,false);
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F7)){
+			PathFinder p = new PathFinder(stage);
+			p.generateGrid(stage);
+			p.setStart(x,y);
+			p.setEnd(x + globalSize(), y + globalSize());
+			p.solve();
+			if (p.algorythm.getPath() != null){
+				print("path found");
+				for (Tile t : p.algorythm.getPath())
+						print("Path is of: x " + t.getX() + " y " +  t.getY());
+
+			} else
+				print("no path found");
+
+
+
+		}
+		path.render();
 		render();
 	}
 
-// TODO fix attack
+// TODO kinda works. Kinda. Piercing attack is broken but non piercing... have to do more tests
 	public void attackDecider() {
-		if (canDecide && isCharacterDecidingWhatToDo()) {
+		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo()) {
 			if (Gdx.input.isTouched()) {
 				if (clickDistance(x,y) <= character.range &&
 						clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(x,y,stage.walls)) {
@@ -210,14 +228,17 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
+	boolean isAttacking = false;
 	public void attack(){
-		if(attacksCoordinate != null && isPermittedToAct()) {
-			printErr("Attacked previous turn");
+		if(attacksCoordinate != null && isPermittedToAct() && !isAttacking) {
+			isAttacking = true;
+			print("Attacked previous turn");
 			if (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls,
-					character.pierces) != null /* uh oh && character.range <= distance */ ) {
-				printErr("Attack Succeeded");
-				for (Enemy e : Objects.requireNonNull(rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
-						this, stage.enemy, stage.walls, character.pierces))) {
+					false) != null /* uh oh && character.range <= distance */ ) {
+				print("Attack Succeeded");
+				for (Enemy e : (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
+						this, stage.enemy, stage.walls, false))) {
+					printErr("attacked an enemy. Enemy was " + e + ". damage was: " + character.outgoingDamage());
 					e.damage(character.outgoingDamage(), "Melee");
 				}
 
@@ -232,49 +253,50 @@ public class Character extends Entity implements Utils {
 				printErr("Attack finalization left to classes");
 				hasAttacked = true;
 			}
+			isAttacking = false;
 		}
 	}
 
 
 //	int previousTexture = 3;
 	public int texture() {
-		/*switch(characterPath.path.get(characterPath.currentPath).direction){
+		/*switch(path.path.get(path.currentPath).directionX){
 			case 'A': {
 				previousTexture = 1;
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'S'){
+				if(path.path.get(path.currentPath).directionY == 'S'){
 					previousTexture = 6;
 				}
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'W'){
+				if(path.path.get(path.currentPath).directionY == 'W'){
 					previousTexture = 8;
 				}
 				break;
 			}
 			case 'D': {
 				previousTexture = 2;
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'S'){
+				if(path.path.get(path.currentPath).directionY == 'S'){
 					previousTexture = 5;
 				}
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'W'){
+				if(path.path.get(path.currentPath).directionY == 'W'){
 					previousTexture = 7;
 				}
 				break;
 			}
 			case 'W': {
 				previousTexture = 4;
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'A'){
+				if(path.path.get(path.currentPath).directionY == 'A'){
 					previousTexture = 8;
 				}
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'D'){
+				if(path.path.get(path.currentPath).directionY == 'D'){
 					previousTexture = 7;
 				}
 				break;
 			}
 			case 'S': {
 				previousTexture = 3;
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'A'){
+				if(path.path.get(path.currentPath).directionY == 'A'){
 					previousTexture = 6;
 				}
-				if(characterPath.path.get(characterPath.currentPath).secondaryDirection == 'D'){
+				if(path.path.get(path.currentPath).directionY == 'D'){
 					previousTexture = 5;
 				}
 				break;
@@ -323,6 +345,10 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
+	public boolean canDecide(){
+		return canDecide[0] && canDecide[1];
+	}
+
 
 	public void onDeath(){
 		if (character.currentHealth <= 0) {
@@ -352,7 +378,7 @@ public class Character extends Entity implements Utils {
 
 	public void changeToMelee(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			character = new Melee();
+			character = new Tank();
 		}
 	}
 

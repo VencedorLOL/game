@@ -48,11 +48,11 @@ public class Vencedor extends CharacterClasses {
 
 
 	public void VenceSword(Character character){
-		if (character.canDecide && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
+		if (character.canDecide() && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
 			attackMode = true;
 			return;
 		}
-		if (character.canDecide && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
+		if (character.canDecide() && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
 			attackMode = false;
 			return;
 		}

@@ -15,8 +15,8 @@ public class StageThree extends Stage {
 	public int finalY = globalSize()*14;
 	public int spawnX = globalSize();
 	public int spawnY = 0;
-	public int[] wallX = {1,1,1,3,3,3};
-	public int[] wallY = {1,2,3,1,2,3};
+	public int[] wallX = {1,1,1,1,3,3,3,3,2};
+	public int[] wallY = {1,2,3,4,1,2,3,4,4};
 	public int[] enemyX = {2};
 	public int[] enemyY = {2};
 	public int[] enemyType = {1};

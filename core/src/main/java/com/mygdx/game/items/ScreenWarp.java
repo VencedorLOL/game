@@ -5,7 +5,7 @@ public class ScreenWarp {
 	protected int base, height;
 	protected int x,y;
 	protected String screenWarpTexture = "ScreenWarp";
-	public int screenWarpID;
+	public int ID;
 	public static int IDState = 0;
 
 	public ScreenWarp(int x, int y, int base, int height) {
@@ -13,7 +13,7 @@ public class ScreenWarp {
 		this.y = y;
 		this.base = base;
 		this.height = height;
-		screenWarpID = IDState + 1;
+		ID = IDState + 1;
 		IDState++;
 	}
 }

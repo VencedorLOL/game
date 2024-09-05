@@ -67,10 +67,7 @@ public class GameScreen implements Screen, Utils {
 				mainClass.setPauseScreen();
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
-				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
-			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-				stage.reseter(chara);
-			}
+				camara.setToOrtho(camaraZoom = 2);
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
 				System.out.println(chara.getX());
 			if (Gdx.input.isKeyPressed(Input.Keys.Y))

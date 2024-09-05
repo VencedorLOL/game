@@ -14,10 +14,7 @@ public class Turns implements Utils {
 	static boolean characterFinalizedToChoose = true;
 	static int currentTurn;
 
-	public static void characterFinalizedToChooseAction(){
-		characterFinalizedToChoose = true;
-		System.out.println("Turn just started");
-	}
+	public static void characterFinalizedToChooseAction(){ characterFinalizedToChoose = true;}
 
 	public static boolean isCharacterDecidingWhatToDo(){
 		return !characterFinalizedToChoose;
@@ -38,9 +35,6 @@ public class Turns implements Utils {
 			}
 
 			listOfSpeeds.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-
-			System.out.println(currentTurn);
-			System.out.println(listOfSpeeds.get(currentTurn).getEntity().toString());
 
 			if(currentTurn != 0) {
 
@@ -65,7 +59,6 @@ public class Turns implements Utils {
 				turnCount++;
 				characterFinalizedToChoose = false;
 				currentTurn = 0;
-				System.out.println("Turn passed");
 			}
 		}
 

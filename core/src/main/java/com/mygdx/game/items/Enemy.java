@@ -2,6 +2,7 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.ai.pfa.PathFinder;
 
 import java.util.Objects;
 
@@ -25,7 +26,6 @@ public class Enemy extends Entity{
 	char move;
 	static boolean fastMode;
 	boolean localFastMode;
-	boolean isRendered;
 	boolean permittedToAct = false;
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
@@ -84,15 +84,15 @@ public class Enemy extends Entity{
 	}
 
 
-	public void amIRendered(){
-		isRendered = x - globalSize()*2 <= stage.camaraX + stage.camaraBase / 2 &&
+	public boolean amIRendered(){
+		return x - globalSize()*2 <= stage.camaraX + stage.camaraBase / 2 &&
 				x + globalSize()*2 >= stage.camaraX - stage.camaraBase / 2 &&
 				y - globalSize()*2 <= stage.camaraY + stage.camaraHeight / 2 &&
 				y + globalSize()*2 >= stage.camaraY - stage.camaraHeight / 2;
 
 	}
 	public void fastModeSetter(){
-		if (isRendered)
+		if (amIRendered())
 			localFastMode = fastMode;
 		else
 			localFastMode = true;
@@ -103,9 +103,7 @@ public class Enemy extends Entity{
 		permittedToAct = false;
 	}
 
-	// Movement version: 4.0
-
-	// WIP: 5.0
+	// Movement version: 5.0
 
 	protected void freeSpaceDetector() {
 		testCollision.x = x;
@@ -194,7 +192,6 @@ public class Enemy extends Entity{
 				break;
 			}
 		}
-		System.out.println(move);
 	}
 
 	protected void movementDirection(){
@@ -205,10 +202,6 @@ public class Enemy extends Entity{
 	}
 
 	protected void movementSlowMode(){
-		System.out.println("Speed on x: " +speedLeft[0]);
-		System.out.println("Speed on y: "+speedLeft[1]);
-		System.out.println("VisualSpeedMultiplier is of: " +thisTurnVSM);
-
 		if (speedLeft[0] > 0) {
 			x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
@@ -249,7 +242,6 @@ public class Enemy extends Entity{
 				movementSlowMode();
 
 			if (speedLeft[0] == 0 && speedLeft[1] == 0 && move != 'N') {
-				System.out.println("Finalized moving");
 				movementOnFinalize();
 			}
 		}
@@ -276,7 +268,6 @@ public class Enemy extends Entity{
 			gameScreenGetter(pm);
 			this.stage = stage;
 			onDeath();
-			amIRendered();
 			if (isPermittedToAct())
 				movement();
 			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
@@ -310,6 +301,7 @@ public class Enemy extends Entity{
 		if (Objects.equals(damageReason, "Melee")){
 		pm.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
 		}
+		print("remaining health is: " + health);
 
 	}
 

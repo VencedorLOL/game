@@ -3,11 +3,9 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
-
 import java.util.ArrayList;
-
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.isDevMode;
+import java.util.HashSet;
+import static com.mygdx.game.Settings.*;
 import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.Math.*;
@@ -39,14 +37,15 @@ public class ClickDetector implements Utils {
 	}
 
 
-	public static ArrayList<Enemy> rayCasting(float fromX, float fromY, float toX, float toY, Entity entityToIgnore,
+	public static HashSet<Enemy> rayCasting(float fromX, float fromY, float toX, float toY, Entity entityToIgnore,
 											  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, boolean pierces) {
-		ArrayList<Enemy> piercesEnemyArrayOfTargets = new ArrayList<>();
-		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize);
-		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1);
-		Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1);
-		Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + globalSize() - 1);
-		Ray rayCheckerUpRight = new Ray(fromX + globalSize() - 1, fromY + globalSize() - 1);
+		print("started RayCasting");
+		HashSet<Enemy> piercesEnemyArrayOfTargets = new HashSet<>();
+		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize,pierces);
+		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
+		Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1,pierces);
+		Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + globalSize() - 1,pierces);
+		Ray rayCheckerUpRight = new Ray(fromX + globalSize() - 1, fromY + globalSize() - 1,pierces);
 		ArrayList<Ray> rayCheckerList = new ArrayList<>();
 		rayCheckerList.add(rayCheckerCenter);
 		rayCheckerList.add(rayCheckerDownLeft);
@@ -54,7 +53,7 @@ public class ClickDetector implements Utils {
 		rayCheckerList.add(rayCheckerUpLeft);
 		rayCheckerList.add(rayCheckerUpRight);
 		for (Enemy e : enemyList) {
-			if (toX == e.x && toY == e.y && !e.isDead) {
+
 				float rect = ((e.y + halfSize) - (fromY + halfSize)) / ((e.x + halfSize) - (fromX + halfSize));
 				int sign = 1;
 				if (e.x < fromX)
@@ -82,18 +81,24 @@ public class ClickDetector implements Utils {
 							r.render();
 
 					if (pierces)
-						for (Ray r: rayCheckerList)
-							// it's alright, if pierces, then this returns an ArrayList<Enemy>
-							piercesEnemyArrayOfTargets = (ArrayList<Enemy>) r.enemyRayCheck(enemyList);
+						for (Ray r: rayCheckerList) {
+							print("returned pierces.size of list is of: " + piercesEnemyArrayOfTargets.size());
+							for (EnemyAndTimesTheRayTouchedIt en : r.enemyRayCheck(enemyList)){
+								piercesEnemyArrayOfTargets.add(en.getEnemy());
+							}
+						}
 					else
-						for(Ray r: rayCheckerList)
-							if(!r.getEnemiesThatGotHit().isEmpty())
-								for(EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-									if (en.getTimesTheRayTouchedTheEnemy() >= 325) {
-										ArrayList<Enemy> temporal = new ArrayList<>();
+						for(Ray r: rayCheckerList) {
+							r.enemyRayCheck(enemyList);
+							if (!r.getEnemiesThatGotHit().isEmpty())
+								for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+									if (en.getTimesTheRayTouchedTheEnemy() >= 1) {
+										HashSet<Enemy> temporal = new HashSet<>();
 										temporal.add(en.getEnemy());
+										print("returned temporal. Enemy X is: " + en.getEnemy().x + "Enemy Y is : " + en.getEnemy().y);
 										return temporal;
 									}
+						}
 
 					for(Ray r: rayCheckerList)
 						r.wallRayCheck(wallList);
@@ -102,15 +107,15 @@ public class ClickDetector implements Utils {
 							rayCheckerDownRight.timesRayTouchedWall) >= 325)
 						return null;
 				}
-				return piercesEnemyArrayOfTargets;
+				if (!piercesEnemyArrayOfTargets.isEmpty())
+					return piercesEnemyArrayOfTargets;
 			}
-		}
 		return null;
 
 	}
 
 	// lmao ure now useless dw ill find a use for u later
-	public static ArrayList<Enemy> clickAndRayCasting(float fromX, float fromY, Entity entityToIgnore,
+	public static HashSet<Enemy> clickAndRayCasting(float fromX, float fromY, Entity entityToIgnore,
 													  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, boolean phases){
 		Vector3 utilVector = click();
 		float toX = utilVector.x;
@@ -131,6 +136,7 @@ public class ClickDetector implements Utils {
 
 
 	public static boolean rayCastingButOnlyChecksForWallsAndNowItReturnsBoolean(float fromX, float fromY, float toX, float toY, ArrayList<Wall> wallList) {
+				print("toX is: " + toX + " :toY is: " + toY);
 				Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize);
 				Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1);
 				Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1);
@@ -143,37 +149,41 @@ public class ClickDetector implements Utils {
 				rayCheckerList.add(rayCheckerUpLeft);
 				rayCheckerList.add(rayCheckerUpRight);
 
-				float rect = ((toY + halfSize) - (fromY + halfSize)) / ((toY + halfSize) - (fromX + halfSize));
+				float rect = ((toY + halfSize) - (fromY + halfSize)) / ((toX + halfSize) - (fromX + halfSize));
+				print ("rect is: " + rect);
 				int sign = 1;
 				if (toX < fromX)
 					sign = -1;
 				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
 					sign = 0;
+				print ("sign is: " + sign);
 				for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(toX - fromX), abs(toY - fromY)); i++) {
-					for (Entity r : rayCheckerList) {
+					for (Ray r : rayCheckerList) {
 						r.x += sign;
-					}
-					if (sign != 0) {
-						for (Entity r : rayCheckerList)
+						if (sign != 0)
 							r.y += rect * sign;
-					} else if (rect == POSITIVE_INFINITY) {
-						for (Entity r : rayCheckerList)
+						else if (rect == POSITIVE_INFINITY)
 							r.y++;
-					} else {
-						for (Entity r : rayCheckerList)
+						else
 							r.y--;
 					}
+
 					if (isDevMode())
-						for (Entity r : rayCheckerList)
+						for (Ray r : rayCheckerList)
 							r.render();
 
 					for (Ray r : rayCheckerList)
 						r.wallRayCheck(wallList);
 					if((rayCheckerCenter.timesRayTouchedWall + rayCheckerUpLeft.timesRayTouchedWall +
 							rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
-							rayCheckerDownRight.timesRayTouchedWall) >= 325)
+							rayCheckerDownRight.timesRayTouchedWall) >= 325) {
+						print("returned false");
+						rayCheckerList.clear();
 						return false;
+					}
 				}
+		print("returned true");
+		rayCheckerList.clear();
 		return true;
 	}
 
@@ -184,7 +194,7 @@ public class ClickDetector implements Utils {
 	private static class Ray extends Entity {
 		short timesRayTouchedWall = 0, timesRayTouchedOtherEnemy = 0;
 		boolean phases;
-		ArrayList<Enemy> hitEnemies;
+		ArrayList<EnemyAndTimesTheRayTouchedIt> hitEnemies;
 		ArrayList<EnemyAndTimesTheRayTouchedIt> enemiesThatGotHit;
 
 		// chillllll, idea, might use them later
@@ -227,17 +237,17 @@ public class ClickDetector implements Utils {
 			}
 		}
 
-		public ArrayList<?> enemyRayCheck(ArrayList<Enemy> enemyList) {
+		public ArrayList<EnemyAndTimesTheRayTouchedIt> enemyRayCheck(ArrayList<Enemy> enemyList) {
 			for (Enemy en : enemyList) {
 					if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead) {
 						if(phases) {
 							timesRayTouchedOtherEnemy++;
-							hitEnemies.add(en);
+							hitEnemies.add(new EnemyAndTimesTheRayTouchedIt(en));
 						}
 						else{
 							if(!isEnemyAlreadyOnHashSet(en))
 								enemiesThatGotHit.add(new EnemyAndTimesTheRayTouchedIt(en));
-							hashSetEnemySearcher(en).touch();
+							enemySearcher(en).touch();
 						}
 					}
 			}
@@ -254,7 +264,7 @@ public class ClickDetector implements Utils {
 			return false;
 		}
 
-		private EnemyAndTimesTheRayTouchedIt hashSetEnemySearcher(Enemy enemy){
+		private EnemyAndTimesTheRayTouchedIt enemySearcher(Enemy enemy){
 			for(EnemyAndTimesTheRayTouchedIt e : enemiesThatGotHit)
 				if (e.getEnemy() == enemy)
 					return e;
@@ -283,9 +293,7 @@ public class ClickDetector implements Utils {
 			timesTheRayTouchedTheEnemy = 0;
 		}
 
-		public void touch(){
-			timesTheRayTouchedTheEnemy++;
-		}
+		public void touch(){timesTheRayTouchedTheEnemy++;}
 
 		public Enemy getEnemy(){
 			return objective;

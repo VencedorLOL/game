@@ -54,11 +54,11 @@ public class Healer extends CharacterClasses implements Utils {
 
 	@Override
 	public void updateOverridable(Character character){
-		if (character.canDecide && !hasHealedInThisTurn){
+		if (character.canDecide[0] && character.canDecide[1] && !hasHealedInThisTurn){
 			currentHealth += shieldAbilityHealing(this);
 			hasHealedInThisTurn = true;
 		}
-		if (!character.canDecide && hasHealedInThisTurn) {
+		if (!character.canDecide[0] && !character.canDecide[1] && hasHealedInThisTurn) {
 			hasHealedInThisTurn = false;
 		}
 	}

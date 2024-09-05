@@ -9,6 +9,10 @@ public class Settings {
 	static boolean print = true;
 	static boolean pathPerTurn = true;
 
+
+
+
+
 	public static boolean getPathMode() {return pathPerTurn;}
 	public static void setPathMode(boolean pathPerTurn) {Settings.pathPerTurn = pathPerTurn;}
 	public static int animationSpeedGetter(){
