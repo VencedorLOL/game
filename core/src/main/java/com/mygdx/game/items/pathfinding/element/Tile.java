@@ -10,7 +10,7 @@ public class Tile {
 	private ArrayList<Tile> neighbours;
 	private double cost, heuristic, function;
 	private boolean valid;
-    private final int x, y;
+    public final int x, y;
 
     public Tile(int x, int y) {
         this.x = x;
@@ -32,9 +32,9 @@ public class Tile {
 
 		ArrayList<Tile> nodes = new ArrayList<>();
 
-        int minX = 0;
-        int minY = 0;
-        int maxX = grid.getWidth() - globalSize();
+        int minX = grid.stageStartX;
+        int minY = grid.stageStartY;
+        int maxX = grid.getBase() - globalSize();
         int maxY = grid.getHeight() - globalSize();
 
         if (x > minX) {

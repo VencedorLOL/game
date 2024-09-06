@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import com.mygdx.game.items.pathfinding.element.Grid;
 import com.mygdx.game.items.pathfinding.element.Tile;
 
-import static com.mygdx.game.Settings.print;
 
-public class AStarAlgorithm {
+public class PathfindAlgorithm {
 
-    private final Grid grid;
+    private Grid grid;
     private ArrayList<Tile> path;
 
     private Tile start;
@@ -18,19 +17,19 @@ public class AStarAlgorithm {
     private ArrayList<Tile> openList;
     private ArrayList<Tile> closedList;
 
-    public AStarAlgorithm(Grid grid) {
+    public PathfindAlgorithm(Grid grid) {
         this.grid = grid;
     }
+
+	public PathfindAlgorithm(){}
 
     public void solve() {
 
         if (start == null && end == null) {
-			print("star and end aren't set");
             return;
         }
 
 		if (start == end) {
-			print("already at destination");
             this.path = new ArrayList<>();
             return;
         }
@@ -78,13 +77,19 @@ public class AStarAlgorithm {
         }
     }
 
-    public void reset() {
+	public void resetJustGrid(Grid grid){
+		this.grid = grid;
+	}
+
+
+    public void reset(Grid grid) {
+		this.grid = grid;
         this.start = null;
         this.end = null;
         this.path = null;
         this.openList = null;
         this.closedList = null;
-        for (Tile n : grid.getNodes()) {
+        for (Tile n : grid.getNewListWithTiles()) {
             n.setValid(true);
         }
     }

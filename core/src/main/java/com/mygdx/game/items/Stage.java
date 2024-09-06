@@ -297,7 +297,7 @@ public class Stage implements Utils {
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 	}
 
-	public void reStage(Character character){ }
+	public void reStage(Character character){}
 
 	public Stage getScreenWarpStage(int pos){
 		return screenWarpDestination.get(pos);

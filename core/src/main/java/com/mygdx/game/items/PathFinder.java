@@ -1,37 +1,58 @@
 package com.mygdx.game.items;
 
-import com.mygdx.game.items.pathfinding.AStarAlgorithm;
+import com.mygdx.game.items.pathfinding.PathfindAlgorithm;
 import com.mygdx.game.items.pathfinding.element.Grid;
 import com.mygdx.game.items.pathfinding.element.Tile;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
-import static java.lang.Float.POSITIVE_INFINITY;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Settings.*;
 
 public class PathFinder {
 	public static Grid grid;
-	public AStarAlgorithm algorythm;
-	public Stage stage;
+	public static Grid enemyGrid;
+	public PathfindAlgorithm algorythm;
+	public PathfindAlgorithm takingEnemiesInConsiderationAlgorythm;
+	public static Stage stage;
+
+
+	public static ArrayList<PathfindAlgorithm> algorythmList = new ArrayList<>();
+	public static ArrayList<PathfindAlgorithm> takingEnemiesInConsiderationAlgorythmList = new ArrayList<>();
 
 
 	public PathFinder(Stage stage){
-		this.stage = stage;
-		grid = generateGrid(stage);
-		algorythm = new AStarAlgorithm(grid);
+		PathFinder.stage = stage;
+		grid = new Grid();
+		grid.generateGrid(stage);
+		enemyGrid = new Grid();
+		enemyGrid.generateEnemyGrid(stage);
+		algorythm = new PathfindAlgorithm(grid);
+		algorythmList.add(algorythm);
+		takingEnemiesInConsiderationAlgorythm = new PathfindAlgorithm(enemyGrid);
+		takingEnemiesInConsiderationAlgorythmList.add(takingEnemiesInConsiderationAlgorythm);
 	}
 
-	public void reStage(Stage newStage){
+
+	public static void reset(Stage newStage){
+		print("reseting thing");
 		stage = newStage;
-		grid = generateGrid(stage);
-		algorythm = new AStarAlgorithm(grid);
+		grid.generateGrid(stage);
+		enemyGrid.generateEnemyGrid(stage);
+		for (PathfindAlgorithm a : algorythmList){
+			a = new PathfindAlgorithm(grid);
+		}
+		for (PathfindAlgorithm a : takingEnemiesInConsiderationAlgorythmList){
+			a = new PathfindAlgorithm(enemyGrid);
+		}
 	}
 
 	public void calculateNeighbours(){
 		for (Tile t : grid.getTiles()) {
 			t.calculateNeighbours(grid);
+		}
+		for (Tile t : enemyGrid.getTiles()) {
+			t.calculateNeighbours(enemyGrid);
 		}
 	}
 
@@ -41,18 +62,48 @@ public class PathFinder {
 	}
 	public void justSolve(){
 		algorythm.solve();
+		takingEnemiesInConsiderationAlgorythm.solve();
 	}
 
 	public ArrayList<Path.PathStep> getSolvedPath(){
 		if (algorythm.getPath() == null)
 			return null;
-
-
+		ArrayList<Tile> tiles = algorythm.getPath();
+		if (getTakeEnemiesIntoConsideration() == 0 || (takingEnemiesInConsiderationAlgorythm.getPath() == null
+			&& getTakeEnemiesIntoConsideration() != 4)) {
+			return convertTileListIntoPath(tiles);
+		}
+		if(takingEnemiesInConsiderationAlgorythm != null){
+			ArrayList<Tile> enemyTiles = takingEnemiesInConsiderationAlgorythm.getPath();
+			if((getTakeEnemiesIntoConsideration() == 1 && enemyTiles.size() <= tiles.size())
+			|| (getTakeEnemiesIntoConsideration() == 2 && enemyTiles.size() + getExtraAllowedPath() <= tiles.size()))
+				return convertTileListIntoPath(enemyTiles);
+			else if (getTakeEnemiesIntoConsideration() != 4)
+				return convertTileListIntoPath(tiles);
+			else
+				return convertTileListIntoPath(enemyTiles);
+		}
+		else if (getTakeEnemiesIntoConsideration() != 4)
+			return convertTileListIntoPath(tiles);
 		return null;
 	}
 
+	public ArrayList<Path.PathStep> convertTileListIntoPath(ArrayList<Tile> tiles){
+		// note to myself: algorythm generates 2 useless values and coordinates instead of paths.
+		// This converts the coodrinates into paths by taking the diferrence between their coordinates
+		// and ignores the useless values.
+		ArrayList<Path.PathStep> path = new ArrayList<>();
+		for (int i = 0; i < tiles.size(); i++)
+			if ((i != 0) && !((tiles.get(i - 1).x - tiles.get(i).x) == 0 && (tiles.get(i - 1).y - tiles.get(i).y) == 0))
+				path.add(new Path.PathStep((tiles.get(i - 1).x - tiles.get(i).x), (tiles.get(i - 1).y - tiles.get(i).y)));
+		Collections.reverse(path);
+		return path;
+	}
+
+
+
 	public void setStart(float x, float y){
-		for (Tile tile : algorythm.getGrid().getNodes())
+		for (Tile tile : algorythm.getGrid().getTiles())
 				if(tile.getX() == x && tile.getY() == y) {
 					algorythm.setStart(tile);
 					return;
@@ -61,7 +112,7 @@ public class PathFinder {
 	}
 
 	public void setEnd(float x, float y){
-		for (Tile tile : algorythm.getGrid().getNodes())
+		for (Tile tile : algorythm.getGrid().getTiles())
 				if(tile.getX() == x && tile.getY() == y) {
 					algorythm.setEnd(tile);
 					return;
@@ -80,165 +131,6 @@ public class PathFinder {
 	}
 
 
-	public Grid generateGrid(Stage stage) {
-		int sX = stage.startX;
-		int sY = stage.startY;
-		int fX = stage.finalX;
-		int fY = stage.finalY;
-		int mapBase = fX - sX + globalSize();
-		int mapHeight = fY - sY + globalSize();
-		ArrayList<Tile> tiles = new ArrayList<>();
-		ArrayList<Wall> walls = stage.walls;
-		for (int i = 0; i < mapBase; i += globalSize() ) {
-			for (int j = 0; j < mapHeight; j += globalSize()) {
-				Tile t = new Tile(i, j);
-				tiles.add(t);
-			}
-		}
 
-		for (Wall w : walls)
-			for (Tile t : tiles){
-				if (w.x == t.getX() && w.y == t.getY()){
-					t.reverseValidation();
-					break;
-				}
-			}
-		return new Grid(mapBase, mapHeight, tiles);
-	}
-
-
-
-
-
-
-	/* Last resort option:
-		public static class Point {
-			public int x;
-			public int y;
-			public Point previous;
-
-			public Point(int x, int y, Point previous) {
-				this.x = x;
-				this.y = y;
-				this.previous = previous;
-			}
-
-			public String toString() { return String.format("(%d, %d)", x, y); }
-
-			public boolean equals(Point point) {
-				return x == point.x && y == point.y;
-			}
-
-			public boolean equals(float x, float y) {
-				return this.x == x && this.y == y;
-			}
-
-
-			@Override
-			public int hashCode() { return Objects.hash(x, y); }
-
-			public Point offset(int ox, int oy) {
-				return new Point(x + ox, y + oy, this);  }
-		}
-
-		public static boolean isWalkable(int[][] map, Point point) {
-			if (point.y < 0 || point.y > map.length - 1)
-				return false;
-			if (point.x < 0 || point.x > map[0].length - 1)
-				return false;
-			return map[point.y][point.x] == 0;
-		}
-
-		public static List<Point> findNeighbors(int[][] map, Point point) {
-			List<Point> neighbors = new ArrayList<>();
-			Point up = point.offset(0,  1);
-			Point down = point.offset(0,  -1);
-			Point left = point.offset(-1, 0);
-			Point right = point.offset(1, 0);
-			Point upLeft = point.offset(1,  1);
-			Point upRight = point.offset(-1,  1);
-			Point downLeft = point.offset(1, -1);
-			Point downRight = point.offset(-1, -1);
-			if (isWalkable(map, up)) neighbors.add(up);
-			if (isWalkable(map, down)) neighbors.add(down);
-			if (isWalkable(map, left)) neighbors.add(left);
-			if (isWalkable(map, right)) neighbors.add(right);
-			if (isWalkable(map, up)) neighbors.add(upLeft);
-			if (isWalkable(map, down)) neighbors.add(upRight);
-			if (isWalkable(map, left)) neighbors.add(downLeft);
-			if (isWalkable(map, right)) neighbors.add(downRight);
-			return neighbors;
-		}
-
-		public static List<Point> findPath(int[][] map, float startX, float startY, float finalX, float finalY ){
-			return findPath(map, new Point((int) startX, (int) startY,null),new Point((int) finalX, (int) finalY,null));
-		}
-
-
-
-		public static List<Point> findPath(int[][] map, Point start, Point end) {
-			boolean finished = false;
-			List<Point> used = new ArrayList<>();
-			used.add(start);
-			while (!finished) {
-				List<Point> newOpen = new ArrayList<>();
-				for(int i = 0; i < used.size(); ++i){
-					Point point = used.get(i);
-					for (Point neighbor : findNeighbors(map, point)) {
-						if (!used.contains(neighbor) && !newOpen.contains(neighbor)) {
-							newOpen.add(neighbor);
-						}
-					}
-				}
-
-				for(Point point : newOpen) {
-					used.add(point);
-					if (end.equals(point)) {
-						finished = true;
-						break;
-					}
-				}
-
-				if (!finished && newOpen.isEmpty())
-					return null;
-			}
-
-			List<Point> path = new ArrayList<>();
-			Point point = used.get(used.size() - 1);
-			while(point.previous != null) {
-				path.add(0, point);
-				point = point.previous;
-			}
-			return path;
-		}
-
-
-
-
-
-
-
-		public static void main(String[] args) {
-			int[][] map = {
-				{0, 0, 0, 1, 1},
-				{1, 1, 0, 1, 1},
-				{1, 0, 1, 1, 1},
-				{1, 1, 0, 1, 1},
-				{1, 1, 1, 0, 1}
-			};
-
-			Point start = new Point(0, 0, null);
-			Point end = new Point(2, 3, null);
-			List<Point> path = findPath(map, start, end);
-			if (path != null) {
-				for (Point point : path) {
-					System.out.println(point);
-				}
-			}
-			else
-				System.out.println("No path found");
-		}
-
-*/
 
 }

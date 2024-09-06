@@ -6,9 +6,9 @@ import com.badlogic.gdx.Input;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Stage.betweenStages;
 
 public class Path {
-	byte numberOfKeysPressed;
 	Entity testCollision = new Entity();
 	ArrayList<PathStep> path;
 	int steps;
@@ -25,11 +25,14 @@ public class Path {
 
 
 	public int[] pathProcess(){
+		try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
+		} catch (java.lang.IndexOutOfBoundsException ignored) {
+			path.add(currentPath, new PathStep()); }
 		if (currentPath != 0)
 			path.get(currentPath - 1).setRender(false);
 		int[] speedLeft = new int[2];
 		if(currentPath >= steps) currentPath = 0;
-		if (cannotContinue(path.get(currentPath).directionX,path.get(currentPath).directionY)){
+		if (cannotContinue(path.get(currentPath).directionX,path.get(currentPath).directionY) || betweenStages){
 			pathReset();
 			pathEnded = true;
 			return new int[]{0,0}; }
@@ -57,9 +60,14 @@ public class Path {
 	}
 
 	public void pathReset(){
+		currentPath = 0;
 		for (PathStep p : path){
 			p.reset();
 		}
+	}
+
+	public void setPathTo(ArrayList<PathStep> path){
+		this.path = path;
 	}
 
 
@@ -68,8 +76,7 @@ public class Path {
 		if (currentPath < steps) {
 			try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
 			} catch (java.lang.IndexOutOfBoundsException ignored) {
-				path.add(currentPath, new PathStep());
-			}
+				path.add(currentPath, new PathStep()); }
 
 			if (currentPath == 0)
 				createPathStep(path.get(0), entityX, entityY);
@@ -84,10 +91,9 @@ public class Path {
 			return true;
 		}
 
-		if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
-			currentPath = 0;
+		if(Gdx.input.isKeyJustPressed(Input.Keys.R))
 			pathReset();
-		}
+
 
 		return false;
 	}
@@ -116,37 +122,14 @@ public class Path {
 		testCollision.x = x + pathStep.directionX;
 		testCollision.y = y + pathStep.directionY;
 		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection()){
-			/*print("Success");
-			print("current path is: " + currentPath);
-			print("testx: " + testCollision.x);
-			print("testy: " + testCollision.y);
-			print("charx: " + entityX);
-			print("chary: " + entityY);
-			print("movement was: " + createPathStep.directionX);
-			if(createPathStep.directionY != 'N')
-				print("and: " + createPathStep.directionY);
-			print("Success"); */
 			currentPath++;
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;
 			pathStep.setRender(true);
 		}
-		else {
-			//if(createPathStep.directionX != 'N') {
-			//	print("failed");
-			//	print("current path is: " + currentPath);
-			//	print("testx: " + testCollision.x);
-			//	print("testy: " + testCollision.y);
-			//	print("charx: " + entityX);
-			//	print("chary: " + entityY);
-			//	print("movement was: " + createPathStep.directionX);
-			//	if (createPathStep.directionY != 'N')
-			//		print("and: " + createPathStep.directionY);
-			//	print("failed");
-			//}
+		else
 			pathStep.reset();
-		}
-		numberOfKeysPressed = 0;
+
 	}
 
 
@@ -154,11 +137,19 @@ public class Path {
 		int directionX;
 		int directionY;
 
-		public PathStep () {
+		public PathStep(){
 			texture = "PathStepLocation";
 			setRender(false);
 			reset();
 		}
+
+		public PathStep(int x, int y) {
+			directionX = x;
+			directionY = y;
+			texture = "PathStepLocation";
+			setRender(false);
+		}
+
 
 		public void reset(){
 			directionX = 0;

@@ -12,7 +12,6 @@ import com.mygdx.game.items.characters.classes.Tank;
 import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
-import com.mygdx.game.items.pathfinding.element.Tile;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
@@ -21,6 +20,7 @@ import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
+	PathFinder pathFindAlgorythm;
 	Path path;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
@@ -34,6 +34,8 @@ public class Character extends Entity implements Utils {
 	public boolean hasAttacked;
 	public boolean permittedToAct;
 	public Vector3 attacksCoordinate;
+	public boolean attackMode = false;
+	public float lastClickX, lastClickY;
 
 
 	public Character(){}
@@ -115,12 +117,37 @@ public class Character extends Entity implements Utils {
 	}
 
 	protected void movementInput(){
+			automatedMovement();
 			if (path.pathCreate(x,y,character.speed,stage)) {
-				//printErr("True");
 				canDecide = new boolean[] {false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
 				actionDecided();
 			}
+	}
+
+	private void automatedMovement(){
+		if(Gdx.input.isTouched()){
+			lastClickX = click().x;
+			lastClickY = click().y;
+			pathFinding();
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
+			pathFinding();
+		}
+	}
+
+	private void pathFinding(){
+		if(pathFindAlgorythm == null)
+			pathFindAlgorythm = new PathFinder(stage);
+		path.pathReset();
+		PathFinder.reset(stage);
+		pathFindAlgorythm.setStart(x,y);
+		pathFindAlgorythm.setEnd(lastClickX,lastClickY);
+		pathFindAlgorythm.solve();
+		if (pathFindAlgorythm.algorythm.getPath() != null){
+			path.setPathTo(pathFindAlgorythm.getSolvedPath());
+		} else
+			print("no path found");
 	}
 
 	protected void isOnTheGrid(){
@@ -151,7 +178,7 @@ public class Character extends Entity implements Utils {
 			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
 				finalizedMove();
 		}
-		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo())
+		if (canDecide() && isCharacterDecidingWhatToDo())
 			movementInput();
 
 		super.refresh(characterTexture,x, y, base, height);
@@ -189,34 +216,22 @@ public class Character extends Entity implements Utils {
 				Settings.setVisualSpeedMultiplier(8);
 
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
+			attackMode = !attackMode;
+			print("AttackMode is now "+attackMode);
+		}
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
 			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
 				y+ (float) globalSize() /2,1, 10,true,false);
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F7)){
-			PathFinder p = new PathFinder(stage);
-			p.generateGrid(stage);
-			p.setStart(x,y);
-			p.setEnd(x + globalSize(), y + globalSize());
-			p.solve();
-			if (p.algorythm.getPath() != null){
-				print("path found");
-				for (Tile t : p.algorythm.getPath())
-						print("Path is of: x " + t.getX() + " y " +  t.getY());
 
-			} else
-				print("no path found");
-
-
-
-		}
 		path.render();
 		render();
 	}
 
 // TODO kinda works. Kinda. Piercing attack is broken but non piercing... have to do more tests
 	public void attackDecider() {
-		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo()) {
+		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo() && attackMode) {
 			if (Gdx.input.isTouched()) {
 				if (clickDistance(x,y) <= character.range &&
 						clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(x,y,stage.walls)) {

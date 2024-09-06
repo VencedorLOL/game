@@ -8,8 +8,8 @@ public class Tank extends CharacterClasses {
 	public static float health = 80;
 	public static float damage = 5;
 	//TODO Put back to 2 speed
-	// 6 is for testing
-	public static byte speed = 6;
+	// 10 is for testing
+	public static byte speed = 10;
 	public static byte attackSpeed = 3;
 	public static float defense = 0;
 	public static int range = 3;
