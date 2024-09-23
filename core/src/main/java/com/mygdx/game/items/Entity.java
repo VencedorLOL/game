@@ -75,11 +75,11 @@ public class Entity {
 		return false;
 	}
 
-	public boolean overlapsWithStage(Stage stage, Entity entity){
+	public boolean overlapsWithStage(Stage stage, Entity entity, Entity ignore){
 		if (overlapsWithWalls(stage,entity))
 			return true;
 		for(Enemy e : stage.enemy)
-			if (entity.x == e.x && entity.y == e.y && !e.isDead)
+			if (entity.x == e.x && entity.y == e.y && !e.isDead && e != ignore)
 				return true;
 		return false;
 	}

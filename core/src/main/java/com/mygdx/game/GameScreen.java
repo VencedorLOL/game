@@ -40,7 +40,7 @@ public class GameScreen implements Screen, Utils {
 		testUi.testButton();
 		particle = new ParticleManager(textureManager);
 		clickDetector = new ClickDetector(camara);
-
+		testUi.textBox();
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -51,7 +51,7 @@ public class GameScreen implements Screen, Utils {
 	public void start(){
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-		// System.out.println(Gdx.graphics.getFramesPerSecond());
+		//System.out.println(Gdx.graphics.getFramesPerSecond());
 		textureManager.batch.begin();
 		screenSizeChangeDetector();
 		if(!isScreenChanging) {
@@ -95,6 +95,7 @@ public class GameScreen implements Screen, Utils {
 
 
 	public void finish(){
+
 		particle.particleRenderer();
 		camara.finalizer(textureManager.batch);
 		textureManager.batch.end();

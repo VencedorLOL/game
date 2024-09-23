@@ -16,11 +16,11 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Turns.didTurnJustPass;
-import static com.mygdx.game.items.Turns.isCharacterDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Entity implements Utils {
-	PathFinder pathFindAlgorythm;
+	PathFinder pathFindAlgorithm;
 	Path path;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
@@ -36,7 +36,7 @@ public class Character extends Entity implements Utils {
 	public Vector3 attacksCoordinate;
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
-
+	Stage recordedStage;
 
 	public Character(){}
 
@@ -62,7 +62,7 @@ public class Character extends Entity implements Utils {
 
 
 	private void actionDecided(){
-		Turns.characterFinalizedToChooseAction();
+		Turns.characterFinalizedToChooseAction(this);
 	}
 
 	public void permitToMove(){
@@ -117,12 +117,12 @@ public class Character extends Entity implements Utils {
 	}
 
 	protected void movementInput(){
-			automatedMovement();
-			if (path.pathCreate(x,y,character.speed,stage)) {
-				canDecide = new boolean[] {false, false};
-				thisTurnVSM = getVisualSpeedMultiplier();
-				actionDecided();
-			}
+		automatedMovement();
+		if (path.pathCreate(x,y,character.speed,stage)) {
+			canDecide = new boolean[] {false, false};
+			thisTurnVSM = getVisualSpeedMultiplier();
+			actionDecided();
+		}
 	}
 
 	private void automatedMovement(){
@@ -137,18 +137,19 @@ public class Character extends Entity implements Utils {
 	}
 
 	private void pathFinding(){
-		if(pathFindAlgorythm == null)
-			pathFindAlgorythm = new PathFinder(stage);
+		if(pathFindAlgorithm == null)
+			pathFindAlgorithm = new PathFinder(stage);
 		path.pathReset();
 		PathFinder.reset(stage);
-		pathFindAlgorythm.setStart(x,y);
-		pathFindAlgorythm.setEnd(lastClickX,lastClickY);
-		pathFindAlgorythm.solve();
-		if (pathFindAlgorythm.algorythm.getPath() != null){
-			path.setPathTo(pathFindAlgorythm.getSolvedPath());
+		pathFindAlgorithm.setStart(x,y);
+		pathFindAlgorithm.setEnd(lastClickX,lastClickY);
+		pathFindAlgorithm.solve();
+		if (pathFindAlgorithm.algorithm.getPath() != null){
+			path.setPathTo(pathFindAlgorithm.getSolvedPath());
 		} else
 			print("no path found");
 	}
+
 
 	protected void isOnTheGrid(){
 		if (speedLeft[0] == 0 && speedLeft[1] == 0) {
@@ -168,7 +169,7 @@ public class Character extends Entity implements Utils {
 		testCollision.y = y;
 		if (isPermittedToAct()) {
 			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
-				speedLeft = path.pathProcess();
+				speedLeft = path.pathProcess(this);
 			}
 
 			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
@@ -178,22 +179,37 @@ public class Character extends Entity implements Utils {
 			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
 				finalizedMove();
 		}
-		if (canDecide() && isCharacterDecidingWhatToDo())
+		else if (canDecide() && isDecidingWhatToDo(this))
 			movementInput();
 
 		super.refresh(characterTexture,x, y, base, height);
 	}
 
+	private void stageChange(Stage stage){
+		this.stage = stage;
+		if (stage != recordedStage) {
+			recordedStage = stage;
+			stageChanged();
+		}
+
+	}
+
+	private void stageChanged(){
+		if(pathFindAlgorithm == null)
+			pathFindAlgorithm = new PathFinder(stage);
+		PathFinder.reset(stage);
+	}
+
 	public void update(Stage stage, GameScreen cam){
 		if(didTurnJustPass)
 			canDecide[1] = true;
-		this.stage = stage;
+		stageChange(stage);
 		onDeath();
 		character.update(this);
 		path.getStats(x,y,character.speed,stage);
 		movement();
 		attack();
-		if(canDecide[1] && canDecide[0])
+		if(canDecide())
 			attackDecider();
 		changeTo();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
@@ -229,9 +245,9 @@ public class Character extends Entity implements Utils {
 		render();
 	}
 
-// TODO kinda works. Kinda. Piercing attack is broken but non piercing... have to do more tests
+// TODO kinda works. Kinda. Piercing attack is broken but not not piercing... have to do more tests
 	public void attackDecider() {
-		if (canDecide[0] && canDecide[1] && isCharacterDecidingWhatToDo() && attackMode) {
+		if (canDecide[0] && canDecide[1] && isDecidingWhatToDo(this) && attackMode) {
 			if (Gdx.input.isTouched()) {
 				if (clickDistance(x,y) <= character.range &&
 						clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(x,y,stage.walls)) {
@@ -272,92 +288,36 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
-
-//	int previousTexture = 3;
-	public int texture() {
-		/*switch(path.path.get(path.currentPath).directionX){
-			case 'A': {
-				previousTexture = 1;
-				if(path.path.get(path.currentPath).directionY == 'S'){
-					previousTexture = 6;
-				}
-				if(path.path.get(path.currentPath).directionY == 'W'){
-					previousTexture = 8;
-				}
-				break;
-			}
-			case 'D': {
-				previousTexture = 2;
-				if(path.path.get(path.currentPath).directionY == 'S'){
-					previousTexture = 5;
-				}
-				if(path.path.get(path.currentPath).directionY == 'W'){
-					previousTexture = 7;
-				}
-				break;
-			}
-			case 'W': {
-				previousTexture = 4;
-				if(path.path.get(path.currentPath).directionY == 'A'){
-					previousTexture = 8;
-				}
-				if(path.path.get(path.currentPath).directionY == 'D'){
-					previousTexture = 7;
-				}
-				break;
-			}
-			case 'S': {
-				previousTexture = 3;
-				if(path.path.get(path.currentPath).directionY == 'A'){
-					previousTexture = 6;
-				}
-				if(path.path.get(path.currentPath).directionY == 'D'){
-					previousTexture = 5;
-				}
-				break;
-			}
-			default:{
-				break;
-			}
-		} */
-		return 1;
+	boolean didntRunMovementMethodYetEver = true;
+	public byte texture(){
+		didntRunMovementMethodYetEver = false;
+		byte movement = 7;
+		if (speedLeft[0] > 0)
+			movement = 1;
+		if (speedLeft[0] < 0)
+			movement = 4;
+		if (speedLeft[1] > 0)
+			movement++;
+		if (speedLeft[1] < 0)
+			movement--;
+		return movement;
 	}
+
+
+
 
 	public void textureUpdater(){
 		switch (texture()){
-			case 1 : {
-				characterTexture ="CharaLeft";
-				break;
-			}
-			case 2: {
-				characterTexture = "CharaRight";
-				break;
-			}
-			case 3 : {
-				characterTexture = "char";
-				break;
-			}
-			case 4 :{
-				characterTexture = "CharaUp";
-				break;
-			}
-			case 5 :{
-				characterTexture = "CharaDiagonalDownRight";
-				break;
-			}
-			case 6 :{
-				characterTexture = "CharaDiagonalDownLeft";
-				break;
-			}
-			case 7 :{
-				characterTexture = "CharaDiagonalUpRight";
-				break;
-			}
-			case 8 :{
-				characterTexture = "CharaDiagonalUpLeft";
-				break;
-			}
-		}
+			case 0 : characterTexture = "CharaDiagonalDownRight"; break;
+			case 1 : characterTexture = "CharaRight";             break;
+			case 2 : characterTexture = "CharaDiagonalUpRight";   break;
+			case 3 : characterTexture = "CharaDiagonalDownLeft";  break;
+			case 4 : characterTexture = "CharaLeft";              break;
+			case 5 : characterTexture = "CharaDiagonalUpLeft";    break;
+			case 6 : characterTexture = "char";                   break;
+			case 8 : characterTexture = "CharaUp";                break;
+		} if (didntRunMovementMethodYetEver)
+			characterTexture = "char";
 	}
 
 	public boolean canDecide(){

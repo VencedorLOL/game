@@ -11,39 +11,39 @@ import static com.mygdx.game.Settings.print;
 
 public class Grid {
 
-    private int base, height;
-    private ArrayList<Tile> tiles;
+	private int base, height;
+	private ArrayList<Tile> tiles;
 	public int stageStartX;
 	public int stageStartY;
 
 
-    public Grid(int base, int height, ArrayList<Tile> tiles) {
-        this.base = base;
-        this.height = height;
-        this.tiles = tiles;
-    }
+	public Grid(int base, int height, ArrayList<Tile> tiles) {
+		this.base = base;
+		this.height = height;
+		this.tiles = tiles;
+	}
 
 	public Grid(){}
 
-    public int getBase() {
-        return base;
-    }
+	public int getBase() {
+		return base;
+	}
 
-    public int getHeight() {
-        return height;
-    }
+	public int getHeight() {
+		return height;
+	}
 
-    public ArrayList<Tile> getTiles() {
-        return tiles;
-    }
+	public ArrayList<Tile> getTiles() {
+		return tiles;
+	}
 
-    public Tile find(int x, int y){
-        for(Tile t : tiles){
-            if(t.getX() == x && t.getY() == y)
-                return t;
-        }
-        return null;
-    }
+	public Tile find(int x, int y){
+		for(Tile t : tiles){
+			if(t.getX() == x && t.getY() == y)
+				return t;
+		}
+		return null;
+	}
 
 	public ArrayList<Tile> getNewListWithTiles() {
 		return new ArrayList<>(tiles);
@@ -108,3 +108,4 @@ public class Grid {
 
 
 }
+

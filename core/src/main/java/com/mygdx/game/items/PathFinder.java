@@ -12,13 +12,13 @@ import static com.mygdx.game.Settings.*;
 public class PathFinder {
 	public static Grid grid;
 	public static Grid enemyGrid;
-	public PathfindAlgorithm algorythm;
-	public PathfindAlgorithm takingEnemiesInConsiderationAlgorythm;
+	public PathfindAlgorithm algorithm;
+	public PathfindAlgorithm takingEnemiesInConsiderationAlgorithm;
 	public static Stage stage;
 
 
-	public static ArrayList<PathfindAlgorithm> algorythmList = new ArrayList<>();
-	public static ArrayList<PathfindAlgorithm> takingEnemiesInConsiderationAlgorythmList = new ArrayList<>();
+	public static ArrayList<PathfindAlgorithm> algorithmList = new ArrayList<>();
+	public static ArrayList<PathfindAlgorithm> takingEnemiesInConsiderationAlgorithmList = new ArrayList<>();
 
 
 	public PathFinder(Stage stage){
@@ -27,10 +27,10 @@ public class PathFinder {
 		grid.generateGrid(stage);
 		enemyGrid = new Grid();
 		enemyGrid.generateEnemyGrid(stage);
-		algorythm = new PathfindAlgorithm(grid);
-		algorythmList.add(algorythm);
-		takingEnemiesInConsiderationAlgorythm = new PathfindAlgorithm(enemyGrid);
-		takingEnemiesInConsiderationAlgorythmList.add(takingEnemiesInConsiderationAlgorythm);
+		algorithm = new PathfindAlgorithm(grid);
+		algorithmList.add(algorithm);
+		takingEnemiesInConsiderationAlgorithm = new PathfindAlgorithm(enemyGrid);
+		takingEnemiesInConsiderationAlgorithmList.add(takingEnemiesInConsiderationAlgorithm);
 	}
 
 
@@ -39,10 +39,10 @@ public class PathFinder {
 		stage = newStage;
 		grid.generateGrid(stage);
 		enemyGrid.generateEnemyGrid(stage);
-		for (PathfindAlgorithm a : algorythmList){
+		for (PathfindAlgorithm a : algorithmList){
 			a = new PathfindAlgorithm(grid);
 		}
-		for (PathfindAlgorithm a : takingEnemiesInConsiderationAlgorythmList){
+		for (PathfindAlgorithm a : takingEnemiesInConsiderationAlgorithmList){
 			a = new PathfindAlgorithm(enemyGrid);
 		}
 	}
@@ -61,22 +61,22 @@ public class PathFinder {
 		justSolve();
 	}
 	public void justSolve(){
-		algorythm.solve();
-		takingEnemiesInConsiderationAlgorythm.solve();
+		algorithm.solve();
+		takingEnemiesInConsiderationAlgorithm.solve();
 	}
 
 	public ArrayList<Path.PathStep> getSolvedPath(){
-		if (algorythm.getPath() == null)
+		if (algorithm.getPath() == null)
 			return null;
-		ArrayList<Tile> tiles = algorythm.getPath();
-		if (getTakeEnemiesIntoConsideration() == 0 || (takingEnemiesInConsiderationAlgorythm.getPath() == null
+		ArrayList<Tile> tiles = algorithm.getPath();
+		if (getTakeEnemiesIntoConsideration() == 0 || (takingEnemiesInConsiderationAlgorithm.getPath() == null
 			&& getTakeEnemiesIntoConsideration() != 4)) {
 			return convertTileListIntoPath(tiles);
 		}
-		if(takingEnemiesInConsiderationAlgorythm != null){
-			ArrayList<Tile> enemyTiles = takingEnemiesInConsiderationAlgorythm.getPath();
+		if(takingEnemiesInConsiderationAlgorithm != null){
+			ArrayList<Tile> enemyTiles = takingEnemiesInConsiderationAlgorithm.getPath();
 			if((getTakeEnemiesIntoConsideration() == 1 && enemyTiles.size() <= tiles.size())
-			|| (getTakeEnemiesIntoConsideration() == 2 && enemyTiles.size() + getExtraAllowedPath() <= tiles.size()))
+				|| (getTakeEnemiesIntoConsideration() == 2 && enemyTiles.size() + getExtraAllowedPath() <= tiles.size()))
 				return convertTileListIntoPath(enemyTiles);
 			else if (getTakeEnemiesIntoConsideration() != 4)
 				return convertTileListIntoPath(tiles);
@@ -89,8 +89,8 @@ public class PathFinder {
 	}
 
 	public ArrayList<Path.PathStep> convertTileListIntoPath(ArrayList<Tile> tiles){
-		// note to myself: algorythm generates 2 useless values and coordinates instead of paths.
-		// This converts the coodrinates into paths by taking the diferrence between their coordinates
+		// note to myself: algorithm generates 2 useless values and coordinates instead of paths.
+		// This converts the coordinates into paths by taking the difference between their coordinates
 		// and ignores the useless values.
 		ArrayList<Path.PathStep> path = new ArrayList<>();
 		for (int i = 0; i < tiles.size(); i++)
@@ -103,21 +103,21 @@ public class PathFinder {
 
 
 	public void setStart(float x, float y){
-		for (Tile tile : algorythm.getGrid().getTiles())
-				if(tile.getX() == x && tile.getY() == y) {
-					algorythm.setStart(tile);
-					return;
-				}
-		algorythm.setStart(new Tile((int) x, (int) y));
+		for (Tile tile : algorithm.getGrid().getTiles())
+			if(tile.getX() == x && tile.getY() == y) {
+				algorithm.setStart(tile);
+				return;
+			}
+		algorithm.setStart(new Tile((int) x, (int) y));
 	}
 
 	public void setEnd(float x, float y){
-		for (Tile tile : algorythm.getGrid().getTiles())
-				if(tile.getX() == x && tile.getY() == y) {
-					algorythm.setEnd(tile);
-					return;
-				}
-		algorythm.setEnd(new Tile((int) x, (int) y));
+		for (Tile tile : algorithm.getGrid().getTiles())
+			if(tile.getX() == x && tile.getY() == y) {
+				algorithm.setEnd(tile);
+				return;
+			}
+		algorithm.setEnd(new Tile((int) x, (int) y));
 	}
 
 	public void setPlayerAsEnd(){

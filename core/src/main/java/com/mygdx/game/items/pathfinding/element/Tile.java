@@ -10,77 +10,77 @@ public class Tile {
 	private ArrayList<Tile> neighbours;
 	private double cost, heuristic, function;
 	private boolean valid;
-    public final int x, y;
+	public final int x, y;
 
-    public Tile(int x, int y) {
-        this.x = x;
-        this.y = y;
-        setValid(true);
-    }
-
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
+	public Tile(int x, int y) {
+		this.x = x;
+		this.y = y;
+		setValid(true);
+	}
 
 
-    public void calculateNeighbours(Grid grid) {
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+
+	public void calculateNeighbours(Grid grid) {
 
 		ArrayList<Tile> nodes = new ArrayList<>();
 
-        int minX = grid.stageStartX;
-        int minY = grid.stageStartY;
-        int maxX = grid.getBase() - globalSize();
-        int maxY = grid.getHeight() - globalSize();
+		int minX = grid.stageStartX;
+		int minY = grid.stageStartY;
+		int maxX = grid.getBase() - globalSize();
+		int maxY = grid.getHeight() - globalSize();
 
-        if (x > minX) {
-            nodes.add(grid.find(x - globalSize(), y)); //west
-        }
+		if (x > minX) {
+			nodes.add(grid.find(x - globalSize(), y)); //west
+		}
 
-        if (x < maxX) {
-            nodes.add(grid.find(x + globalSize(), y)); //east
-        }
+		if (x < maxX) {
+			nodes.add(grid.find(x + globalSize(), y)); //east
+		}
 
-        if (y > minY) {
-            nodes.add(grid.find(x, y - globalSize())); //north
-        }
+		if (y > minY) {
+			nodes.add(grid.find(x, y - globalSize())); //north
+		}
 
-        if (y < maxY) {
-            nodes.add(grid.find(x, y + globalSize())); //south
-        }
+		if (y < maxY) {
+			nodes.add(grid.find(x, y + globalSize())); //south
+		}
 
-        if (x > minX && y > minY) {
-            nodes.add(grid.find(x - globalSize(), y - globalSize())); //northwest
-        }
+		if (x > minX && y > minY) {
+			nodes.add(grid.find(x - globalSize(), y - globalSize())); //northwest
+		}
 
-        if (x < maxX && y < maxY) {
-            nodes.add(grid.find(x + globalSize(), y + globalSize())); //southeast
-        }
+		if (x < maxX && y < maxY) {
+			nodes.add(grid.find(x + globalSize(), y + globalSize())); //southeast
+		}
 
-        if(x < maxX && y > minY){
-            nodes.add(grid.find(x + globalSize(), y - globalSize())); //northeast
-        }
+		if(x < maxX && y > minY){
+			nodes.add(grid.find(x + globalSize(), y - globalSize())); //northeast
+		}
 
-        if(x > minY && y < maxY){
-            nodes.add(grid.find(x - globalSize(), y + globalSize())); //southwest
-        }
+		if(x > minY && y < maxY){
+			nodes.add(grid.find(x - globalSize(), y + globalSize())); //southwest
+		}
 
-        setNeighbours(nodes);
+		setNeighbours(nodes);
 
-    }
+	}
 
 
-    public double heuristic(Tile dest) {
-        return distanceTo(dest);
-    }
+	public double heuristic(Tile dest) {
+		return distanceTo(dest);
+	}
 
-    public double distanceTo(Tile dest) {
+	public double distanceTo(Tile dest) {
 		return new Point(x,y).distance(new Point(dest.x, dest.y));
-    }
+	}
 
 	public double getCost() {
 		return cost;

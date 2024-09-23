@@ -24,7 +24,7 @@ public class Path {
 	}
 
 
-	public int[] pathProcess(){
+	public int[] pathProcess(Entity entity){
 		try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
 		} catch (java.lang.IndexOutOfBoundsException ignored) {
 			path.add(currentPath, new PathStep()); }
@@ -32,7 +32,7 @@ public class Path {
 			path.get(currentPath - 1).setRender(false);
 		int[] speedLeft = new int[2];
 		if(currentPath >= steps) currentPath = 0;
-		if (cannotContinue(path.get(currentPath).directionX,path.get(currentPath).directionY) || betweenStages){
+		if (cannotContinue(path.get(currentPath).directionX,path.get(currentPath).directionY,entity) || betweenStages){
 			pathReset();
 			pathEnded = true;
 			return new int[]{0,0}; }
@@ -46,10 +46,10 @@ public class Path {
 		return speedLeft;
 	}
 
-	public boolean cannotContinue(int x, int y){
+	public boolean cannotContinue(int x, int y,Entity entityToIgnore){
 		testCollision.x = entityX + x;
 		testCollision.y = entityY + y;
-		return testCollision.overlapsWithStage(stage, testCollision);
+		return testCollision.overlapsWithStage(stage, testCollision, entityToIgnore);
 	}
 
 	public void render(){ for(PathStep p : path) p.render();}

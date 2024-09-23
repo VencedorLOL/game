@@ -8,7 +8,7 @@ public class Settings {
 	private final static int GLOBAL_SIZE = 128;
 	static boolean print = true;
 	static boolean pathPerTurn = true;
-	static byte takeEnemiesIntoConsideration = 1;
+	static byte takeEnemiesIntoConsideration = 0;
 	static byte extraAllowedPath = 2;
 	// Temp comment:
 	// 0: never take enemies into consideration

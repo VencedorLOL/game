@@ -2,25 +2,28 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ai.pfa.PathFinder;
 
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.ClickDetector.click;
 import static com.mygdx.game.items.Stage.*;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 
 public class Enemy extends Entity{
+	PathFinder pathFindAlgorithm;
 	int thisTurnVSM;
 	public int speed = 3;
+	Path path = new Path(x,y,speed,null);
 	public float health = 20;
 	public float defense = 5;
 	Stage stage;
 	public Entity testCollision = new Entity();
 	int[] speedLeft = new int[2];
-	boolean canDecide = true;
+	boolean[] canDecide = {true,true};
 	boolean allowedToMove = false;
 	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
 	char move;
@@ -99,109 +102,100 @@ public class Enemy extends Entity{
 	}
 
 	public void spendTurn(){
+		print("st 23");
 		allowedToMove = false;
 		permittedToAct = false;
 	}
 
 	// Movement version: 5.0
 
-	protected void freeSpaceDetector() {
-		testCollision.x = x;
-		testCollision.y = y + globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[0] = 'U';
-		testCollision.x = x + globalSize();
-		testCollision.y = y + globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[1] = 'E';
-		testCollision.x = x + globalSize();
-		testCollision.y = y;
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[2] = 'R';
-		testCollision.x = x + globalSize();
-		testCollision.y = y - globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[3] = 'C';
-		testCollision.x = x;
-		testCollision.y = y - globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[4] = 'D';
-		testCollision.x = x - globalSize();
-		testCollision.y = y - globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[5] = 'Z';
-		testCollision.x = x - globalSize();
-		testCollision.y = y;
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[6] = 'L';
-		testCollision.x = x - globalSize();
-		testCollision.y = y + globalSize();
-		if (!overlapsWithStage(stage, testCollision))
-			availableSpaces[7] = 'Q';
+	// LETS DO THIS, MASSIVE DELETION TO MAKE SPACE FOR: 6.0, now it pathfinds.
 
-		if (availableSpaces[0] == 'N' && availableSpaces[1] == 'N' && availableSpaces[2] == 'N' &&
-				availableSpaces[3] == 'N' && availableSpaces[4] == 'N' && availableSpaces[5] == 'N' &&
-				availableSpaces[6] == 'N' && availableSpaces[7] == 'N')
-			move = 'S';
-		if (move != 'S') {
-			do {
-				move = availableSpaces[random(0, 7)];
+	private void actionDecided(){
+		Turns.enemyFinalizedChoosing(this);
+	}
+
+	public void finalizedMove(){
+		for (Enemy e : stage.enemy)
+			for (Enemy n : stage.enemy){
+				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
+					print("Discrepancy with enemy: " + n + " :and enemy: " + e);
+					print("In x: " + n.x + " :in y: " + e.y);
+				}
 			}
-			while (move == 'N');
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
+		canDecide[0] = true;
+		print("fin mov");
+		spendTurn();
+	}
+
+	protected void movementInput(){
+		pathFinding();
+		if (path.pathCreate(x,y,speed,stage)) {
+			canDecide = new boolean[] {false, false};
+			thisTurnVSM = getVisualSpeedMultiplier();
+			actionDecided();
 		}
-		switch (move) {
-			case 'U': {
-				speedLeft[1] = globalSize();
-				break;
+	}
+
+
+	private void pathFinding(){
+		if(pathFindAlgorithm == null)
+			pathFindAlgorithm = new PathFinder(stage);
+		path.pathReset();
+		PathFinder.reset(stage);
+		pathFindAlgorithm.setStart(x,y);
+		pathFindAlgorithm.setPlayerAsEnd();
+		pathFindAlgorithm.solve();
+		if (pathFindAlgorithm.algorithm.getPath() != null){
+			path.setPathTo(pathFindAlgorithm.getSolvedPath());
+		} else
+			print("no path found");
+	}
+
+	public void movement(){
+		testCollision.x = x;
+		testCollision.y = y;
+		if (isPermittedToAct()) {
+			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
+				print("speed x: " + speedLeft[0] + " speed y : " + speedLeft[1]);
+				speedLeft = path.pathProcess(this);
 			}
-			case 'D': {
-				speedLeft[1] = -globalSize();
-				break;
+
+			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
+				print("speed x: " + speedLeft[0] + " speed y : " + speedLeft[1]);
+				primaryMovement();
+				print("alive1;");
 			}
-			case 'R': {
-				speedLeft[0] = globalSize();
-				break;
+print("alixe 2;");
+			print("pat " + path.pathEnded);
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
+				print("fin mov 2");
+				finalizedMove();
 			}
-			case 'L': {
-				speedLeft[0] = -globalSize();
-				break;
+		}
+		else if (canDecide() && isDecidingWhatToDo(this))
+			movementInput();
+
+		super.refresh(texture,x, y, base, height);
+	}
+
+
+	protected void isOnTheGrid(){
+		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isDead) {
+			if (!(x % globalSize() == 0)) {
+				System.out.println("Offset in x caused at: " + x + " :by: " + this + " :New x is: " + 128 * ceil(x / 128));
+				x = (float) (globalSize() * ceil(x / globalSize()));
 			}
-			case 'E': {
-				speedLeft[0] = globalSize();
-				speedLeft[1] = globalSize();
-				break;
-			}
-			case 'C': {
-				speedLeft[1] = -globalSize();
-				speedLeft[0] = globalSize();
-				break;
-			}
-			case 'Z': {
-				speedLeft[1] = -globalSize();
-				speedLeft[0] = -globalSize();
-				break;
-			}
-			case 'Q': {
-				speedLeft[1] = globalSize();
-				speedLeft[0] = -globalSize();
-				break;
-			}
-			case 'S': {
-				speedLeft[0] = 0;
-				speedLeft[1] = 0;
-				break;
+			if (!(y % globalSize() == 0)) {
+				System.out.println("Offset in y caused at: " + y + " :by: " + this + " :New y is: " + 128 * ceil(y / 128));
+				y = (float) (globalSize() * ceil(y / globalSize()));
 			}
 		}
 	}
 
-	protected void movementDirection(){
-		testCollision.x = x;
-		testCollision.y = y;
-		freeSpaceDetector();
-		canDecide = false;
-	}
-
-	protected void movementSlowMode(){
+	protected void primaryMovement(){
 		if (speedLeft[0] > 0) {
 			x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
@@ -220,58 +214,17 @@ public class Enemy extends Entity{
 		}
 	}
 
-
-	protected void movementOnFinalize(){
-		move = 'N';
-		availableSpaces = new char[]{'N', 'N', 'N', 'N', 'N', 'N', 'N', 'N'};
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-		canDecide = true;
-		spendTurn();
-	}
-
-	public void movement(){
-		if (canDecide) {
-			fastModeSetter();
-			if (localFastMode) thisTurnVSM = globalSize();
-			else thisTurnVSM = getVisualSpeedMultiplier();
-			movementDirection();
-		}
-		if (!canDecide) {
-			if (speedLeft[0] != 0 || speedLeft[1] != 0)
-				movementSlowMode();
-
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && move != 'N') {
-				movementOnFinalize();
-			}
-		}
-		super.refresh(texture,x, y, base, height);
-		isOnTheGrid();
-	}
-
-	protected void isOnTheGrid(){
-		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isDead) {
-			if (!(x % globalSize() == 0)) {
-				System.out.println("Offset in x caused at: " + x + " :by: " + this + " :New x is: " + 128 * ceil(x / 128));
-				x = (float) (globalSize() * ceil(x / globalSize()));
-			}
-			if (!(y % globalSize() == 0)) {
-				System.out.println("Offset in y caused at: " + y + " :by: " + this + " :New y is: " + 128 * ceil(y / 128));
-				y = (float) (globalSize() * ceil(y / globalSize()));
-			}
-		}
-	}
-
-
 	public void update(Stage stage, ParticleManager pm){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
 			gameScreenGetter(pm);
 			this.stage = stage;
+			if (pathFindAlgorithm == null)
+				pathFindAlgorithm = new PathFinder(stage);
+			path.getStats(x,y,speed,stage);
 			onDeath();
-			if (isPermittedToAct())
-				movement();
+			movement();
 			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-				System.out.println("canDecide: " + canDecide);
+				System.out.println("canDecide: " + canDecide());
 				System.out.println("move: " + move);
 				System.out.println("availableSpaces UP: " + availableSpaces[0] + " :availableSpaces UP-RIGHT: " + availableSpaces[1]);
 				System.out.println("availableSpaces RIGHT: " + availableSpaces[2] + " :availableSpaces DOWN-RIGHT: " + availableSpaces[3]);
@@ -303,6 +256,10 @@ public class Enemy extends Entity{
 		}
 		print("remaining health is: " + health);
 
+	}
+
+	public boolean canDecide(){
+		return canDecide[0] && canDecide[1];
 	}
 
 	public ParticleManager pm;
