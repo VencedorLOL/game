@@ -27,8 +27,11 @@ public class GameScreen implements Screen, Utils {
 	public Stage stage = new Stage();
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
-	public boolean isScreenChanging = false;
 	public ClickDetector clickDetector;
+	public boolean fullscreen;
+	public int latestNonFullScreenX = 640;
+	public int latestNonFullScreenY = 400;
+
 
 	public void create () {
 		if (camaraZoom <= 0)
@@ -52,9 +55,9 @@ public class GameScreen implements Screen, Utils {
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 		//System.out.println(Gdx.graphics.getFramesPerSecond());
-		textureManager.batch.begin();
+		fullscreenDetector();
 		screenSizeChangeDetector();
-		if(!isScreenChanging) {
+		textureManager.batch.begin();
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
 			camara.updater(chara);
@@ -87,7 +90,7 @@ public class GameScreen implements Screen, Utils {
 				camara.setToOrtho(camaraZoom -= .125f);
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
 				System.out.println(camaraZoom);
-		}
+
 		ArrayList<Character> cl = new ArrayList<>();
 		cl.add(chara);
 		turnLogic(stage.enemy,cl);
@@ -101,16 +104,29 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.end();
 	}
 
+
+	public void fullscreenDetector(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+			fullscreen = !fullscreen;
+			if (fullscreen)
+				Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			else
+				Gdx.graphics.setWindowedMode(latestNonFullScreenX, latestNonFullScreenY);
+
+		}
+	}
+
 	public void screenSizeChangeDetector(){
 		if(screenSizeX != Gdx.graphics.getWidth() || screenSizeY != Gdx.graphics.getHeight()){
 			screenSizeX = Gdx.graphics.getWidth();
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-			isScreenChanging = true;
 			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camaraZoom);
+			if (!fullscreen){
+				latestNonFullScreenX = screenSizeX;
+				latestNonFullScreenY = screenSizeY;
+			}
 		}
-		else
-			isScreenChanging = false;
 	}
 
 	@Override

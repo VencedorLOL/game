@@ -20,6 +20,7 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 		this.setGameScreen();
 		this.setStartScreen();
 		font = new BitmapFont();
+		
 
 	}
 	public void setStartScreen() {
