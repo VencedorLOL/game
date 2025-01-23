@@ -3,7 +3,13 @@ package com.mygdx.game.items.characters.classes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
+
+import java.util.ArrayList;
+
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 
 public class Melee extends CharacterClasses {
 	public static String name = "Melee";
@@ -32,11 +38,20 @@ public class Melee extends CharacterClasses {
 	public Melee() {
 		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,true);
+		abilityButton = new ArrayList<>();
+		abilityButton.add(new Ability("flurryofhits", "FlurryOfAttacks", false, 4,
+				.25f, -.25f, (float) globalSize() /2));
+		abilityButton.add(new Ability("oneforall", "OneForAll", false, 4,
+				.40f, -.40f, (float) globalSize() /2));
 	}
 
 	public void updateOverridable(Character character) {
 		if (turnHasPassed())
 			abilityCooldown++;
+		if (abilityButton.get(0).runThispls())
+			System.out.println(activateFlurryOfAttacks(character));
+		if (abilityButton.get(1).runThispls())
+			System.out.println(activateOneForAll(character));
 		turnHandler(character);
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
 			System.out.println("abilityCD is : "+abilityCooldown);
@@ -44,52 +59,61 @@ public class Melee extends CharacterClasses {
 			System.out.println("FoA is: " + FoA);
 			System.out.println("OfA is: " + OfA);
 		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
-			System.out.println(activateFlurryOfAttacks());
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F2))
-			System.out.println(activateOneForAll());
+		if (Gdx.input.isKeyJustPressed(Input.Keys.F))
+			System.out.println(activateFlurryOfAttacks(character));
+		if (Gdx.input.isKeyJustPressed(Input.Keys.O))
+			System.out.println(activateOneForAll(character));
 	}
 
-	public String activateFlurryOfAttacks(){
-		if (abilityCooldown >= 4){
-			abilityCooldown = 0;
-			FoA = true;
-			return "Flurry Of Attacks activated";
+	// trad: uno para todos
+	public String activateFlurryOfAttacks(Character character){
+		if (!FoA){
+			if (abilityCooldown >= 4){
+				abilityCooldown = 0;
+				FoA = true;
+				character.attackMode = true;
+				return "Flurry Of Attacks activated";
+			}
+			return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - abilityCooldown)+" turns";
 		}
-		return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - abilityCooldown)+" turns";
+		return "You can't activate this ability, silly! It's already active!";
 	}
 
-	public String activateOneForAll(){
-		if (abilityCooldown >= 4) {
-			abilityCooldown = 0;
-			OfA = true;
-			return "One For All activated";
+	// trad: todos para una
+	public String activateOneForAll(Character character){
+		if (!OfA) {
+			if (abilityCooldown >= 4) {
+				abilityCooldown = 0;
+				OfA = true;
+				character.attackMode = true;
+				return "One For All activated";
+			}
+			return "Couldn't activate One For All. You still have to wait " + (4 - abilityCooldown) + " turns";
 		}
-		return "Couldn't activate One For All. You still have to wait " +(4 - abilityCooldown)+" turns";
+		return "You can't activate this ability, silly! It's already active!";
 	}
 
 	public void turnHandler(Character character){
-		if (FoA){
+		if (FoA && character.hasAttacked){
 			if (attackState >= FoANumberOfExtraHits) {
 				character.finalizedAttack();
 				FoA = false;
 				attackState = 0;
-			} else
+				character.hasAttacked = false;
+				print("FoA Is false");
+			} else {
 				attackState++;
+				character.hasAttacked = false;
+				print("attackState's state was modified. It is: " + attackState);
+			}
 		}
 		else {
 			if (character.hasAttacked){
-				character.spendTurn();
+				character.finalizedAttack();
 				character.hasAttacked = false;
 			}
-
 		}
 	}
-
-
-
-
-
 
 	public float outgoingDamage(){
 		if (OfA) {
@@ -99,5 +123,7 @@ public class Melee extends CharacterClasses {
 		else
 			return totalDamage;
 	}
+
+
 
 }

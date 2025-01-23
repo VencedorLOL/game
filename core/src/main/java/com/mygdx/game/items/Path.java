@@ -16,6 +16,10 @@ public class Path {
 	float entityX, entityY;
 	int currentPath = 0;
 	boolean pathEnded;
+	// 1 = movement
+	// 2 = attack
+	byte typeOfPath;
+	int lastPath;
 
 	public Path(float x, float y, int speed, Stage stage){
 		getStats(x,y,speed,stage);
@@ -25,26 +29,51 @@ public class Path {
 
 
 	public int[] pathProcess(Entity entity){
-		try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
-		} catch (java.lang.IndexOutOfBoundsException ignored) {
-			path.add(currentPath, new PathStep()); }
-		if (currentPath != 0)
-			path.get(currentPath - 1).setRender(false);
-		int[] speedLeft = new int[2];
-		if(currentPath >= steps) currentPath = 0;
-		if (cannotContinue(path.get(currentPath).directionX,path.get(currentPath).directionY,entity) || betweenStages){
-			pathReset();
-			pathEnded = true;
-			return new int[]{0,0}; }
-		speedLeft[0] = path.get(currentPath).directionX;
-		speedLeft[1] = path.get(currentPath).directionY;
-		currentPath++;
-		if (currentPath >= steps) {
-			pathEnded = true;
-			currentPath = 0;
+		if (!pathEnded) {
+			try {
+				doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
+			} catch (java.lang.IndexOutOfBoundsException ignored) {
+				path.add(currentPath, new PathStep());
+			}
+			if (currentPath != 0)
+				path.get(currentPath - 1).setRender(false);
+			int[] speedLeft = new int[2];
+			if (currentPath >= steps) currentPath = 0;
+			if (cannotContinue(path.get(currentPath).directionX, path.get(currentPath).directionY, entity) || betweenStages) {
+				pathReset();
+				pathEnded = true;
+				return new int[]{0, 0};
+			}
+			speedLeft[0] = path.get(currentPath).directionX;
+			speedLeft[1] = path.get(currentPath).directionY;
+			currentPath++;
+			if (currentPath >= steps) {
+				pathEnded = true;
+				lastPath = currentPath;
+				currentPath = 0;
+			}
+			return speedLeft;
 		}
-		return speedLeft;
+		return null;
 	}
+
+	public int[] getCurrentPathCoords(){
+		int[] coords = new int[2];
+		if (currentPath != 0){
+			coords[0] = path.get(currentPath - 1).directionX;
+			coords[1] = path.get(currentPath - 1).directionY;
+		}
+		else {
+			coords[0] = path.get(0).directionX;
+			coords[1] = path.get(0).directionY;
+			// why did i write this:
+			//			coords[0] = path.get(lastPath).directionX;
+			//			coords[1] = path.get(lastPath).directionY;
+			//
+		}
+		return coords;
+	}
+
 
 	public boolean cannotContinue(int x, int y,Entity entityToIgnore){
 		testCollision.x = entityX + x;
@@ -71,19 +100,19 @@ public class Path {
 	}
 
 
-	public boolean pathCreate(float x, float y, int speed, Stage stage){
+	public boolean pathCreate(float x, float y, int speed, Stage stage, byte typeOfPath){
+		this.typeOfPath = typeOfPath;
 		getStats(x, y, speed, stage);
 		if (currentPath < steps) {
 			try { doNothingSoIntelliJShutsUpAlready(path.get(currentPath));
 			} catch (java.lang.IndexOutOfBoundsException ignored) {
 				path.add(currentPath, new PathStep()); }
-
 			if (currentPath == 0)
-				createPathStep(path.get(0), entityX, entityY);
+				createPathStep(path.get(0), entityX, entityY, typeOfPath);
 			else
 				createPathStep(path.get(currentPath),
 					path.get(currentPath - 1).getX(),
-					path.get(currentPath - 1).getY());
+					path.get(currentPath - 1).getY(),typeOfPath);
 		}
 
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -109,7 +138,7 @@ public class Path {
 		entityY = y;
 	}
 
-	public void createPathStep(PathStep pathStep, float x, float y){
+	public void createPathStep(PathStep pathStep, float x, float y, byte typeOfPath){
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
 			pathStep.directionY = globalSize();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
@@ -126,6 +155,7 @@ public class Path {
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;
 			pathStep.setRender(true);
+			pathStep.setPath(typeOfPath);
 		}
 		else
 			pathStep.reset();
@@ -143,13 +173,22 @@ public class Path {
 			reset();
 		}
 
-		public PathStep(int x, int y) {
+		public PathStep(int x, int y, byte type) {
 			directionX = x;
 			directionY = y;
-			texture = "PathStepLocation";
+			if (type == 1)
+				texture = "PathStepLocation";
+			if (type == 2)
+				texture = "attackStep";
 			setRender(false);
 		}
 
+		public void setPath(byte type){
+			if (type == 1)
+				texture = "PathStepLocation";
+			if (type == 2)
+				texture = "attackStep";
+		}
 
 		public void reset(){
 			directionX = 0;

@@ -5,9 +5,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Camara {
+
+	// ---
+	// if i ever need to instantiaze another camara, remove the static coorfinates and figure out a way
+	// of doing the static things other way
+	// ---
+
 	OrthographicCamera camara;
-	float x,y,base,height;
-	float zoom = (float) 2;
+	static float x,y,base,height;
+	static float zoom = (float) 2;
 	public void camaraStarter(float zoom){
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
@@ -34,21 +40,24 @@ public class Camara {
 		camara.update();
 	}
 	public void xSetter(float x){
-		this.x = x;
+		Camara.x = x;
 	}
 	public void ySetter(float y){
-		this.y = y;
+		Camara.y = y;
 	}
-	public float zoomGetter(){
+	static public float getZoom(){
 		return zoom;
 	}
 	public void fixedUpdater(){
 		camara.update();
 	}
-	public float getX(){return x;}
-	public float getY(){return y;}
+	public static  float getX(){return x;}
+	public static float getY(){return y;}
+	public static float getBase(){return base;}
+	public static float getHeight() {return height;}
+
 	public void setToOrtho(boolean yDown, float x, float y, float zoom){
-		this.zoom = zoom;
+		Camara.zoom = zoom;
 		base = x * zoom;
 		height = y * zoom;
 		camara.setToOrtho(yDown,base,height);
@@ -68,7 +77,7 @@ public class Camara {
 		updater();
 	}
 	public void setToOrtho(float zoom){
-		this.zoom = zoom;
+		Camara.zoom = zoom;
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
 		camara.setToOrtho(false, base , height);

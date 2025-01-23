@@ -24,7 +24,13 @@ public class ClickDetector implements Utils {
 		ClickDetector.camara = camara;
 	}
 
-	public static Vector3 click(){
+	public static Vector3 authenticClick(){
+		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
+		camara.camara.unproject(touchedPosition);
+		return touchedPosition;
+	}
+
+	public static Vector3 flooredClick(){
 		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
 		camara.camara.unproject(touchedPosition);
 		touchedPosition.x = (float) (globalSize() * floor((touchedPosition.x) / globalSize()));
@@ -33,7 +39,7 @@ public class ClickDetector implements Utils {
 	}
 
 	public static float clickDistance(float fromX, float fromY){
-		return round((sqrt(pow(fromX - click().x, 2) + pow(fromY - click().y, 2))) / globalSize());
+		return round((sqrt(pow(fromX - flooredClick().x, 2) + pow(fromY - flooredClick().y, 2))) / globalSize());
 	}
 
 
@@ -117,7 +123,7 @@ public class ClickDetector implements Utils {
 	// lmao ure now useless dw ill find a use for u later
 	public static HashSet<Enemy> clickAndRayCasting(float fromX, float fromY, Entity entityToIgnore,
 													  ArrayList<Enemy> enemyList, ArrayList<Wall> wallList, boolean phases){
-		Vector3 utilVector = click();
+		Vector3 utilVector = flooredClick();
 		float toX = utilVector.x;
 		float toY = utilVector.y;
 
@@ -126,7 +132,7 @@ public class ClickDetector implements Utils {
 
 	public static boolean clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(float fromX, float fromY,
 											 ArrayList<Wall> wallList){
-		Vector3 utilVector = click();
+		Vector3 utilVector = flooredClick();
 		float toX = utilVector.x;
 		float toY = utilVector.y;
 

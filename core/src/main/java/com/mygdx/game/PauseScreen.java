@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import static com.mygdx.game.Settings.touchDetect;
+
 public class PauseScreen implements Screen, Utils {
 	MainClass mainClass;
 	SpriteBatch menuScreenBatch;
@@ -30,7 +32,7 @@ public class PauseScreen implements Screen, Utils {
 		font.draw(menuScreenBatch, "Test Game Pause Screen", Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
 		font.draw(menuScreenBatch, "Click to unpause", Gdx.graphics.getWidth()  / 2f, Gdx.graphics.getHeight() * 2f / 3f);
 		menuScreenBatch.end();
-		if (Gdx.input.isTouched() || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+		if (touchDetect() || Gdx.input.isKeyJustPressed(Input.Keys.P)) {
 			mainClass.setGameScreen();
 			dispose();
 		}

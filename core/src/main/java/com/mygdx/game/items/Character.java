@@ -8,7 +8,7 @@ import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Healer;
-import com.mygdx.game.items.characters.classes.Tank;
+import com.mygdx.game.items.characters.classes.Melee;
 import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
@@ -19,7 +19,7 @@ import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
-public class Character extends Entity implements Utils {
+public class Character extends Actor implements Utils {
 	PathFinder pathFindAlgorithm;
 	Path path;
 	int thisTurnVSM;
@@ -37,6 +37,9 @@ public class Character extends Entity implements Utils {
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
 	Stage recordedStage;
+	int[] attackDirection = new int[2];
+	// haha now i have to code a basically new class in the same clas for when this is false
+	boolean gridMode = true;
 
 	public Character(){}
 
@@ -60,9 +63,9 @@ public class Character extends Entity implements Utils {
 		isOnTheGrid();
 	}
 
-
 	private void actionDecided(){
-		Turns.characterFinalizedToChooseAction(this);
+		print("AWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		Turns.actorsFinalizedChoosing(this);
 	}
 
 	public void permitToMove(){
@@ -72,6 +75,36 @@ public class Character extends Entity implements Utils {
 
 	public boolean isPermittedToAct() {
 		return permittedToAct;
+	}
+
+	public void movement(){
+		testCollision.x = x;
+		testCollision.y = y;
+		if (isPermittedToAct()) {
+			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
+				speedLeft = path.pathProcess(this);
+			}
+
+			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
+				primaryMovement();
+			}
+
+			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
+				finalizedMove();
+		}
+		else if (canDecide() && isDecidingWhatToDo(this))
+			movementInput();
+
+		super.refresh(characterTexture,x, y, base, height);
+	}
+
+	protected void movementInput(){
+		automatedMovement();
+		if (path.pathCreate(x,y, (int) character.speed,stage, (byte) 1)) {
+			canDecide = new boolean[] {false, false};
+			thisTurnVSM = getVisualSpeedMultiplier();
+			actionDecided();
+		}
 	}
 
 	protected void primaryMovement(){
@@ -93,47 +126,39 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
-	public void finalizedAttack(){
-		spendTurn();
-		attacksCoordinate = null;
-		canDecide[0] = true;
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-	}
-
-	public void finalizedMove(){
-		for (Enemy e : stage.enemy)
-			for (Enemy n : stage.enemy){
-				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
-					print("Discrepancy with enemy: " + n + " :and enemy: " + e);
-					print("In x: " + n.x + " :in y: " + e.y);
-				}
-			}
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-		canDecide[0] = true;
-		spendTurn();
-		attacksCoordinate = null;
-	}
-
-	protected void movementInput(){
-		automatedMovement();
-		if (path.pathCreate(x,y,character.speed,stage)) {
-			canDecide = new boolean[] {false, false};
-			thisTurnVSM = getVisualSpeedMultiplier();
-			actionDecided();
-		}
-	}
-
 	private void automatedMovement(){
-		if(Gdx.input.isTouched()){
-			lastClickX = click().x;
-			lastClickY = click().y;
+		if(touchDetect()){
+			lastClickX = flooredClick().x;
+			lastClickY = flooredClick().y;
 			pathFinding();
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
 			pathFinding();
 		}
+	}
+
+	public void finalizedMove(){
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
+		canDecide[0] = true;
+		spendTurn();
+		attacksCoordinate = null;
+	}
+
+	public void finalizedAttack(){
+		if (numberOfHits == 0)
+			print("Hit nothing!");
+		else if (numberOfHits > 1)
+			print("Hit " + numberOfHits + " times!");
+		else
+			print("Hit 1 time!");
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
+		canDecide[0] = true;
+		spendTurn();
+		attacksCoordinate = null;
+		attackDirection[0] = 0;
+		attackDirection[1] = 0;
 	}
 
 	private void pathFinding(){
@@ -164,34 +189,12 @@ public class Character extends Entity implements Utils {
 		}
 	}
 
-	public void movement(){
-		testCollision.x = x;
-		testCollision.y = y;
-		if (isPermittedToAct()) {
-			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
-				speedLeft = path.pathProcess(this);
-			}
-
-			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
-				primaryMovement();
-			}
-
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
-				finalizedMove();
-		}
-		else if (canDecide() && isDecidingWhatToDo(this))
-			movementInput();
-
-		super.refresh(characterTexture,x, y, base, height);
-	}
-
 	private void stageChange(Stage stage){
 		this.stage = stage;
 		if (stage != recordedStage) {
 			recordedStage = stage;
 			stageChanged();
 		}
-
 	}
 
 	private void stageChanged(){
@@ -206,11 +209,12 @@ public class Character extends Entity implements Utils {
 		stageChange(stage);
 		onDeath();
 		character.update(this);
+		actingSpeed = character.attackSpeed;
 		path.getStats(x,y,character.speed,stage);
-		movement();
-		attack();
-		if(canDecide())
-			attackDecider();
+		if (!attackMode)
+			movement();
+		else
+			attack();
 		changeTo();
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
 			print("canDecide: " + (canDecide[1] && canDecide[0]));
@@ -234,59 +238,83 @@ public class Character extends Entity implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
 			attackMode = !attackMode;
+			path.pathReset();
 			print("AttackMode is now "+attackMode);
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
 			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
 				y+ (float) globalSize() /2,1, 10,true,false);
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
+			stage.enemy.add(new Enemy(x+256,y));
+		}
 
 		path.render();
 		render();
 	}
 
-// TODO kinda works. Kinda. Piercing attack is broken but not not piercing... have to do more tests
-	public void attackDecider() {
-		if (canDecide[0] && canDecide[1] && isDecidingWhatToDo(this) && attackMode) {
-			if (Gdx.input.isTouched()) {
-				if (clickDistance(x,y) <= character.range &&
-						clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(x,y,stage.walls)) {
-					print("Check passed");
-					attacksCoordinate = click();
-					actionDecided();
-				}
-			}
-		}
-	}
-
-	boolean isAttacking = false;
+	int numberOfHits = 0;
 	public void attack(){
-		if(attacksCoordinate != null && isPermittedToAct() && !isAttacking) {
-			isAttacking = true;
-			print("Attacked previous turn");
-			if (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y, this, stage.enemy, stage.walls,
-					false) != null /* uh oh && character.range <= distance */ ) {
-				print("Attack Succeeded");
-				for (Enemy e : (rayCasting(x, y, attacksCoordinate.x, attacksCoordinate.y,
-						this, stage.enemy, stage.walls, false))) {
-					printErr("attacked an enemy. Enemy was " + e + ". damage was: " + character.outgoingDamage());
-					e.damage(character.outgoingDamage(), "Melee");
+		testCollision.x = x;
+		testCollision.y = y;
+		if (isPermittedToAct()) {
+			if (!path.pathEnded){
+				attackDetector();
+			}
+
+		}
+		else if (canDecide() && isDecidingWhatToDo(this))
+			attackInput();
+
+		super.refresh(characterTexture,x, y, base, height);
+	}
+
+	// me not coding this method entirely was (one of the) the reason(s) of why i froze the dev of this for sum months. bruh.
+	private void attackDetector(){
+		attackDirection = path.pathProcess(this);
+		for (Actor e : stage.enemy)
+			if (path.getCurrentPathCoords()[0] == e.x && path.getCurrentPathCoords()[1] == e.y){
+				e.damage(character.outgoingDamage(), "Melee");
+				numberOfHits++;
+				if (!character.pierces){
+					path.pathEnded = true;
+					finalizedAttack();
+					return;
 				}
-
 			}
-			else
-				printErr("Attack failed");
+		if (path.pathEnded) {
+			finalizedAttack();
+			return;
+		}
+		attackDetector();
+	}
 
-			if (!character.shouldTurnCompletionBeLeftToClass) {
-				print("finalized attack");
-				finalizedAttack();
-			} else {
-				printErr("Attack finalization left to classes");
-				hasAttacked = true;
-			}
-			isAttacking = false;
+	protected void attackInput(){
+		automatedAttack();
+		if (path.pathCreate(x,y,character.range,stage, (byte) 2)) {
+			canDecide = new boolean[] {false, false};
+			thisTurnVSM = getVisualSpeedMultiplier();
+			actionDecided();
 		}
 	}
+
+	private void automatedAttack(){
+		if(touchDetect()){
+			lastClickX = flooredClick().x;
+			lastClickY = flooredClick().y;
+			pathFinding();
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
+			pathFinding();
+		}
+	}
+
+	private void attackProcess(){
+
+	}
+
+
+
 
 	boolean didntRunMovementMethodYetEver = true;
 	public byte texture(){
@@ -353,7 +381,7 @@ public class Character extends Entity implements Utils {
 
 	public void changeToMelee(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			character = new Tank();
+			character = new Melee();
 		}
 	}
 

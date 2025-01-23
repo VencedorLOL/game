@@ -95,7 +95,7 @@ public class PathFinder {
 		ArrayList<Path.PathStep> path = new ArrayList<>();
 		for (int i = 0; i < tiles.size(); i++)
 			if ((i != 0) && !((tiles.get(i - 1).x - tiles.get(i).x) == 0 && (tiles.get(i - 1).y - tiles.get(i).y) == 0))
-				path.add(new Path.PathStep((tiles.get(i - 1).x - tiles.get(i).x), (tiles.get(i - 1).y - tiles.get(i).y)));
+				path.add(new Path.PathStep((tiles.get(i - 1).x - tiles.get(i).x), (tiles.get(i - 1).y - tiles.get(i).y), (byte) 1));
 		Collections.reverse(path);
 		return path;
 	}

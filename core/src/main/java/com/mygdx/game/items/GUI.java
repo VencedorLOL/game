@@ -132,7 +132,7 @@ public class GUI {
 			table.add(button);
 			button.addListener(new ClickListener() {
 				public void clicked (InputEvent event, float x, float y) {
-					System.out.println("click " + x + ", " + y);
+					System.out.println("flooredClick " + x + ", " + y);
 				}
 			});
 

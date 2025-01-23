@@ -31,7 +31,7 @@ public class GameScreen implements Screen, Utils {
 	public boolean fullscreen;
 	public int latestNonFullScreenX = 640;
 	public int latestNonFullScreenY = 400;
-
+	public Turns turn = new Turns();
 
 	public void create () {
 		if (camaraZoom <= 0)
@@ -91,14 +91,13 @@ public class GameScreen implements Screen, Utils {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
 				System.out.println(camaraZoom);
 
-		ArrayList<Character> cl = new ArrayList<>();
+		ArrayList<Actor> cl = new ArrayList<>(stage.enemy);
 		cl.add(chara);
-		turnLogic(stage.enemy,cl);
+		turnLogic2(cl);
 	}
 
 
 	public void finish(){
-
 		particle.particleRenderer();
 		camara.finalizer(textureManager.batch);
 		textureManager.batch.end();
@@ -136,6 +135,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void render(float delta) {
+		onCycleStart();
 		start();
 		finish();
 	}

@@ -1,7 +1,8 @@
 package com.mygdx.game.items.characters.classes;
 
+import static com.mygdx.game.Settings.touchDetect;
 import static com.mygdx.game.items.ClickDetector.*;
-import static com.mygdx.game.items.TextureManager.addToListFixatedScreenCoordinates;
+import static com.mygdx.game.items.TextureManager.addToFixatedList;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 import com.badlogic.gdx.Gdx;
@@ -57,10 +58,10 @@ public class Vencedor extends CharacterClasses {
 			return;
 		}
 		if (attackMode){
-			addToListFixatedScreenCoordinates("AttackMode", character.getX(),character.getY(),1F,1f);
-			if (Gdx.input.isTouched()) {
-				float x = click().x;
-				float y = click().y;
+			addToFixatedList("AttackMode",1F,1f);
+			if (touchDetect()) {
+				float x = flooredClick().x;
+				float y = flooredClick().y;
 				for (VenceSword v : venceSwordArray){
 					if (x == v.getX() && y == v.getY()) {
 						controlVenceSwordMode = !controlVenceSwordMode;

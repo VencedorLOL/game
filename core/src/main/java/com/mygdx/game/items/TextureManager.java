@@ -3,8 +3,6 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import java.util.ArrayList;
 
@@ -48,20 +46,27 @@ public class TextureManager {
 		sprite.draw(batch);
 	}
 
-	private void fixatedScreenDrawer(String texture, float x, float y,float xPercentage, float yPercentage){
+	private void fixatedScreenDrawer(String texture,float xPercentage, float yPercentage, float xOffset, float yOffset){
 		region = atlas.findRegion(texture);
 		sprite = new Sprite(region);
-		sprite.setPosition(Gdx.graphics.getWidth() * xPercentage + x,Gdx.graphics.getHeight() * yPercentage + y);
+		//if percentages are >1 || <-1 'll go offscreen. 0/0 is the center of the screen.
+		sprite.setPosition( xPercentage * Camara.getBase() + xOffset + Camara.getX(),
+ 				Camara.getY() + yPercentage * Camara.getHeight() + yOffset);
 		sprite.draw(batch);
 	}
+
 
 
 	public static void addToList(String texture, float x, float y){
 		drawables.add(new DrawableObject(texture, x, y));
 	}
 
-	public static void addToListFixatedScreenCoordinates(String texture,float x,float y, float xPercentage, float yPercentage){
-		fixatedDrawables.add(new DrawableObject(texture, x,y, xPercentage, yPercentage));
+	public static void addToFixatedList(String texture, float xPercentage, float yPercentage){
+		addToFixatedList(texture,xPercentage,yPercentage,0,0);
+	}
+
+	public static void addToFixatedList(String texture, float xPercentage, float yPercentage,float xOffset,float yOffset){
+		fixatedDrawables.add(new DrawableObject(texture, xPercentage, yPercentage,xOffset,yOffset));
 	}
 
 	public static void addToPriorityList(String texture, float x, float y){
@@ -72,11 +77,11 @@ public class TextureManager {
 		getCamara(camara);
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
-				drawer(d.texture,d.x,d.y);
+				 drawer(d.texture,d.x,d.y);
 		}
 		drawables.clear();
 		for (TextureManager.Text t : text){
-			t.drawStatic(batch,camara.x/camara.zoom,camara.y/camara.zoom);
+			t.drawStatic(batch,Camara.x / camara.zoom,Camara.y / camara.zoom);
 		}
 		text.clear();
 		for (TextureManager.DrawableObject d : priorityDrawables){
@@ -86,7 +91,7 @@ public class TextureManager {
 		priorityDrawables.clear();
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
-				fixatedScreenDrawer(d.texture,d.x,d.y,d.xPercentage,d.yPercentage);
+				fixatedScreenDrawer(d.texture,d.xPercentage,d.yPercentage,d.x,d.y);
 		}
 		fixatedDrawables.clear();
 	}
@@ -105,10 +110,12 @@ public class TextureManager {
 		public DrawableObject(String texture, float x, float y){
 			this.x = x;
 			this.y = y;
+			this.yPercentage = 0;
+			this.xPercentage = 0;
 			this.texture = texture;
 		}
 
-		public DrawableObject(String texture, float x, float y,float xPercentage, float yPercentage){
+		public DrawableObject(String texture,float xPercentage,float yPercentage,float x, float y){
 			this.x = x;
 			this.y = y;
 			this.texture = texture;

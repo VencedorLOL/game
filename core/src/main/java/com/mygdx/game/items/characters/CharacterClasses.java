@@ -4,6 +4,9 @@ import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
 
+import java.util.ArrayList;
+
+import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
@@ -43,6 +46,9 @@ public class CharacterClasses {
 	public int totalRange;
 
 	public float currentHealth;
+
+	// Any character might have more than one ability.
+	public ArrayList<Ability> abilityButton;
 
 	public boolean pierces;
 	// If true, turn completion will be handled by classes instead of normal procedure
@@ -153,18 +159,12 @@ public class CharacterClasses {
 	public void updateOverridable(Character character) {}
 
 
-	byte turnPasserAid;
+	long turnPasserAid = -1;
 	public boolean turnHasPassed() {
-		/*if(whatTurnIsIt() && turnPasserAid == 0)
-			turnPasserAid++;
-		if(!whatTurnIsIt() && turnPasserAid == 1)
-			turnPasserAid++;
-		if(whatTurnIsIt() && turnPasserAid == 2) {
-			turnPasserAid = 0;
-			System.out.println("A turn has passed");
+		if (turnPasserAid != getTurnCount() && getDidTurnJustPass()) {
+			turnPasserAid = getTurnCount();
 			return true;
-		}*/
-		System.out.println("Broke, WIP");
+		}
 		return false;
 	}
 

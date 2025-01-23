@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 public class Entity {
+	public int actingSpeed;
 	boolean isDead;
 	float x, y, base, height;
 	String texture;
@@ -42,11 +43,6 @@ public class Entity {
 		return false;
 	}
 
-	//Override
-	public boolean isPermittedToAct(){return true;}
-	//Override
-	public void permitToMove(){}
-
 	public float getX () { return x; }
 	public float getY () { return y; }
 	public float getBase (){ return base; }
@@ -84,9 +80,7 @@ public class Entity {
 		return false;
 	}
 
-	// Override this
-	public void damage(float damage, String damageReason){
-	}
+	// Actor will have this
 
 
 }

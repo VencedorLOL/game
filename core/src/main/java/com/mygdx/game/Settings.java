@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
+
 public class Settings {
 	static int animationSpeed = 1;
 	static int visualSpeedMultiplier = 8;
@@ -10,6 +12,8 @@ public class Settings {
 	static boolean pathPerTurn = true;
 	static byte takeEnemiesIntoConsideration = 0;
 	static byte extraAllowedPath = 2;
+	static long errorId = 1;
+	static boolean touchedGate;
 	// Temp comment:
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
@@ -34,6 +38,33 @@ public class Settings {
 	}
 	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
+
+	public static long startErrorId(){
+		if (errorId % 2 == 0) {
+			throw new IllegalErrorState(errorId);
+		}
+		return ++errorId;
+	}
+	public static long continueErrorId(){
+		if (errorId % 2 != 0) {
+			throw new IllegalErrorState(errorId);
+		}
+		return errorId;
+	}
+	public static long endErrorId() {
+		if (errorId % 2 != 0) {
+			throw new IllegalErrorState(errorId);
+		}
+		return errorId++;
+	}
+
+	public static long startAndEndErrorId(){
+		if (errorId % 2 != 0) {
+			throw new IllegalErrorState(errorId);
+		}
+		errorId += 2;
+		return --errorId;
+	}
 
 	public static void setVisualSpeedMultiplier(int visualSpeedMultiplier) {
 		Settings.visualSpeedMultiplier = visualSpeedMultiplier;
@@ -65,6 +96,23 @@ public class Settings {
 			System.err.println(text);
 	}
 
+	private static class IllegalErrorState extends Error {
+		private IllegalErrorState(long faultyErrorState){
+			super(" CLASS: [Settings] :: The state of the low-relevant errors was caught in an impossible state. Said state is: " + faultyErrorState);
+		}
+	}
+
+	public static boolean touchDetect(){
+		if (touchedGate) {
+			touchedGate = false;
+			return (Gdx.input.isTouched());
+		}
+		return false;
+	}
+
+	public static void onCycleStart(){
+		touchedGate = true;
+	}
 
 
 }

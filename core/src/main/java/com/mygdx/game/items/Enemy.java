@@ -7,13 +7,13 @@ import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.ClickDetector.click;
 import static com.mygdx.game.items.Stage.*;
+import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 
-public class Enemy extends Entity{
+public class Enemy extends Actor{
 	PathFinder pathFindAlgorithm;
 	int thisTurnVSM;
 	public int speed = 3;
@@ -32,7 +32,8 @@ public class Enemy extends Entity{
 	boolean permittedToAct = false;
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
-		speed = random(1, 7);
+		speed = 3;
+		actingSpeed = random(1, 7);
 		this.health = health;
 		this.x = x;
 		this.y = y;
@@ -112,7 +113,7 @@ public class Enemy extends Entity{
 	// LETS DO THIS, MASSIVE DELETION TO MAKE SPACE FOR: 6.0, now it pathfinds.
 
 	private void actionDecided(){
-		Turns.enemyFinalizedChoosing(this);
+		Turns.actorsFinalizedChoosing(this);
 	}
 
 	public void finalizedMove(){
@@ -132,7 +133,7 @@ public class Enemy extends Entity{
 
 	protected void movementInput(){
 		pathFinding();
-		if (path.pathCreate(x,y,speed,stage)) {
+		if (path.pathCreate(x,y,speed,stage, (byte) 1)) {
 			canDecide = new boolean[] {false, false};
 			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();
@@ -159,16 +160,16 @@ public class Enemy extends Entity{
 		testCollision.y = y;
 		if (isPermittedToAct()) {
 			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
-				print("speed x: " + speedLeft[0] + " speed y : " + speedLeft[1]);
+				print("actingSpeed x: " + speedLeft[0] + " actingSpeed y : " + speedLeft[1]);
 				speedLeft = path.pathProcess(this);
 			}
 
 			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
-				print("speed x: " + speedLeft[0] + " speed y : " + speedLeft[1]);
+				print("actingSpeed x: " + speedLeft[0] + " actingSpeed y : " + speedLeft[1]);
 				primaryMovement();
 				print("alive1;");
 			}
-print("alixe 2;");
+			print("alixe 2;");
 			print("pat " + path.pathEnded);
 			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
 				print("fin mov 2");
@@ -216,6 +217,8 @@ print("alixe 2;");
 
 	public void update(Stage stage, ParticleManager pm){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+			if(didTurnJustPass)
+				canDecide[1] = true;
 			gameScreenGetter(pm);
 			this.stage = stage;
 			if (pathFindAlgorithm == null)
@@ -230,8 +233,8 @@ print("alixe 2;");
 				System.out.println("availableSpaces RIGHT: " + availableSpaces[2] + " :availableSpaces DOWN-RIGHT: " + availableSpaces[3]);
 				System.out.println("availableSpaces DOWN: " + availableSpaces[4] + " :availableSpaces DOWN-LEFT: " + availableSpaces[5]);
 				System.out.println("availableSpaces LEFT: " + availableSpaces[6] + " :availableSpaces UP-LEFT: " + availableSpaces[7]);
-				System.out.println("speed left on x : " + speedLeft[0]);
-				System.out.println("speed left on y : " + speedLeft[1]);
+				System.out.println("actingSpeed left on x : " + speedLeft[0]);
+				System.out.println("actingSpeed left on y : " + speedLeft[1]);
 				System.out.println("onTurn: " + allowedToMove);
 				System.out.println("x: " + x);
 				System.out.println("testX: " + testCollision.x);
