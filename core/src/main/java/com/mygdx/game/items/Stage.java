@@ -38,6 +38,8 @@ public class Stage implements Utils {
 
 	public Border border = new Border();
 
+	public ArrayList<Tile> tileset = new ArrayList<>();
+
 	// public ArrayList<Entity> otherEntities = new ArrayList<>();
 
 	public float camaraX, camaraY, camaraBase, camaraHeight;
@@ -172,21 +174,21 @@ public class Stage implements Utils {
 	}
 
 
-	public void floorSetter(Stage stage){
+	public void tilesetSetter(Stage stage){
 		for (int y = stage.startY; y <= stage.finalY ; y += globalSize()) {
 			for (int x = stage.startX ; x <= stage.finalX ; x += globalSize()) {
-				floor.add(new Floor(floorTexture,x, y));
+				tileset.add(new Tile(x, y,new Floor(floorTexture)));
 			}
 		}
 		hasFloorBeenRendered = true;
 	}
 
-	public void floorRenderer(){
+	public void tilesetRenderer(){
 		if(!hasFloorBeenRendered) {
-			floorSetter(this);
+			tilesetSetter(this);
 			hasFloorBeenRendered = true;
 		}
-		for (Floor g : floor){
+		for (Tile g : tileset){
 			g.render();
 		}
 	}
@@ -220,7 +222,7 @@ public class Stage implements Utils {
 	public void stageRenderer(GameScreen gs, Stage stage){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
-			floorSetter(this);
+			tilesetSetter(this);
 			enemySetter();
 			screenWarpSetter();
 			wallSetter();
@@ -232,7 +234,7 @@ public class Stage implements Utils {
 			camaraY = gs.camara.y;
 			camaraBase = gs.camara.base;
 			camaraHeight = gs.camara.height;
-			floorRenderer();
+			tilesetRenderer();
 			enemyRenderer(stage, gs.particle);
 			screenWarpRenderer();
 			wallRenderer();
@@ -245,7 +247,7 @@ public class Stage implements Utils {
 	public void stageRenderer(Camara camara, Stage stage, TextureManager tm){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
-			floorSetter(this);
+			tilesetSetter(this);
 			enemySetter();
 			screenWarpSetter();
 			wallSetter();
@@ -257,7 +259,7 @@ public class Stage implements Utils {
 			camaraY = camara.y;
 			camaraBase = camara.base;
 			camaraHeight = camara.height;
-			floorRenderer();
+			tilesetRenderer();
 			enemyRenderer(stage, new ParticleManager(tm));
 			screenWarpRenderer();
 			wallRenderer();
@@ -316,6 +318,22 @@ public class Stage implements Utils {
 
 	}
 
+
+	public Tile findATile(float x, float y){
+		for (Tile t : tileset){
+			if (t.x() == x && t.y() == y)
+				return t;
+		}
+		return null;
+	}
+
+	public Tile findATile(float[] xY){
+		for (Tile t : tileset){
+			if (t.xAndY() == xY)
+				return t;
+		}
+		return null;
+	}
 
 
 }

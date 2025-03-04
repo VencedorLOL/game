@@ -11,6 +11,7 @@ import com.mygdx.game.items.stages.StageOne;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.InputHandler.isEscapePressed;
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
@@ -44,6 +45,7 @@ public class GameScreen implements Screen, Utils {
 		particle = new ParticleManager(textureManager);
 		clickDetector = new ClickDetector(camara);
 		testUi.textBox();
+		InputHandler.defaultKeybinds();
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -54,6 +56,10 @@ public class GameScreen implements Screen, Utils {
 	public void start(){
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
+		InputHandler.resetter();
+		if (isEscapePressed()){
+			print("YAY");
+		}
 		//System.out.println(Gdx.graphics.getFramesPerSecond());
 		fullscreenDetector();
 		screenSizeChangeDetector();

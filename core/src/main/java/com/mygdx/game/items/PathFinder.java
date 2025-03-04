@@ -35,7 +35,7 @@ public class PathFinder {
 
 
 	public static void reset(Stage newStage){
-		print("reseting thing");
+		//print("reseting thing");
 		stage = newStage;
 		grid.generateGrid(stage);
 		enemyGrid.generateEnemyGrid(stage);

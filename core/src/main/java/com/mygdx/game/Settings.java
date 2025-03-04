@@ -14,7 +14,7 @@ public class Settings {
 	static byte extraAllowedPath = 2;
 	static long errorId = 1;
 	static boolean touchedGate;
-	// Temp comment:
+	static boolean shouldOverrideEsc;
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
 	// 2: take enemies in consideration if path is the same lenght or longer by some amount
@@ -38,6 +38,7 @@ public class Settings {
 	}
 	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
+	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
 
 	public static long startErrorId(){
 		if (errorId % 2 == 0) {
@@ -68,21 +69,21 @@ public class Settings {
 
 	public static void setVisualSpeedMultiplier(int visualSpeedMultiplier) {
 		Settings.visualSpeedMultiplier = visualSpeedMultiplier;
-		if(!(128 % Settings.visualSpeedMultiplier == 0)) {
-			if(Settings.visualSpeedMultiplier > 128)
-				Settings.visualSpeedMultiplier = 128;
-			else if(Settings.visualSpeedMultiplier < 4 )
-				Settings.visualSpeedMultiplier = 4;
-			else if(Settings.visualSpeedMultiplier < 8 )
-				Settings.visualSpeedMultiplier = 8;
-			else if(Settings.visualSpeedMultiplier < 16 )
-				Settings.visualSpeedMultiplier = 16;
-			else if(Settings.visualSpeedMultiplier < 32 )
-				Settings.visualSpeedMultiplier = 32;
-			else if(Settings.visualSpeedMultiplier < 64 )
-				Settings.visualSpeedMultiplier = 64;
-			else if(Settings.visualSpeedMultiplier < 128)
-				Settings.visualSpeedMultiplier = 128;
+		if(!(GLOBAL_SIZE % Settings.visualSpeedMultiplier == 0)) {
+			if(Settings.visualSpeedMultiplier > GLOBAL_SIZE)
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE;
+			else if(Settings.visualSpeedMultiplier < GLOBAL_SIZE / 32 )
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE / 32;
+			else if(Settings.visualSpeedMultiplier < GLOBAL_SIZE / 16 )
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE / 16;
+			else if(Settings.visualSpeedMultiplier < GLOBAL_SIZE / 8 )
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE / 8;
+			else if(Settings.visualSpeedMultiplier <  GLOBAL_SIZE / 4 )
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE / 4;
+			else if(Settings.visualSpeedMultiplier < GLOBAL_SIZE / 2)
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE / 2;
+			else if(Settings.visualSpeedMultiplier < GLOBAL_SIZE)
+				Settings.visualSpeedMultiplier = GLOBAL_SIZE;
 		}
 	}
 

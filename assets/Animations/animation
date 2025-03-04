@@ -1,0 +1,19 @@
+This is runnable, if the file doesn't start with "?" or "^" it will not run.
+Explanation of format: 
+Add texture:
+Start with "?" to start a texture command. Then, you have to add the number of frames you want the texture to be played for. Cannot have decimals (I can't make decimal frames happen)
+Then add another "?" and the name of the texture. THE TEXTURE HAS TO BE IN THE ATLAS SPRITE. To finish the command, add ";" and a new line.
+If you want the sprite to be moved tiles (have to make it so you can also move pixels) before ";" add ":" and, if 'x' add the number of tiles; if 'y' add "y" and the number of tiles; and if both add the number of tiles for 'x', then ":" and the number of tiles for 'y'. You can make these numbers positive, negative or decimal.
+Add repetition:
+If you start a like with "^" and then a number, it will jump that many instructions upwards, once.
+Here are some examples:
+
+
+
+?5?CharaLeft;
+?10?CharaRight;
+^2;
+?15?CharaLeft:1:1;
+?20?CharaLeft:-1:-1;
+?25?CharaLeft:y1;
+?30?CharaLeft:y-1;

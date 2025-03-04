@@ -13,8 +13,11 @@ import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
+import java.util.ArrayList;
+
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.TextureManager.animationToList;
 import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
@@ -249,6 +252,11 @@ public class Character extends Actor implements Utils {
 			stage.enemy.add(new Enemy(x+256,y));
 		}
 
+		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
+			animationToList("animation",x,y);
+		}
+
+
 		path.render();
 		render();
 	}
@@ -269,7 +277,7 @@ public class Character extends Actor implements Utils {
 		super.refresh(characterTexture,x, y, base, height);
 	}
 
-	// me not coding this method entirely was (one of the) the reason(s) of why i froze the dev of this for sum months. bruh.
+
 	private void attackDetector(){
 		attackDirection = path.pathProcess(this);
 		for (Actor e : stage.enemy)
@@ -290,12 +298,29 @@ public class Character extends Actor implements Utils {
 	}
 
 	protected void attackInput(){
-		automatedAttack();
-		if (path.pathCreate(x,y,character.range,stage, (byte) 2)) {
-			canDecide = new boolean[] {false, false};
-			thisTurnVSM = getVisualSpeedMultiplier();
-			actionDecided();
+		ArrayList<Tile> circle = stage.findATile(x,y).circle(stage.tileset, character.range);
+		for(Tile t : circle) {
+			t.texture.setSecondaryTexture("SelectionWholeArea",.9f);
 		}
+		for (Tile.TileAndCirclePos t : stage.findATile(x,y).detectCornersOfCircle(circle)){
+			switch (t.getTileCirclePos()){
+				case 0: t.getTile().texture.setSecondaryTexture("SelU",.9f); break;
+				case 1: t.getTile().texture.setSecondaryTexture("SelUR",.9f); break;
+				case 2: t.getTile().texture.setSecondaryTexture("SelR",.9f); break;
+				case 3: t.getTile().texture.setSecondaryTexture("SelRD",.9f); break;
+				case 4: t.getTile().texture.setSecondaryTexture("SelD",.9f); break;
+				case 5: t.getTile().texture.setSecondaryTexture("SelDL",.9f); break;
+				case 6: t.getTile().texture.setSecondaryTexture("SelL",.9f); break;
+				case 7: t.getTile().texture.setSecondaryTexture("SelLU",.9f); break;
+				case 8: t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
+				case 9: t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
+				case 10: t.getTile().texture.setSecondaryTexture("SelInDL",.9f); break;
+				case 11: t.getTile().texture.setSecondaryTexture("SelInLU",.9f); break;
+
+			}
+		}
+
+
 	}
 
 	private void automatedAttack(){
