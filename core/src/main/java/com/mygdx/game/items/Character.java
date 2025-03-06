@@ -253,7 +253,7 @@ public class Character extends Actor implements Utils {
 		}
 
 		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
-			animationToList("animation",x,y);
+			animationToList("animation",x,y,1);
 		}
 
 

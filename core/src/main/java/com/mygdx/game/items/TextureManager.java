@@ -8,7 +8,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Scanner;
+
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 
 public class TextureManager {
 	public SpriteBatch batch;
@@ -22,6 +26,9 @@ public class TextureManager {
 	static ArrayList<DrawableObject> priorityDrawables;
 	static ArrayList<DrawableObject> fixatedDrawables;
 	static ArrayList<Animation> animations;
+	private static TextureManager tm;
+	static ArrayList<AtlasAndName> atlases;
+
 
 	public TextureManager (){
 		drawables = new ArrayList<>();
@@ -31,7 +38,9 @@ public class TextureManager {
 		fixatedText = new ArrayList<>();
 		batch = new SpriteBatch();
 		animations = new ArrayList<>();
+		atlases = new ArrayList<>();
 		bounder();
+		tm = this;
 
 	}
 
@@ -43,15 +52,37 @@ public class TextureManager {
 	public void bounder(){
 		batch = new SpriteBatch();
 		atlas = new TextureAtlas(Gdx.files.internal("Atlas/AtlasOne.atlas"));
+		atlases.add(new AtlasAndName(atlas, "AtlasOne.atlas"));
 	}
 
 	private void drawer(String texture, float x, float y,float opacity){
-		region = atlas.findRegion(texture);
-		sprite = new Sprite(region);
-		sprite.setAlpha(opacity);
-		sprite.setPosition(x,y);
-		sprite.draw(batch);
+		drawer(texture,x,y,opacity,"AtlasOne.atlas");
+	//	region = atlas.findRegion(texture);
+	//	sprite = new Sprite(region);
+	//	sprite.setAlpha(opacity);
+	//	sprite.setPosition(x,y);
+	//	sprite.draw(batch);
 	}
+
+	private void drawer(String texture, float x, float y,float opacity,String atlasPath){
+		for (AtlasAndName t : atlases) {
+			if (Objects.equals(t.getName(), atlasPath)) {
+				region = t.getAtlas().findRegion(texture);
+				sprite = new Sprite(region);
+				sprite.setAlpha(opacity);
+				sprite.setPosition(x, y);
+				sprite.draw(batch);
+				return;
+			}
+		}
+
+		atlases.add(new AtlasAndName(new TextureAtlas(Gdx.files.internal("Atlas/" + atlasPath)), atlasPath));
+		drawer(texture,x,y,opacity,atlasPath);
+
+	}
+
+
+
 
 	private void fixatedScreenDrawer(String texture,float xPercentage, float yPercentage, float xOffset, float yOffset, float opacity){
 		region = atlas.findRegion(texture);
@@ -63,8 +94,8 @@ public class TextureManager {
 		sprite.draw(batch);
 	}
 
-	public static void animationToList(String file, float x, float y){
-		animations.add(new Animation(file,x,y));
+	public static void animationToList(String file, float x, float y,float opacity){
+		animations.add(new Animation(file,x,y,tm,opacity));
 	}
 
 	public static void addToList(String texture, float x, float y){
@@ -101,11 +132,14 @@ public class TextureManager {
 
 		for (TextureManager.Animation a : animations){
 			a.update();
+			if (a.texture != null)
+				drawer(a.texture,a.x,a.y,a.opacity);
 		}
-
+		ArrayList<Animation> deletionAider = new ArrayList<>(animations);
+		for (TextureManager.Animation a : deletionAider) if (a.finished) animations.remove(a);
 
 		for (TextureManager.Text t : text){
-			t.drawStatic(batch,Camara.x / camara.zoom,Camara.y / camara.zoom);
+			t.drawStatic(batch,Camara.x / Camara.zoom,Camara.y / Camara.zoom);
 		}
 		text.clear();
 
@@ -202,82 +236,97 @@ public class TextureManager {
 		public float y;
 		public File file;
 		public Scanner fileReader;
-		public int line = 1;
+		public int line = 0;
 		public ArrayList<String> code = new ArrayList<>();
-		public int framesForCurrentAnimation;
+		public int framesForCurrentAnimation = 0;
 		public String texture;
-		private ArrayList<Used> listOfUsedLoops = new ArrayList<>();
+		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
+		public TextureManager tm;
+		//TODO: will have to integrate it in the animation "coding language" i created
+		public float opacity;
 
-		public Animation(String file, float x, float y) {
+		boolean finished = false;
+
+		public Animation(String file, float x, float y, TextureManager tm, float opacity) {
 			try {
 				this.file = new File("Animations//" + file);
 				fileReader = new Scanner(new FileReader(this.file));
 				startX = x;startY = y;this.x = x;this.y = y;
 				read();
+				this.tm = tm;
+				this.opacity = opacity;
 			} catch (FileNotFoundException ignored){}
 
 		}
 
 		// Hope i dont have to debug this
 		public void play(){
-			String reader = code.get(line);
-			if(reader.charAt(0) == '?'){
-				framesForCurrentAnimation = Integer.parseInt(reader.substring(1,reader.lastIndexOf('?')-1));
-				if(reader.contains(":")) {
-					texture = reader.substring(reader.lastIndexOf('?') +1,reader.charAt(reader.indexOf(':')-1));
-					if (reader.indexOf(':') == reader.lastIndexOf(':'))
-						move(true, Float.parseFloat(reader.substring(reader.charAt(reader.indexOf(':')) + 1, reader.charAt(reader.indexOf(';') - 1))));
-					else if (reader.contains("y") || reader.contains("Y"))
-						move(false, Float.parseFloat(reader.substring(reader.charAt(reader.indexOf(':')) + 2, reader.charAt(reader.indexOf(';') - 1))));
-					else {
-						move(true, Float.parseFloat(reader.substring(reader.charAt(reader.indexOf(':')) + 1, reader.charAt(reader.lastIndexOf(':') - 1))));
-						move(false, Float.parseFloat(reader.substring(reader.charAt(reader.lastIndexOf(':')) + 1, reader.charAt(reader.indexOf(';') - 1))));
+			if (line < code.size()) {
+				boolean[] didRunCode = {true,true};
+				String reader = code.get(line);
+				print("Line at " + line + " was: " + reader);
+				if (reader.charAt(0) == '?') {
+					framesForCurrentAnimation = Integer.parseInt(reader.substring(1, reader.lastIndexOf('?')));
+					if (reader.contains(":")) {
+						texture = reader.substring(reader.lastIndexOf('?') + 1, reader.indexOf(':'));
+						if (reader.indexOf(':') == reader.lastIndexOf(':') && !(reader.contains("y") || reader.contains("Y")))
+							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, reader.indexOf(';'))));
+						else if (reader.contains("y") || reader.contains("Y"))
+							move(false, Float.parseFloat(reader.substring(reader.indexOf(':') + 2, reader.indexOf(';'))));
+						else {
+							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, reader.lastIndexOf(':'))));
+							move(false, Float.parseFloat(reader.substring(reader.lastIndexOf(':') + 1, reader.indexOf(';'))));
+						}
+					} else
+						texture = reader.substring(reader.lastIndexOf('?') + 1, reader.indexOf(';'));
+				} else didRunCode[0] = false;
+				if (reader.charAt(0) == '^') {
+					boolean willSkip = false;
+					for (Used u : listOfUsedLoops)
+						if (line == u.line() && u.bool()) {
+							willSkip = true;
+							break;
+						}
+					if (!willSkip) {
+						listOfUsedLoops.add(new Used(true, line));
+						line -= Integer.parseInt(reader.substring(reader.indexOf('^') + 1, reader.indexOf(';')));
+						play();
 					}
-				}
-				else
-					texture = reader.substring(reader.lastIndexOf('?') +1,reader.charAt(reader.indexOf(';')-1));
-			}
-			if(reader.charAt(0) == '^') {
-				boolean willSkip = false;
-				for (Used u : listOfUsedLoops)
-					if (line == u.line() && u.bool()){
-						willSkip = true;
-						break;
-					}
-				if (!willSkip) {
-					listOfUsedLoops.add(new Used(true,line));
-					line -= Integer.parseInt(reader.substring(reader.indexOf('^') +1,reader.charAt(reader.indexOf(';')-1)));
+				} else didRunCode[1] = false;
+				line++;
+				if (!didRunCode[0] && !didRunCode[1])
 					play();
-				}
 			}
-			line++;
+			else finished = true;
 		}
 
 
 		public void stop(){
+			finished = true;
+		}
+
+
+		public void move(boolean isOnX, float coordinate){
+			if (isOnX) x += coordinate*globalSize();
+			else y += coordinate*globalSize();
+		}
+
+
+		public void glide(float x, float y){
 			//TODO
 		}
 
 
-		public void move(boolean isOnX,float coordinate){
-			//TODO: THIS
+		public void update(){
+			if (framesForCurrentAnimation <= 0) play();
+			else framesForCurrentAnimation--;
 		}
-
-
-		public void glide(){
-			//TODO
-		}
-
-
-		public void update(){}
 
 
 		public void read(){
 			while (fileReader.hasNext()){
 				code.add(fileReader.next());
 			}
-			//for (String s : code)
-			//	System.out.println(s);
 		}
 
 		private class Used {
@@ -298,9 +347,35 @@ public class TextureManager {
 
 		}
 
+	}
 
+
+	private static class AtlasAndName{
+		TextureAtlas atlas;
+		String path;
+
+		private AtlasAndName(TextureAtlas atlas, String path){
+			this.atlas = atlas;
+			this.path = path;
+		}
+
+		private TextureAtlas getAtlas(){return atlas;}
+		private void setAtlas(TextureAtlas atlas){this.atlas = atlas;}
+
+		private String getName(){return path;}
+		private void setPath(String path){this.path = path;}
 
 	}
+
+
+
+
+
+
+
+
+
+
 
 
 }
