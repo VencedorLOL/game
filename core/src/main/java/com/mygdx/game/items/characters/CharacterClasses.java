@@ -1,5 +1,6 @@
 package com.mygdx.game.items.characters;
 
+import com.mygdx.game.items.OnTurnPassObject;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
@@ -54,6 +55,9 @@ public class CharacterClasses {
 	// If true, turn completion will be handled by classes instead of normal procedure
 	public boolean shouldTurnCompletionBeLeftToClass;
 
+	OnTurnPassObject cooldownHelper;
+	public int defaultCooldown;
+
 	public CharacterClasses(String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
 							int range, float tempDefense, float rainbowDefense,
@@ -76,6 +80,12 @@ public class CharacterClasses {
 		this.magicHealing = magicHealing;
 		this.shouldTurnCompletionBeLeftToClass = false;
 		reset();
+		cooldownHelper = new OnTurnPassObject(){
+			@Override
+			public void onTurnPass(){
+				turnHasPassed();
+			}
+		};
 	}
 
 	public CharacterClasses(){}
@@ -159,13 +169,8 @@ public class CharacterClasses {
 	public void updateOverridable(Character character) {}
 
 
-	long turnPasserAid = -1;
-	public boolean turnHasPassed() {
-		if (turnPasserAid != getTurnCount() && getDidTurnJustPass()) {
-			turnPasserAid = getTurnCount();
-			return true;
-		}
-		return false;
+	public void turnHasPassed() {
+		defaultCooldown--;
 	}
 
 	public CharacterClasses(String name, float health, float damage,
@@ -191,5 +196,15 @@ public class CharacterClasses {
 		this.shouldTurnCompletionBeLeftToClass = shouldTurnCompletionBeLeftToClass;
 		reset();
 	}
+
+	//Convenience methods for the future
+	public void onHurt(String source){}
+
+	public void onAttack(){}
+
+	public void onMove(){}
+
+
+
 
 }

@@ -46,10 +46,10 @@ public class StageCreatorScreen implements Screen, Utils {
 		screenSizeChangeDetector();
 		if(!isScreenChanging) {
 			screenSizeChangeDetector();
-			camara.updater(chara);
+			camara.updater();
 			sc.update();
 			if (!betweenStages)
-				textureManager.addToList(chara.characterTexture, chara.getX(), chara.getY());
+				textureManager.addToList(chara.getTexture(), chara.getX(), chara.getY());
 			testUi.renderGUI();
 			textureManager.render(camara);
 			// Hotkeys

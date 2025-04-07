@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static java.lang.Math.*;
 
 public class TextureManager {
 	public SpriteBatch batch;
@@ -26,7 +27,6 @@ public class TextureManager {
 	static ArrayList<DrawableObject> priorityDrawables;
 	static ArrayList<DrawableObject> fixatedDrawables;
 	static ArrayList<Animation> animations;
-	private static TextureManager tm;
 	static ArrayList<AtlasAndName> atlases;
 
 
@@ -40,8 +40,6 @@ public class TextureManager {
 		animations = new ArrayList<>();
 		atlases = new ArrayList<>();
 		bounder();
-		tm = this;
-
 	}
 
 	public void getCamara(Camara camara){
@@ -56,12 +54,12 @@ public class TextureManager {
 	}
 
 	private void drawer(String texture, float x, float y,float opacity){
-		drawer(texture,x,y,opacity,"AtlasOne.atlas");
-	//	region = atlas.findRegion(texture);
-	//	sprite = new Sprite(region);
-	//	sprite.setAlpha(opacity);
-	//	sprite.setPosition(x,y);
-	//	sprite.draw(batch);
+	//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
+		region = atlas.findRegion(texture);
+		sprite = new Sprite(region);
+		sprite.setAlpha(opacity);
+		sprite.setPosition(x,y);
+		sprite.draw(batch);
 	}
 
 	private void drawer(String texture, float x, float y,float opacity,String atlasPath){
@@ -94,8 +92,8 @@ public class TextureManager {
 		sprite.draw(batch);
 	}
 
-	public static void animationToList(String file, float x, float y,float opacity){
-		animations.add(new Animation(file,x,y,tm,opacity));
+	public static void animationToList(String file, float x, float y){
+		animations.add(new Animation(file,x,y));
 	}
 
 	public static void addToList(String texture, float x, float y){
@@ -229,58 +227,118 @@ public class TextureManager {
 
 	}
 
-	public static class Animation{
+	public static class Animation extends Entity {
 		public float startX;
 		public float startY;
-		public float x;
-		public float y;
 		public File file;
 		public Scanner fileReader;
 		public int line = 0;
 		public ArrayList<String> code = new ArrayList<>();
 		public int framesForCurrentAnimation = 0;
-		public String texture;
 		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
 		public TextureManager tm;
 		//TODO: will have to integrate it in the animation "coding language" i created
 		public float opacity;
 
+		int glideFrames;
+		boolean isGliding = false;
+		float glidePixelsPerFrameX, glidePixelsPerFrameY;
+		float glideFinalX, glideFinalY;
+
+		// thanks you java for doing math in radians instead of degrees. Thanks.
+		float radius;
+		float angleR;
+		float angleRSection;
+		float angleRStart;
+		float orbitFrames;
+		float orbitCounter;
+		boolean isOrbiting;
+		boolean clockwise;
+
 		boolean finished = false;
 
-		public Animation(String file, float x, float y, TextureManager tm, float opacity) {
+		public Animation(String file, float x, float y){
 			try {
-				this.file = new File("Animations//" + file);
+				this.file = new File("Animations//" + file + ".ani");
 				fileReader = new Scanner(new FileReader(this.file));
 				startX = x;startY = y;this.x = x;this.y = y;
 				read();
-				this.tm = tm;
-				this.opacity = opacity;
+				opacity = 1;
+				base = height = globalSize();
 			} catch (FileNotFoundException ignored){}
 
 		}
 
-		// Hope i dont have to debug this
 		public void play(){
 			if (line < code.size()) {
-				boolean[] didRunCode = {true,true};
+				boolean didRunCode = false;
 				String reader = code.get(line);
 				print("Line at " + line + " was: " + reader);
+				if (reader.contains("<") && reader.contains(">")) {
+					didRunCode = true;
+					String opacityString = reader.substring(reader.indexOf("<") + 1, reader.indexOf(">"));
+					opacity = opacityString.contains("+") || opacityString.contains("-") ?
+							Float.parseFloat(opacityString) + opacity:
+							Float.parseFloat(opacityString);
+					opacity = opacity > 1 ? 1 : opacity;
+					opacity = opacity < 0 ? 0 : opacity;
+				}
+				if (reader.contains(";") && reader.indexOf(';') != reader.lastIndexOf(';')) {
+					didRunCode = true;
+					x = startX; y = startY;
+				}
 				if (reader.charAt(0) == '?') {
+					didRunCode = true;
 					framesForCurrentAnimation = Integer.parseInt(reader.substring(1, reader.lastIndexOf('?')));
+					int indexOfCoordinateDelimitator = reader.contains("/") ? reader.indexOf('/'): reader.contains("*") ? reader.indexOf("*"): reader.indexOf(';');
+
 					if (reader.contains(":")) {
-						texture = reader.substring(reader.lastIndexOf('?') + 1, reader.indexOf(':'));
-						if (reader.indexOf(':') == reader.lastIndexOf(':') && !(reader.contains("y") || reader.contains("Y")))
-							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, reader.indexOf(';'))));
-						else if (reader.contains("y") || reader.contains("Y"))
-							move(false, Float.parseFloat(reader.substring(reader.indexOf(':') + 2, reader.indexOf(';'))));
+						if (reader.indexOf(':') == reader.lastIndexOf(':') && !(reader.contains("y"))) {
+							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, indexOfCoordinateDelimitator)));
+						}
+						else if (reader.contains("y")) {
+							move(false, Float.parseFloat(reader.substring(reader.indexOf(':') + 2, indexOfCoordinateDelimitator)));
+						}
 						else {
 							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, reader.lastIndexOf(':'))));
-							move(false, Float.parseFloat(reader.substring(reader.lastIndexOf(':') + 1, reader.indexOf(';'))));
+							move(false, Float.parseFloat(reader.substring(reader.lastIndexOf(':') + 1, indexOfCoordinateDelimitator)));
 						}
 					} else
-						texture = reader.substring(reader.lastIndexOf('?') + 1, reader.indexOf(';'));
-				} else didRunCode[0] = false;
+						texture = reader.substring(reader.lastIndexOf('?') + 1,
+								reader.contains("<") ?
+									reader.indexOf('<'):
+								reader.contains(":")?
+									reader.indexOf(':'):
+								indexOfCoordinateDelimitator);
+
+					if(reader.contains("/") && (reader.contains("X") && reader.contains("Y"))) {
+						glideFrames =
+								reader.lastIndexOf('/') + 1 == reader.lastIndexOf('X') ?
+									framesForCurrentAnimation:
+									Integer.parseInt(reader.substring(reader.lastIndexOf("/") + 1, reader.lastIndexOf("X")));
+
+						glide(reader.lastIndexOf('X') + 1 == reader.lastIndexOf('Y') ? 0:
+								Float.parseFloat(reader.substring(reader.lastIndexOf("X") + 1, reader.lastIndexOf("Y"))),
+							  reader.lastIndexOf('Y') + 1 ==  (reader.contains("*") ? reader.indexOf("*"): reader.indexOf(';')) ? 0:
+								Float.parseFloat(reader.substring(reader.lastIndexOf("Y") + 1, reader.contains("*") ?
+																								reader.indexOf("*"):
+																								reader.indexOf(";"))));
+					}
+					if(reader.contains("*")){
+						String orbital = reader.substring(reader.indexOf("*"),reader.indexOf(";"));
+						orbitStart(
+								Float.parseFloat(orbital.substring(orbital.indexOf("r")+1,orbital.indexOf("a"))),
+								Float.parseFloat(orbital.substring(orbital.indexOf("a")+1,orbital.contains("s") ? orbital.indexOf('s'): orbital.contains("c") ? orbital.indexOf("c"): orbital.indexOf(";"))),
+								x,y,
+								orbital.contains("s") ? Float.parseFloat(orbital.substring(orbital.indexOf("s")+1,
+								orbital.contains("c") ? orbital.indexOf("c") : orbital.indexOf(";"))) : 0,
+								!orbital.contains("cc") && orbital.contains("c"),
+								orbital.indexOf("*")+1 == orbital.indexOf("r") ? framesForCurrentAnimation :
+								Float.parseFloat(orbital.substring(orbital.indexOf("*")+1,orbital.indexOf("r"))));
+					}
+				}
 				if (reader.charAt(0) == '^') {
+					didRunCode = true;
 					boolean willSkip = false;
 					for (Used u : listOfUsedLoops)
 						if (line == u.line() && u.bool()) {
@@ -289,17 +347,25 @@ public class TextureManager {
 						}
 					if (!willSkip) {
 						listOfUsedLoops.add(new Used(true, line));
-						line -= Integer.parseInt(reader.substring(reader.indexOf('^') + 1, reader.indexOf(';')));
+						line -= Integer.parseInt(reader.substring(reader.indexOf('^') + 1, reader.contains("*") ? reader.indexOf("*"):reader.indexOf(';')));
 						play();
+						return;
 					}
-				} else didRunCode[1] = false;
+				}
 				line++;
-				if (!didRunCode[0] && !didRunCode[1])
+				if (!didRunCode)
 					play();
 			}
-			else finished = true;
+			else {
+				finished = true;
+				print("Animation Finished");
+				onFinish();
+			}
 		}
 
+		public void onFinish(){
+
+		}
 
 		public void stop(){
 			finished = true;
@@ -313,11 +379,70 @@ public class TextureManager {
 
 
 		public void glide(float x, float y){
-			//TODO
+			isGliding = true;
+			glideFinalX = globalSize() * x; glideFinalY = globalSize() * y;
+			glideFrames = min(glideFrames, framesForCurrentAnimation);
+			glidePixelsPerFrameX = glideFinalX / glideFrames;
+			glidePixelsPerFrameY = glideFinalY / glideFrames;
+
+		}
+
+		//this is the first time in my life i have to use sine and cosine functions
+		// THANKS JAVA FOR USING RADIANS INSTEAD OF DEGREES
+		public void orbitStart(float radius, float angleD, float x, float y, float angleDStart, boolean clockwise,float orbitFrames){
+			this.isOrbiting = true;
+			this.radius = radius * globalSize();
+			angleR = (float) (angleD * PI / 180);
+			angleRStart = (float) (angleDStart * PI / 180);
+			this.clockwise = clockwise;
+			angleRSection = (float) ((angleD*PI/180)/orbitFrames);
+			this.orbitFrames = orbitFrames;
+			this.orbitCounter = 0;
+			this.x = x; this.y = y;
+			print("Is it clockwise? " + clockwise+".");
+		}
+
+		// epiphany moment when i realized i dont need the sin/cos * radius, but sin/cos * radius minus previus sin/cos * radius.
+
+
+
+
+
+		public void orbit(){
+			orbitCounter++;
+			if (!clockwise){
+				x -= (float) (radius * cos(angleRSection*(orbitCounter-1) + angleRStart)
+						- radius * cos(angleRSection*orbitCounter + angleRStart));
+
+				y -= (float) (radius * sin(angleRSection*(orbitCounter-1) + angleRStart)
+						- radius * sin(angleRSection*orbitCounter + angleRStart));
+
+			} else {
+				x -= (float) (radius * cos(angleRSection*(orbitCounter-1) + angleRStart)
+						- radius * cos(angleRSection*orbitCounter + angleRStart));
+
+				y += (float) (radius * sin(angleRSection*(orbitCounter-1) + angleRStart)
+						- radius * sin(angleRSection*orbitCounter	 + angleRStart));
+
+			} if(orbitCounter >= orbitFrames)
+				isOrbiting = false;
 		}
 
 
+
+
+
+
 		public void update(){
+			//IMAGINE GLIDING CIRCLES THATD BE SO COOL
+			if (isOrbiting)
+				orbit();
+			if (isGliding){
+				x += glidePixelsPerFrameX;
+				y += glidePixelsPerFrameY;
+				glideFrames--;
+				if (glideFrames <= 0) isGliding = false;
+			}
 			if (framesForCurrentAnimation <= 0) play();
 			else framesForCurrentAnimation--;
 		}
@@ -366,11 +491,6 @@ public class TextureManager {
 		private void setPath(String path){this.path = path;}
 
 	}
-
-
-
-
-
 
 
 

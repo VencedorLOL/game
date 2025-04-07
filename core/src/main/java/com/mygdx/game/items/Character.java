@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
@@ -13,11 +14,14 @@ import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
+
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.TextureManager.animationToList;
+import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
@@ -27,7 +31,6 @@ public class Character extends Actor implements Utils {
 	Path path;
 	int thisTurnVSM;
 	public CharacterClasses character = new CharacterClasses();
-	public String characterTexture;
 	Stage stage;
 	Entity testCollision = new Entity();
 	int[] speedLeft = new int[2];
@@ -43,6 +46,7 @@ public class Character extends Actor implements Utils {
 	int[] attackDirection = new int[2];
 	// haha now i have to code a basically new class in the same clas for when this is false
 	boolean gridMode = true;
+	boolean willDoNormalTextureChange = true;
 
 	public Character(){}
 
@@ -98,7 +102,7 @@ public class Character extends Actor implements Utils {
 		else if (canDecide() && isDecidingWhatToDo(this))
 			movementInput();
 
-		super.refresh(characterTexture,x, y, base, height);
+		super.refresh(texture,x, y, base, height);
 	}
 
 	protected void movementInput(){
@@ -219,6 +223,10 @@ public class Character extends Actor implements Utils {
 		else
 			attack();
 		changeTo();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.B)){
+			canDecide[0] = true; canDecide[1] = true;
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
 			print("canDecide: " + (canDecide[1] && canDecide[0]));
 			print("speedLeft on x: " + speedLeft[0]);
@@ -228,15 +236,16 @@ public class Character extends Actor implements Utils {
 			print("Health: " + character.totalHealth);
 			print("Damage: " + character.totalDamage);
 			print("Current health: " + character.currentHealth);
+			print("Texture" + texture);
 		}
 		textureUpdater();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
 			Enemy.fastMode = !Enemy.fastMode;
 			print("FastMode is now "+Enemy.fastMode);
 			if (Enemy.fastMode)
-				Settings.setVisualSpeedMultiplier(32);
+				setVisualSpeedMultiplier(32);
 			else
-				Settings.setVisualSpeedMultiplier(8);
+				setVisualSpeedMultiplier(8);
 
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
@@ -252,9 +261,43 @@ public class Character extends Actor implements Utils {
 			stage.enemy.add(new Enemy(x+256,y));
 		}
 
-		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
-			animationToList("animation",x,y,1);
+		if(Gdx.input.isKeyPressed(Input.Keys.N)){
+		//	stop("test");
+		//	load("test",true);
+		//	play("test");
+		//	print("Size is: "+ sounds.size());
+			texture = null;
+			willDoNormalTextureChange = false;
+			animations.add(new TextureManager.Animation("gliding circle",x,y){
+				@Override
+				public void onFinish(){
+					finished = true;
+					Character chara = null;
+					for (Entity cha : Entity.entityList)
+						if (cha instanceof Character)
+							chara = (Character) cha;
+					Camara.attach(chara);
+					assert chara != null;
+					chara.texture = "char";
+					chara.willDoNormalTextureChange = true;
+					print("HEYOO");
+				}
+			});
+		//	Camara.attach(animations.get(0));
 		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
+			quickPlay("test1");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+			quickPlay("test2");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
+			quickPlay("test3");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
+			quickPlay("test1");
+			quickPlay("test2");
+			quickPlay("test3");
+		}
+
 
 
 		path.render();
@@ -274,7 +317,7 @@ public class Character extends Actor implements Utils {
 		else if (canDecide() && isDecidingWhatToDo(this))
 			attackInput();
 
-		super.refresh(characterTexture,x, y, base, height);
+		super.refresh(texture,x, y, base, height);
 	}
 
 
@@ -298,29 +341,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	protected void attackInput(){
-		ArrayList<Tile> circle = stage.findATile(x,y).circle(stage.tileset, character.range);
-		for(Tile t : circle) {
-			t.texture.setSecondaryTexture("SelectionWholeArea",.9f);
-		}
-		for (Tile.TileAndCirclePos t : stage.findATile(x,y).detectCornersOfCircle(circle)){
-			switch (t.getTileCirclePos()){
-				case 0: t.getTile().texture.setSecondaryTexture("SelU",.9f); break;
-				case 1: t.getTile().texture.setSecondaryTexture("SelUR",.9f); break;
-				case 2: t.getTile().texture.setSecondaryTexture("SelR",.9f); break;
-				case 3: t.getTile().texture.setSecondaryTexture("SelRD",.9f); break;
-				case 4: t.getTile().texture.setSecondaryTexture("SelD",.9f); break;
-				case 5: t.getTile().texture.setSecondaryTexture("SelDL",.9f); break;
-				case 6: t.getTile().texture.setSecondaryTexture("SelL",.9f); break;
-				case 7: t.getTile().texture.setSecondaryTexture("SelLU",.9f); break;
-				case 8: t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
-				case 9: t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
-				case 10: t.getTile().texture.setSecondaryTexture("SelInDL",.9f); break;
-				case 11: t.getTile().texture.setSecondaryTexture("SelInLU",.9f); break;
-
-			}
-		}
-
-
+		Tile.Circle circle = new Tile.Circle(stage.findATile(x,y),stage.tileset, character.range); 
 	}
 
 	private void automatedAttack(){
@@ -360,17 +381,20 @@ public class Character extends Actor implements Utils {
 
 
 	public void textureUpdater(){
-		switch (texture()){
-			case 0 : characterTexture = "CharaDiagonalDownRight"; break;
-			case 1 : characterTexture = "CharaRight";             break;
-			case 2 : characterTexture = "CharaDiagonalUpRight";   break;
-			case 3 : characterTexture = "CharaDiagonalDownLeft";  break;
-			case 4 : characterTexture = "CharaLeft";              break;
-			case 5 : characterTexture = "CharaDiagonalUpLeft";    break;
-			case 6 : characterTexture = "char";                   break;
-			case 8 : characterTexture = "CharaUp";                break;
-		} if (didntRunMovementMethodYetEver)
-			characterTexture = "char";
+		if (willDoNormalTextureChange) {
+			switch (texture()) {
+				case 0: texture = "CharaDiagonalDownRight"; break;
+				case 1: texture = "CharaRight";			 break;
+				case 2: texture = "CharaDiagonalUpRight";   break;
+				case 3: texture = "CharaDiagonalDownLeft";  break;
+				case 4: texture = "CharaLeft";              break;
+				case 5: texture = "CharaDiagonalUpLeft";    break;
+				case 6: texture = "char";                   break;
+				case 8: texture = "CharaUp";                break;
+			}
+			if (didntRunMovementMethodYetEver)
+				texture = "char";
+		}
 	}
 
 	public boolean canDecide(){

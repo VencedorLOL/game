@@ -4,16 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import static com.mygdx.game.Settings.print;
+
 public class Camara {
 
 	// ---
-	// if i ever need to instantiaze another camara, remove the static coorfinates and figure out a way
+	// if i ever need to instantiaze another camara, remove the static coordinates and figure out a way
 	// of doing the static things other way
 	// ---
 
 	OrthographicCamera camara;
 	static float x,y,base,height;
 	static float zoom = (float) 2;
+	static Entity attached;
 	public void camaraStarter(float zoom){
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
@@ -21,11 +24,17 @@ public class Camara {
 		camara.setToOrtho(false, base, height);
 	}
 
-	public void updater(Entity chara){
-		x = chara.getX() + chara.getBase() / 2;
-		y = chara.getY() + chara.getHeight() / 2;
-		camara.position.set(x,y,0);
-		camara.update();
+	public static void attach(Entity entity){
+		attached = entity;
+	}
+
+	public void updater(){
+		if (attached != null){
+			x = attached.getX() + attached.getBase() / 2;
+			y = attached.getY() + attached.getHeight() / 2;
+			camara.position.set(x,y,0);
+			camara.update();
+		}
 	}
 	public void updater(float x, float y){
 		camara.position.set(x,y,0);
@@ -33,10 +42,6 @@ public class Camara {
 	}
 	public void updater(float x, float y, float z){
 		camara.position.set(x,y,z);
-		camara.update();
-	}
-	public void updater(){
-		camara.position.set(x,y,0);
 		camara.update();
 	}
 	public void xSetter(float x){

@@ -13,7 +13,7 @@ public class Healer extends CharacterClasses implements Utils {
 	public static byte speed = 2;
 	public static byte attackSpeed = 3;
 	public static float defense = 0;
-	public static int range = 4;
+	public static int range = 2;
 	public static float tempDefense = 0;
 	public static float rainbowDefense = 0;
 	public static float mana = 0;

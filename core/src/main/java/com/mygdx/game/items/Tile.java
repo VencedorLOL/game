@@ -80,36 +80,7 @@ public class Tile {
 	}
 
 
-	public ArrayList<Tile> circle(ArrayList<Tile> tileset, float radius){
-		radius += 0.5f;
-		ArrayList<Tile> circle = new ArrayList<>();
-		circle.add(this);
-		for (Tile t : orthogonalTiles(tileset)) {
-			if (relativeModuleTo(t) <= radius)
-				circle.add(t);
-		}
-		// +3 jst to be safe
-		int failsafe = (int) (radius + 3);
-		while(true){
-			int addedATileThisLoop = 0;
-			ArrayList<Tile> avoidConcurrentModification = new ArrayList<>();
-			for(Tile t : circle){
-				for (Tile tt : t.orthogonalTiles(tileset)) {
-					if (relativeModuleTo(tt) <= radius && !tt.isTileAlreadyInList(circle) && !tt.isTileAlreadyInList(avoidConcurrentModification)) {
-						addedATileThisLoop++;
-						avoidConcurrentModification.add(tt);
-					}
-				}
-			}
-			circle.addAll(avoidConcurrentModification);
-			if (addedATileThisLoop <= 0)
-				break;
-			failsafe--;
-			if(failsafe <= 0)
-				break;
-			}
-		return circle;
-	}
+
 
 
 	/* Circle edges:
@@ -140,47 +111,7 @@ public class Tile {
 
 	*/
 
-	public ArrayList<TileAndCirclePos> detectCornersOfCircle(ArrayList<Tile> circle) {
-		ArrayList<TileAndCirclePos> tileAndCirclePos = new ArrayList<>();
-		for (Tile t : circle){
-			boolean LU = false,U= false,RU= false,R= false,RD= false,D= false,DL= false,L = false;
-			byte couner2 = (byte) t.orthogonalTiles(circle).size();
-			for (Tile tt : t.orthogonalTiles(circle)){
-				if(tt.x() == t.x() && tt.y() == t.y()+globalSize())
-					U = true;
-				if(tt.x() == t.x()+globalSize() && tt.y() == t.y()+globalSize())
-					RU = true;
-				if(tt.x() == t.x()+globalSize() && tt.y() == t.y())
-					R = true;
-				if(tt.x() == t.x()+globalSize() && tt.y() == t.y()-globalSize())
-					RD = true;
-				if(tt.x() == t.x() && tt.y() == t.y()-globalSize())
-					D = true;
-				if(tt.x() == t.x()-globalSize() && tt.y() == t.y()-globalSize())
-					DL = true;
-				if(tt.x() == t.x()-globalSize() && tt.y() == t.y())
-					L = true;
-				if(tt.x() == t.x()-globalSize() && tt.y() == t.y()+globalSize())
-					LU = true;
-			}
-			//flat
-			if (!U&&!R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)1)); continue;}
-			if (!D&&!R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)3)); continue;}
-			if (!D&&!L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)5)); continue;}
-			if (!U&&!L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)7)); continue;}
-			// corner
-			if (!LU&&!RU || !U){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)0)); continue;}
-			if (!RD&&!RU || !R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)2)); continue;}
-			if (!DL&&!RD || !D){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)4)); continue;}
-			if (!DL&&!LU || !L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)6)); continue;}
-			// interior. thx smc.
-			if (!RU){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)8)); continue;}
-			if (!RD){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)9)); continue;}
-			if (!DL){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)10)); continue;}
-			if (!LU){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)11));}
-		}
-		return tileAndCirclePos;
-	}
+
 
 
 
@@ -203,6 +134,162 @@ public class Tile {
 
 		public void setTileCirclePos(byte tileCirclePos) {this.tileCirclePos = tileCirclePos;}
 	}
+
+
+	public static class Circle{
+		ArrayList<Tile> circle = new ArrayList<>();
+		ArrayList<TileAndCirclePos> circleSpecial = new ArrayList<>();
+		ArrayList<Tile> tileset;
+		float radius;
+		Tile center;
+
+		public Circle(Tile center, ArrayList<Tile> tileset, float radius){
+			this.center = center;
+			this.radius = radius;
+			this.tileset = tileset;
+			circle = circle();
+			circleSpecial = detectCornersOfCircle(circle);
+			tileTexturer();
+		}
+
+		public ArrayList<Tile> circle(){return circle(center, tileset,radius);}
+
+		public ArrayList<Tile> circle(Tile center, ArrayList<Tile> tileset, float radius){
+			radius += 0.5f;
+			for (Tile t : center.orthogonalTiles(tileset)) {
+				if (center.relativeModuleTo(t) <= radius)
+					circle.add(t);
+			}
+			// +3 jst to be safe
+			int failsafe = (int) (radius + 3);
+			while(true){
+				int addedATileThisLoop = 0;
+				ArrayList<Tile> avoidConcurrentModification = new ArrayList<>();
+				for(Tile t : circle){
+					for (Tile tt : t.orthogonalTiles(tileset)) {
+						if (center.relativeModuleTo(tt) <= radius && !tt.isTileAlreadyInList(circle) && !tt.isTileAlreadyInList(avoidConcurrentModification)) {
+							addedATileThisLoop++;
+							avoidConcurrentModification.add(tt);
+						}
+					}
+				}
+				circle.addAll(avoidConcurrentModification);
+				if (addedATileThisLoop <= 0)
+					break;
+				failsafe--;
+				if(failsafe <= 0)
+					break;
+			}
+			return circle;
+		}
+
+
+		public ArrayList<TileAndCirclePos> detectCornersOfCircle(ArrayList<Tile> circle) {
+			ArrayList<TileAndCirclePos> tileAndCirclePos = new ArrayList<>();
+			for (Tile t : circle){
+				boolean LU = false,U= false,RU= false,R= false,RD= false,D= false,DL= false,L = false;
+				byte couner2 = (byte) t.orthogonalTiles(circle).size();
+				for (Tile tt : t.orthogonalTiles(circle)){
+					if(tt.x() == t.x() && tt.y() == t.y()+globalSize())
+						U = true;
+					if(tt.x() == t.x()+globalSize() && tt.y() == t.y()+globalSize())
+						RU = true;
+					if(tt.x() == t.x()+globalSize() && tt.y() == t.y())
+						R = true;
+					if(tt.x() == t.x()+globalSize() && tt.y() == t.y()-globalSize())
+						RD = true;
+					if(tt.x() == t.x() && tt.y() == t.y()-globalSize())
+						D = true;
+					if(tt.x() == t.x()-globalSize() && tt.y() == t.y()-globalSize())
+						DL = true;
+					if(tt.x() == t.x()-globalSize() && tt.y() == t.y())
+						L = true;
+					if(tt.x() == t.x()-globalSize() && tt.y() == t.y()+globalSize())
+						LU = true;
+				}
+				//flat
+				if (!U&&!R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)1)); continue;}
+				if (!D&&!R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)3)); continue;}
+				if (!D&&!L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)5)); continue;}
+				if (!U&&!L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)7)); continue;}
+				// corner
+				if (!LU&&!RU || !U){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)0)); continue;}
+				if (!RD&&!RU || !R){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)2)); continue;}
+				if (!DL&&!RD || !D){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)4)); continue;}
+				if (!DL&&!LU || !L){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)6)); continue;}
+				// interior. thx smc.
+				if (!RU){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)8)); continue;}
+				if (!RD){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)9)); continue;}
+				if (!DL){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)10)); continue;}
+				if (!LU){ tileAndCirclePos.add(new TileAndCirclePos(t,(byte)11));}
+			}
+			return tileAndCirclePos;
+		}
+
+
+		public void tileTexturer(){
+			for (Tile t : circle)
+				t.texture.setSecondaryTexture("SelectionWholeArea",.9f);
+			for (Tile.TileAndCirclePos t : circleSpecial){
+				switch (t.getTileCirclePos()){
+					case 0: t.getTile().texture.setSecondaryTexture("SelU",.9f); break;
+					case 1: t.getTile().texture.setSecondaryTexture("SelUR",.9f); break;
+					case 2: t.getTile().texture.setSecondaryTexture("SelR",.9f); break;
+					case 3: t.getTile().texture.setSecondaryTexture("SelRD",.9f); break;
+					case 4: t.getTile().texture.setSecondaryTexture("SelD",.9f); break;
+					case 5: t.getTile().texture.setSecondaryTexture("SelDL",.9f); break;
+					case 6: t.getTile().texture.setSecondaryTexture("SelL",.9f); break;
+					case 7: t.getTile().texture.setSecondaryTexture("SelLU",.9f); break;
+					case 8: t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
+					case 9: t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
+					case 10: t.getTile().texture.setSecondaryTexture("SelInDL",.9f); break;
+					case 11: t.getTile().texture.setSecondaryTexture("SelInLU",.9f); break;
+
+				}
+			}
+		}
+
+
+		/*public void cornerer(){
+
+			for (Tile t : stage.findATile(x,y).detectCornersOfCircle(circle)){
+				switch (t.getTileCirclePos()){
+					case 0: t.getTile().texture.setSecondaryTexture("SelU",.9f); break;
+					case 1: t.getTile().texture.setSecondaryTexture("SelUR",.9f); break;
+					case 2: t.getTile().texture.setSecondaryTexture("SelR",.9f); break;
+					case 3: t.getTile().texture.setSecondaryTexture("SelRD",.9f); break;
+					case 4: t.getTile().texture.setSecondaryTexture("SelD",.9f); break;
+					case 5: t.getTile().texture.setSecondaryTexture("SelDL",.9f); break;
+					case 6: t.getTile().texture.setSecondaryTexture("SelL",.9f); break;
+					case 7: t.getTile().texture.setSecondaryTexture("SelLU",.9f); break;
+					case 8: t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
+					case 9: t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
+					case 10: t.getTile().texture.setSecondaryTexture("SelInDL",.9f); break;
+					case 11: t.getTile().texture.setSecondaryTexture("SelInLU",.9f); break;
+
+				}
+			}
+
+
+		}*/
+
+
+
+
+
+
+
+
+	}
+
+
+
+
+
+
+
+
+
 
 }
 /*				counter++;

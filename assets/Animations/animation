@@ -1,7 +1,0 @@
-?5?CharaLeft;
-?10?CharaRight;
-^2;
-?15?CharaLeft:1:1;
-?20?CharaLeft:-1:-1;
-?25?CharaLeft:y1;
-?30?CharaLeft:y-1;

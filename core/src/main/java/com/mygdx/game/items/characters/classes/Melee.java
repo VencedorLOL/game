@@ -28,7 +28,6 @@ public class Melee extends CharacterClasses {
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
 
-	public byte abilityCooldown;
 	public byte attackState;
 	public boolean FoA;
 	public final byte FoANumberOfExtraHits = 4;
@@ -45,16 +44,15 @@ public class Melee extends CharacterClasses {
 				.40f, -.40f, (float) globalSize() /2));
 	}
 
+
 	public void updateOverridable(Character character) {
-		if (turnHasPassed())
-			abilityCooldown++;
 		if (abilityButton.get(0).runThispls())
 			System.out.println(activateFlurryOfAttacks(character));
 		if (abilityButton.get(1).runThispls())
 			System.out.println(activateOneForAll(character));
 		turnHandler(character);
 		if (Gdx.input.isKeyPressed(Input.Keys.I)){
-			System.out.println("abilityCD is : "+abilityCooldown);
+			System.out.println("abilityCD is : "+defaultCooldown);
 			System.out.println("attackState is: "+ attackState);
 			System.out.println("FoA is: " + FoA);
 			System.out.println("OfA is: " + OfA);
@@ -68,13 +66,13 @@ public class Melee extends CharacterClasses {
 	// trad: uno para todos
 	public String activateFlurryOfAttacks(Character character){
 		if (!FoA){
-			if (abilityCooldown >= 4){
-				abilityCooldown = 0;
+			if (defaultCooldown >= 4){
+				defaultCooldown = 0;
 				FoA = true;
 				character.attackMode = true;
 				return "Flurry Of Attacks activated";
 			}
-			return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - abilityCooldown)+" turns";
+			return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - defaultCooldown)+" turns";
 		}
 		return "You can't activate this ability, silly! It's already active!";
 	}
@@ -82,13 +80,13 @@ public class Melee extends CharacterClasses {
 	// trad: todos para una
 	public String activateOneForAll(Character character){
 		if (!OfA) {
-			if (abilityCooldown >= 4) {
-				abilityCooldown = 0;
+			if (defaultCooldown >= 4) {
+				defaultCooldown = 0;
 				OfA = true;
 				character.attackMode = true;
 				return "One For All activated";
 			}
-			return "Couldn't activate One For All. You still have to wait " + (4 - abilityCooldown) + " turns";
+			return "Couldn't activate One For All. You still have to wait " + (4 - defaultCooldown) + " turns";
 		}
 		return "You can't activate this ability, silly! It's already active!";
 	}

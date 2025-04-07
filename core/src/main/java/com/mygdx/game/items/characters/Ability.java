@@ -51,7 +51,9 @@ public class Ability{
 	}
 
 
+	public void active(){
 
+	}
 
 
 

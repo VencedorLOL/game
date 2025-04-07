@@ -46,6 +46,7 @@ public class GameScreen implements Screen, Utils {
 		clickDetector = new ClickDetector(camara);
 		testUi.textBox();
 		InputHandler.defaultKeybinds();
+		camara.attach(chara);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -66,7 +67,6 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.begin();
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
-			camara.updater(chara);
 			stage.characterRefresher(chara.getX(), chara.getY());
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
@@ -104,6 +104,7 @@ public class GameScreen implements Screen, Utils {
 
 
 	public void finish(){
+		camara.updater();
 		particle.particleRenderer();
 		camara.finalizer(textureManager.batch);
 		textureManager.batch.end();

@@ -7,12 +7,10 @@ public class Tank extends CharacterClasses {
 	public static String name = "Tank";
 	public static float health = 80;
 	public static float damage = 5;
-	//TODO Put back to 2 actingSpeed
-	// 10 is for testing
-	public static byte speed = 10;
+	public static byte speed = 2;
 	public static byte attackSpeed = 3;
 	public static float defense = 0;
-	public static int range = 3;
+	public static int range = 2;
 	public static float tempDefense = 0;
 	public static float rainbowDefense = 0;
 	public static float mana = 0;

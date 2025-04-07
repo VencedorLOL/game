@@ -194,10 +194,10 @@ public class Stage implements Utils {
 	}
 
 	public void wallBorder(){
-		walls.add(new Wall(startX - globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
-		walls.add(new Wall(finalX + globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
-		walls.add(new Wall(startX,startY - globalSize() ,finalX + globalSize() * 30,globalSize(), false));
-		walls.add(new Wall(startX,finalY + globalSize(),finalX + globalSize() * 30,globalSize() ,false));
+		walls.add(new Wall(startX - globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, true));
+		walls.add(new Wall(finalX + globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, true));
+		walls.add(new Wall(startX,startY - globalSize() ,finalX + globalSize() * 30,globalSize(), true));
+		walls.add(new Wall(startX,finalY + globalSize(),finalX + globalSize() * 30,globalSize() ,true));
 	}
 
 

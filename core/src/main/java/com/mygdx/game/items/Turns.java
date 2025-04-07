@@ -5,6 +5,7 @@ import com.mygdx.game.Utils;
 import java.util.*;
 
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.OnTurnPassObject.onTurnPass;
 import static com.mygdx.game.items.Stage.betweenStages;
 
 //TODO: Redid, but it still needs this:  method that returns true if a turn passed
@@ -82,13 +83,15 @@ public class Turns implements Utils {
 				}
 				refreshSpeedAddAndSort(listOfSpeeds);
 				act();
-				if (currentTurn >= listOfSpeeds.size()) {
+				if (currentTurn >= listOfSpeeds.size() && !didTurnJustPass) {
 					didTurnJustPass = true;
 					turnCount++;
 					for (ActorAndBoolean f : finalizedToChoose) {
 						f.setBool(false);
 					}
 					currentTurn = 0;
+					for (OnTurnPassObject t : onTurnPass)
+						t.onTurnPass();
 				}
 			}
 	}
