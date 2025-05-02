@@ -81,7 +81,6 @@ public class StageCreator {
 			System.out.println("created");
 		}
 		if (hasStageBeenCreated) {
-			stage.characterRefresher(chara.getX(), chara.getY());
 			stage.stageRenderer(camara, stage, tm);
 		}
 

@@ -8,11 +8,14 @@ import com.mygdx.game.items.enemies.LoopingHat;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.onCycleStart;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
 public class Stage implements Utils {
-	public int startX, startY, finalX, finalY, spawnX,  spawnY;
+	public int startX, startY, finalX, finalY, spawnX, spawnY;
 
 	public ArrayList<Wall> walls = new ArrayList<>();
 	public int[] wallX, wallY;
@@ -22,8 +25,6 @@ public class Stage implements Utils {
 	public int[] enemySpawnX, enemySpawnY;
 	public static boolean haveEnemiesBeenRendered;
 	public int[] enemyType;
-
-	public float characterX, characterY;
 
 	public ArrayList<ScreenWarp> screenWarp = new ArrayList<>();
 	public int[] screenWarpX, screenWarpY;
@@ -47,62 +48,15 @@ public class Stage implements Utils {
 				 int[] wallX, int[] wallY, int[] enemySpawnX, int[] enemySpawnY, int[] screenWarpX, int[] screenWarpY,
 				 ArrayList<Stage> screenWarpDestination, String floorTexture,
 				 byte[] screenWarpDestinationSpecification, int[] enemyType){
-		this.startX = startX;
-		this.startY = startY;
-		this.finalX = finalX;
-		this.finalY = finalY;
-		this.spawnX = spawnX;
-		this.spawnY = spawnY;
-		this.wallX = wallX;
-		this.wallY = wallY;
-		this.enemySpawnX = enemySpawnX;
-		this.enemySpawnY = enemySpawnY;
-		this.screenWarpX = screenWarpX;
-		this.screenWarpY = screenWarpY;
-		this.screenWarpDestination = screenWarpDestination;
-		this.floorTexture = floorTexture;
-		this.enemyType = enemyType;
-		this.screenWarpDestinationSpecification = screenWarpDestinationSpecification;
-		haveEnemiesBeenRendered = false;
-		haveWallsBeenRendered = false;
-		haveScreenWarpsBeenRendered = false;
-		hasFloorBeenRendered = false;
-		IDState = 0;
+		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX,wallY,enemySpawnX,enemySpawnY,screenWarpX,screenWarpY,screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 	}
 
 	public Stage(){	}
 
 	public void emptyStageInitializer() {
-		this.startX = 0;
-		this.startY = 0;
-		this.finalX = 0;
-		this.finalY = 0;
-		this.spawnX = 0;
-		this.spawnY = 0;
-		this.wallX = new int[0];
-		this.wallY =  new int[0];
-		this.enemySpawnX =  new int[0];
-		this.enemySpawnY =  new int[0];
-		this.screenWarpX =  new int[0];
-		this.screenWarpY =  new int[0];
-		this.screenWarpDestination =  new ArrayList<>();
-		this.floorTexture = "Grass";
-		this.enemyType =  new int[0];
-		this.screenWarpDestinationSpecification = new byte[0];
-		haveEnemiesBeenRendered = false;
-		haveWallsBeenRendered = false;
-		haveScreenWarpsBeenRendered = false;
-		hasFloorBeenRendered = false;
-		IDState = 0;
+		refresh(0,0,0,0,0,0,new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new ArrayList<>(),"Grass",new byte[0],new int[0]);
 	}
 
-
-
-
-	public void characterRefresher(float characterX, float characterY){
-		this.characterX = characterX;
-		this.characterY = characterY;
-	}
 
 	public Stage(Character character){
 		character.x = spawnX;
@@ -268,11 +222,11 @@ public class Stage implements Utils {
 
 	public void screenWarpTrigger(GameScreen gs){
 		for(ScreenWarp s : screenWarp)
-			if (characterX == s.x && characterY == s.y) {
+			if (s.doesCharInteractWithMe(gs.chara)) {
 				betweenStages = true;
 				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.ID)];
-				gs.stage = getScreenWarpStage(pos);
-				gs.stage.reseter(gs.chara);
+				stage = getScreenWarpStage(pos);
+				stage.reseter(gs.chara);
 			}
 	}
 
@@ -297,6 +251,7 @@ public class Stage implements Utils {
 		screenWarp = new ArrayList<>();
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
+		triggerOnStageChange();
 	}
 
 	public void reStage(Character character){}

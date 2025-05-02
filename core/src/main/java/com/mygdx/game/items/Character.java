@@ -16,7 +16,9 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 
 
 import java.util.ArrayList;
+import java.util.Set;
 
+import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
@@ -27,24 +29,18 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Character extends Actor implements Utils {
-	PathFinder pathFindAlgorithm;
-	Path path;
-	int thisTurnVSM;
+
 	public CharacterClasses character = new CharacterClasses();
-	Stage stage;
-	Entity testCollision = new Entity();
-	int[] speedLeft = new int[2];
-	public boolean[] canDecide = {true, true};
-	boolean isDead;
+
+	OnVariousScenarios oVE;
+
 	// Used when the turn is being controlled by classes
 	public boolean hasAttacked;
-	public boolean permittedToAct;
+
 	public Vector3 attacksCoordinate;
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
-	Stage recordedStage;
 	int[] attackDirection = new int[2];
-	// haha now i have to code a basically new class in the same clas for when this is false
 	boolean gridMode = true;
 	boolean willDoNormalTextureChange = true;
 
@@ -61,6 +57,17 @@ public class Character extends Actor implements Utils {
 		testCollision.base = base;
 		testCollision.height = height;
 		path = new Path(x,y,character.speed,stage);
+		oVE = new OnVariousScenarios(){
+			@Override
+			public void onStageChange(){
+				if(pathFindAlgorithm == null)
+					pathFindAlgorithm = new PathFinder(stage);
+				PathFinder.reset(stage);
+				attackMode = false;
+				canDecide[0] = true; canDecide[1] = true;
+
+			}
+		};
 	}
 
 	public void spendTurn(){
@@ -68,11 +75,6 @@ public class Character extends Actor implements Utils {
 		permittedToAct = false;
 		path.pathStart();
 		isOnTheGrid();
-	}
-
-	private void actionDecided(){
-		print("AWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		Turns.actorsFinalizedChoosing(this);
 	}
 
 	public void permitToMove(){
@@ -84,56 +86,7 @@ public class Character extends Actor implements Utils {
 		return permittedToAct;
 	}
 
-	public void movement(){
-		testCollision.x = x;
-		testCollision.y = y;
-		if (isPermittedToAct()) {
-			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
-				speedLeft = path.pathProcess(this);
-			}
-
-			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
-				primaryMovement();
-			}
-
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
-				finalizedMove();
-		}
-		else if (canDecide() && isDecidingWhatToDo(this))
-			movementInput();
-
-		super.refresh(texture,x, y, base, height);
-	}
-
-	protected void movementInput(){
-		automatedMovement();
-		if (path.pathCreate(x,y, (int) character.speed,stage, (byte) 1)) {
-			canDecide = new boolean[] {false, false};
-			thisTurnVSM = getVisualSpeedMultiplier();
-			actionDecided();
-		}
-	}
-
-	protected void primaryMovement(){
-		if (speedLeft[0] > 0) {
-			x += thisTurnVSM;
-			speedLeft[0] -= thisTurnVSM;
-		}
-		else if (speedLeft[0] < 0) {
-			x -= thisTurnVSM;
-			speedLeft[0] += thisTurnVSM;
-		}
-		if (speedLeft[1] > 0) {
-			y += thisTurnVSM;
-			speedLeft[1] -= thisTurnVSM;
-		}
-		else if (speedLeft[1] < 0) {
-			y -= thisTurnVSM;
-			speedLeft[1] += thisTurnVSM;
-		}
-	}
-
-	private void automatedMovement(){
+	protected void automatedMovement(){
 		if(touchDetect()){
 			lastClickX = flooredClick().x;
 			lastClickY = flooredClick().y;
@@ -144,13 +97,7 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-	public void finalizedMove(){
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-		canDecide[0] = true;
-		spendTurn();
-		attacksCoordinate = null;
-	}
+
 
 	public void finalizedAttack(){
 		if (numberOfHits == 0)
@@ -169,7 +116,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	private void pathFinding(){
-		if(pathFindAlgorithm == null)
+	/*	if(pathFindAlgorithm == null)
 			pathFindAlgorithm = new PathFinder(stage);
 		path.pathReset();
 		PathFinder.reset(stage);
@@ -180,125 +127,27 @@ public class Character extends Actor implements Utils {
 			path.setPathTo(pathFindAlgorithm.getSolvedPath());
 		} else
 			print("no path found");
-	}
+*/	}
 
 
-	protected void isOnTheGrid(){
-		if (speedLeft[0] == 0 && speedLeft[1] == 0) {
-			if (!(x % globalSize() == 0)) {
-				printErr("Offset in x. Coordinate was: " + x);
-				x = (float) (globalSize() * ceil(x / globalSize()));
-			}
-			if (!(y % globalSize() == 0)) {
-				printErr("Offset in y. Coordinate was: " + y);
-				y = (float) (globalSize() * ceil(y / globalSize()));
-			}
-		}
-	}
-
-	private void stageChange(Stage stage){
-		this.stage = stage;
-		if (stage != recordedStage) {
-			recordedStage = stage;
-			stageChanged();
-		}
-	}
-
-	private void stageChanged(){
-		if(pathFindAlgorithm == null)
-			pathFindAlgorithm = new PathFinder(stage);
-		PathFinder.reset(stage);
-	}
 
 	public void update(Stage stage, GameScreen cam){
+		speed = character.speed;
 		if(didTurnJustPass)
 			canDecide[1] = true;
-		stageChange(stage);
 		onDeath();
 		character.update(this);
 		actingSpeed = character.attackSpeed;
-		path.getStats(x,y,character.speed,stage);
+		path.getStats(x,y,character.speed);
+
 		if (!attackMode)
 			movement();
 		else
 			attack();
-		changeTo();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.B)){
-			canDecide[0] = true; canDecide[1] = true;
-		}
 
-		if (Gdx.input.isKeyPressed(Input.Keys.I)){
-			print("canDecide: " + (canDecide[1] && canDecide[0]));
-			print("speedLeft on x: " + speedLeft[0]);
-			print("speedLeft on y: " + speedLeft[1]);
-			print("permittedToAct: " + permittedToAct);
-			print("Weapon" + character.weapon);
-			print("Health: " + character.totalHealth);
-			print("Damage: " + character.totalDamage);
-			print("Current health: " + character.currentHealth);
-			print("Texture" + texture);
-		}
 		textureUpdater();
-		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
-			Enemy.fastMode = !Enemy.fastMode;
-			print("FastMode is now "+Enemy.fastMode);
-			if (Enemy.fastMode)
-				setVisualSpeedMultiplier(32);
-			else
-				setVisualSpeedMultiplier(8);
 
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
-			attackMode = !attackMode;
-			path.pathReset();
-			print("AttackMode is now "+attackMode);
-		}
-		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
-			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
-				y+ (float) globalSize() /2,1, 10,true,false);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
-			stage.enemy.add(new Enemy(x+256,y));
-		}
-
-		if(Gdx.input.isKeyPressed(Input.Keys.N)){
-		//	stop("test");
-		//	load("test",true);
-		//	play("test");
-		//	print("Size is: "+ sounds.size());
-			texture = null;
-			willDoNormalTextureChange = false;
-			animations.add(new TextureManager.Animation("gliding circle",x,y){
-				@Override
-				public void onFinish(){
-					finished = true;
-					Character chara = null;
-					for (Entity cha : Entity.entityList)
-						if (cha instanceof Character)
-							chara = (Character) cha;
-					Camara.attach(chara);
-					assert chara != null;
-					chara.texture = "char";
-					chara.willDoNormalTextureChange = true;
-					print("HEYOO");
-				}
-			});
-		//	Camara.attach(animations.get(0));
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
-			quickPlay("test1");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-			quickPlay("test2");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
-			quickPlay("test3");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			quickPlay("test1");
-			quickPlay("test2");
-			quickPlay("test3");
-		}
-
-
+		debug(cam);
 
 		path.render();
 		render();
@@ -355,9 +204,8 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-	private void attackProcess(){
 
-	}
+
 
 
 
@@ -395,11 +243,12 @@ public class Character extends Actor implements Utils {
 			if (didntRunMovementMethodYetEver)
 				texture = "char";
 		}
+		else{
+
+		}
 	}
 
-	public boolean canDecide(){
-		return canDecide[0] && canDecide[1];
-	}
+
 
 
 	public void onDeath(){
@@ -408,6 +257,8 @@ public class Character extends Actor implements Utils {
 			// shut up
 		}
 	}
+
+	// Debug
 
 	public void changeTo(){
 		changeToHealer();
@@ -475,6 +326,98 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)){
 			character.equipWeapon(new Weapons.VencedorSword());
 		}
+	}
+
+
+	private void debug(GameScreen cam){
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.X))
+			print("Chara real x pos is: " + x + " and simplified x is: " + x/globalSize());
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Y))
+			print("Chara real y pos is: " + y + " and simplified y is: " + y/globalSize());
+
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.B)){
+			canDecide[0] = true; canDecide[1] = true;
+		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.I)){
+			print("canDecide: " + (canDecide[1] && canDecide[0]));
+			print("speedLeft on x: " + speedLeft[0]);
+			print("speedLeft on y: " + speedLeft[1]);
+			print("permittedToAct: " + permittedToAct);
+			print("Weapon" + character.weapon);
+			print("Health: " + character.totalHealth);
+			print("Damage: " + character.totalDamage);
+			print("Current health: " + character.currentHealth);
+			print("Texture" + texture);
+		}
+
+		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
+			Settings.setFastMode(!Settings.getFastMode());
+			print("FastMode is now "+Settings.getFastMode());
+			if (Settings.getFastMode())
+				setVisualSpeedMultiplier(32);
+			else
+				setVisualSpeedMultiplier(8);
+
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
+			attackMode = !attackMode;
+			path.pathReset();
+			print("attackMode is now: "+attackMode);
+		}
+
+		if(Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+			turnMode = !turnMode;
+			print("turnMode is now: "+ turnMode);
+		}
+
+		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
+			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
+					y+ (float) globalSize() /2,1, 10,true,false);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
+			stage.enemy.add(new Enemy(x+256,y));
+		}
+
+		if(Gdx.input.isKeyPressed(Input.Keys.N)){
+			//	stop("test");
+			//	load("test",true);
+			//	play("test");
+			//	print("Size is: "+ sounds.size());
+			texture = null;
+			willDoNormalTextureChange = false;
+			animations.add(new TextureManager.Animation("gliding circle",x,y){
+				@Override
+				public void onFinish(){
+					finished = true;
+					Character chara = null;
+					for (Entity cha : Entity.entityList)
+						if (cha instanceof Character)
+							chara = (Character) cha;
+					Camara.attach(chara);
+					assert chara != null;
+					chara.texture = "char";
+					chara.willDoNormalTextureChange = true;
+					print("HEYOO");
+				}
+			});
+			//	Camara.attach(animations.get(0));
+		}
+
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
+			quickPlay("test1");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
+			quickPlay("test2");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
+			quickPlay("test3");
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
+			quickPlay("test1");
+			quickPlay("test2");
+			quickPlay("test3");
+		}
+		changeTo();
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.mygdx.game.items.characters;
 
-import com.mygdx.game.items.OnTurnPassObject;
+import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
@@ -55,7 +55,7 @@ public class CharacterClasses {
 	// If true, turn completion will be handled by classes instead of normal procedure
 	public boolean shouldTurnCompletionBeLeftToClass;
 
-	OnTurnPassObject cooldownHelper;
+	OnVariousScenarios cooldownHelper;
 	public int defaultCooldown;
 
 	public CharacterClasses(String name, float health, float damage,
@@ -80,7 +80,7 @@ public class CharacterClasses {
 		this.magicHealing = magicHealing;
 		this.shouldTurnCompletionBeLeftToClass = false;
 		reset();
-		cooldownHelper = new OnTurnPassObject(){
+		cooldownHelper = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass(){
 				turnHasPassed();

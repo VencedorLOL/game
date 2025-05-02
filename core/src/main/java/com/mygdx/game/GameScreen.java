@@ -23,16 +23,15 @@ public class GameScreen implements Screen, Utils {
 	public ParticleManager particle;
 	public MainClass mainClass;
 	public TextureManager textureManager = new TextureManager();
-	public Character chara = new Character(512, 512, globalSize(), globalSize());
+	public static Character chara = new Character(512, 512, globalSize(), globalSize());
 	public Camara camara = new Camara();
-	public Stage stage = new Stage();
+	public static Stage stage = new Stage();
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
 	public ClickDetector clickDetector;
 	public boolean fullscreen;
 	public int latestNonFullScreenX = 640;
 	public int latestNonFullScreenY = 400;
-	public Turns turn = new Turns();
 
 	public void create () {
 		if (camaraZoom <= 0)
@@ -67,7 +66,6 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.begin();
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
-			stage.characterRefresher(chara.getX(), chara.getY());
 			stage.stageRenderer(this, stage);
 			chara.update(stage, this);
 			textureManager.render(camara);
@@ -77,10 +75,6 @@ public class GameScreen implements Screen, Utils {
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
 				camara.setToOrtho(camaraZoom = 2);
-			if (Gdx.input.isKeyPressed(Input.Keys.X))
-				System.out.println(chara.getX());
-			if (Gdx.input.isKeyPressed(Input.Keys.Y))
-				System.out.println(chara.getY());
 			// Zoom management
 			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 				camara.setToOrtho(++camaraZoom);

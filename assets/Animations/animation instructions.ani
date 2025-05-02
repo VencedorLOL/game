@@ -1,0 +1,76 @@
+Here are the instructions on how to make an animation.
+If the file doesn't start with "?" or "^" it will not run that instruction, so you can write on animation files, although you cannot start a word with "^" or "?", as spaces are taken as newlines. Writting on files might also have (minimal) performance issues.
+Explanation of format: 
+
+
+"?" Command:
+ Add texture:
+    Start with "?" to start a texture command. Then, you have to add the number of frames you want the texture to be played for. Cannot have decimals (I can't make decimal frames happen)
+    Then add another "?" and the name of the texture. THE TEXTURE HAS TO BE IN THE ATLAS SPRITE. To finish the command, add ";" and a new line.
+    The texture files cannot have spaces in their name.
+
+ Coordinate instructions:
+    If you want the sprite to be moved tiles (have to make it so you can also move pixels) before ";" add ":" and, if 'x' add the number of tiles; if 'y' add "y" and the number of tiles; and if both add the number of tiles for 'x', then ":" and the number of tiles for 'y'. You can make these numbers positive, negative or decimal.
+
+ Glide instructions:
+    Will apply FROM the indicated x or y location, if none, from the start pos. 
+    After everything else (not including ";") add a "/", then tell the number of frames you want it to take for the sprite to reach its position. This number cannot be larger than the total number of frames. If larger, will be set to the number of total frames. If blank, will also be set to the number of total frames.
+    Then add an UPPERCASE "X" for the number of tiles you want to move in "x" (can be negative or 0 or nothing, leave blank (NOT SPACE, BLANK. This is blank: "" and this is space. " ". Remember, blank.)), and do the same with the "Y" position. 
+    End the glide statement with ";" 
+ For both Glide and Coordinate instructions; ";;" Command:
+    If you want the coordinates be the result of the texture after the coordinate and glide instructions, then let the instructions be. If not; you this instruction to take the original coordinates as the first point and to reset the overall coordinates; add two semicolons at the end of the expression, like so: ";;". 
+    If you add two semicolons as a standalone instruction, the coordinates will also be reset.
+ Circles:
+    After glide. Starts with "*". Circles have various obligatory parameters. These are:
+    Radius
+    Total turned angles (in degrees)
+    Started angle (in degrees)
+    Direction (clockwise or counterclockwise)
+    Number of frames circling
+    The first instruction after "*" is, naturally at this point, the number of frames. Leave blank for the same number of frames as the animation instruction.
+    Then, add an "r" and insert the number of tiles of radius.
+    Add an "a" and the number of total turned angles now, in degrees.
+    Now, an "s" and the starting angle, in degrees too. Do not add the "s" if you want your starting angle to be 0º/rad.
+    End adding a "c" for clockwise or "cc" or blank for counterclockwise.
+
+    Should you add coordinates to the center of the circle, add the coordinates parameters.
+    Example "just circle" statement:
+    *450r2a360s270cc;
+    Another example:
+    *r5a270;
+    An example with circle-center coordinates, but only in the "y" coordinate:
+    ?y-98*76r54a32s10c;
+    Another coordinate-example:
+    ?:-1:2*3r4a5s6c;
+
+
+
+"^" Command, repetition:
+ If you start a like with "^" and then a number, it will jump that many instructions upwards, once.
+ Here are some examples:
+ ^2;
+ ^5;
+
+"< >" Command, opacity:
+ Add the desired opacity value between "<" and ">" between coordinates and glyde. If there is no coordinates, between texture name and coordinates or between texture name and glyde so no issues arise.
+ You can add a "+" or a "-" sign to add or subtract the value you added to the previous value. If the value ends up being more than 1 or less than 0 because of this, it will be set to 1 or 0, respectiveley.
+ The opacity can be set by itself, you do not need to start a "?" function, but it can also be inside a "?" statement. But never add it between other instructions (between glide/coordinate/etc instructions) and at the end of a statement if glide exists.
+ A opacity command may or may not end with ";".
+ 
+Examples: 
+?5?CharaLeft;
+?10?CharaRight;
+^2;
+?15?CharaLeft:1:1;
+?20?CharaLeft:-1:-1;
+?25?CharaLeft:y1;
+?30?CharaLeft:y-1;
+?35?char:y3/35X0Y-3;
+?40?char/XY6;
+?45?char<.5>/X4Y;
+?50?char<.3>:y-7.5/X7Y34;;
+<.1>
+<+.9>
+?100?char*75r2a360s90cc;
+?999?char<+.234>:3:-3/750X-10Y2*500r4a359s23cc;;
+

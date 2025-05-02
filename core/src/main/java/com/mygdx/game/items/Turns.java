@@ -5,7 +5,8 @@ import com.mygdx.game.Utils;
 import java.util.*;
 
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.OnTurnPassObject.onTurnPass;
+import static com.mygdx.game.items.OnVariousScenarios.onTurnPass;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
 import static com.mygdx.game.items.Stage.betweenStages;
 
 //TODO: Redid, but it still needs this:  method that returns true if a turn passed
@@ -69,31 +70,30 @@ public class Turns implements Utils {
 	public static boolean getDidTurnJustPass(){return didTurnJustPass;}
 
 	public static void turnLogic2(ArrayList<Actor> listOfActors) {
-			if (betweenStages)
-				currentTurn = 0;
-			else if (checkForTurn(listOfActors)) {
-				print("stated tun");
-				didTurnJustPass = false;
-				List<ActorAndSpeed> listOfSpeeds = new ArrayList<>();
-				for (Actor e : listOfActors) {
-					if (e instanceof Enemy)
-						listOfSpeeds.add(new ActorAndSpeed(e.actingSpeed, e));
-					if (e instanceof Character)
-						listOfSpeeds.add(new ActorAndSpeed(((Character) e).character.attackSpeed, e));
-				}
-				refreshSpeedAddAndSort(listOfSpeeds);
-				act();
-				if (currentTurn >= listOfSpeeds.size() && !didTurnJustPass) {
-					didTurnJustPass = true;
-					turnCount++;
-					for (ActorAndBoolean f : finalizedToChoose) {
-						f.setBool(false);
-					}
-					currentTurn = 0;
-					for (OnTurnPassObject t : onTurnPass)
-						t.onTurnPass();
-				}
+		if (betweenStages)
+			currentTurn = 0;
+		else if (checkForTurn(listOfActors)) {
+			print("stated tun");
+			didTurnJustPass = false;
+			List<ActorAndSpeed> listOfSpeeds = new ArrayList<>();
+			for (Actor e : listOfActors) {
+				if (e instanceof Enemy)
+					listOfSpeeds.add(new ActorAndSpeed(e.actingSpeed, e));
+				if (e instanceof Character)
+					listOfSpeeds.add(new ActorAndSpeed(((Character) e).character.attackSpeed, e));
 			}
+			refreshSpeedAddAndSort(listOfSpeeds);
+			act();
+			if (currentTurn >= listOfSpeeds.size() && !didTurnJustPass) {
+				didTurnJustPass = true;
+				turnCount++;
+				for (ActorAndBoolean f : finalizedToChoose) {
+					f.setBool(false);
+				}
+				currentTurn = 0;
+				triggerOnTurnPass();
+			}
+		}
 	}
 
 

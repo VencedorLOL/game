@@ -21,7 +21,17 @@ public class Settings {
 	// 3: take enemies in consideration always, if there's an avilable path taking enemies in consideration
 	// 4: take always enemies in consideration, even if there would be a possible path that now isn't because of the enemies
 
+	static byte decidedPathFlexibility = 3;
+	// When should decide a path has been made
+	// 0: exclusively on spacebar. default
+	// 1: on spacebar or if pressed the key of the direction of the last path if path was completed
+	// 2: on spacebar or on any other directional key pressed if path was completed
+	// 3: on spacebar or if path was completed
+	static boolean fastMode;
 
+
+	public static boolean getFastMode() {return fastMode;}
+	public static void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
 	public static boolean getPathMode() {return pathPerTurn;}
 	public static void setPathMode(boolean pathPerTurn) {Settings.pathPerTurn = pathPerTurn;}
 	public static int animationSpeedGetter(){
@@ -39,6 +49,7 @@ public class Settings {
 	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
 	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
+	public static byte getDecidedPathFlexibility() {return decidedPathFlexibility;}
 
 	public static long startErrorId(){
 		if (errorId % 2 == 0) {

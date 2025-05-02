@@ -3,27 +3,25 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 public class Entity {
-	public int actingSpeed;
-	boolean isDead;
+
 	float x, y, base, height;
 	String texture;
 	boolean render = true;
 	public static ArrayList<Entity> entityList = new ArrayList<>();
 
 	public Entity(String texture, float x, float y, float base, float height){
-		this.x = x;
-		this.y = y;
-		this.base = base;
-		this.height = height;
-		this.texture = texture;
+		refresh(texture,x,y,base,height);
+	}
+
+	public Entity() {
 		entityList.add(this);
 	}
-	public Entity(){}
+
 	public void refresh(String texture, float x, float y, float base, float height){
-		this.x = x;
-		this.y = y;
-		this.base = base;
-		this.height = height;
+		this.x       = x;
+		this.y       = y;
+		this.base    = base;
+		this.height  = height;
 		this.texture = texture;
 		entityList.add(this);
 	}
@@ -48,7 +46,7 @@ public class Entity {
 	public float getBase (){ return base; }
 	public float getHeight () { return height; }
 	public String getTexture() { return texture;}
-	public boolean getIsDead() { return isDead; }
+
 	public boolean getRender() { return render; }
 
 	public void setX (float x){this.x = x;}

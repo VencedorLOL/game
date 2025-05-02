@@ -2,10 +2,12 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.mygdx.game.Settings;
 
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
+import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.Turns.didTurnJustPass;
@@ -14,22 +16,16 @@ import static java.lang.Math.ceil;
 import static java.lang.Math.max;
 
 public class Enemy extends Actor{
-	PathFinder pathFindAlgorithm;
-	int thisTurnVSM;
-	public int speed = 3;
-	Path path = new Path(x,y,speed,null);
+	public byte speed = 3;
 	public float health = 20;
 	public float defense = 5;
-	Stage stage;
-	public Entity testCollision = new Entity();
-	int[] speedLeft = new int[2];
-	boolean[] canDecide = {true,true};
+
 	boolean allowedToMove = false;
 	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
 	char move;
-	static boolean fastMode;
+
 	boolean localFastMode;
-	boolean permittedToAct = false;
+
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
 		speed = 3;
@@ -42,6 +38,7 @@ public class Enemy extends Actor{
 		testCollision.base = base;
 		testCollision.height = height;
 		this.texture = texture;
+		path = new Path(x,y,speed,null);
 	}
 
 	public Enemy(float x, float y) {
@@ -50,33 +47,11 @@ public class Enemy extends Actor{
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
+		path = new Path(x,y,speed,null);
 	}
 	// Movement
 
-	public boolean overlapsWithStage(Stage stage, Entity tester){
-		for (Wall b : stage.walls){
-			if (tester.x == b.x && tester.y == b.y)
-				return true;
-		}
-		for (ScreenWarp s : stage.screenWarp){
-			if (tester.x == s.x && tester.y == s.y)
-				return true;
-		}
-		for (Enemy e : stage.enemy) {
-			if (tester != e.testCollision && !e.isDead) {
-				if (tester.x == e.x && tester.y == e.y)
-					return true;
-				if (tester.x == e.testCollision.x && tester.y == e.testCollision.y)
-					return true;
 
-			}
-		}
-		return stage.characterX == tester.x && stage.characterY == tester.y ||
-				tester.y == stage.finalY + globalSize() ||
-				tester.y == stage.startY - globalSize() ||
-				tester.x == stage.finalX + globalSize() ||
-				tester.x == stage.startX - globalSize();
-	}
 
 	public void permitToMove(){
 		permittedToAct = true;
@@ -97,7 +72,7 @@ public class Enemy extends Actor{
 	}
 	public void fastModeSetter(){
 		if (amIRendered())
-			localFastMode = fastMode;
+			localFastMode = Settings.getFastMode();
 		else
 			localFastMode = true;
 	}
@@ -111,12 +86,10 @@ public class Enemy extends Actor{
 	// Movement version: 5.0
 
 	// LETS DO THIS, MASSIVE DELETION TO MAKE SPACE FOR: 6.0, now it pathfinds.
+	// update, it doesnt pathfind cuz idk how to code ig
 
-	private void actionDecided(){
-		Turns.actorsFinalizedChoosing(this);
-	}
 
-	public void finalizedMove(){
+	protected void overlappingCheck() {
 		for (Enemy e : stage.enemy)
 			for (Enemy n : stage.enemy){
 				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
@@ -124,62 +97,6 @@ public class Enemy extends Actor{
 					print("In x: " + n.x + " :in y: " + e.y);
 				}
 			}
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-		canDecide[0] = true;
-		print("fin mov");
-		spendTurn();
-	}
-
-	protected void movementInput(){
-		pathFinding();
-		if (path.pathCreate(x,y,speed,stage, (byte) 1)) {
-			canDecide = new boolean[] {false, false};
-			thisTurnVSM = getVisualSpeedMultiplier();
-			actionDecided();
-		}
-	}
-
-
-	private void pathFinding(){
-		if(pathFindAlgorithm == null)
-			pathFindAlgorithm = new PathFinder(stage);
-		path.pathReset();
-		PathFinder.reset(stage);
-		pathFindAlgorithm.setStart(x,y);
-		pathFindAlgorithm.setPlayerAsEnd();
-		pathFindAlgorithm.solve();
-		if (pathFindAlgorithm.algorithm.getPath() != null){
-			path.setPathTo(pathFindAlgorithm.getSolvedPath());
-		} else
-			print("no path found");
-	}
-
-	public void movement(){
-		testCollision.x = x;
-		testCollision.y = y;
-		if (isPermittedToAct()) {
-			if(speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded){
-				print("actingSpeed x: " + speedLeft[0] + " actingSpeed y : " + speedLeft[1]);
-				speedLeft = path.pathProcess(this);
-			}
-
-			if (speedLeft[0] != 0 || speedLeft[1] != 0) {
-				print("actingSpeed x: " + speedLeft[0] + " actingSpeed y : " + speedLeft[1]);
-				primaryMovement();
-				print("alive1;");
-			}
-			print("alixe 2;");
-			print("pat " + path.pathEnded);
-			if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
-				print("fin mov 2");
-				finalizedMove();
-			}
-		}
-		else if (canDecide() && isDecidingWhatToDo(this))
-			movementInput();
-
-		super.refresh(texture,x, y, base, height);
 	}
 
 
@@ -196,34 +113,17 @@ public class Enemy extends Actor{
 		}
 	}
 
-	protected void primaryMovement(){
-		if (speedLeft[0] > 0) {
-			x += thisTurnVSM;
-			speedLeft[0] -= thisTurnVSM;
-		}
-		else if (speedLeft[0] < 0) {
-			x -= thisTurnVSM;
-			speedLeft[0] += thisTurnVSM;
-		}
-		if (speedLeft[1] > 0) {
-			y += thisTurnVSM;
-			speedLeft[1] -= thisTurnVSM;
-		}
-		else if (speedLeft[1] < 0) {
-			y -= thisTurnVSM;
-			speedLeft[1] += thisTurnVSM;
-		}
-	}
+
 
 	public void update(Stage stage, ParticleManager pm){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
 			if(didTurnJustPass)
 				canDecide[1] = true;
 			gameScreenGetter(pm);
-			this.stage = stage;
+			super.speed = this.speed;
 			if (pathFindAlgorithm == null)
 				pathFindAlgorithm = new PathFinder(stage);
-			path.getStats(x,y,speed,stage);
+			path.getStats(x,y,speed);
 			onDeath();
 			movement();
 			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
