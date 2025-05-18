@@ -237,7 +237,6 @@ public class TextureManager {
 		public int framesForCurrentAnimation = 0;
 		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
 		public TextureManager tm;
-		//TODO: will have to integrate it in the animation "coding language" i created
 		public float opacity;
 
 		int glideFrames;

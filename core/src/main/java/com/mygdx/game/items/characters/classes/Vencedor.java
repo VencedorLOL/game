@@ -29,6 +29,7 @@ public class Vencedor extends CharacterClasses {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
+	public static float aggro;
 
 	public boolean attackMode = false;
 	public boolean controlVenceSwordMode = false;
@@ -36,7 +37,7 @@ public class Vencedor extends CharacterClasses {
 
 	public Vencedor() {
 		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
-				magicDamage, manaPerTurn, manaPerUse, magicHealing);
+				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 	}
 
 	public void updateOverridable(Character character){

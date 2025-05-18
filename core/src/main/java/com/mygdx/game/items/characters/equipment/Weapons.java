@@ -20,12 +20,13 @@ public class Weapons {
 	public float weaponMagicDamage;
 	public float weaponMagicHealing;
 	public String equipableBy;
+	public float aggro;
 
 	public Weapons(String weaponName, float weaponHealth, float weaponDamage,
 				   byte weaponSpeed, byte weaponAttackSpeed, float weaponDefense,
 				   int weaponRange, float weaponTempDefense, float weaponRainbowDefense,
 				   float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-				   float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy){
+				   float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy, float aggro){
 		this.weaponName = weaponName;
 		this.weaponHealth = weaponHealth;
 		this.weaponDamage = weaponDamage;
@@ -42,6 +43,11 @@ public class Weapons {
 		this.weaponManaPerUse = weaponManaPerUse;
 		this.weaponMagicHealing = weaponMagicHealing;
 		this.equipableBy = equipableBy;
+		this.aggro = aggro;
+	}
+
+	public Weapons(Weapons weapon){
+		refresh(weapon);
 	}
 
 	public void refresh(Weapons weapon){
@@ -61,11 +67,14 @@ public class Weapons {
 		weaponManaPerUse = weapon.weaponManaPerUse;
 		weaponMagicHealing = weapon.weaponMagicHealing;
 		equipableBy = weapon.equipableBy;
+		aggro = weapon.aggro;
 	}
 
 	public void update(){
 		// Overridable method. Runs every tick. For weapon-specific abilities.
 	}
+
+	// New weapons can be nested here (note to self: please dont) or on other different classes, if and only if they are children of "Weapons"
 
 	public static class NoWeapon extends Weapons{
 		public static String weaponName = "NoWeapon";
@@ -84,122 +93,12 @@ public class Weapons {
 		public static float weaponManaPerUse = 0;
 		public static float weaponMagicHealing = 0;
 		public static String equipableBy;
+		public static float aggro = 0;
 
 		public NoWeapon() {
 			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
 					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
-		}
-	}
-	// HEALER
-	public static class HealerSwords extends Weapons {
-		public float weaponHealingAbilityBonus;
-
-		public HealerSwords(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
-							byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
-							float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-							float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy,
-					float weaponHealingAbilityBonus) {
-
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
-			this.weaponHealingAbilityBonus = weaponHealingAbilityBonus;
-		}
-	}
-
-
-
-
-	public static class BlessedSword extends HealerSwords{
-		public static String weaponName = "BlessedSword";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 10;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 0;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static float weaponHealingAbilityBonus = 2;
-		public static String equipableBy = "Healer";
-
-		public BlessedSword() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, weaponHealingAbilityBonus);
-		}
-
-	}
-
-	public static class BestHealerSword extends HealerSwords{
-		public static String weaponName = "BestSword";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 100;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 0;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static float weaponHealingAbilityBonus = 6;
-		public static String equipableBy = "Healer";
-
-		public BestHealerSword() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy,
-					weaponHealingAbilityBonus);
-		}
-	}
-	// MELEE
-	public static class MeleeSwords extends Weapons {
-
-		public MeleeSwords(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
-							byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
-							float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-							float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy) {
-
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
-		}
-	}
-
-	public static class MeleeSword extends MeleeSwords{
-		public static String weaponName = "MeleeSword";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 40;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 0;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static String equipableBy = "Melee";
-
-		public MeleeSword() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
 		}
 	}
 
@@ -221,58 +120,14 @@ public class Weapons {
 		public static float weaponManaPerUse = 0;
 		public static float weaponMagicHealing = 0;
 		public static String equipableBy = "Vencedor";
+		public static float aggro = 2;
 
 		public VencedorSword() {
 
 			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
 					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
+					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
 		}
 	}
-
-	// TANK
-	public static class TankSwords extends Weapons {
-		public float weaponHealingAbilityBonus;
-
-		public TankSwords(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
-							byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
-							float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-							float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy) {
-
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
-		}
-	}
-
-
-
-
-	public static class TankSword extends TankSwords{
-		public static String weaponName = "TankSword";
-		public static float weaponHealth = 10;
-		public static float weaponDamage = 15;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 10;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static String equipableBy = "Tank";
-
-		public TankSword() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy);
-		}
-
-	}
-
-
+	
 }

@@ -4,7 +4,9 @@ import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
-import static com.mygdx.game.items.characters.equipment.Weapons.HealerSwords.*;
+import com.mygdx.game.items.characters.equipment.shields.HealerShields;
+import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
+
 
 public class Healer extends CharacterClasses implements Utils {
 	public static String name = "Healer";
@@ -22,6 +24,7 @@ public class Healer extends CharacterClasses implements Utils {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
+	public static float aggro = 1;
 
 	public float healingFromAbility = 4;
 
@@ -29,7 +32,7 @@ public class Healer extends CharacterClasses implements Utils {
 
 	public Healer(){
 		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
-				magicDamage,manaPerTurn,manaPerUse,magicHealing);
+				magicDamage,manaPerTurn,manaPerUse,magicHealing,aggro);
 	}
 
 
@@ -41,14 +44,14 @@ public class Healer extends CharacterClasses implements Utils {
 	}
 
 	public float shieldAbilityHealing(CharacterClasses characterClasses)  {
-		if(characterClasses.shield instanceof Shields.HealerShields)
-			return ((Shields.HealerShields) characterClasses.shield).shieldHealingPerTurn;
+		if(characterClasses.shield instanceof HealerShields)
+			return ((HealerShields) characterClasses.shield).shieldHealingPerTurn;
 		return 0;
 	}
 
 	public float weaponHealingAbilityBonus(CharacterClasses characterClasses){
-		if (characterClasses.weapon instanceof HealerSwords)
-			return ((HealerSwords) characterClasses.weapon).weaponHealingAbilityBonus;
+		if (characterClasses.weapon instanceof HealerWeapons)
+			return ((HealerWeapons) characterClasses.weapon).weaponHealingAbilityBonus;
 		return 0;
 	}
 

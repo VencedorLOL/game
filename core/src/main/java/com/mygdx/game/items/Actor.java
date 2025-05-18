@@ -3,10 +3,14 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.ten;
 import static java.lang.Math.ceil;
 
 public class Actor extends Entity{
@@ -26,17 +30,26 @@ public class Actor extends Entity{
 	public boolean[] canDecide = {true, true};
 	public boolean permittedToAct;
 	public boolean turnMode = true;
+	public int range;
+	public float aggro;
 
 	boolean isDead;
+
+	public Actor target;
+
+	public static ArrayList<Actor> actors = new ArrayList<>();
+
 
 	public boolean getIsDead() { return isDead; }
 
 	public Actor(String aChar, float x, float y, float base, float height) {
 		super(aChar,x,y,base,height);
+		actors.add(this);
 	}
 
 	public Actor() {
 		super();
+		actors.add(this);
 	}
 
 	public void damage(float damage, String damageReason){}
@@ -122,12 +135,12 @@ public class Actor extends Entity{
 				y -= thisTurnVSM;
 			speedLeft[1] += thisTurnVSM;
 		}
-		//failsafe!! Should any actor need any different behaviour override this!
+		//failsafe!!
 		if(overlapsWithStage(stage,this))
 			overrideSpawnIfFail();
 
 	}
-
+	// should any actor need any different overlaping behaviour override this!
 	public void overrideSpawnIfFail(){
 		x = stage.startX; y = stage.startY;
 	}
@@ -222,6 +235,37 @@ public class Actor extends Entity{
 			speedLeft[0] += globalSize()/16;
 	}
 
+
+	public void targetFinder(){
+		ArrayList<Actor> targets = new ArrayList<>();
+		for (Actor a : actors)
+			if (!a.isDead && a.team == team*-1)
+				targets.add(a);
+
+		Collections.shuffle(targets);
+
+
+	}
+
+	public float distanceCalculator(){
+return -1;
+	}
+
+	private static class ActorAndDistance{
+		private Actor actor;
+		private double distance;
+
+		private ActorAndDistance(Actor actor, double distance){
+			this.actor = actor;
+			this.distance = distance;
+		}
+
+		private Actor getActor(){return actor;}
+		private double getDistance() {return distance;}
+
+		private void setActor(Actor actor){this.actor = actor;}
+		private void setDistance(double distance){this.distance = distance;}
+	}
 
 
 }

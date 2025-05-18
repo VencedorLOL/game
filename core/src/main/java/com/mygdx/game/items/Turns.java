@@ -18,18 +18,18 @@ public class Turns implements Utils {
 	static int currentTurn;
 
 	// this is the best way of doing it, trust.
-	static ArrayList<ActorAndSpeed> zero = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> one = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> two = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> three = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> four = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> five = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> six = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> seven = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> eight = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> nine = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> ten = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> tenPlus = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> zero     = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> one      = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> two      = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> three    = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> four     = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> five     = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> six      = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> seven    = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> eight    = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> nine     = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> ten      = new ArrayList<>();
+	static ArrayList<ActorAndSpeed> tenPlus  = new ArrayList<>();
 	static ArrayList<ActorAndSpeed> finalList;
 
 
@@ -208,32 +208,32 @@ public class Turns implements Utils {
 	}
 
 	private static void refreshSpeedAddAndSort(List<ActorAndSpeed> listOfSpeeds){
-		zero = new ArrayList<>();
-		one = new ArrayList<>();
-		two = new ArrayList<>();
-		three = new ArrayList<>();
-		four = new ArrayList<>();
-		five = new ArrayList<>();
-		six = new ArrayList<>();
-		seven = new ArrayList<>();
-		eight = new ArrayList<>();
-		nine = new ArrayList<>();
-		ten = new ArrayList<>();
+		zero    = new ArrayList<>();
+		one     = new ArrayList<>();
+		two     = new ArrayList<>();
+		three   = new ArrayList<>();
+		four    = new ArrayList<>();
+		five    = new ArrayList<>();
+		six     = new ArrayList<>();
+		seven   = new ArrayList<>();
+		eight   = new ArrayList<>();
+		nine    = new ArrayList<>();
+		ten     = new ArrayList<>();
 		tenPlus = new ArrayList<>();
 		for (ActorAndSpeed e : listOfSpeeds) {
 			switch (e.actor.actingSpeed) {
-				case 0:  zero.add(new ActorAndSpeed(e.speed, e.actor)); break;
-				case 1:  one.add(new ActorAndSpeed(e.speed, e.actor));  break;
-				case 2:  two.add(new ActorAndSpeed(e.speed, e.actor));  break;
-				case 3:  three.add(new ActorAndSpeed(e.speed, e.actor));break;
-				case 4:  four.add(new ActorAndSpeed(e.speed, e.actor)); break;
-				case 5:  five.add(new ActorAndSpeed(e.speed, e.actor)); break;
-				case 6:  six.add(new ActorAndSpeed(e.speed, e.actor));  break;
-				case 7:  seven.add(new ActorAndSpeed(e.speed, e.actor));break;
-				case 8:  eight.add(new ActorAndSpeed(e.speed, e.actor));break;
-				case 9:  nine.add(new ActorAndSpeed(e.speed, e.actor)); break;
-				case 10: ten.add(new ActorAndSpeed(e.speed, e.actor));  break;
-				default: if (e.actor.actingSpeed > 10) tenPlus.add(new ActorAndSpeed(e.speed, e.actor));break;
+				case 0:  zero.add  (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 1:  one.add   (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 2:  two.add   (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 3:  three.add (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 4:  four.add  (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 5:  five.add  (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 6:  six.add   (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 7:  seven.add (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 8:  eight.add (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 9:  nine.add  (new ActorAndSpeed(e.speed, e.actor)); break;
+				case 10: ten.add   (new ActorAndSpeed(e.speed, e.actor)); break;
+				default: if (e.actor.actingSpeed > 10) tenPlus.add(new ActorAndSpeed(e.speed, e.actor)); break;
 			}
 		}
 		//first shuffling to make the double speed ties random, then ordering. merging them in an easy-to-use arrlist
@@ -249,17 +249,17 @@ public class Turns implements Utils {
 		Collections.shuffle(nine);
 		Collections.shuffle(ten);
 		Collections.shuffle(tenPlus);
-		zero.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		one.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		two.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		three.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		four.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		five.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		six.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		seven.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		eight.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		nine.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		ten.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		zero.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		one.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		two.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		three.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		four.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		five.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		six.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		seven.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		eight.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		nine.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		ten.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
 		tenPlus.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
 		finalList = new ArrayList<>(tenPlus);
 		finalList.addAll(ten);

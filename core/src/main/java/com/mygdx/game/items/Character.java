@@ -13,11 +13,16 @@ import com.mygdx.game.items.characters.classes.Melee;
 import com.mygdx.game.items.characters.classes.Vencedor;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
+import com.mygdx.game.items.characters.equipment.shields.HealerShields;
+import com.mygdx.game.items.characters.equipment.shields.MeleeShields;
+import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
+import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
 
 import java.util.ArrayList;
 import java.util.Set;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
@@ -68,6 +73,7 @@ public class Character extends Actor implements Utils {
 
 			}
 		};
+		team = 1;
 	}
 
 	public void spendTurn(){
@@ -133,6 +139,7 @@ public class Character extends Actor implements Utils {
 
 	public void update(Stage stage, GameScreen cam){
 		speed = character.speed;
+		range = character.range;
 		if(didTurnJustPass)
 			canDecide[1] = true;
 		onDeath();
@@ -225,14 +232,25 @@ public class Character extends Actor implements Utils {
 		return movement;
 	}
 
-
+	//FIXME: revisit when proper key handlin
+	public void movementInputManual(){
+		if (Gdx.input.isKeyPressed(Input.Keys.W))
+			speedLeft[1] += globalSize()/16;
+		if (Gdx.input.isKeyPressed(Input.Keys.A))
+			speedLeft[0] -= globalSize()/16;
+		if (Gdx.input.isKeyPressed(Input.Keys.S))
+			speedLeft[1] -= globalSize()/16;
+		if (Gdx.input.isKeyPressed(Input.Keys.D))
+			speedLeft[0] += globalSize()/16;
+		textureUpdater();
+	}
 
 
 	public void textureUpdater(){
 		if (willDoNormalTextureChange) {
 			switch (texture()) {
 				case 0: texture = "CharaDiagonalDownRight"; break;
-				case 1: texture = "CharaRight";			 break;
+				case 1: texture = "CharaRight";			    break;
 				case 2: texture = "CharaDiagonalUpRight";   break;
 				case 3: texture = "CharaDiagonalDownLeft";  break;
 				case 4: texture = "CharaLeft";              break;
@@ -243,9 +261,6 @@ public class Character extends Actor implements Utils {
 			if (didntRunMovementMethodYetEver)
 				texture = "char";
 		}
-		else{
-
-		}
 	}
 
 
@@ -254,7 +269,6 @@ public class Character extends Actor implements Utils {
 	public void onDeath(){
 		if (character.currentHealth <= 0) {
 			isDead = false;
-			// shut up
 		}
 	}
 
@@ -294,31 +308,31 @@ public class Character extends Actor implements Utils {
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			character.equipWeapon(new Weapons.BlessedSword());
+			character.equipWeapon(new HealerWeapons.BlessedSword());
 		}
 	}
 
 	public void equipBestSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
-			character.equipWeapon(new Weapons.BestHealerSword());
+			character.equipWeapon(new HealerWeapons.BestHealerSword());
 		}
 	}
 
 	public void equipBlessedShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
-			character.equipShield(new Shields.BlessedShields());
+			character.equipShield(new HealerShields.BlessedShield());
 		}
 	}
 
 	public void equipMeleeSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			character.equipWeapon(new Weapons.MeleeSword());
+			character.equipWeapon(new MeleeWeapons.ABat());
 		}
 	}
 
 	public void equipMeleeShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
-			character.equipShield(new Shields.MeleeShield());
+			character.equipShield(new MeleeShields.MeleeShield());
 		}
 	}
 
@@ -416,6 +430,10 @@ public class Character extends Actor implements Utils {
 			quickPlay("test1");
 			quickPlay("test2");
 			quickPlay("test3");
+		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
+			quickPlay("test");
+			animations.add(new TextureManager.Animation("beneath the mask",x,y));
 		}
 		changeTo();
 	}

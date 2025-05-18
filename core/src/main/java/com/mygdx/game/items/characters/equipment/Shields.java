@@ -1,6 +1,6 @@
 package com.mygdx.game.items.characters.equipment;
 
-public class Shields{
+public class Shields {
 
 	public String shieldName;
 	public float shieldHealth;
@@ -18,12 +18,13 @@ public class Shields{
 	public float shieldMagicDamage;
 	public float shieldMagicHealing;
 	public String equipableBy;
+	public float aggro;
 
 	public Shields(String shieldName, float shieldHealth, float shieldDamage,
 				   byte shieldSpeed, byte shieldAttackSpeed, float shieldDefense,
 				   int shieldRange, float shieldTempDefense, float shieldRainbowDefense,
 				   float shieldMana, float shieldMagicDefense, float shieldMagicDamage,
-				   float shieldManaPerTurn, float shieldManaPerUse, float shieldMagicHealing, String equipableBy){
+				   float shieldManaPerTurn, float shieldManaPerUse, float shieldMagicHealing, String equipableBy, float aggro) {
 		this.shieldName = shieldName;
 		this.shieldHealth = shieldHealth;
 		this.shieldDamage = shieldDamage;
@@ -40,9 +41,14 @@ public class Shields{
 		this.shieldManaPerUse = shieldManaPerUse;
 		this.shieldMagicHealing = shieldMagicHealing;
 		this.equipableBy = equipableBy;
+		this.aggro = aggro;
 	}
 
-	public void refresh(Shields shield){
+	public Shields(Shields shield) {
+		refresh(shield);
+	}
+
+	public void refresh(Shields shield) {
 		shieldName = shield.shieldName;
 		shieldHealth = shield.shieldHealth;
 		shieldDamage = shield.shieldDamage;
@@ -59,12 +65,12 @@ public class Shields{
 		shieldManaPerUse = shield.shieldManaPerUse;
 		shieldMagicHealing = shield.shieldMagicHealing;
 		equipableBy = shield.equipableBy;
+		aggro = shield.aggro;
 	}
 
-	public void update(){
+	public void update() {
 		// Overridable method. Runs every tick. For shield-specific abilities.
 	}
-
 
 
 	public static class NoShield extends Shields {
@@ -84,142 +90,14 @@ public class Shields{
 		public static float shieldManaPerUse = 0;
 		public static float shieldMagicHealing = 0;
 		public static String equipableBy;
+		public static float aggro = 0;
 
 		public NoShield() {
 			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
 					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
+					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy, aggro);
 		}
 	}
 
-	// HEALER
-	public static class HealerShields extends Shields{
-		public float shieldHealingPerTurn;
 
-		public HealerShields(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
-							 byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
-							 float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
-							 float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
-							 float shieldMagicHealing, String equipableBy, float shieldHealingPerTurn ) {
-
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
-			this.shieldHealingPerTurn = shieldHealingPerTurn;
-		}
-	}
-
-	public static class BlessedShields extends HealerShields {
-		public static String shieldName = "BlessedShields";
-		public static float shieldHealth = 30;
-		public static float shieldDamage = 0;
-		public static byte shieldSpeed = 0;
-		public static byte shieldAttackSpeed = 0;
-		public static float shieldDefense = 10;
-		public static int shieldRange = 0;
-		public static float shieldTempDefense = 0;
-		public static float shieldRainbowDefense = 0;
-		public static float shieldMana = 0;
-		public static float shieldMagicDefense = 0;
-		public static float shieldMagicDamage = 0;
-		public static float shieldManaPerTurn = 0;
-		public static float shieldManaPerUse = 0;
-		public static float shieldMagicHealing = 0;
-		public static float shieldHealingPerTurn = 5;
-		public static String equipableBy = "Healer";
-
-		public BlessedShields() {
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy, shieldHealingPerTurn);
-		}
-
-	}
-	// MELEE
-	public static class MeleeShields extends Shields{
-
-		public MeleeShields(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
-							byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
-							float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
-							float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
-							float shieldMagicHealing, String equipableBy) {
-
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
-		}
-	}
-
-	public static class MeleeShield extends MeleeShields {
-		public static String shieldName = "MeleeShield";
-		public static float shieldHealth = 20;
-		public static float shieldDamage = 0;
-		public static byte shieldSpeed = 0;
-		public static byte shieldAttackSpeed = 0;
-		public static float shieldDefense = 5;
-		public static int shieldRange = 0;
-		public static float shieldTempDefense = 0;
-		public static float shieldRainbowDefense = 0;
-		public static float shieldMana = 0;
-		public static float shieldMagicDefense = 0;
-		public static float shieldMagicDamage = 0;
-		public static float shieldManaPerTurn = 0;
-		public static float shieldManaPerUse = 0;
-		public static float shieldMagicHealing = 0;
-		public static String equipableBy = "Melee";
-
-		public MeleeShield() {
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
-		}
-
-	}
-
-
-	// TANK
-	public static class TankShields extends Shields{
-		public float shieldHealingPerTurn;
-
-		public TankShields(String shieldName, float shieldHealth, float shieldDamage, byte shieldSpeed,
-							 byte shieldAttackSpeed, float shieldDefense, int shieldRange, float shieldTempDefense,
-							 float shieldRainbowDefense, float shieldMana, float shieldMagicDefense,
-							 float shieldMagicDamage, float shieldManaPerTurn, float shieldManaPerUse,
-							 float shieldMagicHealing, String equipableBy ) {
-
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
-		}
-	}
-	public static class TankShield extends TankShields {
-		public static String shieldName = "TankShield";
-		public static float shieldHealth = 100;
-		public static float shieldDamage = 0;
-		public static byte shieldSpeed = 0;
-		public static byte shieldAttackSpeed = 0;
-		public static float shieldDefense = 20;
-		public static int shieldRange = 0;
-		public static float shieldTempDefense = 0;
-		public static float shieldRainbowDefense = 0;
-		public static float shieldMana = 0;
-		public static float shieldMagicDefense = 0;
-		public static float shieldMagicDamage = 0;
-		public static float shieldManaPerTurn = 0;
-		public static float shieldManaPerUse = 0;
-		public static float shieldMagicHealing = 0;
-		public static String equipableBy = "Tank";
-
-		public TankShield() {
-			super(shieldName, shieldHealth, shieldDamage, shieldSpeed, shieldAttackSpeed,
-					shieldDefense, shieldRange, shieldTempDefense, shieldRainbowDefense, shieldMana, shieldMagicDefense,
-					shieldMagicDamage, shieldManaPerTurn, shieldManaPerUse, shieldMagicHealing, equipableBy);
-		}
-
-		@Override
-		public void update() {
-			// This would make the Tank suffer 20% less damage, but character can't even take damage yet...
-			super.update();
-		}
-	}
 }

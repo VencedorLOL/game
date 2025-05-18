@@ -7,6 +7,7 @@ import com.mygdx.game.items.Character;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.max;
 
@@ -15,12 +16,12 @@ public class CharacterClasses {
 	public float health;
 	public float tempDefense;
 	public float damage;
-	public byte speed;
-	public byte attackSpeed;
+	public byte  speed;
+	public byte  attackSpeed;
 	public float defense;
 	public float rainbowDefense;
 	public float magicDefense;
-	public int range;
+	public int   range;
 	public float mana;
 	public float manaPerTurn;
 	public float manaPerUse;
@@ -33,8 +34,8 @@ public class CharacterClasses {
 
 	public float totalHealth;
 	public float totalDamage;
-	public byte totalSpeed;
-	public byte totalAttackSpeed;
+	public byte  totalSpeed;
+	public byte  totalAttackSpeed;
 	public float totalMana;
 	public float totalManaPerTurn;
 	public float totalManaPerUse;
@@ -44,7 +45,8 @@ public class CharacterClasses {
 	public float totalTempDefense;
 	public float totalRainbowDefense;
 	public float totalMagicDefense;
-	public int totalRange;
+	public int   totalRange;
+	public float totalAggro;
 
 	public float currentHealth;
 
@@ -58,26 +60,29 @@ public class CharacterClasses {
 	OnVariousScenarios cooldownHelper;
 	public int defaultCooldown;
 
+	public float aggro;
+
 	public CharacterClasses(String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
 							int range, float tempDefense, float rainbowDefense,
 							float mana, float magicDefense, float magicDamage,
-							float manaPerTurn, float manaPerUse, float magicHealing){
-		this.name = name;
-		this.health = health;
-		this.damage = damage;
-		this.speed = speed;
-		this.attackSpeed = attackSpeed;
-		this.defense = defense;
-		this.range = range;
-		this.tempDefense = tempDefense;
-		this.rainbowDefense = rainbowDefense;
-		this.mana = mana;
-		this.magicDefense = magicDefense;
-		this.magicDamage = magicDamage;
-		this.manaPerTurn = manaPerTurn;
-		this.manaPerUse = manaPerUse;
-		this.magicHealing = magicHealing;
+							float manaPerTurn, float manaPerUse, float magicHealing, float aggro){
+		this.name             = name;
+		this.health           = health;
+		this.damage           = damage;
+		this.speed            = speed;
+		this.attackSpeed      = attackSpeed;
+		this.defense          = defense;
+		this.range            = range;
+		this.tempDefense      = tempDefense;
+		this.rainbowDefense   = rainbowDefense;
+		this.mana             = mana;
+		this.magicDefense     = magicDefense;
+		this.magicDamage      = magicDamage;
+		this.manaPerTurn      = manaPerTurn;
+		this.manaPerUse       = manaPerUse;
+		this.magicHealing     = magicHealing;
+		this.aggro            = aggro;
 		this.shouldTurnCompletionBeLeftToClass = false;
 		reset();
 		cooldownHelper = new OnVariousScenarios(){
@@ -91,20 +96,21 @@ public class CharacterClasses {
 	public CharacterClasses(){}
 
 	public void totalStatsCalculator(){
-		totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
-		totalDamage = damage + shield.shieldDamage + weapon.weaponDamage;
-		totalSpeed = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
-		totalAttackSpeed = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
-		totalDefense = defense + shield.shieldDefense + weapon.weaponDefense;
-		totalRange = range + shield.shieldRange + weapon.weaponRange;
-		totalMana = mana + weapon.weaponMana + shield.shieldMana;
-		totalManaPerTurn = manaPerTurn + weapon.weaponMana + shield.shieldMana;
-		totalManaPerUse = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
-		totalMagicDamage = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
-		totalMagicHealing = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
-		totalTempDefense = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
+		totalHealth         = health + shield.shieldHealth + weapon.weaponHealth;
+		totalDamage         = damage + shield.shieldDamage + weapon.weaponDamage;
+		totalSpeed          = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
+		totalAttackSpeed    = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
+		totalDefense        = defense + shield.shieldDefense + weapon.weaponDefense;
+		totalRange          = range + shield.shieldRange + weapon.weaponRange;
+		totalMana           = mana + weapon.weaponMana + shield.shieldMana;
+		totalManaPerTurn    = manaPerTurn + weapon.weaponMana + shield.shieldMana;
+		totalManaPerUse     = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
+		totalMagicDamage    = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
+		totalMagicHealing   = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
+		totalTempDefense    = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
 		totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
-		totalMagicDefense = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
+		totalMagicDefense   = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
+		totalAggro          = aggro + weapon.aggro + shield.aggro;
 	}
 
 	public float outgoingDamage(){
@@ -116,47 +122,47 @@ public class CharacterClasses {
 	}
 
 	public void equipWeapon(Weapons targetWeapon) {
-		System.out.println(targetWeapon.weaponName);
-		if (targetWeapon.equipableBy == name || targetWeapon.equipableBy == null) {
+		print(targetWeapon.weaponName + " was just equipped");
+		if (name.equals(targetWeapon.equipableBy) || targetWeapon.equipableBy == null) {
 			weapon = targetWeapon;
 			reset();
 		}
 	}
 
 	public void equipShield(Shields targetShield) {
-		System.out.println(targetShield.shieldName);
-		if (name == targetShield.equipableBy || targetShield.equipableBy == null) {
+		print(targetShield.shieldName + " was just equipped");
+		if (name.equals(targetShield.equipableBy) || targetShield.equipableBy == null) {
 			shield = targetShield;
 			reset();
 		}
 	}
 
-	public void reset(){
+	private void reset(){
 		if (shield == null)
 			shield = new Shields.NoShield();
-		if(weapon == null)
+		if (weapon == null)
 			weapon = new Weapons.NoWeapon();
 		totalStatsCalculator();
 		currentHealth = totalHealth;
 	}
 
 	public void refresh(CharacterClasses characterClasses){
-		health = characterClasses.health;
-		damage = characterClasses.damage;
-		speed = characterClasses.speed;
-		attackSpeed = characterClasses.attackSpeed;
-		defense = characterClasses.defense;
-		range = characterClasses.range;
-		tempDefense = characterClasses.tempDefense;
-		rainbowDefense = characterClasses.rainbowDefense;
-		mana = characterClasses.mana;
-		magicDefense = characterClasses.magicDefense;
-		magicDamage = characterClasses.magicDamage;
-		manaPerTurn = characterClasses.manaPerTurn;
-		manaPerUse = characterClasses.manaPerUse;
-		magicHealing = characterClasses.magicHealing;
-		currentHealth = characterClasses.currentHealth;
-		if(currentHealth > health)
+		health            = characterClasses.health;
+		damage            = characterClasses.damage;
+		speed             = characterClasses.speed;
+		attackSpeed       = characterClasses.attackSpeed;
+		defense           = characterClasses.defense;
+		range             = characterClasses.range;
+		tempDefense       = characterClasses.tempDefense;
+		rainbowDefense    = characterClasses.rainbowDefense;
+		mana              = characterClasses.mana;
+		magicDefense      = characterClasses.magicDefense;
+		magicDamage       = characterClasses.magicDamage;
+		manaPerTurn       = characterClasses.manaPerTurn;
+		manaPerUse        = characterClasses.manaPerUse;
+		magicHealing      = characterClasses.magicHealing;
+		currentHealth     = characterClasses.currentHealth;
+		if (currentHealth > health)
 			currentHealth = health;
 	}
 
@@ -168,7 +174,7 @@ public class CharacterClasses {
 
 	public void updateOverridable(Character character) {}
 
-
+	// Conveniently overridable
 	public void turnHasPassed() {
 		defaultCooldown--;
 	}
@@ -178,21 +184,21 @@ public class CharacterClasses {
 							int range, float tempDefense, float rainbowDefense,
 							float mana, float magicDefense, float magicDamage,
 							float manaPerTurn, float manaPerUse, float magicHealing,boolean shouldTurnCompletionBeLeftToClass){
-		this.name = name;
-		this.health = health;
-		this.damage = damage;
-		this.speed = speed;
-		this.attackSpeed = attackSpeed;
-		this.defense = defense;
-		this.range = range;
-		this.tempDefense = tempDefense;
+		this.name           = name;
+		this.health         = health;
+		this.damage         = damage;
+		this.speed          = speed;
+		this.attackSpeed    = attackSpeed;
+		this.defense        = defense;
+		this.range          = range;
+		this.tempDefense    = tempDefense;
 		this.rainbowDefense = rainbowDefense;
-		this.mana = mana;
-		this.magicDefense = magicDefense;
-		this.magicDamage = magicDamage;
-		this.manaPerTurn = manaPerTurn;
-		this.manaPerUse = manaPerUse;
-		this.magicHealing = magicHealing;
+		this.mana           = mana;
+		this.magicDefense   = magicDefense;
+		this.magicDamage    = magicDamage;
+		this.manaPerTurn    = manaPerTurn;
+		this.manaPerUse     = manaPerUse;
+		this.magicHealing   = magicHealing;
 		this.shouldTurnCompletionBeLeftToClass = shouldTurnCompletionBeLeftToClass;
 		reset();
 	}

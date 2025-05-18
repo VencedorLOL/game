@@ -19,10 +19,11 @@ public class Classless extends CharacterClasses {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
+	public static float aggro = 0;
 
 	public Classless(){
 		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
-				magicDamage,manaPerTurn,manaPerUse,magicHealing);
+				magicDamage,manaPerTurn,manaPerUse,magicHealing,aggro);
 	}
 
 	// Method created for convenience

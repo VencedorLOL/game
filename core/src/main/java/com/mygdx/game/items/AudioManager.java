@@ -51,13 +51,11 @@ public class AudioManager {
 		sounds.add(new Sound(songName, loops, startLoopAt));
 	}
 
-	public static void loadMultiple (ArrayList<String> songsToStart) {
+	public static void loadMultiple(ArrayList<String> songsToStart) {
 		for (Sound s : sounds)
-			for (String ss : songsToStart)
-				if (ss.equals(s.identifier)){
-					songsToStart.remove(ss);
-					break;
-				}
+			// thanks intellij
+			songsToStart.removeIf(ss -> ss.equals(s.getIdentifier()));
+
 		if (!songsToStart.isEmpty())
 			for (String s : songsToStart)
 				load(s);
@@ -189,12 +187,11 @@ public class AudioManager {
 				clip.loop(willSetLoop ? -1 : 0);
 				clip.setLoopPoints(startLoopAt,-1);
 			}
-			catch (UnsupportedAudioFileException | IOException |LineUnavailableException e) {
+			catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 				e.printStackTrace();
 			}
 		}
 
-		// fancy ternary operator cuz why not
 		void loops(boolean loops){clip.loop(loops ? -1 : 0);}
 
 		void loopAt(int start,int end){clip.setLoopPoints(start,end);}

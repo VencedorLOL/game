@@ -19,6 +19,7 @@ public class Enemy extends Actor{
 	public byte speed = 3;
 	public float health = 20;
 	public float defense = 5;
+	public int range = 2;
 
 	boolean allowedToMove = false;
 	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
@@ -39,6 +40,7 @@ public class Enemy extends Actor{
 		testCollision.height = height;
 		this.texture = texture;
 		path = new Path(x,y,speed,null);
+		team = -1;
 	}
 
 	public Enemy(float x, float y) {
@@ -48,6 +50,7 @@ public class Enemy extends Actor{
 		testCollision.x = x;
 		testCollision.y = y;
 		path = new Path(x,y,speed,null);
+		team = -1;
 	}
 	// Movement
 
