@@ -16,6 +16,7 @@ public class Ability{
 	public String name;
 	public boolean isItActive;
 	public int cooldown;
+	public int cooldownCounter = 0;
 	public float xOffset,yOffset;
 	public float radius;
 	Circle circle = new Circle();
@@ -43,19 +44,50 @@ public class Ability{
 	}
 
 
-	public boolean runThispls(){
+	public void runThispls(){
 		circle.setPosition(xOffset * Camara.getBase() + Camara.getX(),
 				Camara.getY() + yOffset * Camara.getHeight());
 		TextureManager.addToFixatedList(textureIcon,xOffset,yOffset,-radius,-radius);
-		return isBeingPressed();
 	}
 
 
+	public void touchActivate(){
+		if (isBeingPressed())
+			keybindActivate();
+	}
+
+	public void keybindActivate(){
+		if (!isItActive) {
+			if (cooldownCounter >= cooldown) {
+				active();
+				print(name+" activated!");
+			}
+			else if (cooldown - cooldownCounter > 1)
+				print("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!");
+			else
+				print("Couldn't activate " + name + "! You still have to wait one more turn!");
+		} else
+			print("You can't activate this ability, as it is already active!");
+	}
+
+	//Override this
 	public void active(){
 
 	}
 
+	public void cancelActivation(){
+		isItActive = false;
+	}
 
+	public void finished(){
+		cooldownCounter = 0;
+		isItActive = false;
+	}
+
+
+	public void updateCooldown(){
+		cooldownCounter++;
+	}
 
 
 }

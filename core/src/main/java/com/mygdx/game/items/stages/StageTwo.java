@@ -17,6 +17,7 @@ public class StageTwo extends Stage {
 	public int spawnY = 0;
 	public int[] wallX = {1,3,2,3,5};
 	public int[] wallY = {2,3,1,2,7};
+	public int[] wallType = {1,1,1,1,1};
 	public int[] enemyX = {-3,-2,-1,0,1,2,3,4,5};
 	public int[] enemyY = {-3,-2,-1,0,1,2,3,4,5};
 	public int[] enemyType = {2,2,2,2,2,2,2,2,2};
@@ -24,9 +25,9 @@ public class StageTwo extends Stage {
 	public int[] screenWarpY = {8,8,8,8,8,8,8,8,8,8,8,8};
 	public byte[] screenWarpDestinationSpecification = {0,0,0,0,0,0,0,0,0,0,0,0};
 	public String floorTexture = "Sand";
-	public ArrayList<Stage> screenWarpDestination = new ArrayList<Stage>(){};
+	public ArrayList<Stage> screenWarpDestination = new ArrayList<>(){};
 	public StageTwo(){
-		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, enemyX, enemyY, screenWarpX,
+		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY,wallType, enemyX, enemyY, screenWarpX,
 				screenWarpY,screenWarpDestination,floorTexture,
 				screenWarpDestinationSpecification,enemyType);
 		haveEnemiesBeenRendered = false;

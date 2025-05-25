@@ -21,14 +21,14 @@ public class Classless extends CharacterClasses {
 	public static float magicHealing = 0;
 	public static float aggro = 0;
 
-	public Classless(){
-		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
+	public Classless(Character character){
+		super(character,name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
 				magicDamage,manaPerTurn,manaPerUse,magicHealing,aggro);
 	}
 
 	// Method created for convenience
 	@Override
-	public void updateOverridable(Character character) {
+	public void updateOverridable() {
 
 	}
 }

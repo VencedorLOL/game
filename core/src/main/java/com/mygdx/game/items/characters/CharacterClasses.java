@@ -8,10 +8,10 @@ import com.mygdx.game.items.Character;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.Turns.*;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
+	public Character character;
 	public String name;
 	public float health;
 	public float tempDefense;
@@ -51,22 +51,22 @@ public class CharacterClasses {
 	public float currentHealth;
 
 	// Any character might have more than one ability.
-	public ArrayList<Ability> abilityButton;
+	public ArrayList<Ability> abilities;
 
 	public boolean pierces;
 	// If true, turn completion will be handled by classes instead of normal procedure
 	public boolean shouldTurnCompletionBeLeftToClass;
 
 	OnVariousScenarios cooldownHelper;
-	public int defaultCooldown;
 
 	public float aggro;
 
-	public CharacterClasses(String name, float health, float damage,
+	public CharacterClasses(Character character, String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
 							int range, float tempDefense, float rainbowDefense,
 							float mana, float magicDefense, float magicDamage,
 							float manaPerTurn, float manaPerUse, float magicHealing, float aggro){
+		this.character        = character;
 		this.name             = name;
 		this.health           = health;
 		this.damage           = damage;
@@ -93,7 +93,16 @@ public class CharacterClasses {
 		};
 	}
 
-	public CharacterClasses(){}
+	public CharacterClasses(Character character){
+		this.character = character;
+		cooldownHelper = new OnVariousScenarios(){
+			@Override
+			public void onTurnPass(){
+				turnHasPassed();
+			}
+		};
+	}
+
 
 	public void totalStatsCalculator(){
 		totalHealth         = health + shield.shieldHealth + weapon.weaponHealth;
@@ -166,17 +175,20 @@ public class CharacterClasses {
 			currentHealth = health;
 	}
 
-	public void update(Character character){
-		updateOverridable(character);
+	public void update(){
+		updateOverridable();
 		refresh(this);
 	}
 
 
-	public void updateOverridable(Character character) {}
+	public void updateOverridable() {}
 
 	// Conveniently overridable
 	public void turnHasPassed() {
-		defaultCooldown--;
+		if (abilities != null)
+			for (Ability a : abilities){
+				a.updateCooldown();
+			}
 	}
 
 	public CharacterClasses(String name, float health, float damage,

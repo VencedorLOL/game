@@ -19,6 +19,9 @@ public class Tile implements Cloneable {
 	public float h,g,n,f;
 	public Tile parent;
 
+	public Tile getParent(){
+		return parent;
+	}
 
 	public Tile(float x, float y, Floor texture){
 		this.x = x;

@@ -21,14 +21,14 @@ public class Tank extends CharacterClasses {
 	public static float magicHealing = 0;
 	public static float aggro;
 
-	public Tank(){
-		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
+	public Tank(Character chara){
+		super(chara,name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
 				magicDamage,manaPerTurn,manaPerUse,magicHealing, aggro);
 	}
 
 
 	@Override
-	public void updateOverridable(Character character) {
+	public void updateOverridable() {
 		// Tank's only ability: Your teammates only suffer 20% of the damage, but you suffer it instead
 		// Multiplayer's not a thing yet, soooo...
 	}

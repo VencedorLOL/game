@@ -365,7 +365,7 @@ public class Actor extends Entity{
 	}
 
 	public double dC(float x, float y){
-		return sqrt(pow(abs(x)-abs(this.x),2+pow(abs(y)-abs(this.y),2)));
+		return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));
 	}
 
 	private static class ActorAndDistance{

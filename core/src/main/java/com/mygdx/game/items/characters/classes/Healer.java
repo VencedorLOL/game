@@ -30,8 +30,8 @@ public class Healer extends CharacterClasses implements Utils {
 
 	public boolean hasHealedInThisTurn = false;
 
-	public Healer(){
-		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
+	public Healer(Character character){
+		super(character,name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
 				magicDamage,manaPerTurn,manaPerUse,magicHealing,aggro);
 	}
 
@@ -56,7 +56,7 @@ public class Healer extends CharacterClasses implements Utils {
 	}
 
 	@Override
-	public void updateOverridable(Character character){
+	public void updateOverridable(){
 		if (character.canDecide[0] && character.canDecide[1] && !hasHealedInThisTurn){
 			currentHealth += shieldAbilityHealing(this);
 			hasHealedInThisTurn = true;

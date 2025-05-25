@@ -27,75 +27,55 @@ public class Melee extends CharacterClasses {
 	public static float manaPerTurn = 0;
 	public static float manaPerUse = 0;
 	public static float magicHealing = 0;
+	public static float aggro = 1;
 
 	public byte attackState;
-	public boolean FoA;
 	public final byte FoANumberOfExtraHits = 4;
-	public boolean OfA;
 	public byte OfAMultiplier = 6;
 
-	public Melee() {
-		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
-				magicDamage, manaPerTurn, manaPerUse, magicHealing,true);
-		abilityButton = new ArrayList<>();
-		abilityButton.add(new Ability("flurryofhits", "FlurryOfAttacks", false, 4,
-				.25f, -.25f, (float) globalSize() /2));
-		abilityButton.add(new Ability("oneforall", "OneForAll", false, 4,
+	public Melee(Character chara) {
+		super(chara,name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
+				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
+		abilities = new ArrayList<>();
+		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", false, 4,
+				.25f, -.25f, (float) globalSize() /2){
+			@Override
+			public void active() {
+				character.attackMode = true;
+			}
+		});
+		abilities.add(new Ability("oneforall", "One For All", false, 4,
 				.40f, -.40f, (float) globalSize() /2));
 	}
 
 
-	public void updateOverridable(Character character) {
-		if (abilityButton.get(0).runThispls())
-			System.out.println(activateFlurryOfAttacks(character));
-		if (abilityButton.get(1).runThispls())
-			System.out.println(activateOneForAll(character));
-		turnHandler(character);
+	public void updateOverridable() {
+		for (Ability a : abilities){
+			a.runThispls();
+			a.touchActivate();
+		}
+		turnHandler();
+		if (!character.canDecide() || !character.attackMode)
+			for (Ability a : abilities)
+				a.cancelActivation();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			System.out.println("abilityCD is : "+defaultCooldown);
+			System.out.println("ability recharge is at: "+ abilities.get(0).cooldownCounter);
 			System.out.println("attackState is: "+ attackState);
-			System.out.println("FoA is: " + FoA);
-			System.out.println("OfA is: " + OfA);
+			System.out.println("FoA is: " + abilities.get(1).isItActive);
+			System.out.println("OfA is: " + abilities.get(0).isItActive);
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F))
-			System.out.println(activateFlurryOfAttacks(character));
+			abilities.get(0).keybindActivate();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.O))
-			System.out.println(activateOneForAll(character));
+			abilities.get(1).keybindActivate();
 	}
 
-	// trad: uno para todos
-	public String activateFlurryOfAttacks(Character character){
-		if (!FoA){
-			if (defaultCooldown >= 4){
-				defaultCooldown = 0;
-				FoA = true;
-				character.attackMode = true;
-				return "Flurry Of Attacks activated";
-			}
-			return "Couldn't activate Flurry Of Attacks. You still have to wait " +(4 - defaultCooldown)+" turns";
-		}
-		return "You can't activate this ability, silly! It's already active!";
-	}
 
-	// trad: todos para una
-	public String activateOneForAll(Character character){
-		if (!OfA) {
-			if (defaultCooldown >= 4) {
-				defaultCooldown = 0;
-				OfA = true;
-				character.attackMode = true;
-				return "One For All activated";
-			}
-			return "Couldn't activate One For All. You still have to wait " + (4 - defaultCooldown) + " turns";
-		}
-		return "You can't activate this ability, silly! It's already active!";
-	}
-
-	public void turnHandler(Character character){
-		if (FoA && character.hasAttacked){
+	public void turnHandler(){
+		if (abilities.get(0).isItActive && character.hasAttacked){
 			if (attackState >= FoANumberOfExtraHits) {
 				character.finalizedAttack();
-				FoA = false;
+				abilities.get(0).finished();
 				attackState = 0;
 				character.hasAttacked = false;
 				print("FoA Is false");
@@ -114,8 +94,8 @@ public class Melee extends CharacterClasses {
 	}
 
 	public float outgoingDamage(){
-		if (OfA) {
-			OfA = false;
+		if (abilities.get(1).isItActive) {
+			abilities.get(1).finished();
 			return totalDamage * OfAMultiplier;
 		}
 		else

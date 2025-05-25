@@ -17,7 +17,7 @@ public class Vencedor extends CharacterClasses {
 	public static String name = "Vencedor";
 	public static float health = 40;
 	public static float damage = 5;
-	public static byte speed = 4;
+	public static byte speed = 30;
 	public static byte attackSpeed = 8;
 	public static float defense = 0;
 	public static int range = 7;
@@ -35,8 +35,8 @@ public class Vencedor extends CharacterClasses {
 	public boolean controlVenceSwordMode = false;
 	public ArrayList<VenceSword> venceSwordArray = new ArrayList<>();
 
-	public Vencedor() {
-		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
+	public Vencedor(Character chara) {
+		super(chara,name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 	}
 

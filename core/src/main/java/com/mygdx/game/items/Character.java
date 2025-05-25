@@ -27,7 +27,7 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 public class Character extends Actor implements Utils {
 
-	public CharacterClasses character = new CharacterClasses();
+	public CharacterClasses character;
 
 	OnVariousScenarios oVS2;
 
@@ -51,7 +51,6 @@ public class Character extends Actor implements Utils {
 		testCollision.y = y;
 		testCollision.base = base;
 		testCollision.height = height;
-		path = new Path(x,y,character.speed,stage);
 		oVS2 = new OnVariousScenarios(){
 			@Override
 			public void onStageChange(){
@@ -71,7 +70,8 @@ public class Character extends Actor implements Utils {
 			}
 		};
 		team = 1;
-		character = new Classless();
+		character = new Classless(this);
+		path = new Path(x,y,character.speed,stage);
 	}
 
 	public void spendTurn(){
@@ -94,10 +94,11 @@ public class Character extends Actor implements Utils {
 		if(touchDetect()){
 			lastClickX = flooredClick().x;
 			lastClickY = flooredClick().y;
-			//pathFinding();
+			print("last ckik x " + lastClickX + " y " + lastClickY);
+			pathFinding();
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
-			//pathFinding();
+			pathFinding();
 		}
 	}
 
@@ -132,8 +133,9 @@ public class Character extends Actor implements Utils {
 
 
 	public void update(Stage stage, GameScreen cam){
-		character.update(this);
+		character.update();
 		speed = character.speed;
+		actingSpeed = character.attackSpeed;
 		range = character.range;
 		onDeath();
 		actingSpeed = character.attackSpeed;
@@ -290,19 +292,19 @@ public class Character extends Actor implements Utils {
 
 	public void changeToHealer(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-			character = new Healer();
+			character = new Healer(this);
 		}
 	}
 
 	public void changeToMelee(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			character = new Melee();
+			character = new Melee(this);
 		}
 	}
 
 	public void changeToVencedor(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
-			character = new Vencedor();
+			character = new Vencedor(this);
 		}
 	}
 
@@ -428,6 +430,13 @@ public class Character extends Actor implements Utils {
 			});
 			//	Camara.attach(animations.get(0));
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
+			animations.add(new TextureManager.Animation("target",this){
+				public void onFinish(){
+					newTarget(true);
+				}
+			});
+		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
 			quickPlay("test1");
@@ -453,6 +462,21 @@ public class Character extends Actor implements Utils {
 			}
 		}
 		changeTo();
+		newTarget(false);
+	}
+
+	boolean bool;
+	public void newTarget(boolean bool){
+		if (bool)
+			this.bool = true;
+		else if (this.bool) {
+			animations.add(new TextureManager.Animation("target", this) {
+				public void onFinish() {
+					newTarget(true);
+				}
+			});
+			this.bool = false;
+		}
 	}
 
 }

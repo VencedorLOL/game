@@ -6,12 +6,13 @@ import com.mygdx.game.Utils;
 import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
 import com.mygdx.game.items.enemies.LoopingHat;
+import com.mygdx.game.items.solids.LargeBarricade;
 
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
@@ -21,6 +22,7 @@ public class Stage implements Utils {
 	public ArrayList<Wall> walls = new ArrayList<>();
 	public int[] wallX, wallY;
 	public static boolean haveWallsBeenRendered;
+	public int[] wallType;
 
 	public ArrayList<Enemy> enemy = new ArrayList<>();
 	public int[] enemySpawnX, enemySpawnY;
@@ -46,16 +48,16 @@ public class Stage implements Utils {
 
 	public float camaraX, camaraY, camaraBase, camaraHeight;
 	public Stage(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
-				 int[] wallX, int[] wallY, int[] enemySpawnX, int[] enemySpawnY, int[] screenWarpX, int[] screenWarpY,
+				 int[] wallX, int[] wallY, int[] wallType ,int[] enemySpawnX, int[] enemySpawnY, int[] screenWarpX, int[] screenWarpY,
 				 ArrayList<Stage> screenWarpDestination, String floorTexture,
 				 byte[] screenWarpDestinationSpecification, int[] enemyType){
-		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX,wallY,enemySpawnX,enemySpawnY,screenWarpX,screenWarpY,screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
+		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX,wallY,wallType,enemySpawnX,enemySpawnY,screenWarpX,screenWarpY,screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 	}
 
 	public Stage(){	}
 
 	public void emptyStageInitializer() {
-		refresh(0,0,0,0,0,0,new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new ArrayList<>(),"Grass",new byte[0],new int[0]);
+		refresh(0,0,0,0,0,0,new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new ArrayList<>(),"Grass",new byte[0],new int[0]);
 	}
 
 
@@ -65,7 +67,7 @@ public class Stage implements Utils {
 	}
 
 	public void refresh(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
-						 int[] wallX, int[] wallY, int[] enemyX, int[] enemyY, int[] screenWarpX, int[] screenWarpY,
+						 int[] wallX, int[] wallY, int[] wallType, int[] enemyX, int[] enemyY, int[] screenWarpX, int[] screenWarpY,
 						ArrayList<Stage> screenWarpDestination, String floorTexture,
 						byte[] screenWarpDestinationSpecification, int[] enemyType){
 		this.startX = startX;
@@ -76,6 +78,7 @@ public class Stage implements Utils {
 		this.spawnY = spawnY;
 		this.wallX = wallX;
 		this.wallY = wallY;
+		this.wallType = wallType;
 		this.enemySpawnX = enemyX;
 		this.enemySpawnY = enemyY;
 		this.screenWarpX = screenWarpX;
@@ -109,8 +112,10 @@ public class Stage implements Utils {
 	}
 
 	public void enemySetter(){
+		printErr("x,y,type len: " + enemyType.length + " " + enemySpawnX.length + " " + enemySpawnY.length);
 		for (int i = 0; i < enemySpawnX.length; i++) {
-			enemy.add(enemyClass(enemySpawnX[i], enemySpawnY[i], enemyType[i]));
+			printErr("x,y,type len: " + enemyType.length + " " + enemySpawnX.length + " " + enemySpawnY.length);
+			enemy.add(enemyClass(enemySpawnX[i], enemySpawnY[i], enemyType == null || enemyType.length < i ? 1 : enemyType[i]));
 		}
 		haveEnemiesBeenRendered = true;
 	}
@@ -159,7 +164,7 @@ public class Stage implements Utils {
 	public void wallSetter(){
 		wallBorder();
 		for (int i = 0; i < wallX.length; i++) {
-			walls.add(new Wall(globalSize() * wallX[i], globalSize() * wallY[i]));
+			walls.add(wallClass(wallX[i], wallY[i],wallType == null ? 1 : wallType[i]));
 		}
 		haveWallsBeenRendered = true;
 	}
@@ -248,7 +253,7 @@ public class Stage implements Utils {
 		walls = new ArrayList<>(); Wall.flushList();
 		floor = new ArrayList<>();
 		screenWarp = new ArrayList<>();
-		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
+		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,wallType, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 		triggerOnStageChange();
 	}
@@ -272,6 +277,19 @@ public class Stage implements Utils {
 			}
 		}
 		return new Enemy(globalSize() * x, globalSize() * y);
+
+	}
+
+	public Wall wallClass(int x, int y, int wallType){
+		switch (wallType){
+			case 1:{
+				return new Wall(globalSize() * x, globalSize() * y);
+			}
+			case 2 :{
+				return new LargeBarricade(globalSize() * x, globalSize() * y);
+			}
+		}
+		return new Wall(globalSize() * x, globalSize() * y);
 
 	}
 

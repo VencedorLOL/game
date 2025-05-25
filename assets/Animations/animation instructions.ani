@@ -55,7 +55,7 @@ Explanation of format:
  Add the desired opacity value between "<" and ">" between coordinates and glyde. If there is no coordinates, between texture name and coordinates or between texture name and glyde so no issues arise.
  You can add a "+" or a "-" sign to add or subtract the value you added to the previous value. If the value ends up being more than 1 or less than 0 because of this, it will be set to 1 or 0, respectiveley.
  The opacity can be set by itself, you do not need to start a "?" function, but it can also be inside a "?" statement. But never add it between other instructions (between glide/coordinate/etc instructions) and at the end of a statement if glide exists.
- A opacity command may or may not end with ";".
+ An opacity command may or may not end with ";".
  
 Examples: 
 ?5?CharaLeft;

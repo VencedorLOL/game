@@ -325,6 +325,8 @@ public class TextureManager {
 
 		boolean finished = false;
 
+		Entity entityToFollow;
+
 		public Animation(String file, float x, float y){
 			try {
 				this.file = new File("Animations//" + file + ".ani");
@@ -334,7 +336,18 @@ public class TextureManager {
 				opacity = 1;
 				base = height = globalSize();
 			} catch (FileNotFoundException ignored){}
+		}
 
+		public Animation(String file, Entity entityToFollow){
+			try {
+				this.entityToFollow = entityToFollow;
+				this.file = new File("Animations//" + file + ".ani");
+				fileReader = new Scanner(new FileReader(this.file));
+				this.x = entityToFollow.x;this.y = entityToFollow.y;
+				read();
+				opacity = 1;
+				base = height = globalSize();
+			} catch (FileNotFoundException ignored){}
 		}
 
 		public void play(){
@@ -353,7 +366,15 @@ public class TextureManager {
 				}
 				if (reader.contains(";") && reader.indexOf(';') != reader.lastIndexOf(';')) {
 					didRunCode = true;
-					x = startX; y = startY;
+					if (entityToFollow == null){
+						x = startX;
+						y = startY;
+					} else {
+						x = entityToFollow.x;
+						y = entityToFollow.y;
+						startX = 0;
+						startY = 0;
+					}
 				}
 				if (reader.charAt(0) == '?') {
 					didRunCode = true;
@@ -440,9 +461,23 @@ public class TextureManager {
 		}
 
 
+
 		public void move(boolean isOnX, float coordinate){
-			if (isOnX) x += coordinate*globalSize();
-			else y += coordinate*globalSize();
+			coordinate = coordinate * globalSize();
+			if (entityToFollow == null) {
+				if (isOnX) x += coordinate;
+				else y += coordinate;
+			} else{
+				if (isOnX) {
+					startX += coordinate;
+				}
+				else {
+					startY += coordinate;
+				}
+				x = entityToFollow.x + startX;
+				y = entityToFollow.y + startY;
+				startY = 0; startX = 0;
+			}
 		}
 
 
@@ -503,6 +538,8 @@ public class TextureManager {
 
 		public void update(){
 			//IMAGINE GLIDING CIRCLES THATD BE SO COOL
+			if (entityToFollow != null)
+				move(true,0);
 			if (isOrbiting)
 				orbit();
 			if (isGliding){
