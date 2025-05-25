@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.isEscapePressed;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
@@ -70,9 +71,6 @@ public class GameScreen implements Screen, Utils {
 			chara.update(stage, this);
 			textureManager.render(camara);
 			// Hotkeys
-			if (Gdx.input.isKeyPressed(Input.Keys.P)) {
-				mainClass.setPauseScreen();
-			}
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
 				camara.setToOrtho(camaraZoom = 2);
 			// Zoom management
@@ -91,9 +89,7 @@ public class GameScreen implements Screen, Utils {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
 				System.out.println(camaraZoom);
 
-		ArrayList<Actor> cl = new ArrayList<>(stage.enemy);
-		cl.add(chara);
-		turnLogic2(cl);
+		turnLogic();
 	}
 
 
@@ -136,7 +132,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void render(float delta) {
-		onCycleStart();
+		triggerOnTick();
 		start();
 		finish();
 	}

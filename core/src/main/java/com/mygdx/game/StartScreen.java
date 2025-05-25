@@ -24,7 +24,7 @@ public class StartScreen implements Screen, Utils {
 
 	@Override
 	public void render(float delta) {
-		ScreenUtils.clear(cC(0), cC(50), cC(100), 0);
+		ScreenUtils.clear(Utils.cC(0), Utils.cC(50), Utils.cC(100), 0);
 		mainClass.camara.fixedUpdater();
 		menuScreenBatch.begin();
 		font.draw(menuScreenBatch, "Start Screen", 100, 150);

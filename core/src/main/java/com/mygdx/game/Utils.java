@@ -5,7 +5,7 @@ public interface Utils {
 		return color / 255;
 	}
 
-	default float cC(float color){
+	static float cC(float color){
 		return color / 255;
 	}
 

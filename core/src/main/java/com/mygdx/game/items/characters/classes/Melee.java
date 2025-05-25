@@ -51,7 +51,7 @@ public class Melee extends CharacterClasses {
 		if (abilityButton.get(1).runThispls())
 			System.out.println(activateOneForAll(character));
 		turnHandler(character);
-		if (Gdx.input.isKeyPressed(Input.Keys.I)){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
 			System.out.println("abilityCD is : "+defaultCooldown);
 			System.out.println("attackState is: "+ attackState);
 			System.out.println("FoA is: " + FoA);

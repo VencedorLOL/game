@@ -10,11 +10,11 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.ten;
-import static java.lang.Math.ceil;
+import static java.lang.Math.*;
 
 public class Actor extends Entity{
 
+	public float maxHealth;
 	byte speed;
 
 	public byte team;
@@ -31,7 +31,7 @@ public class Actor extends Entity{
 	public boolean permittedToAct;
 	public boolean turnMode = true;
 	public int range;
-	public float aggro;
+	public float aggro = 1;
 
 	boolean isDead;
 
@@ -39,6 +39,27 @@ public class Actor extends Entity{
 
 	public static ArrayList<Actor> actors = new ArrayList<>();
 
+	public float lastTimeTilLastMovement = 0;
+
+	public byte textureOrientation;
+
+	public boolean didItAct = false;
+
+	public boolean didItAct(){return didItAct;}
+	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
+
+	OnVariousScenarios oVS = new OnVariousScenarios(){
+		@Override
+		public void onTickStart() {
+			alreadyTextured = false;
+		}
+
+		@Override
+		public void onStageChange() {
+			didItAct = false;
+			permittedToAct = false;
+		}
+	};
 
 	public boolean getIsDead() { return isDead; }
 
@@ -85,10 +106,13 @@ public class Actor extends Entity{
 	//Movement!! now here cuz convenience
 
 	public void movement(){
+		lastTimeTilLastMovement++;
 		testCollision.x = x;
 		testCollision.y = y;
+		glideProcess();
 		if (turnMode) {
 			if (isPermittedToAct()) {
+				lastTimeTilLastMovement = 0;
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded)
 					speedLeft = path.pathProcess(this);
 
@@ -99,15 +123,23 @@ public class Actor extends Entity{
 
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
 					finalizedMove();
+
+
 			} else if (canDecide() && isDecidingWhatToDo(this))
 				movementInputTurnMode();
+
 		} else {
 			movementInputManual();
 			speedActuator();
+			if (this instanceof Enemy){
+				enemyOnFreeMode();
+			}
 		}
 
 		super.refresh(texture,x, y, base, height);
 	}
+
+	protected void enemyOnFreeMode(){}
 
 	protected void speedActuator(){
 		if (speedLeft[0] > 0) {
@@ -135,6 +167,8 @@ public class Actor extends Entity{
 				y -= thisTurnVSM;
 			speedLeft[1] += thisTurnVSM;
 		}
+
+
 		//failsafe!!
 		if(overlapsWithStage(stage,this))
 			overrideSpawnIfFail();
@@ -175,20 +209,20 @@ public class Actor extends Entity{
 
 
 	protected void automatedMovement(){
-		if(pathFindAlgorithm == null)
-			pathFindAlgorithm = new PathFinder(stage);
-		path.pathReset();
-		PathFinder.reset(stage);
-		pathFindAlgorithm.setStart(x,y);
-		pathFindAlgorithm.setPlayerAsEnd();
-		pathFindAlgorithm.solve();
-		if (pathFindAlgorithm.algorithm.getPath() != null){
-			path.setPathTo(pathFindAlgorithm.getSolvedPath());
-		} else
+	//	if(pathFindAlgorithm == null)
+	//		pathFindAlgorithm = new PathFinder(stage);
+	//	path.pathReset();
+	//	PathFinder.reset(stage);
+	//	pathFindAlgorithm.setStart(x,y);
+	//	pathFindAlgorithm.setPlayerAsEnd();
+	//	pathFindAlgorithm.solve();
+	//	if (pathFindAlgorithm.algorithm.getPath() != null){
+	//		path.setPathTo(pathFindAlgorithm.getSolvedPath());
+	//	} else
 			print("no path found");
 	}
 
-	private void actionDecided(){
+	protected void actionDecided(){
 		Turns.actorsFinalizedChoosing(this);
 	}
 
@@ -206,15 +240,29 @@ public class Actor extends Entity{
 
 
 	protected void isOnTheGrid(){
-		if (speedLeft[0] == 0 && speedLeft[1] == 0) {
-			if (!(x % globalSize() == 0)) {
-				System.out.println("Offset in x caused at: " + x + " :by: " + this + " :New x is: " + 128 * ceil(x / 128));
-				x = (float) (globalSize() * ceil(x / globalSize()));
+		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isGliding) {
+			float x = 0, y = 0;
+			if (!(this.x % globalSize() == 0)) {
+				print("Offset in x caused at: " + this.x + " :by: " + this + " :New x is: " + 128 * round(this.x / 128));
+				x = (float) (globalSize() * round(this.x / globalSize())) - this.x;
 			}
-			if (!(y % globalSize() == 0)) {
-				System.out.println("Offset in y caused at: " + y + " :by: " + this + " :New y is: " + 128 * ceil(y / 128));
-				y = (float) (globalSize() * ceil(y / globalSize()));
+			if (!(this.y % globalSize() == 0)) {
+				print("Offset in y caused at: " + this.y + " :by: " + this + " :New y is: " + 128 * round(this.y / 128));
+				y = (float) (globalSize() * round(this.y / globalSize())) - this.y;
 			}
+			if (x !=0 || y != 0)
+				glide(x,y);
+		}
+	}
+
+	protected void isOnTheGridForced(){
+		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isGliding) {
+			if (!(this.x % globalSize() == 0))
+				x = (float) (globalSize() * round(this.x / globalSize()));
+
+			if (!(this.y % globalSize() == 0))
+				y = (float) (globalSize() * round(this.y / globalSize()));
+
 		}
 	}
 
@@ -233,22 +281,91 @@ public class Actor extends Entity{
 			speedLeft[1] -= globalSize()/16;
 		if (Gdx.input.isKeyPressed(Input.Keys.D))
 			speedLeft[0] += globalSize()/16;
+		if (speedLeft[0] != 0 || speedLeft[1] != 0)
+			lastTimeTilLastMovement = 0;
+
+	}
+
+
+	private float glideXPerFrame, glideYPerFrame;
+	public boolean isGliding = false;
+	public float glideTime;
+	public void glide(float x, float y, float time){
+		if (!isGliding){
+			isGliding = true;
+			glideTime = time;
+			glideXPerFrame = x / time;
+			glideYPerFrame = y / time;
+		} else
+			printErr("ERROR: ALREADY GLIDING");
+	}
+
+	public void glide(float x, float y){
+		glide(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
+	}
+
+	public void glideProcess(){
+		if (isGliding)
+			if (glideTime-- <= 0) {
+				isGliding = false;
+				if (turnMode)
+					isOnTheGridForced();
+			}
+			else {
+				x += glideXPerFrame;
+				y += glideYPerFrame;
+				textureCustomSpeed(abs(glideXPerFrame * glideTime) < 1 ? 0 : glideXPerFrame,
+						abs(glideYPerFrame * glideTime) < 1 ? 0 : glideYPerFrame);
+			}
+	}
+
+	boolean alreadyTextured;
+	public void texture(){
+		if (!alreadyTextured) {
+			textureOrientation = 7;
+			if (speedLeft[0] > 0) textureOrientation = 1;
+			if (speedLeft[0] < 0) textureOrientation = 4;
+			if (speedLeft[1] > 0) textureOrientation  ++;
+			if (speedLeft[1] < 0) textureOrientation  --;
+			alreadyTextured = true;
+		}
+	}
+
+	public void textureCustomSpeed(float x, float y) {
+		if (!alreadyTextured) {
+			textureOrientation = 7;
+			if (x > 0) textureOrientation = 1;
+			if (x < 0) textureOrientation = 4;
+			if (y > 0) textureOrientation++;
+			if (y < 0) textureOrientation--;
+			alreadyTextured = true;
+		}
+	}
+
+
+	public static void flushActorListButCharacter(){
+		actors.clear();
+		actors.add(chara);
 	}
 
 
 	public void targetFinder(){
-		ArrayList<Actor> targets = new ArrayList<>();
+		ArrayList<ActorAndDistance> targets = new ArrayList<>();
 		for (Actor a : actors)
 			if (!a.isDead && a.team == team*-1)
-				targets.add(a);
-
+				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.aggro));
 		Collections.shuffle(targets);
-
-
+		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
+		//when pathfinding is implemented, add an if check to check if the entity can be reachable
+		for (ActorAndDistance a : targets){
+			//if (pathfinding.canReachThereOrSum())
+			target = a.actor;
+			return;
+		}
 	}
 
-	public float distanceCalculator(){
-return -1;
+	public double dC(float x, float y){
+		return sqrt(pow(abs(x)-abs(this.x),2+pow(abs(y)-abs(this.y),2)));
 	}
 
 	private static class ActorAndDistance{
@@ -266,6 +383,8 @@ return -1;
 		private void setActor(Actor actor){this.actor = actor;}
 		private void setDistance(double distance){this.distance = distance;}
 	}
+
+
 
 
 }

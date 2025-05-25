@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.Settings.globalSize;
 
 public class StageOne extends Stage {
-	public int startX = 3*globalSize();
+	public int startX = -3*globalSize();
 	public int startY = 0;
 	public int finalX = globalSize()*6;
 	public int finalY = globalSize()*6;
@@ -35,7 +35,7 @@ public class StageOne extends Stage {
 	}
 
 	@Override
-	public void reStage(Character character){
+	public void reStage(){
 		screenWarpDestination.add(new StageThree());
 	}
 

@@ -81,7 +81,7 @@ public class StageCreator {
 			System.out.println("created");
 		}
 		if (hasStageBeenCreated) {
-			stage.stageRenderer(camara, stage, tm);
+			stage.stageRenderer(stage, tm);
 		}
 
 

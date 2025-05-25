@@ -3,6 +3,8 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.mygdx.game.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +15,7 @@ import java.util.Scanner;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Utils.cC;
 import static java.lang.Math.*;
 
 public class TextureManager {
@@ -121,12 +124,14 @@ public class TextureManager {
 
 	public void render(Camara camara){
 		getCamara(camara);
+		// Least priority drawable objects
 
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
 				 drawer(d.texture,d.x,d.y,d.opacity);
 		}
 		drawables.clear();
+		// Animations
 
 		for (TextureManager.Animation a : animations){
 			a.update();
@@ -135,17 +140,29 @@ public class TextureManager {
 		}
 		ArrayList<Animation> deletionAider = new ArrayList<>(animations);
 		for (TextureManager.Animation a : deletionAider) if (a.finished) animations.remove(a);
+		// Text display
 
 		for (TextureManager.Text t : text){
-			t.drawStatic(batch,Camara.x / Camara.zoom,Camara.y / Camara.zoom);
+			if (!t.fakeNull)
+				t.draw(batch);
 		}
-		text.clear();
+		text.removeIf(tex -> tex.fakeNull);
+		// Static text display
+
+		for (TextureManager.Text t : fixatedText){
+			if (!t.fakeNull)
+				t.drawStatic(Camara.x / Camara.zoom,Camara.y / Camara.zoom,batch);
+		}
+		fixatedText.removeIf(tex -> tex.fakeNull);
+		// Most priority drawables
 
 		for (TextureManager.DrawableObject d : priorityDrawables){
 			if (d.texture != null)
 				drawer(d.texture,d.x,d.y,d.opacity);
 		}
 		priorityDrawables.clear();
+		// Static drawables
+
 
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
@@ -154,10 +171,18 @@ public class TextureManager {
 		fixatedDrawables.clear();
 	}
 
-	public static void text (String text,float x, float y){
-		TextureManager.text.add(new Text(text,x,y));
+
+	public static void text (String text,float x, float y,BitmapFont font){
+		TextureManager.text.add(new Text(text,x,y,font));
 	}
 
+	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font, int size,int r, int g, int b,float opacity,float vanishingThreshold){
+		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),r,g,b,opacity,vanishingThreshold));
+	}
+
+	public static void text (String text,float x, float y,int timeTilDisappear){
+		if (text!= null)
+			TextureManager.text.add(new Text(text,x,y,timeTilDisappear));}
 
 	public static class DrawableObject{
 		public float x,y;
@@ -200,32 +225,76 @@ public class TextureManager {
 	public static class Text {
 		public float x,y;
 		public String text;
-		BitmapFont font;
+		public int onScreenTime;
+		public boolean fakeNull = false;
+		public BitmapFont font;
+		int r,g,b;
+		float opacity;
+		float vanishingThreshold;
 
+		public Text(String text, float x, float y, BitmapFont font){
+			this.text = text;
+			this.x = x;
+			this. y = y;
+			onScreenTime = -1;
+			this.font = font;
+			this.r = -1;
+
+		}
+
+		public Text(String text, float x, float y,int onScreenTime,BitmapFont font,int r, int b, int g,float opacity,float vanishingThreshold){
+			this.onScreenTime = onScreenTime;
+			this.text = text;
+			this.x = x;
+			this. y = y;
+			this.font = font;
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.opacity = opacity;
+			this.vanishingThreshold = vanishingThreshold;
+		}
+
+		public Text(String text, float x, float y,int onScreenTime){
+			this.onScreenTime = onScreenTime;
+			this.text = text;
+			this.x = x;
+			this. y = y;
+			font = new BitmapFont();
+			this.r = -1;
+		}
 
 		public Text(String text, float x, float y){
 			this.text = text;
 			this.x = x;
 			this. y = y;
+			onScreenTime = -1;
 			font = new BitmapFont();
+			this.r = -1;
 		}
 
-		public Text(String text, float x, float y, FileHandle font){
-			this.text = text;
-			this.x = x;
-			this. y = y;
-			this.font = new BitmapFont(font);
-		}
+
 
 		public void draw(Batch batch){
+			if (r != -1)
+				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
 			font.draw(batch, text,x,y);
+			onScreenTime--;
+			if(onScreenTime == 0){
+				fakeNull = true;
+			}
+
 		}
 
-		public void drawStatic(Batch batch, float x, float y){
-			font.draw(batch, text,x + x,y + y);
+		public void drawStatic(float x, float y,Batch batch){
+			font.draw(batch, text,x,y);
+			onScreenTime--;
+			if(onScreenTime == 0){
+				fakeNull = true;
+			}
 		}
-
 	}
+
 
 	public static class Animation extends Entity {
 		public float startX;
@@ -386,7 +455,7 @@ public class TextureManager {
 
 		}
 
-		//this is the first time in my life i have to use sine and cosine functions
+		//this is the first time in my life i have to use sine and cosine functions outside of math class
 		// THANKS JAVA FOR USING RADIANS INSTEAD OF DEGREES
 		public void orbitStart(float radius, float angleD, float x, float y, float angleDStart, boolean clockwise,float orbitFrames){
 			this.isOrbiting = true;
@@ -493,8 +562,19 @@ public class TextureManager {
 
 
 
+	public static BitmapFont createFont(Fonts name, int size) {
+		FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		fontParameter.size = size;
+		return new FreeTypeFontGenerator(Gdx.files.internal(name.path)).generateFont(fontParameter);
+	}
 
+	public enum Fonts {
+		ComicSans("Fonts\\Comic Sans MS.ttf");
 
-
+		public final String path;
+		Fonts(String path) {
+			this.path = path;
+		}
+	}
 
 }

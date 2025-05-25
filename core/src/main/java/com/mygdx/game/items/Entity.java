@@ -2,6 +2,8 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.Settings.globalSize;
+
 public class Entity {
 
 	float x, y, base, height;
@@ -11,9 +13,15 @@ public class Entity {
 
 	public Entity(String texture, float x, float y, float base, float height){
 		refresh(texture,x,y,base,height);
+		entityList.add(this);
 	}
 
 	public Entity() {
+		entityList.add(this);
+	}
+
+	public Entity(String texture, float x, float y){
+		refresh(texture,x,y,globalSize(),globalSize());
 		entityList.add(this);
 	}
 
@@ -23,7 +31,6 @@ public class Entity {
 		this.base    = base;
 		this.height  = height;
 		this.texture = texture;
-		entityList.add(this);
 	}
 
 	public boolean overlaps (Entity entity) {

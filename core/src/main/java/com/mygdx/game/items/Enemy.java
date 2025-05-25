@@ -4,13 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.Settings;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
-import static com.mygdx.game.items.Turns.didTurnJustPass;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.ceil;
 import static java.lang.Math.max;
@@ -27,6 +27,10 @@ public class Enemy extends Actor{
 
 	boolean localFastMode;
 
+	OnVariousScenarios oVE2;
+
+	public static ArrayList<Enemy> enemies = new ArrayList<>();
+
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
 		speed = 3;
@@ -41,6 +45,13 @@ public class Enemy extends Actor{
 		this.texture = texture;
 		path = new Path(x,y,speed,null);
 		team = -1;
+		oVS = new OnVariousScenarios(){
+			@Override
+			public void onTurnPass() {
+				canDecide[1] = true;
+			}
+		};
+		enemies.add(this);
 	}
 
 	public Enemy(float x, float y) {
@@ -51,6 +62,13 @@ public class Enemy extends Actor{
 		testCollision.y = y;
 		path = new Path(x,y,speed,null);
 		team = -1;
+		oVS = new OnVariousScenarios(){
+			@Override
+			public void onTurnPass() {
+				canDecide[1] = true;
+			}
+		};
+		enemies.add(this);
 	}
 	// Movement
 
@@ -86,11 +104,15 @@ public class Enemy extends Actor{
 		permittedToAct = false;
 	}
 
-	// Movement version: 5.0
+	// Movement version: 6.0
 
-	// LETS DO THIS, MASSIVE DELETION TO MAKE SPACE FOR: 6.0, now it pathfinds.
-	// update, it doesnt pathfind cuz idk how to code ig
+	//AKA: it doesnt work
 
+
+	@Override
+	protected void movementInputTurnMode() {
+		actionDecided();
+	}
 
 	protected void overlappingCheck() {
 		for (Enemy e : stage.enemy)
@@ -120,12 +142,8 @@ public class Enemy extends Actor{
 
 	public void update(Stage stage, ParticleManager pm){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			if(didTurnJustPass)
-				canDecide[1] = true;
 			gameScreenGetter(pm);
 			super.speed = this.speed;
-			if (pathFindAlgorithm == null)
-				pathFindAlgorithm = new PathFinder(stage);
 			path.getStats(x,y,speed);
 			onDeath();
 			movement();
@@ -152,6 +170,8 @@ public class Enemy extends Actor{
 		if (health <= 0) {
 			isDead = true;
 			permittedToAct = false;
+			actors.remove(this);
+			enemies.remove(this);
 		}
 	}
 
@@ -162,10 +182,6 @@ public class Enemy extends Actor{
 		}
 		print("remaining health is: " + health);
 
-	}
-
-	public boolean canDecide(){
-		return canDecide[0] && canDecide[1];
 	}
 
 	public ParticleManager pm;

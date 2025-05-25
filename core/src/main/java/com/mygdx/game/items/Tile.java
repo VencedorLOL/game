@@ -6,12 +6,18 @@ import static com.mygdx.game.Settings.globalSize;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-public class Tile {
+public class Tile implements Cloneable {
 
 	float x,y,base,height;
 	public int ID;
 	public static int IDState = 0;
 	Floor texture;
+	//for pathfinding
+	boolean walkable;
+	boolean closed;
+	boolean opened;
+	public float h,g,n,f;
+	public Tile parent;
 
 
 	public Tile(float x, float y, Floor texture){
@@ -21,6 +27,7 @@ public class Tile {
 		height = globalSize();
 		this.texture = texture;
 		ID = IDState + 1;
+		walkable = true;
 	}
 
 	public Tile(float x, float y, float base, float height, Floor texture){
@@ -30,7 +37,26 @@ public class Tile {
 		this.height = height;
 		this.texture = texture;
 		ID = IDState + 1;
+		walkable = true;
 	}
+
+	// Pathfinding specials
+	public Tile(float x, float y, boolean walkable){
+		this.x = x;
+		this.y = y;
+		base = globalSize();
+		height = globalSize();
+		this.walkable = walkable;
+	}
+
+	public Tile(float x, float y){
+		this.x = x;
+		this.y = y;
+		base = globalSize();
+		height = globalSize();
+		this.walkable = true;
+	}
+
 
 	public void render(){texture.render(x,y);}
 
@@ -77,6 +103,14 @@ public class Tile {
 
 		}
 		return tileSet;
+	}
+
+	@Override
+	public Tile clone() {
+		try {
+			return (Tile) super.clone();
+		} catch (CloneNotSupportedException ignored) {}
+		return null;
 	}
 
 

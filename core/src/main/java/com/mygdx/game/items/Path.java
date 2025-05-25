@@ -6,8 +6,7 @@ import com.badlogic.gdx.Input;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.getDecidedPathFlexibility;
-import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 
 public class Path {
@@ -17,7 +16,7 @@ public class Path {
 	float entityX, entityY;
 	byte currentNumberOfPaths = 0;
 	boolean pathEnded;
-	OnVariousScenarios oVE;
+	OnVariousScenarios oVS;
 	// 1 = movement
 	// 2 = attack
 
@@ -25,10 +24,11 @@ public class Path {
 		getStats(x,y,speed);
 		path = new ArrayList<>();
 		path.add(new PathStep());
-		oVE = new OnVariousScenarios(){
+		oVS = new OnVariousScenarios(){
 			@Override
 			public void onStageChange(){
 				pathReset();
+				print("Path resetted because stage changed.");
 			}
 		};
 	}
@@ -36,11 +36,9 @@ public class Path {
 
 	public int[] pathProcess(Entity entity){
 		if (!pathEnded) {
-			try {
-				doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));
-			} catch (java.lang.IndexOutOfBoundsException ignored) {
-				path.add(currentNumberOfPaths, new PathStep());
-			}
+			try {doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));}
+			catch (java.lang.IndexOutOfBoundsException ignored) {path.add(currentNumberOfPaths, new PathStep());}
+
 			if (currentNumberOfPaths != 0)
 				path.get(currentNumberOfPaths - 1).setRender(false);
 			int[] speedLeft = new int[2];
@@ -173,13 +171,13 @@ public class Path {
 
 	public void createPathStep(PathStep pathStep, float x, float y, byte typeOfPath){
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			pathStep.directionY = globalSize();
+			pathStep.directionY =  globalSize();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
 			pathStep.directionX = -globalSize();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
 			pathStep.directionY = -globalSize();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-			pathStep.directionX = globalSize();
+			pathStep.directionX =  globalSize();
 
 		testCollision.x = x + pathStep.directionX;
 		testCollision.y = y + pathStep.directionY;
@@ -198,6 +196,7 @@ public class Path {
 	public static class PathStep extends Entity {
 		int directionX;
 		int directionY;
+		boolean procesed = false;
 
 		public PathStep(){
 			texture = "PathStepLocation";
@@ -225,6 +224,7 @@ public class Path {
 			directionX = 0;
 			directionY = 0;
 			setRender(false);
+			procesed = false;
 		}
 
 		public boolean hasNoDirection(){

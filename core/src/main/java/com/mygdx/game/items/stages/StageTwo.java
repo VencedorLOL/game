@@ -13,8 +13,8 @@ public class StageTwo extends Stage {
 	public int startY = -globalSize() * 3;
 	public int finalX = globalSize()*8;
 	public int finalY = globalSize()*8;
-	public int spawnX = globalSize()*2;
-	public int spawnY = globalSize()*2;
+	public int spawnX = 0;
+	public int spawnY = 0;
 	public int[] wallX = {1,3,2,3,5};
 	public int[] wallY = {2,3,1,2,7};
 	public int[] enemyX = {-3,-2,-1,0,1,2,3,4,5};
@@ -36,7 +36,7 @@ public class StageTwo extends Stage {
 
 
 	@Override
-	public void reStage(Character character){
+	public void reStage(){
 		screenWarpDestination.add(new StageThree());
 	}
 

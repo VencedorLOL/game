@@ -3,14 +3,15 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
+import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
 import com.mygdx.game.items.enemies.LoopingHat;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.onCycleStart;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
@@ -148,17 +149,17 @@ public class Stage implements Utils {
 	}
 
 	public void wallBorder(){
-		walls.add(new Wall(startX - globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, true));
-		walls.add(new Wall(finalX + globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, true));
-		walls.add(new Wall(startX,startY - globalSize() ,finalX + globalSize() * 30,globalSize(), true));
-		walls.add(new Wall(startX,finalY + globalSize(),finalX + globalSize() * 30,globalSize() ,true));
+		walls.add(new Wall(startX - globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
+		walls.add(new Wall(finalX + globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
+		walls.add(new Wall(startX,startY - globalSize() ,finalX + globalSize() * 30,globalSize(), false));
+		walls.add(new Wall(startX,finalY + globalSize(),finalX + globalSize() * 30,globalSize() ,false));
 	}
 
 
 	public void wallSetter(){
 		wallBorder();
 		for (int i = 0; i < wallX.length; i++) {
-			walls.add(new Wall(globalSize() * wallX[i], globalSize() * wallY[i], globalSize(), globalSize()));
+			walls.add(new Wall(globalSize() * wallX[i], globalSize() * wallY[i]));
 		}
 		haveWallsBeenRendered = true;
 	}
@@ -167,10 +168,8 @@ public class Stage implements Utils {
 		if (!haveWallsBeenRendered){
 			wallSetter();
 		}
-		for (Wall b : walls){
-			if(b.doesItHaveATexture)
-				TextureManager.addToList(b.texture, b.x, b.y);
-		}
+		for (Wall b : walls)
+			b.render();
 	}
 
 	public void stageRenderer(GameScreen gs, Stage stage){
@@ -184,21 +183,21 @@ public class Stage implements Utils {
 
 		}
 		else {
-			camaraX = gs.camara.x;
-			camaraY = gs.camara.y;
-			camaraBase = gs.camara.base;
-			camaraHeight = gs.camara.height;
+			camaraX = Camara.x;
+			camaraY = Camara.y;
+			camaraBase = Camara.base;
+			camaraHeight = Camara.height;
 			tilesetRenderer();
 			enemyRenderer(stage, gs.particle);
 			screenWarpRenderer();
 			wallRenderer();
-			border.border(gs.chara, this);
+			border.border(chara, this);
 			border.border(this);
-			screenWarpTrigger(gs);
+			screenWarpTrigger();
 		}
 	}
 
-	public void stageRenderer(Camara camara, Stage stage, TextureManager tm){
+	public void stageRenderer(Stage stage, TextureManager tm){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			tilesetSetter(this);
@@ -209,10 +208,10 @@ public class Stage implements Utils {
 
 		}
 		else {
-			camaraX = camara.x;
-			camaraY = camara.y;
-			camaraBase = camara.base;
-			camaraHeight = camara.height;
+			camaraX = Camara.x;
+			camaraY = Camara.y;
+			camaraBase = Camara.base;
+			camaraHeight = Camara.height;
 			tilesetRenderer();
 			enemyRenderer(stage, new ParticleManager(tm));
 			screenWarpRenderer();
@@ -220,13 +219,13 @@ public class Stage implements Utils {
 		}
 	}
 
-	public void screenWarpTrigger(GameScreen gs){
+	public void screenWarpTrigger(){
 		for(ScreenWarp s : screenWarp)
-			if (s.doesCharInteractWithMe(gs.chara)) {
+			if (s.doesCharInteractWithMe(chara)) {
 				betweenStages = true;
 				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.ID)];
 				stage = getScreenWarpStage(pos);
-				stage.reseter(gs.chara);
+				stage.reseter(chara);
 			}
 	}
 
@@ -234,7 +233,7 @@ public class Stage implements Utils {
 		reseter();
 		character.setX(spawnX);
 		character.setY(spawnY);
-		reStage(character);
+		reStage();
 	}
 
 	public void reseter(){
@@ -245,8 +244,8 @@ public class Stage implements Utils {
 		haveScreenWarpsBeenRendered = false;
 		hasFloorBeenRendered = false;
 		IDState = 0;
-		enemy = new ArrayList<>();
-		walls = new ArrayList<>();
+		enemy = new ArrayList<>(); Actor.flushActorListButCharacter();
+		walls = new ArrayList<>(); Wall.flushList();
 		floor = new ArrayList<>();
 		screenWarp = new ArrayList<>();
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
@@ -254,7 +253,7 @@ public class Stage implements Utils {
 		triggerOnStageChange();
 	}
 
-	public void reStage(Character character){}
+	public void reStage(){}
 
 	public Stage getScreenWarpStage(int pos){
 		return screenWarpDestination.get(pos);
@@ -262,6 +261,9 @@ public class Stage implements Utils {
 
 	public Enemy enemyClass(int x, int y, int enemyType){
 		switch (enemyType){
+			case -1:{
+				return new Dummy(globalSize() * x, globalSize() * y);
+			}
 			case 1:{
 				return new EvilGuy(globalSize() * x, globalSize() * y);
 			}

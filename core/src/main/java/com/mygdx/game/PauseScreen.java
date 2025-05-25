@@ -26,7 +26,7 @@ public class PauseScreen implements Screen, Utils {
 
 	@Override
 	public void render(float delta) {
-		ScreenUtils.clear(cC(120), cC(160), cC(175), 0);
+		ScreenUtils.clear(Utils.cC(120), Utils.cC(160), Utils.cC(175), 0);
 		mainClass.camara.fixedUpdater();
 		menuScreenBatch.begin();
 		font.draw(menuScreenBatch, "Test Game Pause Screen", Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);

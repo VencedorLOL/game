@@ -45,7 +45,7 @@ public class InputHandler {
 	}
 
 	public static void resetter(){
-		if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.G)){
+		/*if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.G)){
 			System.out.println(KeyboardFocusManager.getCurrentKeyboardFocusManager());
 			Method[] field = KeyboardFocusManager.getCurrentKeyboardFocusManager().getClass().getDeclaredMethods();
 
@@ -80,7 +80,7 @@ public class InputHandler {
 			i.setReleased(false);
 		if (!isOverridingEscAllowed() && escape.keyChar != 27)
 			escape.setKey(27);
-	}
+	*/}
 
 	public static boolean isActionPressed(byte action){
 		switch (action){

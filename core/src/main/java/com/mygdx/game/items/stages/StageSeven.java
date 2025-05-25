@@ -35,7 +35,7 @@ public class StageSeven extends Stage {
 
 
 	@Override
-	public void reStage(Character character){
+	public void reStage(){
 		screenWarpDestination.add(new StageFive());
 		screenWarpDestination.add(new StageSix());
 	}

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.mygdx.game.items.OnVariousScenarios;
 
 public class Settings {
 	static int animationSpeed = 1;
@@ -29,6 +30,12 @@ public class Settings {
 	// 3: on spacebar or if path was completed
 	static boolean fastMode;
 
+	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
+		@Override
+		public void onTickStart() {
+			onCycleStart();
+		}
+	};
 
 	public static boolean getFastMode() {return fastMode;}
 	public static void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
@@ -43,9 +50,7 @@ public class Settings {
 	public static boolean isDevMode(){
 		return DEV_MODE;
 	}
-	public static int globalSize(){
-		return GLOBAL_SIZE;
-	}
+	public static int globalSize() {return GLOBAL_SIZE; }
 	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
 	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
@@ -122,7 +127,7 @@ public class Settings {
 		return false;
 	}
 
-	public static void onCycleStart(){
+	private static void onCycleStart(){
 		touchedGate = true;
 	}
 

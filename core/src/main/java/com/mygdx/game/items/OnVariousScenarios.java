@@ -4,12 +4,13 @@ import java.util.ArrayList;
 
 public class OnVariousScenarios {
 
-	static ArrayList<OnVariousScenarios> onTurnPass = new ArrayList<>();
+	static ArrayList<OnVariousScenarios> onScenarios = new ArrayList<>();
 
 
 	public OnVariousScenarios(){
-		onTurnPass.add(this);
+		onScenarios.add(this);
 	}
+
 
 
 	public void onTurnPass(){
@@ -17,9 +18,10 @@ public class OnVariousScenarios {
 	}
 
 	public static void triggerOnTurnPass(){
-		for (OnVariousScenarios t : onTurnPass)
+		for (OnVariousScenarios t : onScenarios)
 			t.onTurnPass();
 	}
+
 
 
 	public void onStageChange(){
@@ -27,10 +29,18 @@ public class OnVariousScenarios {
 	}
 
 	public static void triggerOnStageChange(){
-		for (OnVariousScenarios t : onTurnPass)
+		for (OnVariousScenarios t : onScenarios)
 			t.onStageChange();
 	}
 
 
 
+	public void onTickStart(){
+		// yk what to do
+	}
+
+	public static void triggerOnTick(){
+		for (OnVariousScenarios t : onScenarios)
+			t.onTickStart();
+	}
 }

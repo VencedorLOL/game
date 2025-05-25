@@ -5,32 +5,71 @@ import com.mygdx.game.Utils;
 import java.util.*;
 
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.OnVariousScenarios.onTurnPass;
+import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
-import static com.mygdx.game.items.Stage.betweenStages;
 
-//TODO: Redid, but it still needs this:  method that returns true if a turn passed
-// (takes nº of  turn, compares it to this nº of turn, if not the same returns true)
 public class Turns implements Utils {
-	static boolean didTurnJustPass;
-	static long turnCount;
-	static ArrayList<ActorAndBoolean> finalizedToChoose = new ArrayList<>();
-	static int currentTurn;
+	private static boolean isTurnApproved;
+	private static long turnCount;
+	private static ArrayList<ActorAndBoolean> finalizedToChoose /*and ready to act!*/ = new ArrayList<>();
+	private static boolean canTurnFinish;
+	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
+		@Override
+		public void onStageChange() {
+			reset();
+		}
+	};
+	static List<ActorAndSpeed> listOfSpeeds = new ArrayList<>();
+	private static boolean willTurnRun = true;
+
+	static void reset(){
+		zero     = new ArrayList<>();
+		one      = new ArrayList<>();
+		two      = new ArrayList<>();
+		three    = new ArrayList<>();
+		four     = new ArrayList<>();
+		five     = new ArrayList<>();
+		six      = new ArrayList<>();
+		seven    = new ArrayList<>();
+		eight    = new ArrayList<>();
+		nine     = new ArrayList<>();
+		ten      = new ArrayList<>();
+		tenPlus  = new ArrayList<>();
+		canTurnFinish = false;
+		turnCount = 0;
+		finalizedToChoose = new ArrayList<>();
+		for (Actor a : actors){
+			a.setDidItAct(false);
+			a.permittedToAct = false;
+		}
+
+	}
+
+
+	public static void turnStop(){
+		willTurnRun = false;
+		reset();
+	}
+
+	public static void turnResume(){
+		reset();
+		willTurnRun = true;
+	}
 
 	// this is the best way of doing it, trust.
-	static ArrayList<ActorAndSpeed> zero     = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> one      = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> two      = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> three    = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> four     = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> five     = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> six      = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> seven    = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> eight    = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> nine     = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> ten      = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> tenPlus  = new ArrayList<>();
-	static ArrayList<ActorAndSpeed> finalList;
+	private static ArrayList<ActorAndSpeed> zero     = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> one      = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> two      = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> three    = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> four     = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> five     = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> six      = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> seven    = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> eight    = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> nine     = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> ten      = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> tenPlus  = new ArrayList<>();
+	private static ArrayList<ActorAndSpeed> finalList;
 
 
 	public static void actorsFinalizedChoosing(Actor actor){
@@ -48,95 +87,63 @@ public class Turns implements Utils {
 				numberOfTrueFinalizedChoosers++;
 		}
 		if (listOfActors.size() == numberOfTrueFinalizedChoosers)
-			print("aproveddadw");
+			print("aproveddadw. turn can start");
 
 		return listOfActors.size() == numberOfTrueFinalizedChoosers;
 	}
 
+	// cant believe how i overcomplicated this in the past lmfao and it didnt even work lmfaoo
 	public static boolean isDecidingWhatToDo(Actor entity){
-		boolean foundItself = false;
-		for (ActorAndBoolean f : finalizedToChoose){
-			if (!f.bool)
-				return true;
+		for (ActorAndBoolean f : finalizedToChoose)
 			if(f.actor == entity)
-				foundItself = true;
-		}
-		if (!foundItself)
-			finalizedToChoose.add(new ActorAndBoolean(false,entity));
+				return !f.bool;
+		finalizedToChoose.add(new ActorAndBoolean(false, entity));
 		return false;
 	}
 
 	public static long getTurnCount(){return turnCount;}
-	public static boolean getDidTurnJustPass(){return didTurnJustPass;}
 
-	public static void turnLogic2(ArrayList<Actor> listOfActors) {
-		if (betweenStages)
-			currentTurn = 0;
-		else if (checkForTurn(listOfActors)) {
-			print("stated tun");
-			didTurnJustPass = false;
-			List<ActorAndSpeed> listOfSpeeds = new ArrayList<>();
-			for (Actor e : listOfActors) {
-				if (e instanceof Enemy)
-					listOfSpeeds.add(new ActorAndSpeed(e.actingSpeed, e));
-				if (e instanceof Character)
-					listOfSpeeds.add(new ActorAndSpeed(((Character) e).character.attackSpeed, e));
-			}
-			refreshSpeedAddAndSort(listOfSpeeds);
-			act();
-			if (currentTurn >= listOfSpeeds.size() && !didTurnJustPass) {
-				didTurnJustPass = true;
-				turnCount++;
-				for (ActorAndBoolean f : finalizedToChoose) {
-					f.setBool(false);
+	public static void turnLogic() {
+		if (willTurnRun) {
+			if (isTurnApproved) {
+				listOfSpeeds = new ArrayList<>();
+				for (Actor e : actors) {
+					if (e instanceof Enemy)
+						listOfSpeeds.add(new ActorAndSpeed(e.actingSpeed, e));
+					if (e instanceof Character)
+						listOfSpeeds.add(new ActorAndSpeed(((Character) e).character.attackSpeed, e));
 				}
-				currentTurn = 0;
-				triggerOnTurnPass();
+				refreshSpeedAddAndSort(listOfSpeeds);
+				act();
+				if (canTurnFinish) {
+					canTurnFinish = false;
+					turnCount++;
+					for (ActorAndBoolean f : finalizedToChoose)
+						f.setBool(false);
+					for (ActorAndSpeed l : listOfSpeeds)
+						l.getActor().setDidItAct(false);
+					isTurnApproved = false;
+					triggerOnTurnPass();
+				}
+			} else if (checkForTurn(actors)) {
+				isTurnApproved = true;
 			}
 		}
 	}
 
 
 	private static void act(){
-		if(currentTurn != 0) {
-			if (!finalList.get(currentTurn - 1).getActor().isPermittedToAct()
-					&& !(currentTurn - 1 >= finalList.size())
-				&& finalList.get(currentTurn) != null) {
-
-				finalList.get(currentTurn).getActor().permitToMove();
-				print("let " + finalList.get(currentTurn).getActor() + " to act");
-				currentTurn++;
+		for (ActorAndSpeed a : finalList)
+			if (a.getActor().didItAct() && a.getActor().isPermittedToAct()) {
+				return;
 			}
-			else if (finalList.get(currentTurn).getActor().getIsDead())
-				currentTurn++;
-			else if (finalList.get(currentTurn) == null) {
-				printErr("|| ERROR ID: " + startAndEndErrorId() + " || CLASS: [Turns] |METHOD TYPE|: {static} |METHOD NAME|: {act()} %PACKAGE%: {items} ~ERRORTYPE~: Caught a null /finalList/ element.");
-				finalList.remove(currentTurn);
+		for (ActorAndSpeed a : finalList)
+			if (a.getActor() != null && !a.getActor().didItAct() && !a.getActor().getIsDead()) {
+				a.letAct();
+				return;
 			}
-			else if (finalList.get(currentTurn-1).getActor().isPermittedToAct()){
-				print("previous entity can still act. H O W");
-			}
-			else {
-				printErr("|| ERROR ID: " + startErrorId() + " || CLASS: [Turns] |METHOD TYPE|: {static} |METHOD NAME|: {act()} %PACKAGE%: {items} ~ERRORTYPE~: Caught a weird {finalList} element.");
-				printErr("|| ERROR ID: " + continueErrorId() + " /  {currentTurn}: "+currentTurn+" {finalList.size()}: "+finalList.size());
-				printErr("|| ERROR ID: " + continueErrorId() + " /  {finalList.get(currentTurn)}: "+finalList.get(currentTurn)+"  {finalList.get(currentTurn).getActor}: "+finalList.get(currentTurn).getActor()+" ||| END OF THE ERROR ID:" +endErrorId());
-			}
-		}
-		else {
-			if (!finalList.get(currentTurn).getActor().getIsDead()) {
-				finalList.get(currentTurn).getActor().permitToMove();
-				print("let " + finalList.get(currentTurn).getActor() + " to act");
-			}
-			currentTurn++;
-		}
+		canTurnFinish = true;
 	}
-
-
-
-
-
-
-
 
 
 
@@ -151,7 +158,7 @@ public class Turns implements Utils {
 	}
 
 	private static ActorAndBoolean valueSearcher(ArrayList<ActorAndBoolean> theListInQuestion, Entity theValueInQuestion){
-		for ( ActorAndBoolean l : theListInQuestion){
+		for (ActorAndBoolean l : theListInQuestion){
 			if(l.actor == theValueInQuestion)
 				return l;
 		}
@@ -167,33 +174,29 @@ public class Turns implements Utils {
 	}
 
 
-	public static class ActorAndSpeed {
+	private static class ActorAndSpeed {
 		Actor actor;
 		int speed;
 
-		public void setSpeed(int speed){
-			this.speed = speed;
-		}
-
-		public void setActor(Actor actor) {
-			this.actor = actor;
-		}
-
-		public int getSpeed() {
-			return speed;
-		}
-
-		public Actor getActor() {
-			return actor;
-		}
+		public void setSpeed(int speed){this.speed = speed;}
+		public void setActor(Actor actor) {this.actor = actor;}
+		public int getSpeed() {return speed;}
+		public Actor getActor() {return actor;}
 
 		public ActorAndSpeed(int speed, Actor actor){
 			setSpeed(speed);
 			setActor(actor);
 		}
+
+		public void letAct(){
+			if (!actor.didItAct()) {
+				actor.permitToMove();
+				actor.didItAct = true;
+			}
+		}
 	}
 
-	public static class ActorAndBoolean {
+	private static class ActorAndBoolean {
 		boolean bool;
 		Actor actor;
 
@@ -207,20 +210,27 @@ public class Turns implements Utils {
 
 	}
 
+
+
 	private static void refreshSpeedAddAndSort(List<ActorAndSpeed> listOfSpeeds){
-		zero    = new ArrayList<>();
-		one     = new ArrayList<>();
-		two     = new ArrayList<>();
-		three   = new ArrayList<>();
-		four    = new ArrayList<>();
-		five    = new ArrayList<>();
-		six     = new ArrayList<>();
-		seven   = new ArrayList<>();
-		eight   = new ArrayList<>();
-		nine    = new ArrayList<>();
-		ten     = new ArrayList<>();
-		tenPlus = new ArrayList<>();
-		for (ActorAndSpeed e : listOfSpeeds) {
+
+		ArrayList<ArrayList<ActorAndSpeed>> listOfLists = new ArrayList<>();
+		listOfLists.add(tenPlus);
+		listOfLists.add(ten);
+		listOfLists.add(nine);
+		listOfLists.add(eight);
+		listOfLists.add(seven);
+		listOfLists.add(six);
+		listOfLists.add(five);
+		listOfLists.add(four);
+		listOfLists.add(three);
+		listOfLists.add(two);
+		listOfLists.add(one);
+		listOfLists.add(zero);
+		//empty the lists
+		for (ArrayList<ActorAndSpeed> l : listOfLists)
+			l.clear();
+		for (ActorAndSpeed e : listOfSpeeds)
 			switch (e.actor.actingSpeed) {
 				case 0:  zero.add  (new ActorAndSpeed(e.speed, e.actor)); break;
 				case 1:  one.add   (new ActorAndSpeed(e.speed, e.actor)); break;
@@ -235,44 +245,14 @@ public class Turns implements Utils {
 				case 10: ten.add   (new ActorAndSpeed(e.speed, e.actor)); break;
 				default: if (e.actor.actingSpeed > 10) tenPlus.add(new ActorAndSpeed(e.speed, e.actor)); break;
 			}
-		}
 		//first shuffling to make the double speed ties random, then ordering. merging them in an easy-to-use arrlist
-		Collections.shuffle(zero);
-		Collections.shuffle(one);
-		Collections.shuffle(two);
-		Collections.shuffle(three);
-		Collections.shuffle(four);
-		Collections.shuffle(five);
-		Collections.shuffle(six);
-		Collections.shuffle(seven);
-		Collections.shuffle(eight);
-		Collections.shuffle(nine);
-		Collections.shuffle(ten);
-		Collections.shuffle(tenPlus);
-		zero.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		one.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		two.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		three.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		four.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		five.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		six.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		seven.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		eight.sort((o1, o2)   -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		nine.sort((o1, o2)    -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		ten.sort((o1, o2)     -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
-		tenPlus.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		for (ArrayList<ActorAndSpeed>  l : listOfLists) {
+			Collections.shuffle(l);
+			l.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+		}
 		finalList = new ArrayList<>(tenPlus);
-		finalList.addAll(ten);
-		finalList.addAll(nine);
-		finalList.addAll(eight);
-		finalList.addAll(seven);
-		finalList.addAll(six);
-		finalList.addAll(five);
-		finalList.addAll(four);
-		finalList.addAll(three);
-		finalList.addAll(two);
-		finalList.addAll(one);
-		finalList.addAll(zero);
-	}
+		for (ArrayList<ActorAndSpeed>  l : listOfLists)
+			finalList.addAll(l);
+	} //because of how i added all lists top to bottom to listOfLists, all lists' contents will pour in order of, first, actingSpeed, then speed, to finalList
 
 }

@@ -1,23 +1,30 @@
 package com.mygdx.game.items;
 
-public class Wall extends Entity{
+import java.util.ArrayList;
 
-    public boolean doesItHaveATexture = true;
-    public Wall(float x, float y, float base, float height) {
-        super("BoxToTestCollisionsAndHitboxes",x,y,base,height);
-        this.x = x;
-        this.y = y;
-        this.base = base;
-        this.height = height;
-        texture = "BoxToTestCollisionsAndHitboxes";
+import static com.mygdx.game.Settings.globalSize;
+
+//Extend any other wall texture to this one
+public class Wall extends Entity {
+
+    public static ArrayList<Wall> walls = new ArrayList<>();
+
+    public Wall(float x, float y) {
+        super("BoxToTestCollisionsAndHitboxes",x,y,globalSize(),globalSize());
+        refresh(x,y,globalSize(),globalSize());
+        walls.add(this);
     }
-    public Wall(float x, float y, float base, float height, boolean doesItHaveATexture) {
+
+    public Wall(float x, float y, float base, float height, boolean render) {
         super("BoxToTestCollisionsAndHitboxes",x,y,base,height);
-        this.x = x;
-        this.y = y;
-        this.base = base;
-        this.height = height;
-        this.doesItHaveATexture = false;
+        this.render = render;
+        walls.add(this);
+    }
+
+    public Wall(float x, float y,String texture) {
+        super(texture,x,y);
+        refresh(x,y,globalSize(),globalSize());
+        walls.add(this);
     }
 
     public void refresh(float x, float y, float base, float height){
@@ -26,6 +33,12 @@ public class Wall extends Entity{
         this.base = base;
         this.height = height;
     }
+
+    public static void flushList(){
+        walls.clear();
+    }
+
+
 }
 
 
