@@ -32,15 +32,4 @@ public class Dummy extends Enemy {
 		else if (canDecide())
 			actionDecided();
 	}
-
-
-	@Override
-	public void damage(float damage, String damageReason) {
-		super.damage(damage, damageReason);
-		int fontSize = 40;
-		text(""+damage,getX()
-					+(fontSize-(float) ((damage + "").toCharArray().length)+16-fontSize)/(fontSize*2)*globalSize()
-				// original: +(16-(float) ((damage + "").toCharArray().length))/32*globalSize()
-				, (float) (getY()+(globalSize()*1.3*min(max(fontSize/25,1),2))),200, TextureManager.Fonts.ComicSans,fontSize,255,0,0,1,100);
-	}
 }

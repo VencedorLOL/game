@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.betweenStages;
+import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
 
 public class Path {
 	Entity testCollision = new Entity();
@@ -60,7 +61,7 @@ public class Path {
 		return null;
 	}
 
-	public int[] getCurrentPathCoords(){
+	public int[] getPreviousPathCoords(){
 		int[] coords = new int[2];
 		if (currentNumberOfPaths != 0){
 			coords[0] = path.get(currentNumberOfPaths - 1).directionX;
@@ -70,6 +71,13 @@ public class Path {
 			coords[0] = path.get(0).directionX;
 			coords[1] = path.get(0).directionY;
 		}
+		return coords;
+	}
+
+	public int[] getCurrentPathCoords(){
+		int[] coords = new int[2];
+		coords[0] = path.get(currentNumberOfPaths).directionX;
+		coords[1] = path.get(currentNumberOfPaths).directionY;
 		return coords;
 	}
 
@@ -99,7 +107,7 @@ public class Path {
 	}
 
 
-	public boolean pathCreate(float x, float y, int speed, Stage stage, byte typeOfPath){
+	public boolean pathCreate(float x, float y, int speed, byte typeOfPath){
 		getStats(x, y, speed);
 
 		if (currentNumberOfPaths >= steps){
@@ -116,7 +124,7 @@ public class Path {
 				if (Gdx.input.isKeyJustPressed(Input.Keys.D))
 					temporalX = globalSize();
 
-				if (getCurrentPathCoords()[0] == temporalX && getCurrentPathCoords()[1] == temporalY){
+				if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY){
 					currentNumberOfPaths = 0;
 					return true;
 				}
@@ -181,7 +189,7 @@ public class Path {
 
 		testCollision.x = x + pathStep.directionX;
 		testCollision.y = y + pathStep.directionY;
-		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection()){
+		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection() && coordentatesInWalkableTile(testCollision.x,testCollision.y)){
 			currentNumberOfPaths++;
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;

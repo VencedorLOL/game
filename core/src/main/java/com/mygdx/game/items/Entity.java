@@ -25,6 +25,12 @@ public class Entity {
 		entityList.add(this);
 	}
 
+	public Entity(String texture, float x, float y,boolean render){
+		refresh(texture,x,y,globalSize(),globalSize());
+		this.render = render;
+		entityList.add(this);
+	}
+
 	public void refresh(String texture, float x, float y, float base, float height){
 		this.x       = x;
 		this.y       = y;

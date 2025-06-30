@@ -17,8 +17,10 @@ public class ScreenWarp {
 		IDState++;
 	}
 
-	public boolean doesCharInteractWithMe(Entity chara){
-		return x < chara.x + chara.base && x + base > chara.x && y < chara.y + chara.height && y + height > chara.y;
+	public boolean doesCharInteractWithMe(Character chara){
+		if (!chara.turnMode)
+			return x < chara.x + chara.base && x + base > chara.x && y < chara.y + chara.height && y + height > chara.y;
+		return chara.x == x && chara.y == y;
 	}
 
 

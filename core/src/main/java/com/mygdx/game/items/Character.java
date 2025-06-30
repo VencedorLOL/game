@@ -18,6 +18,8 @@ import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
 
+import java.util.HashSet;
+
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
@@ -34,11 +36,10 @@ public class Character extends Actor implements Utils {
 	// Used when the turn is being controlled by classes
 	public boolean hasAttacked;
 
-	public Vector3 attacksCoordinate;
+	public float[] attacksCoordinate = new float[2];
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
 	int[] attackDirection = new int[2];
-	boolean gridMode = true;
 	boolean willDoNormalTextureChange = true;
 
 	public Character(float x, float y, float base, float height) {
@@ -62,6 +63,7 @@ public class Character extends Actor implements Utils {
 				speedLeft[0] = 0;    speedLeft[1] = 0;
 				didItAct = false;
 				permittedToAct = false;
+				texture = "char";
 			}
 
 			@Override
@@ -92,8 +94,8 @@ public class Character extends Actor implements Utils {
 
 	protected void automatedMovement(){
 		if(touchDetect()){
-			lastClickX = flooredClick().x;
-			lastClickY = flooredClick().y;
+			lastClickX = roundedClick().x;
+			lastClickY = roundedClick().y;
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
@@ -115,7 +117,7 @@ public class Character extends Actor implements Utils {
 		speedLeft[1] = 0;
 		canDecide[0] = true;
 		spendTurn();
-		attacksCoordinate = null;
+		attacksCoordinate  = new float[2];
 		attackDirection[0] = 0;
 		attackDirection[1] = 0;
 	}
@@ -158,12 +160,9 @@ public class Character extends Actor implements Utils {
 	public void attack(){
 		testCollision.x = x;
 		testCollision.y = y;
-		if (isPermittedToAct()) {
-			if (!path.pathEnded){
-				attackDetector();
-			}
+		if (isPermittedToAct())
+			attackDetector();
 
-		}
 		else if (canDecide() && isDecidingWhatToDo(this))
 			attackInput();
 
@@ -172,32 +171,74 @@ public class Character extends Actor implements Utils {
 
 
 	private void attackDetector(){
-		attackDirection = path.pathProcess(this);
-		for (Actor e : stage.enemy)
-			if (path.getCurrentPathCoords()[0] == e.x && path.getCurrentPathCoords()[1] == e.y){
+		print ("current pos is of: " + x + " " + y);
+		print("current direcction is of ");
+		HashSet<Enemy> list = rayCasting(x,y,attacksCoordinate[0],attacksCoordinate[1],null,false);
+		if (list != null)
+			for(Enemy e : list) {
+				print("damaged");
 				e.damage(character.outgoingDamage(), "Melee");
 				numberOfHits++;
-				if (!character.pierces){
+				if (!character.pierces) {
 					path.pathEnded = true;
 					finalizedAttack();
 					return;
 				}
 			}
-		if (path.pathEnded) {
+		else
 			finalizedAttack();
-			return;
-		}
-		attackDetector();
 	}
 
-	protected void attackInput(){
-		Tile.Circle circle = new Tile.Circle(stage.findATile(x,y),stage.tileset, character.range); 
+	Entity targetsTarget = new Entity("default",x,y,false);
+	TextureManager.Animation target;
+	Tile.Circle circle;
+	protected void attackInput() {
+		targetProcesor();
+		if(Gdx.input.isTouched()) {
+			Vector3 temporal = roundedClick();
+			if (circle.findATile(temporal.x,temporal.y) != null) {
+				attacksCoordinate[0] = temporal.x;
+				attacksCoordinate[1] = temporal.y;
+				canDecide = new boolean[]{false, false};
+				thisTurnVSM = getVisualSpeedMultiplier();
+				actionDecided();
+			}
+		}
 	}
+
+
+
+
+	private void targetProcesor(){
+		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != character.range || !circle.walkable) {
+			if (circle != null)
+				for (Tile t : circle.circle)
+					t.texture.setSecondaryTexture(null);
+			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, character.range, true);
+
+		}
+		if (circle.isInsideOfCircle(roundedClick().x, roundedClick().y)) {
+			targetsTarget.x = roundedClick().x;
+			targetsTarget.y = roundedClick().y;
+			if (target == null) {
+				target = new TextureManager.Animation("target", targetsTarget);
+				animations.add(target);
+			}
+			if (target.finished){
+				target = new TextureManager.Animation("target", targetsTarget);
+				animations.add(target);
+			}
+		} else {
+			animations.remove(target);
+			target = null;
+		}
+	}
+
 
 	private void automatedAttack(){
 		if(touchDetect()){
-			lastClickX = flooredClick().x;
-			lastClickY = flooredClick().y;
+			lastClickX = roundedClick().x;
+			lastClickY = roundedClick().y;
 			pathFinding();
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
@@ -206,7 +247,14 @@ public class Character extends Actor implements Utils {
 	}
 
 
-
+	public void cancelAttackMode(){
+		if (circle != null)
+			for (Tile t : circle.circle)
+				t.texture.setSecondaryTexture(null);
+		circle = null;
+		animations.remove(target);
+		target = null;
+	}
 
 
 
@@ -385,6 +433,8 @@ public class Character extends Actor implements Utils {
 				attackMode = !attackMode;
 				path.pathReset();
 				print("attackMode is now: " + attackMode);
+				if (!attackMode)
+					cancelAttackMode();
 			}
 		}
 
@@ -430,14 +480,6 @@ public class Character extends Actor implements Utils {
 			});
 			//	Camara.attach(animations.get(0));
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
-			animations.add(new TextureManager.Animation("target",this){
-				public void onFinish(){
-					newTarget(true);
-				}
-			});
-		}
-
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
 			quickPlay("test1");
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
@@ -461,22 +503,12 @@ public class Character extends Actor implements Utils {
 				a.damage(1000,"God Damage");
 			}
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
+			print(stage+"");
+		}
 		changeTo();
-		newTarget(false);
 	}
 
-	boolean bool;
-	public void newTarget(boolean bool){
-		if (bool)
-			this.bool = true;
-		else if (this.bool) {
-			animations.add(new TextureManager.Animation("target", this) {
-				public void onFinish() {
-					newTarget(true);
-				}
-			});
-			this.bool = false;
-		}
-	}
+
 
 }

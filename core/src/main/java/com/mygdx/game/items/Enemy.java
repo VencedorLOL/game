@@ -11,9 +11,9 @@ import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
+import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static java.lang.Math.ceil;
-import static java.lang.Math.max;
+import static java.lang.Math.*;
 
 public class Enemy extends Actor{
 	public byte speed = 3;
@@ -30,6 +30,20 @@ public class Enemy extends Actor{
 	OnVariousScenarios oVE2;
 
 	public static ArrayList<Enemy> enemies = new ArrayList<>();
+
+
+	static{
+		OnVariousScenarios oVE3 = new OnVariousScenarios(){
+			@Override
+			public void onStageChange() {
+				enemies.clear();
+			}
+		};
+	}
+
+
+
+
 
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
@@ -176,11 +190,18 @@ public class Enemy extends Actor{
 	}
 
 	public void damage(float damage, String damageReason){
-		health = health - max(damage - defense,0);
-		if (Objects.equals(damageReason, "Melee")){
+		float damagedFor = max(damage - defense,0);
+		health -= damagedFor;
+		if (Objects.equals(damageReason, "Melee") && damagedFor != 0){
 		pm.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
 		}
+		int fontSize = 40;
+		text(""+(damagedFor > 0 ? damagedFor : "0"),getX()
+						+(fontSize-(float) (damagedFor > 0 ? (damagedFor + "").toCharArray().length - 1 : 1)/(fontSize*2*globalSize()))
+				// original: +(16-(float) ((damagedFor + "").toCharArray().length))/32*globalSize()
+				, (float) (getY()+(globalSize()*1.3*min(max(fontSize/25,1),2))),200, TextureManager.Fonts.ComicSans,fontSize, damagedFor == 0 ? 125 : 255, damagedFor == 0 ? 125 : 0, damagedFor == 0 ? 125 : 0,1,50);
 		print("remaining health is: " + health);
+		printErr("damaged for " + damagedFor + " damage");
 
 	}
 

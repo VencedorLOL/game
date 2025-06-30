@@ -2,7 +2,9 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -12,8 +14,8 @@ public class Tile implements Cloneable {
 	public int ID;
 	public static int IDState = 0;
 	Floor texture;
-	//for pathfinding
 	boolean walkable;
+	//for pathfinding
 	boolean closed;
 	boolean opened;
 	public float h,g,n,f;
@@ -23,6 +25,7 @@ public class Tile implements Cloneable {
 		return parent;
 	}
 
+	//IF "checkIfWalkable() constructor used, ENSURE walls got setted already
 	public Tile(float x, float y, Floor texture){
 		this.x = x;
 		this.y = y;
@@ -31,7 +34,9 @@ public class Tile implements Cloneable {
 		this.texture = texture;
 		ID = IDState + 1;
 		walkable = true;
+		checkIfWalkable();
 	}
+
 
 	public Tile(float x, float y, float base, float height, Floor texture){
 		this.x = x;
@@ -40,7 +45,7 @@ public class Tile implements Cloneable {
 		this.height = height;
 		this.texture = texture;
 		ID = IDState + 1;
-		walkable = true;
+		checkIfWalkable();
 	}
 
 	// Pathfinding specials
@@ -117,36 +122,21 @@ public class Tile implements Cloneable {
 	}
 
 
+	public void checkIfWalkable(){
+		for (Wall w : stage.walls)
+			if (w.x == x && w.y == y) {
+				print("tile at " + x + " " + y + " wasnt walkable because of wall at " + w.x + " " + w.y + " called " + w);
+				walkable = false;
+				break;
+			}
+	}
 
-
-
-	/* Circle edges:
-	Missing LU, U, RU: 0  ┬
-	Missing U, RU, R: 1   ┐
-	Missing RU, R, RD: 2   ┤
-	Missing R, RD, D: 3   ┘
-	Missing RD, D, DL: 4  ┴
-	Missing D, DL, L: 5   └
-	Missing DL, L, LU: 6  ├
-	Missing L, LU, U: 7   ┌
-
-	Position of these shapes in a "circle", for further understanding:
-
-	┌	┬	┐
-
-	├		┤
-
-	└	┴	┘
-
-
-	Missing: RU: 8
-	Missing: RD: 9
-	Missing: DL: 10
-	Missing: LU: 11
-
-
-
-	*/
+	public static boolean coordentatesInWalkableTile(float x, float y){
+		for (Tile t : stage.tileset)
+			if (t.x == x && t.y == y)
+				return t.walkable;
+		return false;
+	}
 
 
 
@@ -179,14 +169,36 @@ public class Tile implements Cloneable {
 		ArrayList<Tile> tileset;
 		float radius;
 		Tile center;
+		boolean walkable;
 
-		public Circle(Tile center, ArrayList<Tile> tileset, float radius){
+		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable){
 			this.center = center;
 			this.radius = radius;
 			this.tileset = tileset;
+			this.walkable = checkWalkable;
+			if (checkWalkable)
+				checkWalkable();
 			circle = circle();
 			circleSpecial = detectCornersOfCircle(circle);
 			tileTexturer();
+		}
+
+		public Tile findATile(float x, float y){
+			for (Tile t : circle){
+				if (t.x() == x && t.y() == y)
+					return t;
+			}
+			return null;
+		}
+
+
+		public void checkWalkable(){
+			for (Tile t : tileset) {
+				t.checkIfWalkable();
+				if (!t.walkable){
+				print("not walkalb at: " + t.x + " " + t.y);
+				}
+			}
 		}
 
 		public ArrayList<Tile> circle(){return circle(center, tileset,radius);}
@@ -194,7 +206,7 @@ public class Tile implements Cloneable {
 		public ArrayList<Tile> circle(Tile center, ArrayList<Tile> tileset, float radius){
 			radius += 0.5f;
 			for (Tile t : center.orthogonalTiles(tileset)) {
-				if (center.relativeModuleTo(t) <= radius)
+				if (center.relativeModuleTo(t) <= radius && (!walkable || t.walkable))
 					circle.add(t);
 			}
 			// +3 jst to be safe
@@ -204,7 +216,7 @@ public class Tile implements Cloneable {
 				ArrayList<Tile> avoidConcurrentModification = new ArrayList<>();
 				for(Tile t : circle){
 					for (Tile tt : t.orthogonalTiles(tileset)) {
-						if (center.relativeModuleTo(tt) <= radius && !tt.isTileAlreadyInList(circle) && !tt.isTileAlreadyInList(avoidConcurrentModification)) {
+						if (center.relativeModuleTo(tt) <= radius && !tt.isTileAlreadyInList(circle) && !tt.isTileAlreadyInList(avoidConcurrentModification) && (!walkable || tt.walkable)) {
 							addedATileThisLoop++;
 							avoidConcurrentModification.add(tt);
 						}
@@ -311,10 +323,42 @@ public class Tile implements Cloneable {
 		}*/
 
 
+		public boolean isInsideOfCircle(float x, float y){
+			for (Tile t : circle)
+				if (t.x == x && t.y == y)
+					return true;
+			return false;
+		}
 
 
 
+	/* Circle edges:
+	Missing LU, U, RU: 0  ┬
+	Missing U, RU, R: 1   ┐
+	Missing RU, R, RD: 2   ┤
+	Missing R, RD, D: 3   ┘
+	Missing RD, D, DL: 4  ┴
+	Missing D, DL, L: 5   └
+	Missing DL, L, LU: 6  ├
+	Missing L, LU, U: 7   ┌
 
+	Position of these shapes in a "circle", for further understanding:
+
+	┌	┬	┐
+
+	├		┤
+
+	└	┴	┘
+
+
+	Missing: RU: 8
+	Missing: RD: 9
+	Missing: DL: 10
+	Missing: LU: 11
+
+
+
+	*/
 
 
 	}

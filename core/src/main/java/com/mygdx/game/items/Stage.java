@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
@@ -172,6 +173,7 @@ public class Stage implements Utils {
 	public void wallRenderer(){
 		if (!haveWallsBeenRendered){
 			wallSetter();
+			haveWallsBeenRendered = true;
 		}
 		for (Wall b : walls)
 			b.render();
@@ -180,11 +182,18 @@ public class Stage implements Utils {
 	public void stageRenderer(GameScreen gs, Stage stage){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
+			enemy.clear();
+			walls.clear();
+			tileset.clear();
+			screenWarp.clear();
+			wallSetter();
 			tilesetSetter(this);
 			enemySetter();
 			screenWarpSetter();
-			wallSetter();
 			betweenStages = false;
+			print("enemy list ruccently s: ");
+			for (Enemy e : enemies)
+				print(e+"");
 
 		}
 		else {
@@ -194,8 +203,8 @@ public class Stage implements Utils {
 			camaraHeight = Camara.height;
 			tilesetRenderer();
 			enemyRenderer(stage, gs.particle);
-			screenWarpRenderer();
 			wallRenderer();
+			screenWarpRenderer();
 			border.border(chara, this);
 			border.border(this);
 			screenWarpTrigger();
@@ -205,10 +214,10 @@ public class Stage implements Utils {
 	public void stageRenderer(Stage stage, TextureManager tm){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
+			wallSetter();
 			tilesetSetter(this);
 			enemySetter();
 			screenWarpSetter();
-			wallSetter();
 			betweenStages = false;
 
 		}

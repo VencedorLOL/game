@@ -18,9 +18,9 @@ public class StageThree extends Stage {
 	public int[] wallX = {1,1,1,1,3,3,3,3,2};
 	public int[] wallY = {1,2,3,4,1,2,3,4,4};
 	public int[] wallType = {1,1,1,1,1,1,1,1,1};
-	public int[] enemyX = {2};
-	public int[] enemyY = {2};
-	public int[] enemyType = {-1};
+	public int[] enemyX = {2,1};
+	public int[] enemyY = {2,5};
+	public int[] enemyType = {-1,-1};
 	public int[] screenWarpX = {2};
 	public int[] screenWarpY = {8};
 	public byte[] screenWarpDestinationSpecification = {0};

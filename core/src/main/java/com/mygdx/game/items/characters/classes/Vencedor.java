@@ -61,8 +61,8 @@ public class Vencedor extends CharacterClasses {
 		if (attackMode){
 			addToFixatedList("AttackMode",1F,1f);
 			if (touchDetect()) {
-				float x = flooredClick().x;
-				float y = flooredClick().y;
+				float x = roundedClick().x;
+				float y = roundedClick().y;
 				for (VenceSword v : venceSwordArray){
 					if (x == v.getX() && y == v.getY()) {
 						controlVenceSwordMode = !controlVenceSwordMode;

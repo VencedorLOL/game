@@ -354,7 +354,7 @@ public class TextureManager {
 			if (line < code.size()) {
 				boolean didRunCode = false;
 				String reader = code.get(line);
-				print("Line at " + line + " was: " + reader);
+			//	print("Line at " + line + " was: " + reader);
 				if (reader.contains("<") && reader.contains(">")) {
 					didRunCode = true;
 					String opacityString = reader.substring(reader.indexOf("<") + 1, reader.indexOf(">"));

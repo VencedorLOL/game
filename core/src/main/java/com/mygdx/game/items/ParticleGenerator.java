@@ -73,11 +73,11 @@ public class ParticleGenerator {
 	}
 
 	public enum ParticleList{
-		OP ("Particles\\opathFindAlgorithm.pathFindAlgorithm"),
-		ATTACK ("Particles\\attack.pathFindAlgorithm"),
-		PARTICLE ("Particles\\particle.pathFindAlgorithm"),
-		CANON ("Particles\\canon.pathFindAlgorithm"),
-		BLOB ("Particles\\blob.pathFindAlgorithm")
+		OP ("Particles\\opathFindAlgorithm.p"),
+		ATTACK ("Particles\\attack.p"),
+		PARTICLE ("Particles\\particle.p"),
+		CANON ("Particles\\canon.p"),
+		BLOB ("Particles\\blob.p")
 		;
 
 		public final String path;
