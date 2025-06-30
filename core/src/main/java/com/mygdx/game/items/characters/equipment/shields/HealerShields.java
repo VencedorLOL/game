@@ -19,7 +19,7 @@ public class HealerShields extends Shields{
 
 
 	public static class BlessedShield extends HealerShields {
-		public static String shieldName = "BlessedShields";
+		public static String shieldName = "BlessedShield";
 		public static float shieldHealth = 30;
 		public static float shieldDamage = 0;
 		public static byte shieldSpeed = 0;

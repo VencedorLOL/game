@@ -18,6 +18,7 @@ import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.mygdx.game.GameScreen.stage;
@@ -33,14 +34,12 @@ public class Character extends Actor implements Utils {
 
 	OnVariousScenarios oVS2;
 
-	// Used when the turn is being controlled by classes
-	public boolean hasAttacked;
-
-	public float[] attacksCoordinate = new float[2];
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
 	int[] attackDirection = new int[2];
 	boolean willDoNormalTextureChange = true;
+
+	ArrayList<Attack> attacks = new ArrayList<>();
 
 	public Character(float x, float y, float base, float height) {
 		super("char",x,y,base,height);
@@ -72,7 +71,7 @@ public class Character extends Actor implements Utils {
 			}
 		};
 		team = 1;
-		character = new Classless(this);
+		character = new Classless();
 		path = new Path(x,y,character.speed,stage);
 	}
 
@@ -104,8 +103,6 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-
-
 	public void finalizedAttack(){
 		if (numberOfHits == 0)
 			print("Hit nothing!");
@@ -113,13 +110,14 @@ public class Character extends Actor implements Utils {
 			print("Hit " + numberOfHits + " times!");
 		else
 			print("Hit 1 time!");
-		speedLeft[0] = 0;
-		speedLeft[1] = 0;
-		canDecide[0] = true;
-		spendTurn();
-		attacksCoordinate  = new float[2];
-		attackDirection[0] = 0;
-		attackDirection[1] = 0;
+			speedLeft[0] = 0;
+			speedLeft[1] = 0;
+			canDecide[0] = true;
+			attackDirection[0] = 0;
+			attackDirection[1] = 0;
+			attacks.clear();
+			spendTurn();
+
 	}
 
 	private void pathFinding(){
@@ -134,7 +132,7 @@ public class Character extends Actor implements Utils {
 
 
 
-	public void update(Stage stage, GameScreen cam){
+	public void update(GameScreen cam){
 		character.update();
 		speed = character.speed;
 		actingSpeed = character.attackSpeed;
@@ -171,22 +169,17 @@ public class Character extends Actor implements Utils {
 
 
 	private void attackDetector(){
-		print ("current pos is of: " + x + " " + y);
-		print("current direcction is of ");
-		HashSet<Enemy> list = rayCasting(x,y,attacksCoordinate[0],attacksCoordinate[1],null,false);
-		if (list != null)
-			for(Enemy e : list) {
-				print("damaged");
-				e.damage(character.outgoingDamage(), "Melee");
-				numberOfHits++;
-				if (!character.pierces) {
-					path.pathEnded = true;
-					finalizedAttack();
-					return;
+		for (Attack a : attacks) {
+			HashSet<Enemy> list = rayCasting(x, y, a.targetX, a.targetY, null, false);
+			if (list != null)
+				for (Enemy e : list) {
+					e.damage(character.outgoingDamage(), "Melee");
+					numberOfHits++;
+					if (!character.pierces)
+						break;
 				}
-			}
-		else
-			finalizedAttack();
+		}
+		finalizedAttack();
 	}
 
 	Entity targetsTarget = new Entity("default",x,y,false);
@@ -194,21 +187,38 @@ public class Character extends Actor implements Utils {
 	Tile.Circle circle;
 	protected void attackInput() {
 		targetProcesor();
-		if(Gdx.input.isTouched()) {
+		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
-				attacksCoordinate[0] = temporal.x;
-				attacksCoordinate[1] = temporal.y;
+				attacks.add(new Attack(temporal.x, temporal.y));
 				canDecide = new boolean[]{false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
-				actionDecided();
+				if (!character.onAttackDecided())
+					actionDecided();
 			}
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
+				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
+				canDecide = new boolean[]{false, false};
+				thisTurnVSM = getVisualSpeedMultiplier();
+				if (!character.onAttackDecided())
+					actionDecided();
+			}
+		}
+	}
+
+	public static class Attack{
+		float targetX, targetY;
+		public Attack(float x, float y){
+			targetX = x; targetY = y;
 		}
 	}
 
 
 
-
+	boolean mouseMoved;
+	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	private void targetProcesor(){
 		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != character.range || !circle.walkable) {
 			if (circle != null)
@@ -217,33 +227,55 @@ public class Character extends Actor implements Utils {
 			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, character.range, true);
 
 		}
-		if (circle.isInsideOfCircle(roundedClick().x, roundedClick().y)) {
-			targetsTarget.x = roundedClick().x;
-			targetsTarget.y = roundedClick().y;
-			if (target == null) {
-				target = new TextureManager.Animation("target", targetsTarget);
-				animations.add(target);
+		Vector3 temporal = roundedClick();
+		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
+		if (Gdx.input.justTouched())
+			mouseMoved = true;
+		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
+		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
+
+			if (!mouseMoved)
+				targetKeyboardMovement();
+
+			if (!circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y) || mouseMoved) {
+				targetsTarget.x = roundedClick().x;
+				targetsTarget.y = roundedClick().y;
 			}
-			if (target.finished){
-				target = new TextureManager.Animation("target", targetsTarget);
-				animations.add(target);
-			}
+
+			targetRender();
+
+		} else if (!mouseMoved){
+			targetKeyboardMovement();
+			if (!(targetsTarget.x == x && targetsTarget.y == y))
+				targetRender();
 		} else {
 			animations.remove(target);
 			target = null;
+			targetsTarget.x = x;
+			targetsTarget.y = y;
 		}
 	}
 
+	private void targetRender(){
+		if (target == null) {
+			target = new TextureManager.Animation("target", targetsTarget);
+			animations.add(target);
+		}
+		if (target.finished){
+			target = new TextureManager.Animation("target", targetsTarget);
+			animations.add(target);
+		}
+	}
 
-	private void automatedAttack(){
-		if(touchDetect()){
-			lastClickX = roundedClick().x;
-			lastClickY = roundedClick().y;
-			pathFinding();
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
-			pathFinding();
-		}
+	private void targetKeyboardMovement(){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.W) && circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y + globalSize()))
+			targetsTarget.y += globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.A) && circle.isInsideOfCircle(targetsTarget.x - globalSize(),targetsTarget.y))
+			targetsTarget.x -= globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.S) && circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y - globalSize()))
+			targetsTarget.y -= globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.D) && circle.isInsideOfCircle(targetsTarget.x + globalSize(), targetsTarget.y))
+			targetsTarget.x += globalSize();
 	}
 
 
@@ -259,7 +291,6 @@ public class Character extends Actor implements Utils {
 
 
 
-	boolean didntRunMovementMethodYetEver = true;
 
 	//FIXME: revisit when proper key handlin
 	public void movementInputManual(){
@@ -314,7 +345,9 @@ public class Character extends Actor implements Utils {
 			print(textureOrientation +"");
 	}
 
-
+	public void damage(float damage, String damageReason){
+		character.damage(damage);
+	}
 
 
 	public void onDeath(){
@@ -340,19 +373,19 @@ public class Character extends Actor implements Utils {
 
 	public void changeToHealer(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-			character = new Healer(this);
+			character = new Healer();
 		}
 	}
 
 	public void changeToMelee(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			character = new Melee(this);
+			character = new Melee();
 		}
 	}
 
 	public void changeToVencedor(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
-			character = new Vencedor(this);
+			character = new Vencedor();
 		}
 	}
 
@@ -417,6 +450,7 @@ public class Character extends Actor implements Utils {
 			print("Class: " + character.name);
 			print("Current health: " + character.currentHealth);
 			print("Texture" + texture);
+			print("mouse moved? " + mouseMoved);
 		}
 
 		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
@@ -435,6 +469,7 @@ public class Character extends Actor implements Utils {
 				print("attackMode is now: " + attackMode);
 				if (!attackMode)
 					cancelAttackMode();
+				mouseMoved = true;
 			}
 		}
 
@@ -507,6 +542,9 @@ public class Character extends Actor implements Utils {
 			print(stage+"");
 		}
 		changeTo();
+		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+			damage(20,"SelfDamage");
+		}
 	}
 
 

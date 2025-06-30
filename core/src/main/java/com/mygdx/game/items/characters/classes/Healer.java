@@ -1,6 +1,7 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.Utils;
+import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
@@ -26,12 +27,12 @@ public class Healer extends CharacterClasses implements Utils {
 	public static float magicHealing = 0;
 	public static float aggro = 1;
 
-	public float healingFromAbility = 4;
+	public float healingFromAbility = 1.2f;
 
 	public boolean hasHealedInThisTurn = false;
 
-	public Healer(Character character){
-		super(character,name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
+	public Healer(){
+		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
 				magicDamage,manaPerTurn,manaPerUse,magicHealing,aggro);
 	}
 
@@ -39,31 +40,24 @@ public class Healer extends CharacterClasses implements Utils {
 	public float outgoingDamage(){
 		float damage = totalDamage / 2;
 		currentHealth += damage * healingFromAbility * Utils.pickValueAUnlessEqualsZeroThenPickB(
-				weaponHealingAbilityBonus(this),1);
+				weaponHealingAbilityBonus(),1);
 		return damage;
 	}
 
-	public float shieldAbilityHealing(CharacterClasses characterClasses)  {
-		if(characterClasses.shield instanceof HealerShields)
-			return ((HealerShields) characterClasses.shield).shieldHealingPerTurn;
+	public float shieldAbilityHealing()  {
+		if(shield instanceof HealerShields)
+			return ((HealerShields) shield).shieldHealingPerTurn;
 		return 0;
 	}
 
-	public float weaponHealingAbilityBonus(CharacterClasses characterClasses){
-		if (characterClasses.weapon instanceof HealerWeapons)
-			return ((HealerWeapons) characterClasses.weapon).weaponHealingAbilityBonus;
+	public float weaponHealingAbilityBonus(){
+		if (weapon instanceof HealerWeapons)
+			return ((HealerWeapons) weapon).weaponHealingAbilityBonus;
 		return 0;
 	}
 
-	@Override
-	public void updateOverridable(){
-		if (character.canDecide[0] && character.canDecide[1] && !hasHealedInThisTurn){
-			currentHealth += shieldAbilityHealing(this);
-			hasHealedInThisTurn = true;
-		}
-		if (!character.canDecide[0] && !character.canDecide[1] && hasHealedInThisTurn) {
-			hasHealedInThisTurn = false;
-		}
+	public void turnHasPassed() {
+		currentHealth += shieldAbilityHealing();
 	}
 
 }

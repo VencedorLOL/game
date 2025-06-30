@@ -48,7 +48,7 @@ public class ClickDetector implements Utils {
 	public static HashSet<Enemy> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Entity> entityToIgnore, boolean pierces) {
 		print("started RayCasting");
 		HashSet<Enemy> piercesEnemyArrayOfTargets = new HashSet<>();
-		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize,pierces);
+		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
 //		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
 //		Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1,pierces);
 //		Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + globalSize() - 1,pierces);
@@ -60,80 +60,80 @@ public class ClickDetector implements Utils {
 //		rayCheckerList.add(rayCheckerUpLeft);
 //		rayCheckerList.add(rayCheckerUpRight);
 
-				float rect = ((toY + halfSize) - (fromY + halfSize)) / ((toX + halfSize) - (fromX + halfSize));
-				int sign = 1;
-				if (toX < fromX)
-					sign = -1;
-				if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
-					sign = 0;
-				for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(toX - fromX), abs(toY - fromY)); i++) {
-					for (Entity r : rayCheckerList)
-						r.x += sign;
-					if (sign != 0) {
-						for (Entity r : rayCheckerList)
-							r.y += rect * sign;
+		float rect = ((toY + halfSize) - (fromY + halfSize)) / ((toX + halfSize) - (fromX + halfSize));
 
-					} else if (rect == POSITIVE_INFINITY) {
-						for (Entity r : rayCheckerList)
-							r.y++;
+		int sign = 1;
+		if (toX < fromX)
+			sign = -1;
+		if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
+			sign = 0;
 
-					} else if (rect == NEGATIVE_INFINITY) {
-						for (Entity r : rayCheckerList)
-							r.y--;
-					}
-					for(Ray r: rayCheckerList)
-						r.wallRayCheck();
+		for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(toX - fromX), abs(toY - fromY)); i++) {
+			for (Entity r : rayCheckerList)
+				r.x += sign;
+			if (sign != 0) {
+				for (Entity r : rayCheckerList)
+					r.y += rect * sign;
 
-					if((rayCheckerCenter.timesRayTouchedWall /* + rayCheckerUpLeft.timesRayTouchedWall +
+			} else if (rect == POSITIVE_INFINITY) {
+				for (Entity r : rayCheckerList)
+					r.y++;
+
+			} else if (rect == NEGATIVE_INFINITY) {
+				for (Entity r : rayCheckerList)
+					r.y--;
+			}
+			for (Ray r : rayCheckerList)
+				r.wallRayCheck();
+
+			if ((rayCheckerCenter.timesRayTouchedWall /* + rayCheckerUpLeft.timesRayTouchedWall +
 							//rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
-							/*rayCheckerDownRight.timesRayTouchedWall*/) >= globalSize()/2.5)
-						return null;
+							/*rayCheckerDownRight.timesRayTouchedWall*/) >= globalSize() / 2.5)
+				return null;
 
-					for (Ray r : rayCheckerList){
-						if (r.x == toX && r.y == toY) {
-							if (!r.getEnemiesThatGotHit().isEmpty())
-								for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-									if (en.getTimesTheRayTouchedTheEnemy() >= globalSize()/4) {
-										HashSet<Enemy> temporal = new HashSet<>();
-										temporal.add(en.getEnemy());
-										print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
-										return temporal;
-									}
-							return null;
-						}
-					}
-
-					if(isDevMode())
-						for (Entity r : rayCheckerList)
-							r.render();
-
-
-
-					if (pierces)
-						for (Ray r: rayCheckerList) {
-							print("returned pierces.size of list is of: " + piercesEnemyArrayOfTargets.size());
-							for (EnemyAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)){
-								piercesEnemyArrayOfTargets.add(en.getEnemy());
+			for (Ray r : rayCheckerList) {
+				if (r.x == toX + halfSize && r.y == toY + halfSize) {
+					if (!r.getEnemiesThatGotHit().isEmpty())
+						for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheEnemy() >= globalSize() / 4) {
+								HashSet<Enemy> temporal = new HashSet<>();
+								temporal.add(en.getEnemy());
+								print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
+								return temporal;
 							}
-						}
-					else
-						for(Ray r: rayCheckerList) {
-							r.enemyRayCheck(entityToIgnore);
-							if (!r.getEnemiesThatGotHit().isEmpty())
-								for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-									if (en.getTimesTheRayTouchedTheEnemy() >= globalSize()/4) {
-										HashSet<Enemy> temporal = new HashSet<>();
-										temporal.add(en.getEnemy());
-										print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
-										return temporal;
-									}
-						}
-
-
-
+					return null;
 				}
-				if (!piercesEnemyArrayOfTargets.isEmpty())
-					return piercesEnemyArrayOfTargets;
+			}
+
+			if (isDevMode())
+				for (Entity r : rayCheckerList)
+					r.render();
+
+
+			if (pierces)
+				for (Ray r : rayCheckerList) {
+					print("returned pierces.size of list is of: " + piercesEnemyArrayOfTargets.size());
+					for (EnemyAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)) {
+						piercesEnemyArrayOfTargets.add(en.getEnemy());
+					}
+				}
+			else
+				for (Ray r : rayCheckerList) {
+					r.enemyRayCheck(entityToIgnore);
+					if (!r.getEnemiesThatGotHit().isEmpty())
+						for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheEnemy() >= globalSize() / 4) {
+								HashSet<Enemy> temporal = new HashSet<>();
+								temporal.add(en.getEnemy());
+								print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
+								return temporal;
+							}
+				}
+
+
+		}
+		if (!piercesEnemyArrayOfTargets.isEmpty())
+			return piercesEnemyArrayOfTargets;
 
 		return null;
 

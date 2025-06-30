@@ -86,13 +86,9 @@ public class TextureManager {
 
 
 	private void fixatedScreenDrawer(String texture,float xPercentage, float yPercentage, float xOffset, float yOffset, float opacity){
-		region = atlas.findRegion(texture);
-		sprite = new Sprite(region);
-		sprite.setAlpha(opacity);
 		//if percentages are >1 || <-1 'll go offscreen. 0/0 is the center of the screen.
-		sprite.setPosition( xPercentage * Camara.getBase() + xOffset + Camara.getX(),
- 				Camara.getY() + yPercentage * Camara.getHeight() + yOffset);
-		sprite.draw(batch);
+		drawer(texture,xPercentage * Camara.getBase() + xOffset + Camara.getX(),
+				Camara.getY() + yPercentage * Camara.getHeight() + yOffset,opacity);
 	}
 
 	public static void animationToList(String file, float x, float y){
@@ -138,8 +134,7 @@ public class TextureManager {
 			if (a.texture != null)
 				drawer(a.texture,a.x,a.y,a.opacity);
 		}
-		ArrayList<Animation> deletionAider = new ArrayList<>(animations);
-		for (TextureManager.Animation a : deletionAider) if (a.finished) animations.remove(a);
+		animations.removeIf(ani -> ani.finished);
 		// Text display
 
 		for (TextureManager.Text t : text){

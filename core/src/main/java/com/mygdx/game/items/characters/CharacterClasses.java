@@ -1,17 +1,22 @@
 package com.mygdx.game.items.characters;
 
 import com.mygdx.game.items.OnVariousScenarios;
+import com.mygdx.game.items.TextureManager;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.Character;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class CharacterClasses {
-	public Character character;
+	public Character character = chara;
 	public String name;
 	public float health;
 	public float tempDefense;
@@ -61,12 +66,11 @@ public class CharacterClasses {
 
 	public float aggro;
 
-	public CharacterClasses(Character character, String name, float health, float damage,
+	public CharacterClasses(String name, float health, float damage,
 							byte speed, byte attackSpeed, float defense,
 							int range, float tempDefense, float rainbowDefense,
 							float mana, float magicDefense, float magicDamage,
 							float manaPerTurn, float manaPerUse, float magicHealing, float aggro){
-		this.character        = character;
 		this.name             = name;
 		this.health           = health;
 		this.damage           = damage;
@@ -85,6 +89,7 @@ public class CharacterClasses {
 		this.aggro            = aggro;
 		this.shouldTurnCompletionBeLeftToClass = false;
 		reset();
+		currentHealth = totalHealth;
 		cooldownHelper = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass(){
@@ -122,12 +127,32 @@ public class CharacterClasses {
 		totalAggro          = aggro + weapon.aggro + shield.aggro;
 	}
 
+	//Used in other classes
 	public float outgoingDamage(){
+		totalStatsCalculator();
+		return outgoingDamageOverridable();
+	}
+
+	//Used in CharacterClasses overrides
+	public float outgoingDamageOverridable(){
 		return totalDamage;
 	}
 
+	//Used in other classes
 	public void damage(float damage){
-		currentHealth = currentHealth - max(damage - totalDefense, 0);
+		refresh();
+		float damagedFor = max(overridableDamageTaken(damage), 0);
+		currentHealth -= damagedFor;
+		int fontSize = 40;
+		text(""+(damagedFor > 0 ? damagedFor : "0"), character.getX()
+						+(fontSize-(float) (damagedFor > 0 ? (damagedFor + "").toCharArray().length - 1 : 1)/(fontSize*2*globalSize()))
+				// original: +(16-(float) ((damagedFor + "").toCharArray().length))/32*globalSize()
+				, (float) (character.getY()+(globalSize()*1.3*min(max(fontSize/25,1),2))),200, TextureManager.Fonts.ComicSans,fontSize, damagedFor == 0 ? 125 : 255, damagedFor == 0 ? 125 : 0, damagedFor == 0 ? 125 : 0,1,50);
+	}
+
+	//Used in CharacterClasses overrides
+	public float overridableDamageTaken(float damageRecieved){
+		return damageRecieved - totalDefense;
 	}
 
 	public void equipWeapon(Weapons targetWeapon) {
@@ -151,33 +176,19 @@ public class CharacterClasses {
 			shield = new Shields.NoShield();
 		if (weapon == null)
 			weapon = new Weapons.NoWeapon();
-		totalStatsCalculator();
-		currentHealth = totalHealth;
+		refresh();
 	}
 
-	public void refresh(CharacterClasses characterClasses){
-		health            = characterClasses.health;
-		damage            = characterClasses.damage;
-		speed             = characterClasses.speed;
-		attackSpeed       = characterClasses.attackSpeed;
-		defense           = characterClasses.defense;
-		range             = characterClasses.range;
-		tempDefense       = characterClasses.tempDefense;
-		rainbowDefense    = characterClasses.rainbowDefense;
-		mana              = characterClasses.mana;
-		magicDefense      = characterClasses.magicDefense;
-		magicDamage       = characterClasses.magicDamage;
-		manaPerTurn       = characterClasses.manaPerTurn;
-		manaPerUse        = characterClasses.manaPerUse;
-		magicHealing      = characterClasses.magicHealing;
-		currentHealth     = characterClasses.currentHealth;
-		if (currentHealth > health)
-			currentHealth = health;
+	public void refresh(){
+		totalStatsCalculator();
+		if (currentHealth > totalHealth)
+			currentHealth = totalHealth;
 	}
 
 	public void update(){
+		refresh();
 		updateOverridable();
-		refresh(this);
+		refresh();
 	}
 
 
@@ -191,30 +202,6 @@ public class CharacterClasses {
 			}
 	}
 
-	public CharacterClasses(String name, float health, float damage,
-							byte speed, byte attackSpeed, float defense,
-							int range, float tempDefense, float rainbowDefense,
-							float mana, float magicDefense, float magicDamage,
-							float manaPerTurn, float manaPerUse, float magicHealing,boolean shouldTurnCompletionBeLeftToClass){
-		this.name           = name;
-		this.health         = health;
-		this.damage         = damage;
-		this.speed          = speed;
-		this.attackSpeed    = attackSpeed;
-		this.defense        = defense;
-		this.range          = range;
-		this.tempDefense    = tempDefense;
-		this.rainbowDefense = rainbowDefense;
-		this.mana           = mana;
-		this.magicDefense   = magicDefense;
-		this.magicDamage    = magicDamage;
-		this.manaPerTurn    = manaPerTurn;
-		this.manaPerUse     = manaPerUse;
-		this.magicHealing   = magicHealing;
-		this.shouldTurnCompletionBeLeftToClass = shouldTurnCompletionBeLeftToClass;
-		reset();
-	}
-
 	//Convenience methods for the future
 	public void onHurt(String source){}
 
@@ -222,7 +209,7 @@ public class CharacterClasses {
 
 	public void onMove(){}
 
-
+	public boolean onAttackDecided(){return false;}
 
 
 }

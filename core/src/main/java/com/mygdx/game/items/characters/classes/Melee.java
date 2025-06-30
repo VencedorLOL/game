@@ -33,36 +33,45 @@ public class Melee extends CharacterClasses {
 	public final byte FoANumberOfExtraHits = 4;
 	public byte OfAMultiplier = 6;
 
-	public Melee(Character chara) {
-		super(chara,name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
+	public Melee() {
+		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 		abilities = new ArrayList<>();
 		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", false, 4,
-				.25f, -.25f, (float) globalSize() /2){
+				0.9f, 0.9f, (float) globalSize() /2){
 			@Override
 			public void active() {
 				character.attackMode = true;
+				cancelAbilities();
+				isItActive = true;
+
 			}
 		});
 		abilities.add(new Ability("oneforall", "One For All", false, 4,
-				.40f, -.40f, (float) globalSize() /2));
+				-0.9f, -0.9f, (float) globalSize() /2){
+			@Override
+			public void active() {
+				character.attackMode = true;
+				cancelAbilities();
+				isItActive = true;
+			}
+		});
 	}
 
 
 	public void updateOverridable() {
 		for (Ability a : abilities){
-			a.runThispls();
+			a.render();
 			a.touchActivate();
 		}
-		turnHandler();
-		if (!character.canDecide() || !character.attackMode)
+		if (!character.attackMode && (abilities.get(0).isItActive || abilities.get(1).isItActive))
 			for (Ability a : abilities)
 				a.cancelActivation();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
 			System.out.println("ability recharge is at: "+ abilities.get(0).cooldownCounter);
 			System.out.println("attackState is: "+ attackState);
-			System.out.println("FoA is: " + abilities.get(1).isItActive);
-			System.out.println("OfA is: " + abilities.get(0).isItActive);
+			System.out.println("FoA is: " + abilities.get(0).isItActive);
+			System.out.println("OfA is: " + abilities.get(1).isItActive);
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F))
 			abilities.get(0).keybindActivate();
@@ -70,36 +79,36 @@ public class Melee extends CharacterClasses {
 			abilities.get(1).keybindActivate();
 	}
 
+	public void cancelAbilities(){
+		for (Ability a : abilities)
+			a.cancelActivation();
 
-	public void turnHandler(){
-		if (abilities.get(0).isItActive && character.hasAttacked){
-			if (attackState >= FoANumberOfExtraHits) {
-				character.finalizedAttack();
-				abilities.get(0).finished();
-				attackState = 0;
-				character.hasAttacked = false;
-				print("FoA Is false");
-			} else {
-				attackState++;
-				character.hasAttacked = false;
-				print("attackState's state was modified. It is: " + attackState);
-			}
+	}
+
+	public void finishAbilities(){
+		for (Ability a : abilities)
+			a.finished();
+	}
+
+	@Override
+	public boolean onAttackDecided() {
+		if (abilities.get(0).isItActive){
+			attackState++;
+			character.canDecide = new boolean[]{true, true};
+			if (attackState < FoANumberOfExtraHits)
+				return true;
+			finishAbilities();
 		}
-		else {
-			if (character.hasAttacked){
-				character.finalizedAttack();
-				character.hasAttacked = false;
-			}
-		}
+		return false;
 	}
 
 	public float outgoingDamage(){
 		if (abilities.get(1).isItActive) {
-			abilities.get(1).finished();
+			print("OFA was registered correctly");
+			finishAbilities();
 			return totalDamage * OfAMultiplier;
 		}
-		else
-			return totalDamage;
+		return totalDamage;
 	}
 
 

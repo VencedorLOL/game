@@ -40,7 +40,7 @@ public class HealerWeapons extends Weapons {
 		public static float weaponManaPerTurn = 0;
 		public static float weaponManaPerUse = 0;
 		public static float weaponMagicHealing = 0;
-		public static float weaponHealingAbilityBonus = 2;
+		public static float weaponHealingAbilityBonus = (float) 10/9;
 		public static String equipableBy = "Healer";
 		public static float aggro = 0;
 

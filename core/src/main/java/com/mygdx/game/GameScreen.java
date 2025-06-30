@@ -8,8 +8,6 @@ import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.StageOne;
 
-import java.util.ArrayList;
-
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.isEscapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
@@ -62,34 +60,18 @@ public class GameScreen implements Screen, Utils {
 			print("YAY");
 		}
 		//System.out.println(Gdx.graphics.getFramesPerSecond());
+		turnLogic();
 		fullscreenDetector();
 		screenSizeChangeDetector();
 		textureManager.batch.begin();
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
 			stage.stageRenderer(this, stage);
-			chara.update(stage, this);
+			chara.update(this);
 			textureManager.render(camara);
-			// Hotkeys
-			if (Gdx.input.isKeyPressed(Input.Keys.C))
-				camara.setToOrtho(camaraZoom = 2);
-			// Zoom management
-			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
-				camara.setToOrtho(++camaraZoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
-				camara.setToOrtho(camaraZoom += .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4)
-				camara.setToOrtho(camaraZoom += .125f);
-			if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 4)
-				camara.setToOrtho(--camaraZoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 1 && camaraZoom <= 4)
-				camara.setToOrtho(camaraZoom -= .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
-				camara.setToOrtho(camaraZoom -= .125f);
-			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-				System.out.println(camaraZoom);
+			zoomManagement();
 
-		turnLogic();
+
 	}
 
 
@@ -124,6 +106,28 @@ public class GameScreen implements Screen, Utils {
 			}
 		}
 	}
+
+	public void zoomManagement(){
+		if (Gdx.input.isKeyPressed(Input.Keys.C))
+			camara.setToOrtho(camaraZoom = 2);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
+			camara.setToOrtho(++camaraZoom);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
+			camara.setToOrtho(camaraZoom += .5f);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4)
+			camara.setToOrtho(camaraZoom += .125f);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 4)
+			camara.setToOrtho(--camaraZoom);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 1 && camaraZoom <= 4)
+			camara.setToOrtho(camaraZoom -= .5f);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
+			camara.setToOrtho(camaraZoom -= .125f);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
+			System.out.println(camaraZoom);
+	}
+
+
+
 
 	@Override
 	public void show() {

@@ -35,21 +35,21 @@ public class Vencedor extends CharacterClasses {
 	public boolean controlVenceSwordMode = false;
 	public ArrayList<VenceSword> venceSwordArray = new ArrayList<>();
 
-	public Vencedor(Character chara) {
-		super(chara,name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
+	public Vencedor() {
+		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 	}
 
-	public void updateOverridable(Character character){
-		VenceSword(character);
+	public void updateOverridable(){
+		VenceSword();
 		for (VenceSword v : venceSwordArray){
 			v.render();
 		}
-		refresh(this);
+		refresh();
 	}
 
 
-	public void VenceSword(Character character){
+	public void VenceSword(){
 		if (character.canDecide() && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
 			attackMode = true;
 			return;

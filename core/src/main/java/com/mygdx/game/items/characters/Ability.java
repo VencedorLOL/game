@@ -26,7 +26,7 @@ public class Ability{
 		textureIcon = texture;
 		this.name = name;
 		this.isItActive = isItActive;
-		this.cooldown = cooldown;
+		this.cooldown = cooldown + 1;
 		this.radius = radius;
 		this.xOffset = x;
 		this.yOffset = y;
@@ -44,9 +44,8 @@ public class Ability{
 	}
 
 
-	public void runThispls(){
-		circle.setPosition(xOffset * Camara.getBase() + Camara.getX(),
-				Camara.getY() + yOffset * Camara.getHeight());
+	public void render(){
+		circle.setPosition(xOffset * Camara.getBase() + Camara.getX(),Camara.getY() + yOffset * Camara.getHeight());
 		TextureManager.addToFixatedList(textureIcon,xOffset,yOffset,-radius,-radius);
 	}
 
@@ -59,6 +58,7 @@ public class Ability{
 	public void keybindActivate(){
 		if (!isItActive) {
 			if (cooldownCounter >= cooldown) {
+				isItActive = true;
 				active();
 				print(name+" activated!");
 			}
