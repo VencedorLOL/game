@@ -37,7 +37,7 @@ public class Melee extends CharacterClasses {
 		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 		abilities = new ArrayList<>();
-		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", false, 4,
+		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", true, 4,
 				0.9f, 0.9f, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -47,7 +47,7 @@ public class Melee extends CharacterClasses {
 
 			}
 		});
-		abilities.add(new Ability("oneforall", "One For All", false, 4,
+		abilities.add(new Ability("oneforall", "One For All", true, 4,
 				-0.9f, -0.9f, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -68,10 +68,10 @@ public class Melee extends CharacterClasses {
 			for (Ability a : abilities)
 				a.cancelActivation();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			System.out.println("ability recharge is at: "+ abilities.get(0).cooldownCounter);
-			System.out.println("attackState is: "+ attackState);
-			System.out.println("FoA is: " + abilities.get(0).isItActive);
-			System.out.println("OfA is: " + abilities.get(1).isItActive);
+			print("ability recharge is at: "+ abilities.get(0).cooldownCounter);
+			print("attackState is: "+ attackState);
+			print("FoA is: " + abilities.get(0).isItActive);
+			print("OfA is: " + abilities.get(1).isItActive);
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F))
 			abilities.get(0).keybindActivate();

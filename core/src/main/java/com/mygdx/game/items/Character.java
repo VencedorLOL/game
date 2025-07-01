@@ -25,6 +25,7 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
@@ -146,10 +147,12 @@ public class Character extends Actor implements Utils {
 		else
 			attack();
 
+		if (!turnMode)
+			interact();
+
+
 		textureUpdater();
-
 		debug(cam);
-
 		path.render();
 		render();
 	}
@@ -351,10 +354,21 @@ public class Character extends Actor implements Utils {
 
 
 	public void onDeath(){
-		if (character.currentHealth <= 0) {
+		if (character.currentHealth <= 0)
 			isDead = false;
+	}
+
+
+	public void interact(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+			testCollision.x = x; testCollision.y = y + globalSize();
+			for(Interactable i : interactables)
+				if (testCollision.overlaps(i))
+					i.onInteract();
 		}
 	}
+
+
 
 	// Debug
 
