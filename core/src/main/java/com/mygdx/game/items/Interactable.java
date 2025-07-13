@@ -25,6 +25,11 @@ public class Interactable extends Entity {
 		interactables.add(this);
 	}
 
+	public Interactable (Entity entity){
+		super(null, entity.x, entity.y, entity.base, entity.height);
+		interactables.add(this);
+	}
+
 
 
 	public void onInteract(){

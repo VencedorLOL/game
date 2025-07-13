@@ -28,6 +28,8 @@ import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.VideoManager.createVideo;
+import static com.mygdx.game.items.VideoManager.renderVideo;
 
 public class Character extends Actor implements Utils {
 
@@ -544,8 +546,18 @@ public class Character extends Actor implements Utils {
 			quickPlay("test");
 			animations.add(new TextureManager.Animation("beneath the mask",x,y));
 		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
+			setVolume(getRealVolume() > 0 ? getRealVolume()-10 : 100);
+		}
+		if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
+			setVolume(getRealVolume() <= 100 ? getRealVolume()+10 : 100);
+		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
-			stopAll();
+			setMute(!getMute());
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+			AudioManager.stopAll();
+			VideoManager.stopAll();
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
 			for (Actor a : actors){
@@ -559,8 +571,11 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
 			damage(20,"SelfDamage");
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
+			createVideo(x,y);
+		}
 	}
-
+	boolean isVideoPlaying = false;
 
 
 }

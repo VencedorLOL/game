@@ -2,6 +2,7 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.mygdx.game.Utils;
@@ -31,6 +32,7 @@ public class TextureManager {
 	static ArrayList<DrawableObject> fixatedDrawables;
 	static ArrayList<Animation> animations;
 	static ArrayList<AtlasAndName> atlases;
+	static ArrayList<DrawableTexture> videos;
 
 
 	public TextureManager (){
@@ -42,6 +44,7 @@ public class TextureManager {
 		batch = new SpriteBatch();
 		animations = new ArrayList<>();
 		atlases = new ArrayList<>();
+		videos = new ArrayList<>();
 		bounder();
 	}
 
@@ -63,6 +66,10 @@ public class TextureManager {
 		sprite.setAlpha(opacity);
 		sprite.setPosition(x,y);
 		sprite.draw(batch);
+	}
+
+	private void textureDrawer(Texture texture, float x, float y){
+		batch.draw(texture,x,y);
 	}
 
 	private void drawer(String texture, float x, float y,float opacity,String atlasPath){
@@ -118,6 +125,11 @@ public class TextureManager {
 		priorityDrawables.add(new DrawableObject(texture, x, y,opacity));
 	}
 
+	public static void renderVideo(Texture texture, float x, float y){
+		videos.add(new DrawableTexture(texture, x, y));
+	}
+
+
 	public void render(Camara camara){
 		getCamara(camara);
 		// Least priority drawable objects
@@ -164,6 +176,14 @@ public class TextureManager {
 				fixatedScreenDrawer(d.texture,d.xPercentage,d.yPercentage,d.x,d.y,d.opacity);
 		}
 		fixatedDrawables.clear();
+		//Video reserved
+
+		for (TextureManager.DrawableTexture t : videos){
+			if (t.texture != null)
+				textureDrawer(t.texture,t.x,t.y);
+		}
+		videos.clear();
+
 	}
 
 
@@ -607,6 +627,20 @@ public class TextureManager {
 		Fonts(String path) {
 			this.path = path;
 		}
+	}
+
+
+	private static class DrawableTexture{
+		public float x,y;
+		public Texture texture;
+
+		public DrawableTexture(Texture texture, float x, float y){
+			this.x = x;
+			this.y = y;
+			this.texture = texture;
+		}
+
+
 	}
 
 }

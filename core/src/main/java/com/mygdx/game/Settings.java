@@ -2,6 +2,10 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.OnVariousScenarios;
+import com.mygdx.game.items.TextureManager;
+
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnVolume;
+import static com.mygdx.game.items.TextureManager.text;
 
 public class Settings {
 	static int animationSpeed = 1;
@@ -29,6 +33,8 @@ public class Settings {
 	// 2: on spacebar or on any other directional key pressed if path was completed
 	// 3: on spacebar or if path was completed
 	static boolean fastMode;
+	static float volume = 100;
+	static boolean mute = false;
 
 	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
@@ -55,6 +61,15 @@ public class Settings {
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
 	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
 	public static byte getDecidedPathFlexibility() {return decidedPathFlexibility;}
+	public static float getVolume() {return mute ? 0 : volume;}
+	public static float getRealVolume() {return volume;}
+	public static void setVolume(float volume) {Settings.volume = volume;
+		text(Settings.volume+"",40,500,100, TextureManager.Fonts.ComicSans,40,255,255,0,1,100);
+		triggerOnVolume();}
+	public static void setMute(boolean mute) {Settings.mute = mute;
+		text("mute is now " + mute,40,540,100, TextureManager.Fonts.ComicSans,40,255,255,0,1,100);
+		triggerOnVolume();}
+	public static boolean getMute() {return mute;}
 
 	public static long startErrorId(){
 		if (errorId % 2 == 0) {

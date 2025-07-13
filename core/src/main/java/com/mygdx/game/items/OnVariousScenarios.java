@@ -3,7 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 public class OnVariousScenarios {
-
+ 	//convenient listener class
 	static ArrayList<OnVariousScenarios> onScenarios = new ArrayList<>();
 
 
@@ -42,5 +42,13 @@ public class OnVariousScenarios {
 	public static void triggerOnTick(){
 		for (OnVariousScenarios t : onScenarios)
 			t.onTickStart();
+	}
+
+	public void onVolumeChange(){}
+
+	public static void triggerOnVolume() {
+		for (OnVariousScenarios o : onScenarios){
+			o.onVolumeChange();
+		}
 	}
 }

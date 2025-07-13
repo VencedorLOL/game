@@ -1,15 +1,30 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.Settings;
+
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
+import static com.mygdx.game.Settings.getVolume;
+
 public class AudioManager {
 
 	public static ArrayList<Sound> sounds = new ArrayList<>();
+	static OnVariousScenarios oVE;
 
+	static{
+		oVE = new OnVariousScenarios(){
+			@Override
+			public void onVolumeChange() {
+				for (Sound s : sounds){
+					s.setVolume(getVolume());
+				}
+			}
+		};
+	}
 
 	public static void play(String songName){
 		for (Sound s : sounds)
@@ -148,6 +163,21 @@ public class AudioManager {
 		return -1;
 	}
 
+	public static Sound getSound(String songName){
+		for (Sound s: sounds)
+			if (s.identifier.equals(songName))
+				return s;
+
+		return null;
+	}
+
+	public static void setVolume(String songName,float volume){
+		for (Sound s: sounds)
+			if (s.identifier.equals(songName))
+				s.setVolume(volume);
+
+	}
+
 
 
 
@@ -186,6 +216,7 @@ public class AudioManager {
 				clip.open(sound);
 				clip.loop(willSetLoop ? -1 : 0);
 				clip.setLoopPoints(startLoopAt,-1);
+				setVolume(Settings.getVolume());
 			}
 			catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 				e.printStackTrace();
@@ -220,6 +251,9 @@ public class AudioManager {
 		int getFPosition(){return clip.getFramePosition();}
 		long getMuPosition(){return clip.getMicrosecondPosition();}
 
+		void setVolume(float volume){
+			((FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN)).setValue(20 * (float) Math.log10(volume/100));
+		}
 
 	}
 

@@ -124,7 +124,7 @@ public class Tile implements Cloneable {
 
 	public void checkIfWalkable(){
 		for (Wall w : stage.walls)
-			if (w.x == x && w.y == y) {
+			if (overlaps(w)) {
 				print("tile at " + x + " " + y + " wasnt walkable because of wall at " + w.x + " " + w.y + " called " + w);
 				walkable = false;
 				break;
@@ -139,7 +139,9 @@ public class Tile implements Cloneable {
 	}
 
 
-
+	public boolean overlaps (Entity entity) {
+		return x < entity.x + entity.base && x + base > entity.x && y < entity.y + entity.height && y + height > entity.y;
+	}
 
 
 

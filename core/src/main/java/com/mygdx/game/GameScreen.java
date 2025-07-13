@@ -32,6 +32,7 @@ public class GameScreen implements Screen, Utils {
 	public int latestNonFullScreenX = 640;
 	public int latestNonFullScreenY = 400;
 
+
 	public void create () {
 		if (camaraZoom <= 0)
 			camaraZoom = 2;
