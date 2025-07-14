@@ -200,7 +200,7 @@ public class Actor extends Entity{
 
 	protected void movementInputTurnMode(){
 		automatedMovement();
-		if (path.pathCreate(x,y, speed, (byte) 1)) {
+		if (path.pathCreate(x,y, speed)) {
 			canDecide = new boolean[] {false, false};
 			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();

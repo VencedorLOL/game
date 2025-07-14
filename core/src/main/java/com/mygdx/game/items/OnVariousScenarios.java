@@ -29,8 +29,8 @@ public class OnVariousScenarios {
 	}
 
 	public static void triggerOnStageChange(){
-		for (OnVariousScenarios t : onScenarios)
-			t.onStageChange();
+		for (int i = 0; i < onScenarios.size(); i++)
+			onScenarios.get(i).onStageChange();
 	}
 
 

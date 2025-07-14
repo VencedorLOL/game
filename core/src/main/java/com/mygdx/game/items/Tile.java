@@ -16,12 +16,11 @@ public class Tile implements Cloneable {
 	Floor texture;
 	boolean walkable;
 	//for pathfinding
-	boolean closed;
-	boolean opened;
-	public float h,g,n,f;
-	public Tile parent;
+	boolean isWalkable;
+	public ArrayList<TileAndCirclePos> parent = new ArrayList<>();
+	public float distanceToStart;
 
-	public Tile getParent(){
+	public ArrayList<TileAndCirclePos> getParents(){
 		return parent;
 	}
 
@@ -34,6 +33,7 @@ public class Tile implements Cloneable {
 		this.texture = texture;
 		ID = IDState + 1;
 		walkable = true;
+		isWalkable = true;
 		checkIfWalkable();
 	}
 
@@ -48,22 +48,6 @@ public class Tile implements Cloneable {
 		checkIfWalkable();
 	}
 
-	// Pathfinding specials
-	public Tile(float x, float y, boolean walkable){
-		this.x = x;
-		this.y = y;
-		base = globalSize();
-		height = globalSize();
-		this.walkable = walkable;
-	}
-
-	public Tile(float x, float y){
-		this.x = x;
-		this.y = y;
-		base = globalSize();
-		height = globalSize();
-		this.walkable = true;
-	}
 
 
 	public void render(){texture.render(x,y);}
@@ -113,6 +97,28 @@ public class Tile implements Cloneable {
 		return tileSet;
 	}
 
+	public ArrayList<Tile> walkableOrthogonalTiles(ArrayList<Tile> tileset){
+		ArrayList<Tile> tileSet = new ArrayList<>();
+		for (Tile s : tileset){
+			if( ((s.x() == x() && s.y() == y()+globalSize()) ||
+					(s.x() == x() && s.y() == y()-globalSize()) ||
+					(s.x() == x()+globalSize() && s.y() == y()) ||
+					(s.x() == x()-globalSize() && s.y() == y()) ||
+					(s.x() == x()+globalSize() && s.y() == y()+globalSize()) ||
+					(s.x() == x()+globalSize() && s.y() == y()-globalSize()) ||
+					(s.x() == x()-globalSize() && s.y() == y()-globalSize()) ||
+					(s.x() == x()-globalSize() && s.y() == y()+globalSize()))
+			&& s.isWalkable)
+
+				tileSet.add(s);
+
+			if(tileSet.size() >= 8)
+				break;
+
+		}
+		return tileSet;
+	}
+
 	@Override
 	public Tile clone() {
 		try {
@@ -127,6 +133,7 @@ public class Tile implements Cloneable {
 			if (overlaps(w)) {
 				print("tile at " + x + " " + y + " wasnt walkable because of wall at " + w.x + " " + w.y + " called " + w);
 				walkable = false;
+				isWalkable = false;
 				break;
 			}
 	}

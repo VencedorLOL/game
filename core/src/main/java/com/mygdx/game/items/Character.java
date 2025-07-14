@@ -26,10 +26,10 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Interactable.interactables;
+import static com.mygdx.game.items.PathFinder.*;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.VideoManager.createVideo;
-import static com.mygdx.game.items.VideoManager.renderVideo;
+import static com.mygdx.game.items.VideoManager.*;
 
 public class Character extends Actor implements Utils {
 
@@ -58,8 +58,8 @@ public class Character extends Actor implements Utils {
 			@Override
 			public void onStageChange(){
 				if(pathFindAlgorithm == null)
-					pathFindAlgorithm = new PathFinder(false,x,y,0,0);
-				pathFindAlgorithm.reset(false,x,y,0,0);
+					pathFindAlgorithm = new PathFinder(x,y,0,0);
+				pathFindAlgorithm.reset(x,y,0,0);
 				attackMode = false;
 				canDecide[0] = true; canDecide[1] = true;
 				speedLeft[0] = 0;    speedLeft[1] = 0;
@@ -95,7 +95,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	protected void automatedMovement(){
-		if(touchDetect()){
+		if(Gdx.input.justTouched()){
 			lastClickX = roundedClick().x;
 			lastClickY = roundedClick().y;
 			print("last ckik x " + lastClickX + " y " + lastClickY);
@@ -125,7 +125,8 @@ public class Character extends Actor implements Utils {
 
 	private void pathFinding(){
 		path.pathReset();
-		pathFindAlgorithm.reset(false,x,y,lastClickX,lastClickY);
+		generateGrids();
+		pathFindAlgorithm.reset(x,y,lastClickX,lastClickY);
 		pathFindAlgorithm.solve();
 		if (pathFindAlgorithm.convertTileListIntoPath() != null){
 			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
@@ -273,14 +274,22 @@ public class Character extends Actor implements Utils {
 	}
 
 	private void targetKeyboardMovement(){
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W) && circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y + globalSize()))
-			targetsTarget.y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A) && circle.isInsideOfCircle(targetsTarget.x - globalSize(),targetsTarget.y))
-			targetsTarget.x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S) && circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y - globalSize()))
-			targetsTarget.y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D) && circle.isInsideOfCircle(targetsTarget.x + globalSize(), targetsTarget.y))
-			targetsTarget.x += globalSize();
+		float x = targetsTarget.x; float y = targetsTarget.y;
+		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
+			y += globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+			x -= globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+			y -= globalSize();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+			x += globalSize();
+		if(circle.isInsideOfCircle(x,y)) {
+			targetsTarget.x = x;
+			targetsTarget.y = y;
+		} else if (circle.isInsideOfCircle(x,targetsTarget.y))
+			targetsTarget.x = x;
+		else if (circle.isInsideOfCircle(targetsTarget.x,y))
+			targetsTarget.y = y;
 	}
 
 

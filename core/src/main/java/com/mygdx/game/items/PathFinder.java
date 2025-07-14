@@ -2,48 +2,58 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
-import static java.lang.Math.*;
 import static java.lang.Math.abs;
 
 public class PathFinder {
-	public ArrayList<Tile> grid  	 = new ArrayList<>();
-	public ArrayList<Tile> actorGrid = new ArrayList<>();
-	public ArrayList<Tile> goodGrid	 = new ArrayList<>();
-	public ArrayList<Tile> badGrid   = new ArrayList<>();
-	public boolean doEnemiesExist;
+	public static ArrayList<Tile> grid  	 = new ArrayList<>();
+	public static ArrayList<Tile> actorGrid  = new ArrayList<>();
+	public static OnVariousScenarios oVE;
 	Tile startTile;
 	Tile objectiveTile;
-	public ArrayList<Tile> solution;
+	public ArrayList<Tile> solution = new ArrayList<>();
+	Boolean needsReset = new Boolean(false);
+	public static ArrayList<Boolean> resetList = new ArrayList<>();
+	float minimunDistance = (float) 1 /0;
 
-
-	public PathFinder(boolean doEnemiesExist,float startX, float startY, float finalX, float finalY ){
-		reset(doEnemiesExist,startX,startY,finalX,finalY);
+	static{
+		oVE = new OnVariousScenarios(){
+			public void onStageChange() {
+				for (Boolean b : resetList) b.bool = true;
+				generateGrids();
+			}
+			public void onTurnPass() {
+				for (Boolean b : resetList) b.bool = true;
+				generateGrids();
+			}
+		};
 	}
 
-	public void generateGrids(){
+	public PathFinder(float startX, float startY, float finalX, float finalY ){
+		generateGrids();
+		reset(startX,startY,finalX,finalY);
+		resetList.add(needsReset);
+	}
+
+	public static void generateGrids(){
+		grid = (ArrayList<Tile>) stage.tileset.clone();
 		for (Tile t : grid){
-			for (Wall w : stage.walls){
-				if (w.x == t.x && w.y == t.y) {
-					t.walkable = false;
-					break;
-				}
-			}
+			t.parent = new ArrayList<>();
+			t.distanceToStart = 0;
 		}
-		actorGrid = cloneList(grid); goodGrid = cloneList(grid); badGrid = cloneList(grid);
-		for (int i = 0; i < actorGrid.size(); i++)
+		actorGrid = (ArrayList<Tile>) grid.clone();
+		for (Tile t : actorGrid) {
+			if (t.walkable && !t.isWalkable)
+				t.isWalkable = true;
 			for (Actor a : actors)
-				if (actorGrid.get(i).x == a.x && a.y == actorGrid.get(i).y){
-					actorGrid.get(i).walkable = false;
-					if(a.team == 1)
-						goodGrid.get(i).walkable = false;
-					if(a.team == -1)
-						badGrid.get(i).walkable = false;
-				}
+				if (t.overlaps(a))
+					t.isWalkable = false;
+		}
 	}
 
 	public static Tile findATile (ArrayList<Tile> tile,float x, float y){
@@ -53,131 +63,88 @@ public class PathFinder {
 		}
 		return null;
 	}
-	public static ArrayList<Tile> cloneList(ArrayList<Tile> list) {
-		ArrayList<Tile> clonedList = new ArrayList<>();
-		for (Tile t : list)
-			clonedList.add(t.clone());
-		return clonedList;
-	}
 
-	boolean cantDoPathCosSmthIsNull = false;
-	public void reset(boolean doEnemiesExist,float startX,float startY, float finalX, float finalY){
-		cantDoPathCosSmthIsNull = false;
-		grid = stage.tileset;
-		for(Tile t : grid){
-			t.closed = false;
-			t.opened = false;
-			t.g = 0; t.h = 0; t.f = 0; t.n = 0;
-			t.parent = null;
-		}
+	public void reset(float startX,float startY, float finalX, float finalY){
 		generateGrids();
-		this.doEnemiesExist = doEnemiesExist;
-		startTile = findATile(grid,startX ,startY);
-		objectiveTile = findATile(grid,finalX ,finalY);
-		if (objectiveTile == null){
-			print("obj tile is null and x&y: " + finalX + " " + finalY);
-			cantDoPathCosSmthIsNull = true;
-		}
+		setStart(startX,startY);
+		setEnd(finalX,finalY);
+		needsReset.bool = false;
+		minimunDistance = (float) 1/0;
 		solution = new ArrayList<>();
-		counter = 0;
+		currentAnalizing = new ArrayList<>();
+		dumpList = new ArrayList<>();
 	}
 
-	float counter = 0;
-	public void solve(){
-		if(!cantDoPathCosSmthIsNull) {
-			if (!startTile.walkable || !objectiveTile.walkable) {
-				print("not walbkabe");
-				return;
+	ArrayList<Tile> currentAnalizing = new ArrayList<>();
+	ArrayList<Tile> dumpList = new ArrayList<>();
+	public boolean solve(){
+		if (!needsReset.bool) {
+			if (currentAnalize(startTile, (byte) 0))
+				return true;
+			for (int i = 1; i <= grid.size(); i++) {
+				currentAnalizing = (ArrayList<Tile>) dumpList.clone();
+				dumpList.clear();
+				for (Tile t : currentAnalizing)
+					currentAnalize(t, (byte) i);
+
 			}
-			startTile.g = 0;
-			startTile.f = 0;
-			ArrayList<Tile> path = new ArrayList<>();
-			path.add(startTile);
-			Tile currentTile;
-			float ng;
-			while (!path.isEmpty()) {
-				counter++;
-				currentTile = path.get(0);
-				path.remove(0);
-				currentTile.closed = true;
-				if (currentTile == objectiveTile) {
-					finalSolve(currentTile);
-					print("retunr. current is " + currentTile.x + " " + currentTile.y + " and final is " + objectiveTile.x + " " + objectiveTile.y);
-					return;
-				}
-
-				for (Tile t : currentTile.orthogonalTiles(grid)) {
-					if (t.closed || !t.walkable) {
-						continue;
-					}
-					ng = (float) (currentTile.g + (((t.x - currentTile.x) == 0 || (t.y - currentTile.y == 0)) ? 1 : sqrt(2)));
-
-					if (!t.opened || ng < t.g) {
-
-						t.g = ng;
-						t.h = t.h == 0 ? (float) sqrt(pow(abs(objectiveTile.x()) - abs(t.x), 2) + pow(abs(objectiveTile.y) - abs(t.y), 2)) : 0;
-						if (t.n == 0) {
-							ArrayList<Tile> tiles = t.orthogonalTiles(grid);
-							tiles.removeIf(tt -> (!tt.walkable));
-							t.n = (float) tiles.size() / 9;
-						}
-						t.f = (t.g * t.n) + t.h;
-						t.parent = currentTile;
-
-						if (!t.opened) {
-							path.add(t);
-							t.opened = true;
-						}
-					}
-				}
-				print(counter + "");
-				if (counter > 500) {
-					print("tooling");
-					return;
-				}
-			}
-			print("mtyo path");
 		}
+		return false;
 	}
 
 
-	public void finalSolve(Tile finalTile){
-		if (finalTile.parent != null) {
-			do {
-				solution.add(finalTile);
-				finalTile = finalTile.parent;
-				if (finalTile.getParent() == null) {
-					for(Tile t : solution){
-						print("");
-						print("x: "+t.x);
-						print("y: "+t.y);
-						print("");
-					}
-					return;
+	public boolean currentAnalize(Tile originalTile,byte generation){
+		ArrayList<Tile> neighbours = originalTile.walkableOrthogonalTiles(actorGrid);
+		for (Tile t : neighbours){
+			if ((originalTile == startTile || t.parent.isEmpty() || originalTile.parent.get(0).tileCirclePos < t.parent.get(0).tileCirclePos) && t != startTile
+					&& originalTile.distanceToStart < minimunDistance) {
+				dumpList.add(t);
+				t.parent.add(new Tile.TileAndCirclePos(originalTile,generation));
+				t.distanceToStart = originalTile.distanceToStart + t.relativeModuleTo(originalTile);
+				print("added generation " + generation + " parent");
+				if (t == objectiveTile) {
+					traceback(t);
 				}
-			} while (finalTile.getParent() != null || finalTile.f == 0);
+			}
 		}
-		print(solution+"");
+		return false;
+	}
+
+
+	public void traceback(Tile finalTile){
+		minimunDistance = finalTile.distanceToStart;
+		print("called traceback!!! distance is of " + objectiveTile.distanceToStart);
+		Tile checkedTile = finalTile;
+		do{
+			solution.add(checkedTile);
+			checkedTile.parent.sort((o1, o2) -> Float.compare(o2.tile.distanceToStart, o1.tile.distanceToStart));
+			checkedTile = checkedTile.parent.get(0).tile;
+			print("did one dowhile. paremt tile was " + checkedTile + " and its parents are " + checkedTile.parent);
+		}
+		while(checkedTile != startTile);
+		Collections.reverse(solution);
+		for (Tile t : solution){
+			print(t+" coords is: " + t.x + " ("+ t.x/globalSize()+") " + t.y + " (" + t.y/globalSize() + ")");
+		}
 
 	}
 
 
 	public ArrayList<Path.PathStep> convertTileListIntoPath(){
-		// note to myself: algorithm generates 2 useless values and coordinates instead of paths.
-		// This converts the coordinates into paths by taking the difference between their coordinates
-		// and ignores the useless values.
 		ArrayList<Path.PathStep> path = new ArrayList<>();
+		for (int i = 0; i < solution.size(); i++){
+			if (i == 0){
+				path.add(new Path.PathStep(
+						(int) (solution.get(i).x - startTile.x),
+						(int) (solution.get(i).y - startTile.y)));
+			}
+			else {
+				path.add(new Path.PathStep(
+						(int) (solution.get(i).x - solution.get(i - 1).x),
+						(int) (solution.get(i).y - solution.get(i - 1).y)));
+			}
 
-		for (int i = 0; i < solution.size(); i++)
-			if ((i != 0) && !((solution.get(i - 1).x - solution.get(i).x) == 0 && (solution.get(i - 1).y - solution.get(i).y) == 0))
-				path.add(new Path.PathStep((int) (solution.get(i - 1).x - solution.get(i).x), (int) (solution.get(i - 1).y - solution.get(i).y), (byte) 1));
-		Collections.reverse(path);
-		/*if (solution.size() > 2)
-			path.add(new Path.PathStep((int) (solution.get(solution.size() - 2).x - objectiveTile.x), (int) (solution.get(solution.size() - 2).y - objectiveTile.y), (byte) 1));
-		else if (solution.size() > 1)
-			path.add(new Path.PathStep((int) (objectiveTile.x-solution.get(solution.size() - 1).x), (int) (objectiveTile.y-solution.get(solution.size() - 1).y), (byte) 1));
-		else if (objectiveTile != null)
-			path.add(new Path.PathStep((int) ( objectiveTile.x-startTile.x),(int) (objectiveTile.y-startTile.y),(byte) 1));*/
+		}
 		return path;
 	}
 
@@ -189,18 +156,19 @@ public class PathFinder {
 
 	public void setEnd(float x, float y){
 		objectiveTile = findATile(grid,x,y);
+		print( "objtile is " + x + " " + y );
+		if (objectiveTile == null)
+			print("ovktitile OS NILL");
 	}
 
 	public void setPlayerAsEnd(){
-		for (Entity chara : Entity.entityList) {
-			if (chara instanceof Character){
-				setEnd(chara.getX(), chara.getY());
-				return;
-			}
-		}
+		setEnd(chara.getX(), chara.getY());
 	}
 
-
+	public static class Boolean{
+		public boolean bool;
+		public Boolean(boolean bool){this.bool = bool;}
+	}
 
 
 }

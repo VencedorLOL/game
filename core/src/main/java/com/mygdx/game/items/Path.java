@@ -107,7 +107,7 @@ public class Path {
 	}
 
 
-	public boolean pathCreate(float x, float y, int speed, byte typeOfPath){
+	public boolean pathCreate(float x, float y, int speed){
 		getStats(x, y, speed);
 
 		if (currentNumberOfPaths >= steps){
@@ -146,12 +146,12 @@ public class Path {
 			} catch (java.lang.IndexOutOfBoundsException ignored) {
 				path.add(currentNumberOfPaths, new PathStep()); }
 			if (currentNumberOfPaths == 0) {
-				createPathStep(path.get(0), entityX, entityY, typeOfPath);
+				createPathStep(path.get(0), entityX, entityY);
 			}
 			else {
 				createPathStep(path.get(currentNumberOfPaths),
 					path.get(currentNumberOfPaths - 1).getX(),
-					path.get(currentNumberOfPaths - 1).getY(),typeOfPath);
+					path.get(currentNumberOfPaths - 1).getY());
 			}
 		}
 
@@ -177,7 +177,7 @@ public class Path {
 		entityY = y;
 	}
 
-	public void createPathStep(PathStep pathStep, float x, float y, byte typeOfPath){
+	public void createPathStep(PathStep pathStep, float x, float y){
 		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
 			pathStep.directionY =  globalSize();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
@@ -194,11 +194,11 @@ public class Path {
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;
 			pathStep.setRender(true);
-			pathStep.setPath(typeOfPath);
 		}
 		else
 			pathStep.reset();
 	}
+
 
 
 	public static class PathStep extends Entity {
@@ -211,22 +211,13 @@ public class Path {
 			reset();
 		}
 
-		public PathStep(int x, int y, byte type) {
+		public PathStep(int x, int y) {
 			directionX = x;
 			directionY = y;
-			if (type == 1)
-				texture = "PathStepLocation";
-			if (type == 2)
-				texture = "attackStep";
+			texture = "PathStepLocation";
 			setRender(false);
 		}
 
-		public void setPath(byte type){
-			if (type == 1)
-				texture = "PathStepLocation";
-			if (type == 2)
-				texture = "attackStep";
-		}
 
 		public void reset(){
 			directionX = 0;
