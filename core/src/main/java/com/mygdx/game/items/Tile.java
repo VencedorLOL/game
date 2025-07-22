@@ -17,10 +17,11 @@ public class Tile implements Cloneable {
 	boolean walkable;
 	//for pathfinding
 	boolean isWalkable;
-	public ArrayList<TileAndCirclePos> parent = new ArrayList<>();
+	public ArrayList<Tile> parent = new ArrayList<>();
 	public float distanceToStart;
+	public byte generation = 0;
 
-	public ArrayList<TileAndCirclePos> getParents(){
+	public ArrayList<Tile> getParents(){
 		return parent;
 	}
 

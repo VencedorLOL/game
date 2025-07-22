@@ -125,12 +125,9 @@ public class Character extends Actor implements Utils {
 
 	private void pathFinding(){
 		path.pathReset();
-		generateGrids();
-		pathFindAlgorithm.reset(x,y,lastClickX,lastClickY);
-		pathFindAlgorithm.solve();
-		if (pathFindAlgorithm.convertTileListIntoPath() != null){
+		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, (byte) 1))
 			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-		} else
+		else
 			print("no path found");
 	}
 
