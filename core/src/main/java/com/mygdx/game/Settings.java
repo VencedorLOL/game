@@ -23,8 +23,13 @@ public class Settings {
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
 	// 2: take enemies in consideration if path is the same lenght or longer by some amount
-	// 3: take enemies in consideration always, if there's an avilable path taking enemies in consideration
+	// 3: take enemies in consideration, if there's an avilable path taking enemies in consideration
 	// 4: take always enemies in consideration, even if there would be a possible path that now isn't because of the enemies
+
+	// current implementation:
+	// 0: stage path
+	// 1: actor path
+	// TODO: change to desired implementation
 
 	static byte decidedPathFlexibility = 3;
 	// When should decide a path has been made
@@ -58,6 +63,7 @@ public class Settings {
 	}
 	public static int globalSize() {return GLOBAL_SIZE; }
 	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
+	public static void setTakeEnemiesIntoConsideration(byte takeEnemiesIntoConsideration) {Settings.takeEnemiesIntoConsideration = takeEnemiesIntoConsideration;}
 	public static byte getExtraAllowedPath() {return extraAllowedPath;}
 	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
 	public static byte getDecidedPathFlexibility() {return decidedPathFlexibility;}

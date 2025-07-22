@@ -125,12 +125,9 @@ public class Character extends Actor implements Utils {
 
 	private void pathFinding(){
 		path.pathReset();
-		generateGrids();
-		pathFindAlgorithm.reset(x,y,lastClickX,lastClickY);
-		pathFindAlgorithm.solve();
-		if (pathFindAlgorithm.convertTileListIntoPath() != null){
+		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, getTakeEnemiesIntoConsideration()))
 			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-		} else
+		else
 			print("no path found");
 	}
 
@@ -582,6 +579,10 @@ public class Character extends Actor implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
 			createVideo(x,y);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
+		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
+		print("its " + getTakeEnemiesIntoConsideration());
 		}
 	}
 	boolean isVideoPlaying = false;

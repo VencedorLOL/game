@@ -9,6 +9,8 @@ import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
 import static java.lang.Math.abs;
+import static java.lang.Float.POSITIVE_INFINITY;
+
 
 public class PathFinder {
 	public static ArrayList<Tile> grid  	 = new ArrayList<>();
@@ -19,7 +21,7 @@ public class PathFinder {
 	public ArrayList<Tile> solution = new ArrayList<>();
 	Boolean needsReset = new Boolean(false);
 	public static ArrayList<Boolean> resetList = new ArrayList<>();
-	float minimunDistance = (float) 1 /0;
+	float minimunDistance = POSITIVE_INFINITY;
 
 	static{
 		oVE = new OnVariousScenarios(){
@@ -45,6 +47,7 @@ public class PathFinder {
 		for (Tile t : grid){
 			t.parent = new ArrayList<>();
 			t.distanceToStart = 0;
+			t.generation = 0;
 		}
 		actorGrid = (ArrayList<Tile>) grid.clone();
 		for (Tile t : actorGrid) {
@@ -69,41 +72,61 @@ public class PathFinder {
 		setStart(startX,startY);
 		setEnd(finalX,finalY);
 		needsReset.bool = false;
-		minimunDistance = (float) 1/0;
+		minimunDistance = POSITIVE_INFINITY;
 		solution = new ArrayList<>();
 		currentAnalizing = new ArrayList<>();
 		dumpList = new ArrayList<>();
 	}
 
+	public boolean quickSolve(float startX,float startY, float finalX, float finalY,byte listType){
+		reset(startX,startY,finalX,finalY);
+		if(listType == 0) solve(grid);
+		else if(listType == 1) solve(actorGrid);
+		return !solution.isEmpty();
+	}
+
 	ArrayList<Tile> currentAnalizing = new ArrayList<>();
 	ArrayList<Tile> dumpList = new ArrayList<>();
-	public boolean solve(){
+	private boolean solve(ArrayList<Tile> currentGrid){
 		if (!needsReset.bool) {
-			if (currentAnalize(startTile, (byte) 0))
+			if (currentAnalize(startTile,currentGrid))
 				return true;
 			for (int i = 1; i <= grid.size(); i++) {
 				currentAnalizing = (ArrayList<Tile>) dumpList.clone();
 				dumpList.clear();
 				for (Tile t : currentAnalizing)
-					currentAnalize(t, (byte) i);
-
+					if (currentAnalize(t,currentGrid))
+						return true;
 			}
+			return !solution.isEmpty();
 		}
 		return false;
 	}
 
 
-	public boolean currentAnalize(Tile originalTile,byte generation){
-		ArrayList<Tile> neighbours = originalTile.walkableOrthogonalTiles(actorGrid);
+	private boolean currentAnalize(Tile originalTile,ArrayList<Tile> currentGrid){
+		ArrayList<Tile> neighbours = originalTile.walkableOrthogonalTiles(currentGrid);
 		for (Tile t : neighbours){
-			if ((originalTile == startTile || t.parent.isEmpty() || originalTile.parent.get(0).tileCirclePos < t.parent.get(0).tileCirclePos) && t != startTile
+			if ((originalTile == startTile || t.generation == 0 || originalTile.generation < t.generation)
 					&& originalTile.distanceToStart < minimunDistance) {
-				dumpList.add(t);
-				t.parent.add(new Tile.TileAndCirclePos(originalTile,generation));
-				t.distanceToStart = originalTile.distanceToStart + t.relativeModuleTo(originalTile);
-				print("added generation " + generation + " parent");
-				if (t == objectiveTile) {
-					traceback(t);
+				if (t.generation == 0){
+					t.generation = (byte) (originalTile.generation + 1);
+				}
+				boolean temp = false;
+				if (!dumpList.isEmpty())
+					for (Tile tt : dumpList)
+						if (tt == t){
+							temp = true;
+							break;
+						}
+				if (!temp && t != objectiveTile)
+					dumpList.add(t);
+				t.parent.add(originalTile);
+				if (originalTile.distanceToStart + t.relativeModuleTo(originalTile) < t.distanceToStart || t.distanceToStart == 0)
+					t.distanceToStart = originalTile.distanceToStart + t.relativeModuleTo(originalTile);
+				print("added generation " + (originalTile.generation + 1) + " parent");
+				if (t == objectiveTile && objectiveTile.distanceToStart < minimunDistance) {
+					return traceback();
 				}
 			}
 		}
@@ -111,14 +134,16 @@ public class PathFinder {
 	}
 
 
-	public void traceback(Tile finalTile){
-		minimunDistance = finalTile.distanceToStart;
+	private boolean traceback(){
+		minimunDistance = objectiveTile.distanceToStart;
+		solution.clear();
 		print("called traceback!!! distance is of " + objectiveTile.distanceToStart);
-		Tile checkedTile = finalTile;
+		Tile checkedTile = objectiveTile;
 		do{
 			solution.add(checkedTile);
-			checkedTile.parent.sort((o1, o2) -> Float.compare(o2.tile.distanceToStart, o1.tile.distanceToStart));
-			checkedTile = checkedTile.parent.get(0).tile;
+			checkedTile.parent.sort((o1, o2) -> Float.compare(o2.distanceToStart, o1.distanceToStart));
+			Collections.reverse(checkedTile.parent);
+			checkedTile = checkedTile.parent.get(0);
 			print("did one dowhile. paremt tile was " + checkedTile + " and its parents are " + checkedTile.parent);
 		}
 		while(checkedTile != startTile);
@@ -126,7 +151,7 @@ public class PathFinder {
 		for (Tile t : solution){
 			print(t+" coords is: " + t.x + " ("+ t.x/globalSize()+") " + t.y + " (" + t.y/globalSize() + ")");
 		}
-
+		return objectiveTile.distanceToStart == objectiveTile.relativeModuleTo(startTile);
 	}
 
 
@@ -145,6 +170,10 @@ public class PathFinder {
 			}
 
 		}
+		print("current path is: ");
+		for(Path.PathStep p : path){
+			print("path: x(" + p.x + ") y(" + p.y + ") relX("+ p.directionX + ") relY(" + p.directionY + ")");
+		}
 		return path;
 	}
 
@@ -152,6 +181,8 @@ public class PathFinder {
 
 	public void setStart(float x, float y){
 		startTile = findATile(grid,x,y);
+		if (startTile != null)
+			startTile.generation = 1;
 	}
 
 	public void setEnd(float x, float y){
