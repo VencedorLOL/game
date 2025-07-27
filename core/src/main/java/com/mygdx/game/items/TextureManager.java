@@ -186,9 +186,12 @@ public class TextureManager {
 
 	}
 
+	public static void fixatedText (String text,float x, float y,Fonts font,int size){
+		TextureManager.fixatedText.add(new Text(text,x,y,createFont(font,size)));
+	}
 
-	public static void text (String text,float x, float y,BitmapFont font){
-		TextureManager.text.add(new Text(text,x,y,font));
+	public static void text (String text,float x, float y,Fonts font,int size){
+		TextureManager.text.add(new Text(text,x,y,createFont(font,size)));
 	}
 
 	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font, int size,int r, int g, int b,float opacity,float vanishingThreshold){

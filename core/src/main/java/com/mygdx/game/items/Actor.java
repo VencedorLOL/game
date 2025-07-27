@@ -9,7 +9,6 @@ import java.util.Collections;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.Character.canEnemiesAct;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
@@ -126,7 +125,7 @@ public class Actor extends Entity{
 		testCollision.y = y;
 		glideProcess();
 		if (turnMode) {
-			if (isPermittedToAct() && canEnemiesAct) {
+			if (isPermittedToAct()) {
 				lastTimeTilLastMovement = 0;
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded)
 					speedLeft = path.pathProcess(this);

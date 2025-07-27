@@ -28,6 +28,7 @@ import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.PathFinder.*;
 import static com.mygdx.game.items.TextureManager.animations;
+import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.VideoManager.*;
 
@@ -41,7 +42,6 @@ public class Character extends Actor implements Utils {
 	public float lastClickX, lastClickY;
 	boolean willDoNormalTextureChange = true;
 
-	static boolean canEnemiesAct = false;
 
 	public Character(float x, float y, float base, float height) {
 		super("char",x,y,base,height);
@@ -555,8 +555,7 @@ public class Character extends Actor implements Utils {
 		print("its " + getTakeEnemiesIntoConsideration());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			canEnemiesAct = !canEnemiesAct;
-			print("canenemiesact " + canEnemiesAct);
+			text("Version: A",x,y,100, TextureManager.Fonts.ComicSans,40,150,150,150,1,100);
 		}
 
 	}

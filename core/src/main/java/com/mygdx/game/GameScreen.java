@@ -11,6 +11,7 @@ import com.mygdx.game.items.stages.StageOne;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.isEscapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
+import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
