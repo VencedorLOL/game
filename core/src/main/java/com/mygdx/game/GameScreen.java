@@ -22,7 +22,7 @@ public class GameScreen implements Screen, Utils {
 	public ParticleManager particle;
 	public MainClass mainClass;
 	public TextureManager textureManager = new TextureManager();
-	public static Character chara = new Character(512, 512, globalSize(), globalSize());
+	public static Character chara;
 	public Camara camara = new Camara();
 	public static Stage stage = new Stage();
 	public int screenSizeX = Gdx.graphics.getWidth();
@@ -38,6 +38,7 @@ public class GameScreen implements Screen, Utils {
 			camaraZoom = 2;
 		camara.camaraStarter(camaraZoom);
 		stage = new StageOne();
+		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter(chara);
 		testUi = new GUI();
 		testUi.testButton();
@@ -45,7 +46,7 @@ public class GameScreen implements Screen, Utils {
 		clickDetector = new ClickDetector(camara);
 		testUi.textBox();
 		InputHandler.defaultKeybinds();
-		camara.attach(chara);
+		Camara.attach(chara);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -67,7 +68,7 @@ public class GameScreen implements Screen, Utils {
 		textureManager.batch.begin();
 			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
-			stage.stageRenderer(this, stage);
+			stage.stageRenderer(this);
 			chara.update(this);
 			textureManager.render(camara);
 			zoomManagement();

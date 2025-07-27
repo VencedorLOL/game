@@ -76,6 +76,14 @@ public class Tile implements Cloneable {
 		return false;
 	}
 
+	public static Tile findATile (ArrayList<Tile> tile,float x, float y){
+		for (Tile t : tile){
+			if (x == t.x && t.y == y)
+				return t;
+		}
+		return null;
+	}
+
 
 	public ArrayList<Tile> orthogonalTiles(ArrayList<Tile> tileset){
 		ArrayList<Tile> tileSet = new ArrayList<>();
@@ -98,7 +106,7 @@ public class Tile implements Cloneable {
 		return tileSet;
 	}
 
-	public ArrayList<Tile> walkableOrthogonalTiles(ArrayList<Tile> tileset){
+	public ArrayList<Tile> isWalkableOrthogonalTiles(ArrayList<Tile> tileset){
 		ArrayList<Tile> tileSet = new ArrayList<>();
 		for (Tile s : tileset){
 			if( ((s.x() == x() && s.y() == y()+globalSize()) ||
@@ -110,6 +118,28 @@ public class Tile implements Cloneable {
 					(s.x() == x()-globalSize() && s.y() == y()-globalSize()) ||
 					(s.x() == x()-globalSize() && s.y() == y()+globalSize()))
 			&& s.isWalkable)
+
+				tileSet.add(s);
+
+			if(tileSet.size() >= 8)
+				break;
+
+		}
+		return tileSet;
+	}
+
+	public ArrayList<Tile> walkableOrthogonalTiles(ArrayList<Tile> tileset){
+		ArrayList<Tile> tileSet = new ArrayList<>();
+		for (Tile s : tileset){
+			if( ((s.x() == x() && s.y() == y()+globalSize()) ||
+					(s.x() == x() && s.y() == y()-globalSize()) ||
+					(s.x() == x()+globalSize() && s.y() == y()) ||
+					(s.x() == x()-globalSize() && s.y() == y()) ||
+					(s.x() == x()+globalSize() && s.y() == y()+globalSize()) ||
+					(s.x() == x()+globalSize() && s.y() == y()-globalSize()) ||
+					(s.x() == x()-globalSize() && s.y() == y()-globalSize()) ||
+					(s.x() == x()-globalSize() && s.y() == y()+globalSize()))
+					&& s.walkable)
 
 				tileSet.add(s);
 

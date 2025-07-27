@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.mygdx.game.Settings;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
@@ -12,43 +13,103 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Tile.findATile;
 import static java.lang.Math.*;
 
-public class Enemy extends Actor{
-	public byte speed = 3;
+public class Enemy extends Actor {
 	public float health = 20;
-	public float defense = 5;
-	public int range = 2;
-
-	boolean allowedToMove = false;
-	char[] availableSpaces = new char[]{'N','N','N','N','N','N','N','N'};
-	char move;
+	public float defense = 5;;
 
 	boolean localFastMode;
 
-	OnVariousScenarios oVE2;
 
 	public static ArrayList<Enemy> enemies = new ArrayList<>();
 
+	public static ArrayList<Tile> enemyGrid;
 
-	static{
-		OnVariousScenarios oVE3 = new OnVariousScenarios(){
+	public float[] tileToReach = new float[2];
+
+	static {
+	//	generation();
+		OnVariousScenarios oVE2 = new OnVariousScenarios(){
 			@Override
 			public void onStageChange() {
 				enemies.clear();
 			}
+
+			public void onTurnPass() {
+			//	generation();
+			}
+
+
 		};
 	}
 
+/*	public static void generation(){
+		Collections.shuffle(enemies);
+		//TODO: make it so it also takes speed in consideration
+		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed, o1.actingSpeed));
+		generateGrids();
+		enemyGrid = new ArrayList<>();
+		for (Tile t : grid)
+			enemyGrid.add(t.clone());
+		for (Tile t : enemyGrid)
+			for (Actor a : actors)
+				if (!(a instanceof Enemy) && a.x == t.x && a.y == t.y) {
+					t.isWalkable = false;
+					break;
+				}
 
+	}*/
 
+	public static void loop(){
+		for (Enemy e : enemies) {
+			if (e.canDecide[1])
+				break;
+			if (enemyGrid != null && findATile(enemyGrid, e.x, e.y) != null) {
+				findATile(enemyGrid, e.x, e.y).isWalkable = false;
+			}
+		}
 
+	}
+
+	public void getObjectiveTitle(){
+		Tile objective;
+		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
+			try {objective = pathFindAlgorithm.solution.get(speed / 2 - 1);}
+			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
+			tileToReach[0] = objective.x;tileToReach[1] = objective.y;
+		} else {
+			tileToReach[0] = x; tileToReach[1] = y;
+		}
+		print("Tile to reach is " + tileToReach[0] + " " + tileToReach[1]);
+
+	}
+
+	protected void automatedMovement(){
+		if(targetActor == null)
+			targetFinder();
+		if (targetActor != null) {
+			path.pathReset();
+			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, enemyGrid)) {
+				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
+				getObjectiveTitle();
+			}
+			else
+				actionDecided();
+		} else actionDecided();
+
+	}
 
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, 128, 128);
+		pierces = false;
+		team = -1;
 		speed = 3;
+		range = 2;
+		damage = 20;
 		actingSpeed = random(1, 7);
+		print("acting speed of this enemy is of " + actingSpeed);
 		this.health = health;
 		this.x = x;
 		this.y = y;
@@ -57,7 +118,7 @@ public class Enemy extends Actor{
 		testCollision.base = base;
 		testCollision.height = height;
 		this.texture = texture;
-		path = new Path(x,y,speed,null);
+		path = new Path(x,y,speed);
 		team = -1;
 		oVS = new OnVariousScenarios(){
 			@Override
@@ -74,7 +135,7 @@ public class Enemy extends Actor{
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
-		path = new Path(x,y,speed,null);
+		path = new Path(x,y,speed);
 		team = -1;
 		oVS = new OnVariousScenarios(){
 			@Override
@@ -112,21 +173,12 @@ public class Enemy extends Actor{
 			localFastMode = true;
 	}
 
-	public void spendTurn(){
-		print("st 23");
-		allowedToMove = false;
-		permittedToAct = false;
-	}
 
 	// Movement version: 6.0
 
 	//AKA: it doesnt work
 
 
-	@Override
-	protected void movementInputTurnMode() {
-		actionDecided();
-	}
 
 	protected void overlappingCheck() {
 		for (Enemy e : stage.enemy)
@@ -154,28 +206,25 @@ public class Enemy extends Actor{
 
 
 
-	public void update(Stage stage, ParticleManager pm){
+	public void update(ParticleManager pm){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
 			gameScreenGetter(pm);
-			super.speed = this.speed;
 			path.getStats(x,y,speed);
+			loop();
 			onDeath();
-			movement();
-			if (Gdx.input.isKeyPressed(Input.Keys.E)) {
-				System.out.println("canDecide: " + canDecide());
-				System.out.println("move: " + move);
-				System.out.println("availableSpaces UP: " + availableSpaces[0] + " :availableSpaces UP-RIGHT: " + availableSpaces[1]);
-				System.out.println("availableSpaces RIGHT: " + availableSpaces[2] + " :availableSpaces DOWN-RIGHT: " + availableSpaces[3]);
-				System.out.println("availableSpaces DOWN: " + availableSpaces[4] + " :availableSpaces DOWN-LEFT: " + availableSpaces[5]);
-				System.out.println("availableSpaces LEFT: " + availableSpaces[6] + " :availableSpaces UP-LEFT: " + availableSpaces[7]);
-				System.out.println("actingSpeed left on x : " + speedLeft[0]);
-				System.out.println("actingSpeed left on y : " + speedLeft[1]);
-				System.out.println("onTurn: " + allowedToMove);
-				System.out.println("x: " + x);
-				System.out.println("testX: " + testCollision.x);
-				System.out.println("y: " + y);
-				System.out.println("testY: " + testCollision.y);
-				System.out.println("-");
+			if (targetActor == null)
+				targetFinder();
+			if (targetActor != null && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0)
+				attack();
+			else
+				movement();
+			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+				print("");
+				print("Myself: " + this);
+				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
+				print("Coords: x" + x + " y" + y);
+				print("ASpeed: " + actingSpeed);
+				print("");
 			}
 		}
 	}
@@ -193,7 +242,7 @@ public class Enemy extends Actor{
 		float damagedFor = max(damage - defense,0);
 		health -= damagedFor;
 		if (Objects.equals(damageReason, "Melee") && damagedFor != 0){
-		pm.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
+			pm.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
 		}
 		int fontSize = 40;
 		text(""+(damagedFor > 0 ? damagedFor : "0"),getX()

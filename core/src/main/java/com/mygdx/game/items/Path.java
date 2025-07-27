@@ -21,7 +21,7 @@ public class Path {
 	// 1 = movement
 	// 2 = attack
 
-	public Path(float x, float y, int speed, Stage stage){
+	public Path(float x, float y, int speed){
 		getStats(x,y,speed);
 		path = new ArrayList<>();
 		path.add(new PathStep());
@@ -107,37 +107,39 @@ public class Path {
 	}
 
 
-	public boolean pathCreate(float x, float y, int speed){
+	public boolean pathCreate(float x, float y, int speed,Actor typeOfActor){
 		getStats(x, y, speed);
 
 		if (currentNumberOfPaths >= steps){
 			// set currentNumbe.. to steps for safety and to use getCurrentParthCoords safely
 			currentNumberOfPaths = steps;
-			if (getDecidedPathFlexibility() == 1){
-				int temporalX = 0, temporalY = 0;
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-					temporalY = globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-					temporalX = -globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-					temporalY = -globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-					temporalX = globalSize();
+			if (typeOfActor instanceof Character) {
+				if (getDecidedPathFlexibility() == 1) {
+					int temporalX = 0, temporalY = 0;
+					if (Gdx.input.isKeyJustPressed(Input.Keys.W))
+						temporalY = globalSize();
+					if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+						temporalX = -globalSize();
+					if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+						temporalY = -globalSize();
+					if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+						temporalX = globalSize();
 
-				if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY){
+					if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
+						currentNumberOfPaths = 0;
+						return true;
+					}
+				}
+				if (getDecidedPathFlexibility() == 2)
+					if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A) ||
+							Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+						currentNumberOfPaths = 0;
+						return true;
+					}
+				if (getDecidedPathFlexibility() == 3) {
 					currentNumberOfPaths = 0;
 					return true;
 				}
-			}
-			if (getDecidedPathFlexibility() == 2)
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A) ||
-						Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-					currentNumberOfPaths = 0;
-					return true;
-				}
-			if (getDecidedPathFlexibility() == 3){
-				currentNumberOfPaths = 0;
-				return true;
 			}
 		}
 
@@ -160,9 +162,12 @@ public class Path {
 			return true;
 		}
 
-
 		if(Gdx.input.isKeyJustPressed(Input.Keys.R))
 			pathReset();
+
+		if(!(typeOfActor instanceof Character) && !path.isEmpty()){
+			currentNumberOfPaths = 0; return true;
+		}
 
 		return false;
 	}

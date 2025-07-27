@@ -33,7 +33,7 @@ public class Dummy extends Enemy {
 	@Override
 	public void movement() {
 		if (isPermittedToAct())
-			finalizedMove();
+			finalizedTurn();
 		else if (canDecide())
 			actionDecided();
 	}

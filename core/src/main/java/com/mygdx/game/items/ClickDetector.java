@@ -4,9 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import java.util.ArrayList;
-import java.util.HashSet;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.Wall.walls;
 import static java.lang.Float.NEGATIVE_INFINITY;
 import static java.lang.Float.POSITIVE_INFINITY;
@@ -45,9 +44,9 @@ public class ClickDetector implements Utils {
 	}
 
 
-	public static HashSet<Enemy> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Entity> entityToIgnore, boolean pierces) {
+	public static ArrayList<Actor> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Actor> entityToIgnore, boolean pierces) {
 		print("started RayCasting");
-		HashSet<Enemy> piercesEnemyArrayOfTargets = new HashSet<>();
+		ArrayList<Actor> piercesEnemyArrayOfTargets = new ArrayList<>();
 		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
 //		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
 //		Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1,pierces);
@@ -92,14 +91,18 @@ public class ClickDetector implements Utils {
 				return null;
 
 			for (Ray r : rayCheckerList) {
-				if (r.x == toX + halfSize && r.y == toY + halfSize) {
+				if (r.x == toX + halfSize && r.y == toY + halfSize && !pierces) {
 					if (!r.getEnemiesThatGotHit().isEmpty())
-						for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-							if (en.getTimesTheRayTouchedTheEnemy() >= globalSize() / 4) {
-								HashSet<Enemy> temporal = new HashSet<>();
-								temporal.add(en.getEnemy());
-								print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
-								return temporal;
+						for (ActorAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 4) {
+								ArrayList<Actor> temporal = new ArrayList<>();
+								temporal.add(en.getActor());
+							//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
+								if (entityToIgnore != null)
+									for (Actor a : entityToIgnore)
+										temporal.removeIf(actor -> actor == a);
+
+								return temporal.isEmpty() ? null : temporal;
 							}
 					return null;
 				}
@@ -113,34 +116,54 @@ public class ClickDetector implements Utils {
 			if (pierces)
 				for (Ray r : rayCheckerList) {
 					print("returned pierces.size of list is of: " + piercesEnemyArrayOfTargets.size());
-					for (EnemyAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)) {
-						piercesEnemyArrayOfTargets.add(en.getEnemy());
+					for (ActorAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)) {
+						if (!valueSearcher(piercesEnemyArrayOfTargets,en.objective))
+							piercesEnemyArrayOfTargets.add(en.getActor());
 					}
 				}
-			else
-				for (Ray r : rayCheckerList) {
+			else for (Ray r : rayCheckerList) {
 					r.enemyRayCheck(entityToIgnore);
 					if (!r.getEnemiesThatGotHit().isEmpty())
-						for (EnemyAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-							if (en.getTimesTheRayTouchedTheEnemy() >= globalSize() / 4) {
-								HashSet<Enemy> temporal = new HashSet<>();
-								temporal.add(en.getEnemy());
-								print("returned temporal. Enemy X is: " + en.getEnemy().x + " Enemy Y is : " + en.getEnemy().y);
-								return temporal;
+						for (ActorAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 4) {
+								ArrayList<Actor> temporal = new ArrayList<>();
+								temporal.add(en.getActor());
+							//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
+								if (entityToIgnore != null)
+									for (Actor a : entityToIgnore)
+										temporal.removeIf(actor -> actor == a);
+								if (!temporal.isEmpty())
+									return temporal;
 							}
 				}
 
+			for (Ray r : rayCheckerList) {
+				if (r.x == toX + halfSize && r.y == toY + halfSize && pierces) {
+					if (!piercesEnemyArrayOfTargets.isEmpty()) {
+						if (entityToIgnore != null)
+							for (Actor a : entityToIgnore)
+								piercesEnemyArrayOfTargets.removeIf(actor -> actor == a);
+						return piercesEnemyArrayOfTargets.isEmpty() ? null : piercesEnemyArrayOfTargets;
+					}
+				}
+			}
+
+
 
 		}
-		if (!piercesEnemyArrayOfTargets.isEmpty())
-			return piercesEnemyArrayOfTargets;
+		if (!piercesEnemyArrayOfTargets.isEmpty()) {
+			if (entityToIgnore != null)
+				for (Actor a : entityToIgnore)
+					piercesEnemyArrayOfTargets.removeIf(actor -> actor == a);
+			return piercesEnemyArrayOfTargets.isEmpty() ? null : piercesEnemyArrayOfTargets;
+		}
 
 		return null;
 
 	}
 
 	// lmao ure now useless dw ill find a use for u later
-	public static HashSet<Enemy> clickAndRayCasting(float fromX, float fromY, ArrayList<Entity> entityToIgnore, boolean phases){
+	public static ArrayList<Actor> clickAndRayCasting(float fromX, float fromY, ArrayList<Actor> entityToIgnore, boolean phases){
 		Vector3 utilVector = roundedClick();
 		float toX = utilVector.x;
 		float toY = utilVector.y;
@@ -210,15 +233,21 @@ public class ClickDetector implements Utils {
 		return true;
 	}
 
-
+	private static boolean valueSearcher(ArrayList<Actor> theListInQuestion, Actor theValueInQuestion){
+		for (Actor l : theListInQuestion){
+			if(l == theValueInQuestion)
+				return true;
+		}
+		return false;
+	}
 
 
 
 	private static class Ray extends Entity {
 		short timesRayTouchedWall = 0, timesRayTouchedOtherEnemy = 0;
 		boolean phases;
-		ArrayList<EnemyAndTimesTheRayTouchedIt> hitEnemies;
-		ArrayList<EnemyAndTimesTheRayTouchedIt> enemiesThatGotHit;
+		ArrayList<ActorAndTimesTheRayTouchedIt> hitEnemies;
+		ArrayList<ActorAndTimesTheRayTouchedIt> enemiesThatGotHit;
 
 		// chillllll, idea, might use them later
 		public Ray(String texture,float x, float y, float base, float height, boolean phases){
@@ -261,30 +290,30 @@ public class ClickDetector implements Utils {
 			}
 		}
 
-		public ArrayList<EnemyAndTimesTheRayTouchedIt> enemyRayCheck(ArrayList<Entity> enemiesToIgnore) {
+		public ArrayList<ActorAndTimesTheRayTouchedIt> enemyRayCheck(ArrayList<Actor> enemiesToIgnore) {
 			if (enemiesToIgnore != null)
 				for (Entity e : enemiesToIgnore)
-					for (Enemy en : enemies) {
+					for (Actor en : actors) {
 						if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead && en != e) {
 							if (phases) {
 								timesRayTouchedOtherEnemy++;
-								hitEnemies.add(new EnemyAndTimesTheRayTouchedIt(en));
+								hitEnemies.add(new ActorAndTimesTheRayTouchedIt(en));
 							} else {
 								if (!isEnemyAlreadyOnHashSet(en))
-									enemiesThatGotHit.add(new EnemyAndTimesTheRayTouchedIt(en));
+									enemiesThatGotHit.add(new ActorAndTimesTheRayTouchedIt(en));
 								enemySearcher(en).touch();
 							}
 						}
 					}
 			else
-				for (Enemy en : enemies)
+				for (Actor en : actors)
 					if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead) {
 						if (phases) {
 							timesRayTouchedOtherEnemy++;
-							hitEnemies.add(new EnemyAndTimesTheRayTouchedIt(en));
+							hitEnemies.add(new ActorAndTimesTheRayTouchedIt(en));
 						} else {
 							if (!isEnemyAlreadyOnHashSet(en))
-								enemiesThatGotHit.add(new EnemyAndTimesTheRayTouchedIt(en));
+								enemiesThatGotHit.add(new ActorAndTimesTheRayTouchedIt(en));
 							enemySearcher(en).touch();
 						}
 					}
@@ -294,43 +323,50 @@ public class ClickDetector implements Utils {
 				return enemiesThatGotHit;
 		}
 
-		private boolean isEnemyAlreadyOnHashSet(Enemy enemy){
-			for(EnemyAndTimesTheRayTouchedIt e : enemiesThatGotHit)
-				if (e.getEnemy() == enemy)
+		private boolean isEnemyAlreadyOnHashSet(Actor enemy){
+			for(ActorAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+				if (e.getActor() == enemy)
 					return true;
 			return false;
 		}
 
-		private EnemyAndTimesTheRayTouchedIt enemySearcher(Enemy enemy){
-			for(EnemyAndTimesTheRayTouchedIt e : enemiesThatGotHit)
-				if (e.getEnemy() == enemy)
+		private boolean isEnemyAlreadyOnArrayList(Actor enemy){
+			for(ActorAndTimesTheRayTouchedIt e : hitEnemies)
+				if (e.getActor() == enemy)
+					return true;
+			return false;
+		}
+
+		private ActorAndTimesTheRayTouchedIt enemySearcher(Actor enemy){
+			for(ActorAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+				if (e.getActor() == enemy)
 					return e;
 			return null;
 		}
 
-		public ArrayList<EnemyAndTimesTheRayTouchedIt> getEnemiesThatGotHit(){
+		public ArrayList<ActorAndTimesTheRayTouchedIt> getEnemiesThatGotHit(){
 			return enemiesThatGotHit;
 		}
 
 	}
 
 
-	private static class EnemyAndTimesTheRayTouchedIt{
-		Enemy objective;
+	private static class ActorAndTimesTheRayTouchedIt{
+		Actor objective;
 		int timesTheRayTouchedTheEnemy;
 
-		public EnemyAndTimesTheRayTouchedIt(Enemy objective){
+		public ActorAndTimesTheRayTouchedIt(Actor objective){
 			this.objective = objective;
 			timesTheRayTouchedTheEnemy = 0;
 		}
 
 		public void touch(){timesTheRayTouchedTheEnemy++;}
 
-		public Enemy getEnemy(){
+		public Actor getActor(){
 			return objective;
 		}
 
-		public int getTimesTheRayTouchedTheEnemy(){
+		public int getTimesTheRayTouchedTheActor(){
 			return timesTheRayTouchedTheEnemy;
 		}
 	}

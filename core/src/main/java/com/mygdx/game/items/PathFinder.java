@@ -8,6 +8,9 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.Enemy.enemyGrid;
+import static com.mygdx.game.items.Tile.findATile;
 import static java.lang.Math.abs;
 import static java.lang.Float.POSITIVE_INFINITY;
 
@@ -19,7 +22,7 @@ public class PathFinder {
 	Tile startTile;
 	Tile objectiveTile;
 	public ArrayList<Tile> solution = new ArrayList<>();
-	Boolean needsReset = new Boolean(false);
+	Boolean needsReset = new Boolean(true);
 	public static ArrayList<Boolean> resetList = new ArrayList<>();
 	float minimunDistance = POSITIVE_INFINITY;
 
@@ -36,9 +39,8 @@ public class PathFinder {
 		};
 	}
 
-	public PathFinder(float startX, float startY, float finalX, float finalY ){
+	public PathFinder(){
 		generateGrids();
-		reset(startX,startY,finalX,finalY);
 		resetList.add(needsReset);
 	}
 
@@ -57,15 +59,24 @@ public class PathFinder {
 				if (t.overlaps(a))
 					t.isWalkable = false;
 		}
+		Collections.shuffle(enemies);
+		//TODO: make it so it also takes speed in consideration
+		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed, o1.actingSpeed));
+		enemyGrid = new ArrayList<>();
+		for (Tile t : grid) {
+			enemyGrid.add(t.clone());
+			t.parent = new ArrayList<>();
+		}
+		for (Tile t : enemyGrid)
+			for (Actor a : actors)
+				if (!(a instanceof Enemy) && a.x == t.x && a.y == t.y) {
+					t.isWalkable = false;
+					break;
+				}
+
 	}
 
-	public static Tile findATile (ArrayList<Tile> tile,float x, float y){
-		for (Tile t : tile){
-			if (x == t.x && t.y == y)
-				return t;
-		}
-		return null;
-	}
+
 
 	public void reset(float startX,float startY, float finalX, float finalY){
 		generateGrids();
@@ -78,11 +89,29 @@ public class PathFinder {
 		dumpList = new ArrayList<>();
 	}
 
+
+	public void reset(float startX,float startY, float finalX, float finalY,ArrayList<Tile> grid){
+		reset(startX,startY,finalX,finalY);
+		setStart(startX,startY,grid);
+		setEnd(finalX,finalY,grid);
+	}
+
+
 	public boolean quickSolve(float startX,float startY, float finalX, float finalY,byte listType){
 		reset(startX,startY,finalX,finalY);
-		if(listType == 0) solve(grid);
-		else if(listType == 1) solve(actorGrid);
-		return !solution.isEmpty();
+		if (objectiveTile != null) {
+			if (listType == 0) solve(grid);
+			else if (listType == 1) solve(actorGrid);
+			return !solution.isEmpty();
+		} return false;
+	}
+
+	public boolean quickSolve(float startX,float startY, float finalX, float finalY,ArrayList<Tile> grid){
+		reset(startX,startY,finalX,finalY,grid);
+		if (objectiveTile != null) {
+			solve(grid);
+			return !solution.isEmpty();
+		} return false;
 	}
 
 	ArrayList<Tile> currentAnalizing = new ArrayList<>();
@@ -99,13 +128,17 @@ public class PathFinder {
 						return true;
 			}
 			return !solution.isEmpty();
-		}
+		} else print("needs reset");
 		return false;
 	}
 
 
 	private boolean currentAnalize(Tile originalTile,ArrayList<Tile> currentGrid){
-		ArrayList<Tile> neighbours = originalTile.walkableOrthogonalTiles(currentGrid);
+		ArrayList<Tile> neighbours;
+		if (currentGrid == grid)
+			neighbours = originalTile.walkableOrthogonalTiles(currentGrid);
+		else
+			neighbours = originalTile.isWalkableOrthogonalTiles(currentGrid);
 		for (Tile t : neighbours){
 			if ((originalTile == startTile || t.generation == 0 || originalTile.generation < t.generation)
 					&& originalTile.distanceToStart < minimunDistance) {
@@ -124,7 +157,6 @@ public class PathFinder {
 				t.parent.add(originalTile);
 				if (originalTile.distanceToStart + t.relativeModuleTo(originalTile) < t.distanceToStart || t.distanceToStart == 0)
 					t.distanceToStart = originalTile.distanceToStart + t.relativeModuleTo(originalTile);
-				print("added generation " + (originalTile.generation + 1) + " parent");
 				if (t == objectiveTile && objectiveTile.distanceToStart < minimunDistance) {
 					return traceback();
 				}
@@ -136,6 +168,7 @@ public class PathFinder {
 
 	private boolean traceback(){
 		minimunDistance = objectiveTile.distanceToStart;
+		print("minimun distance is now " + minimunDistance);
 		solution.clear();
 		print("called traceback!!! distance is of " + objectiveTile.distanceToStart);
 		Tile checkedTile = objectiveTile;
@@ -143,14 +176,11 @@ public class PathFinder {
 			solution.add(checkedTile);
 			checkedTile.parent.sort((o1, o2) -> Float.compare(o2.distanceToStart, o1.distanceToStart));
 			Collections.reverse(checkedTile.parent);
+			print("checkedtile is " + checkedTile + " its generation is " + checkedTile.generation + " its x is " + checkedTile.x + " ots y os" + checkedTile.y);
 			checkedTile = checkedTile.parent.get(0);
-			print("did one dowhile. paremt tile was " + checkedTile + " and its parents are " + checkedTile.parent);
 		}
 		while(checkedTile != startTile);
 		Collections.reverse(solution);
-		for (Tile t : solution){
-			print(t+" coords is: " + t.x + " ("+ t.x/globalSize()+") " + t.y + " (" + t.y/globalSize() + ")");
-		}
 		return objectiveTile.distanceToStart == objectiveTile.relativeModuleTo(startTile);
 	}
 
@@ -170,10 +200,6 @@ public class PathFinder {
 			}
 
 		}
-		print("current path is: ");
-		for(Path.PathStep p : path){
-			print("path: x(" + p.x + ") y(" + p.y + ") relX("+ p.directionX + ") relY(" + p.directionY + ")");
-		}
 		return path;
 	}
 
@@ -183,13 +209,33 @@ public class PathFinder {
 		startTile = findATile(grid,x,y);
 		if (startTile != null)
 			startTile.generation = 1;
+		else
+			print("startile is null. x was " + x + " y was " + y);
 	}
 
 	public void setEnd(float x, float y){
 		objectiveTile = findATile(grid,x,y);
-		print( "objtile is " + x + " " + y );
+		if (objectiveTile == null) {
+			print("ovktitile IS NULL WITH COORDS " + x + " y" + y);
+			print("GRID SIZE IS OF " + grid.size());
+		}
+		if(objectiveTile != null)
+			objectiveTile.isWalkable = true;
+	}
+
+	public void setStart(float x, float y,ArrayList<Tile> grid){
+		startTile = findATile(grid,x,y);
+		if (startTile != null)
+			startTile.generation = 1;
+		else
+			print("startile is null. x was " + x + " y was " + y);
+	}
+
+	public void setEnd(float x, float y,ArrayList<Tile> grid){
+		objectiveTile = findATile(grid,x,y);
 		if (objectiveTile == null)
 			print("ovktitile OS NILL");
+		objectiveTile.isWalkable = true;
 	}
 
 	public void setPlayerAsEnd(){

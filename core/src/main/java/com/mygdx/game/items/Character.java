@@ -39,10 +39,9 @@ public class Character extends Actor implements Utils {
 
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
-	int[] attackDirection = new int[2];
 	boolean willDoNormalTextureChange = true;
 
-	ArrayList<Attack> attacks = new ArrayList<>();
+	static boolean canEnemiesAct = false;
 
 	public Character(float x, float y, float base, float height) {
 		super("char",x,y,base,height);
@@ -57,9 +56,6 @@ public class Character extends Actor implements Utils {
 		oVS2 = new OnVariousScenarios(){
 			@Override
 			public void onStageChange(){
-				if(pathFindAlgorithm == null)
-					pathFindAlgorithm = new PathFinder(x,y,0,0);
-				pathFindAlgorithm.reset(x,y,0,0);
 				attackMode = false;
 				canDecide[0] = true; canDecide[1] = true;
 				speedLeft[0] = 0;    speedLeft[1] = 0;
@@ -75,7 +71,8 @@ public class Character extends Actor implements Utils {
 		};
 		team = 1;
 		character = new Classless();
-		path = new Path(x,y,character.speed,stage);
+		character.character = this;
+		path = new Path(x,y,character.speed);
 	}
 
 	public void spendTurn(){
@@ -106,22 +103,7 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-	public void finalizedAttack(){
-		if (numberOfHits == 0)
-			print("Hit nothing!");
-		else if (numberOfHits > 1)
-			print("Hit " + numberOfHits + " times!");
-		else
-			print("Hit 1 time!");
-			speedLeft[0] = 0;
-			speedLeft[1] = 0;
-			canDecide[0] = true;
-			attackDirection[0] = 0;
-			attackDirection[1] = 0;
-			attacks.clear();
-			spendTurn();
 
-	}
 
 	private void pathFinding(){
 		path.pathReset();
@@ -158,68 +140,17 @@ public class Character extends Actor implements Utils {
 	}
 
 	int numberOfHits = 0;
-	public void attack(){
-		testCollision.x = x;
-		testCollision.y = y;
-		if (isPermittedToAct())
-			attackDetector();
-
-		else if (canDecide() && isDecidingWhatToDo(this))
-			attackInput();
-
-		super.refresh(texture,x, y, base, height);
-	}
 
 
-	private void attackDetector(){
-		for (Attack a : attacks) {
-			HashSet<Enemy> list = rayCasting(x, y, a.targetX, a.targetY, null, false);
-			if (list != null)
-				for (Enemy e : list) {
-					e.damage(character.outgoingDamage(), "Melee");
-					numberOfHits++;
-					if (!character.pierces)
-						break;
-				}
-		}
-		finalizedAttack();
-	}
+
+
+
+
+
 
 	Entity targetsTarget = new Entity("default",x,y,false);
 	TextureManager.Animation target;
 	Tile.Circle circle;
-	protected void attackInput() {
-		targetProcesor();
-		if(Gdx.input.justTouched()) {
-			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
-				attacks.add(new Attack(temporal.x, temporal.y));
-				canDecide = new boolean[]{false, false};
-				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!character.onAttackDecided())
-					actionDecided();
-			}
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
-				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
-				canDecide = new boolean[]{false, false};
-				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!character.onAttackDecided())
-					actionDecided();
-			}
-		}
-	}
-
-	public static class Attack{
-		float targetX, targetY;
-		public Attack(float x, float y){
-			targetX = x; targetY = y;
-		}
-	}
-
-
-
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	private void targetProcesor(){
@@ -300,7 +231,45 @@ public class Character extends Actor implements Utils {
 	}
 
 
+	public void attackDetector(){
+		ArrayList<Actor> temp = new ArrayList<>();
+		temp.add(this);
+		for (Attack a : attacks) {
+			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY,temp, false);
+			if (list != null)
+				for (Actor aa : list) {
+					aa.damage(character.outgoingDamage(), "Melee");
+					numberOfHits++;
+					if (!character.pierces)
+						break;
+				}
+		}
+		finalizedTurn();
+	}
 
+
+	protected void attackInput() {
+		targetProcesor();
+		if(Gdx.input.justTouched()) {
+			Vector3 temporal = roundedClick();
+			if (circle.findATile(temporal.x,temporal.y) != null) {
+				attacks.add(new Attack(temporal.x, temporal.y));
+				canDecide = new boolean[]{false, false};
+				thisTurnVSM = getVisualSpeedMultiplier();
+				if (!character.onAttackDecided())
+					actionDecided();
+			}
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
+				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
+				canDecide = new boolean[]{false, false};
+				thisTurnVSM = getVisualSpeedMultiplier();
+				if (!character.onAttackDecided())
+					actionDecided();
+			}
+		}
+	}
 
 
 	//FIXME: revisit when proper key handlin
@@ -357,6 +326,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void damage(float damage, String damageReason){
+		print("damaged character for " + damage + " damage!");
 		character.damage(damage);
 	}
 
@@ -584,8 +554,12 @@ public class Character extends Actor implements Utils {
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
 		print("its " + getTakeEnemiesIntoConsideration());
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
+			canEnemiesAct = !canEnemiesAct;
+			print("canenemiesact " + canEnemiesAct);
+		}
+
 	}
-	boolean isVideoPlaying = false;
 
 
 }

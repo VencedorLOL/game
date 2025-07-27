@@ -9,11 +9,15 @@ import java.util.Collections;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.Character.canEnemiesAct;
+import static com.mygdx.game.items.ClickDetector.rayCasting;
+import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Actor extends Entity{
 
+	public float movedThisTurn;
 	public float maxHealth;
 	byte speed;
 
@@ -22,6 +26,8 @@ public class Actor extends Entity{
 	// 0 = neutral
 	// 1 = good
 	public int actingSpeed;
+	public float damage;
+	public boolean pierces;
 	int[] speedLeft = new int[2];
 	Path path;
 	int thisTurnVSM;
@@ -35,7 +41,7 @@ public class Actor extends Entity{
 
 	boolean isDead;
 
-	public Actor target;
+	public Actor targetActor;
 
 	public static ArrayList<Actor> actors = new ArrayList<>();
 
@@ -59,17 +65,26 @@ public class Actor extends Entity{
 			didItAct = false;
 			permittedToAct = false;
 		}
+
+		@Override
+		public void onTurnPass() {
+			path.pathReset();
+			movedThisTurn = 0;
+		//	path = new Path(x,y,speed);
+		}
 	};
 
 	public boolean getIsDead() { return isDead; }
 
 	public Actor(String aChar, float x, float y, float base, float height) {
 		super(aChar,x,y,base,height);
+		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
 	}
 
 	public Actor() {
 		super();
+		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
 	}
 
@@ -111,10 +126,11 @@ public class Actor extends Entity{
 		testCollision.y = y;
 		glideProcess();
 		if (turnMode) {
-			if (isPermittedToAct()) {
+			if (isPermittedToAct() && canEnemiesAct) {
 				lastTimeTilLastMovement = 0;
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded)
 					speedLeft = path.pathProcess(this);
+
 
 
 				if (speedLeft[0] != 0 || speedLeft[1] != 0)
@@ -122,11 +138,12 @@ public class Actor extends Entity{
 
 
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
-					finalizedMove();
+					finalizedTurn();
 
 
-			} else if (canDecide() && isDecidingWhatToDo(this))
+			} else if (canDecide() && isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
 				movementInputTurnMode();
+
 
 		} else {
 			movementInputManual();
@@ -147,12 +164,14 @@ public class Actor extends Entity{
 			if (!overlapsWithStage(stage,testCollision))
 				x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
+			movedThisTurn++;
 		}
 		else if (speedLeft[0] < 0) {
 			testCollision.x -= thisTurnVSM;
 			if (!overlapsWithStage(stage,testCollision))
 				x -= thisTurnVSM;
 			speedLeft[0] += thisTurnVSM;
+			movedThisTurn++;
 		}
 		testCollision.x = x;
 		if (speedLeft[1] > 0) {
@@ -160,12 +179,14 @@ public class Actor extends Entity{
 			if (!overlapsWithStage(stage,testCollision))
 				y += thisTurnVSM;
 			speedLeft[1] -= thisTurnVSM;
+			movedThisTurn++;
 		}
 		else if (speedLeft[1] < 0) {
 			testCollision.y -= thisTurnVSM;
 			if (!overlapsWithStage(stage,testCollision))
 				y -= thisTurnVSM;
 			speedLeft[1] += thisTurnVSM;
+			movedThisTurn++;
 		}
 
 
@@ -180,62 +201,70 @@ public class Actor extends Entity{
 	}
 
 	protected void turnSpeedActuator(){
+		print("speedLect x is "+ speedLeft[0] + " y " + speedLeft[1]);
 		if (speedLeft[0] > 0) {
 			x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
+			movedThisTurn++;
 		}
 		else if (speedLeft[0] < 0) {
 			x -= thisTurnVSM;
 			speedLeft[0] += thisTurnVSM;
+			movedThisTurn++;
 		}
 		if (speedLeft[1] > 0) {
 			y += thisTurnVSM;
 			speedLeft[1] -= thisTurnVSM;
+			movedThisTurn++;
 		}
 		else if (speedLeft[1] < 0) {
 			y -= thisTurnVSM;
 			speedLeft[1] += thisTurnVSM;
+			movedThisTurn++;
 		}
 	}
 
 	protected void movementInputTurnMode(){
 		automatedMovement();
-		if (path.pathCreate(x,y, speed)) {
-			canDecide = new boolean[] {false, false};
-			thisTurnVSM = getVisualSpeedMultiplier();
+		if (path.pathCreate(x,y, speed,this))
 			actionDecided();
-		}
 	}
 
 
 	protected void automatedMovement(){
-	//	if(pathFindAlgorithm == null)
-	//		pathFindAlgorithm = new PathFinder(stage);
-	//	path.pathReset();
-	//	PathFinder.reset(stage);
-	//	pathFindAlgorithm.setStart(x,y);
-	//	pathFindAlgorithm.setPlayerAsEnd();
-	//	pathFindAlgorithm.solve();
-	//	if (pathFindAlgorithm.algorithm.getPath() != null){
-	//		path.setPathTo(pathFindAlgorithm.getSolvedPath());
-	//	} else
-			print("no path found");
+		if(targetActor == null)
+			targetFinder();
+		if (targetActor != null) {
+			path.pathReset();
+			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, getTakeEnemiesIntoConsideration()))
+				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
+			else
+				actionDecided();
+		} else actionDecided();
+
 	}
 
 	protected void actionDecided(){
+		canDecide = new boolean[] {false, false};
+		thisTurnVSM = getVisualSpeedMultiplier();
 		Turns.actorsFinalizedChoosing(this);
+	//	canEnemiesAct = false;
 	}
 
-	public void finalizedMove(){
+	public void finalizedTurn(){
+		print("moved this turn " + movedThisTurn);
 		speedLeft[0] = 0;
 		speedLeft[1] = 0;
 		canDecide[0] = true;
+		attacks.clear();
 		spendTurn();
 	}
+
 
 	public void spendTurn(){
 		printErr("Called spendTurn on + " + this);
 		permittedToAct = false;
+		path.pathStart();
 	}
 
 
@@ -271,7 +300,7 @@ public class Actor extends Entity{
 		return canDecide[0] && canDecide[1];
 	}
 
-//FIXME: revisit when proper key handlin
+//FIXME: revisit when proper key handling
 	public void movementInputManual(){
 		if (Gdx.input.isKeyPressed(Input.Keys.W))
 			speedLeft[1] += globalSize()/16;
@@ -356,11 +385,12 @@ public class Actor extends Entity{
 				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.aggro));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
-		//when pathfinding is implemented, add an if check to check if the entity can be reachable
+		Collections.reverse(targets);
 		for (ActorAndDistance a : targets){
-			//if (pathfinding.canReachThereOrSum())
-			target = a.actor;
-			return;
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration())) {
+				targetActor = a.actor;
+				return;
+			}
 		}
 	}
 
@@ -385,6 +415,49 @@ public class Actor extends Entity{
 	}
 
 
+	public static class Attack{
+		float targetX, targetY;
+		public Attack(float x, float y){
+			targetX = x; targetY = y;
+		}
+	}
 
+	public void attack(){
+		testCollision.x = x;
+		testCollision.y = y;
+		if (isPermittedToAct())
+			attackDetector();
+
+		else if (canDecide() && isDecidingWhatToDo(this))
+			attackInput();
+	}
+
+
+
+	public void attackDetector(){
+		ArrayList<Actor> actuallyEnemies = new ArrayList<>(enemies);
+		print("attack size " + attacks.size());
+		for (Attack a : attacks) {
+			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY, actuallyEnemies, pierces);
+			if (list != null)
+				for (Actor e : list)
+					if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
+						e.damage(damage, "Melee");
+						if (!pierces)
+							break;
+					}
+		}
+		finalizedTurn();
+	}
+
+	ArrayList<Attack> attacks = new ArrayList<>();
+	protected void attackInput() {
+		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range) {
+			attacks.add(new Attack(targetActor.x, targetActor.y));
+			canDecide = new boolean[]{false, false};
+			thisTurnVSM = getVisualSpeedMultiplier();
+			actionDecided();
+		}
+	}
 
 }

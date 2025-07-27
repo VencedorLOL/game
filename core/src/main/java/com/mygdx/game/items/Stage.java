@@ -121,14 +121,14 @@ public class Stage implements Utils {
 		haveEnemiesBeenRendered = true;
 	}
 
-	public void enemyRenderer(Stage stage, ParticleManager pm){
+	public void enemyRenderer(ParticleManager pm){
 		if (!haveEnemiesBeenRendered){
 			enemySetter();
 			haveEnemiesBeenRendered = true;
 		}
 		for (Enemy e : enemy){
 			if (!e.isDead) {
-				e.update(stage,pm);
+				e.update(pm);
 				e.render();
 			}
 		}
@@ -179,7 +179,7 @@ public class Stage implements Utils {
 			b.render();
 	}
 
-	public void stageRenderer(GameScreen gs, Stage stage){
+	public void stageRenderer(GameScreen gs){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			enemy.clear();
@@ -192,7 +192,7 @@ public class Stage implements Utils {
 			screenWarpSetter();
 			betweenStages = false;
 			print("enemy list ruccently s: ");
-			for (Enemy e : enemies)
+			for (Actor e : enemies)
 				print(e+"");
 
 		}
@@ -202,7 +202,7 @@ public class Stage implements Utils {
 			camaraBase = Camara.base;
 			camaraHeight = Camara.height;
 			tilesetRenderer();
-			enemyRenderer(stage, gs.particle);
+			enemyRenderer(gs.particle);
 			wallRenderer();
 			screenWarpRenderer();
 			border.border(chara, this);
@@ -211,7 +211,7 @@ public class Stage implements Utils {
 		}
 	}
 
-	public void stageRenderer(Stage stage, TextureManager tm){
+	public void stageRenderer(TextureManager tm){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			wallSetter();
@@ -227,7 +227,7 @@ public class Stage implements Utils {
 			camaraBase = Camara.base;
 			camaraHeight = Camara.height;
 			tilesetRenderer();
-			enemyRenderer(stage, new ParticleManager(tm));
+			enemyRenderer(new ParticleManager(tm));
 			screenWarpRenderer();
 			wallRenderer();
 		}
