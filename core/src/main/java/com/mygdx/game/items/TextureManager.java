@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.cC;
@@ -353,7 +354,7 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){}
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);}
 		}
 
 		public Animation(String file, Entity entityToFollow){
@@ -365,7 +366,7 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){}
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);}
 		}
 
 		public void play(){
@@ -555,7 +556,6 @@ public class TextureManager {
 
 
 		public void update(){
-			//IMAGINE GLIDING CIRCLES THATD BE SO COOL
 			if (entityToFollow != null)
 				move(true,0);
 			if (isOrbiting)
