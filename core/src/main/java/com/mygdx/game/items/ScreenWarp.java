@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import static com.mygdx.game.Settings.turnMode;
+
 public class ScreenWarp {
 	protected Stage stage;
 	protected int base, height;
@@ -18,7 +20,7 @@ public class ScreenWarp {
 	}
 
 	public boolean doesCharInteractWithMe(Character chara){
-		if (!chara.turnMode)
+		if (!turnMode)
 			return x < chara.x + chara.base && x + base > chara.x && y < chara.y + chara.height && y + height > chara.y;
 		return chara.x == x && chara.y == y;
 	}

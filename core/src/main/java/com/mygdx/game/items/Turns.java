@@ -57,6 +57,7 @@ public class Turns implements Utils {
 	}
 
 	private static boolean checkForTurn(ArrayList<Actor> listOfActors){
+		listOfActors.removeIf(a -> a.isDead);
 		int numberOfTrueFinalizedChoosers = 0;
 		for (ActorAndBoolean f : finalizedToChoose){
 			if(f.getBool())
@@ -80,11 +81,13 @@ public class Turns implements Utils {
 	public static long getTurnCount(){return turnCount;}
 
 	public static void turnLogic() {
+		finalizedToChoose.removeIf(a -> a.actor.isDead);
 		if (willTurnRun) {
 			if (isTurnApproved) {
 				finalList = new ArrayList<>();
-				for (Actor e : actors)
-						finalList.add(new ActorAndSpeed(e.actingSpeed * 100 + e.speed, e));
+				for (Actor a : actors)
+					if(!a.isDead)
+						finalList.add(new ActorAndSpeed(a.actingSpeed * 100 + a.speed, a));
 				Collections.shuffle(finalList);
 				finalList.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
 				act();

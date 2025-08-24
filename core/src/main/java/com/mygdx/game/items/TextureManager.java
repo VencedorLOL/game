@@ -61,11 +61,16 @@ public class TextureManager {
 	}
 
 	private void drawer(String texture, float x, float y,float opacity){
-	//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
+		drawer(texture,x,y,opacity,false);
+	}
+
+	private void drawer(String texture, float x, float y,float opacity,boolean flipX){
+		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
 		sprite = new Sprite(region);
 		sprite.setAlpha(opacity);
 		sprite.setPosition(x,y);
+		sprite.setFlip(flipX,false);
 		sprite.draw(batch);
 	}
 
@@ -145,7 +150,7 @@ public class TextureManager {
 		for (TextureManager.Animation a : animations){
 			a.update();
 			if (a.texture != null)
-				drawer(a.texture,a.x,a.y,a.opacity);
+				drawer(a.texture, a.x, a.y, a.opacity, a.flipX);
 		}
 		animations.removeIf(ani -> ani.finished);
 		// Text display
@@ -324,8 +329,8 @@ public class TextureManager {
 		public ArrayList<String> code = new ArrayList<>();
 		public int framesForCurrentAnimation = 0;
 		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
-		public TextureManager tm;
 		public float opacity;
+
 
 		int glideFrames;
 		boolean isGliding = false;
@@ -346,7 +351,11 @@ public class TextureManager {
 
 		Entity entityToFollow;
 
+		public boolean flipX = false;
+		String name;
+
 		public Animation(String file, float x, float y){
+			name = file;
 			try {
 				this.file = new File("Animations//" + file + ".ani");
 				fileReader = new Scanner(new FileReader(this.file));
@@ -358,6 +367,7 @@ public class TextureManager {
 		}
 
 		public Animation(String file, Entity entityToFollow){
+			name = file;
 			try {
 				this.entityToFollow = entityToFollow;
 				this.file = new File("Animations//" + file + ".ani");
@@ -411,8 +421,8 @@ public class TextureManager {
 							move(true, Float.parseFloat(reader.substring(reader.indexOf(':') + 1, reader.lastIndexOf(':'))));
 							move(false, Float.parseFloat(reader.substring(reader.lastIndexOf(':') + 1, indexOfCoordinateDelimitator)));
 						}
-					} else
-						texture = reader.substring(reader.lastIndexOf('?') + 1,
+					}
+					texture = reader.substring((reader.contains("~") ? reader.indexOf('~') : reader.lastIndexOf('?')) + 1,
 								reader.contains("<") ?
 									reader.indexOf('<'):
 								reader.contains(":")?
@@ -444,6 +454,7 @@ public class TextureManager {
 								orbital.indexOf("*")+1 == orbital.indexOf("r") ? framesForCurrentAnimation :
 								Float.parseFloat(orbital.substring(orbital.indexOf("*")+1,orbital.indexOf("r"))));
 					}
+					flipX = reader.contains("~");
 				}
 				if (reader.charAt(0) == '^') {
 					didRunCode = true;
@@ -466,16 +477,17 @@ public class TextureManager {
 			}
 			else {
 				finished = true;
-				print("Animation Finished");
 				onFinish();
 			}
 		}
 
+		//you dont need to write "finished = true" in this method's overrides
 		public void onFinish(){
 
 		}
 
 		public void stop(){
+			onFinish();
 			finished = true;
 		}
 
@@ -487,12 +499,10 @@ public class TextureManager {
 				if (isOnX) x += coordinate;
 				else y += coordinate;
 			} else{
-				if (isOnX) {
+				if (isOnX)
 					startX += coordinate;
-				}
-				else {
+				else
 					startY += coordinate;
-				}
 				x = entityToFollow.x + startX;
 				y = entityToFollow.y + startY;
 				startY = 0; startX = 0;
@@ -509,8 +519,6 @@ public class TextureManager {
 
 		}
 
-		//this is the first time in my life i have to use sine and cosine functions outside of math class
-		// THANKS JAVA FOR USING RADIANS INSTEAD OF DEGREES
 		public void orbitStart(float radius, float angleD, float x, float y, float angleDStart, boolean clockwise,float orbitFrames){
 			this.isOrbiting = true;
 			this.radius = radius * globalSize();
@@ -524,7 +532,6 @@ public class TextureManager {
 			print("Is it clockwise? " + clockwise+".");
 		}
 
-		// epiphany moment when i realized i dont need the sin/cos * radius, but sin/cos * radius minus previus sin/cos * radius.
 
 
 
@@ -577,7 +584,7 @@ public class TextureManager {
 			}
 		}
 
-		private class Used {
+		private static class Used {
 			boolean bool;
 			int line;
 			private Used(boolean bool, int line){

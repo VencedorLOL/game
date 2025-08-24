@@ -14,6 +14,8 @@ public class Dummy extends Enemy {
 	public Dummy(float x, float y) {
 		super(x, y, "Dummy", 100);
 		float maxHealth = 100;
+		team = 1;
+		defense = 0;
 		test = new Interactable(null,x,y,globalSize(),globalSize()){
 			@Override
 			public void onInteract() {
@@ -22,6 +24,11 @@ public class Dummy extends Enemy {
 		};
 	}
 
+	public void attack(){
+	if (isPermittedToAct())
+		finalizedTurn();
+	else if (canDecide())
+		actionDecided();}
 
 	@Override
 	public void onDeath() {

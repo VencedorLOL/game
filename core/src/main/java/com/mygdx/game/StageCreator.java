@@ -46,7 +46,7 @@ public class StageCreator {
 			"\n" +
 			"\n" +
 			"\t@Override\n" +
-			"\tpublic void reStage(Character character){\n" +
+			"\tpublic void reStage(Character chara){\n" +
 			"\t\tscreenWarpDestination.add(new   );\n" +
 			"\t}\n" +
 			"}\n"	;

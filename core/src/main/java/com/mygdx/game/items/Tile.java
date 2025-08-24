@@ -20,6 +20,8 @@ public class Tile implements Cloneable {
 	public ArrayList<Tile> parent = new ArrayList<>();
 	public float distanceToStart;
 	public byte generation = 0;
+	//for antisoftlock
+	public boolean hasBeenChecked = false;
 
 	public ArrayList<Tile> getParents(){
 		return parent;

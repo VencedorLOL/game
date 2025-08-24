@@ -7,10 +7,7 @@ import com.mygdx.game.GameScreen;
 import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
-import com.mygdx.game.items.characters.classes.Classless;
-import com.mygdx.game.items.characters.classes.Healer;
-import com.mygdx.game.items.characters.classes.Melee;
-import com.mygdx.game.items.characters.classes.Vencedor;
+import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.HealerShields;
 import com.mygdx.game.items.characters.equipment.shields.MeleeShields;
@@ -19,22 +16,20 @@ import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Interactable.interactables;
-import static com.mygdx.game.items.PathFinder.*;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.VideoManager.*;
+import static java.lang.Math.round;
 
 public class Character extends Actor implements Utils {
 
-	public CharacterClasses character;
+	public CharacterClasses classes;
 
 	OnVariousScenarios oVS2;
 
@@ -42,6 +37,7 @@ public class Character extends Actor implements Utils {
 	public float lastClickX, lastClickY;
 	boolean willDoNormalTextureChange = true;
 
+	TextureManager.Animation walkingAnimation;
 
 	public Character(float x, float y, float base, float height) {
 		super("char",x,y,base,height);
@@ -70,9 +66,9 @@ public class Character extends Actor implements Utils {
 			}
 		};
 		team = 1;
-		character = new Classless();
-		character.character = this;
-		path = new Path(x,y,character.speed);
+		classes = new Classless();
+		classes.character = this;
+		path = new Path(x,y, classes.speed);
 	}
 
 	public void spendTurn(){
@@ -116,13 +112,13 @@ public class Character extends Actor implements Utils {
 
 
 	public void update(GameScreen cam){
-		character.update();
-		speed = character.speed;
-		actingSpeed = character.attackSpeed;
-		range = character.range;
+		classes.update();
+		speed = classes.speed;
+		actingSpeed = classes.attackSpeed;
+		range = classes.range;
 		onDeath();
-		actingSpeed = character.attackSpeed;
-		path.getStats(x,y,character.speed);
+		actingSpeed = classes.attackSpeed;
+		path.getStats(x,y, classes.speed);
 
 		if (!attackMode)
 			movement();
@@ -154,11 +150,11 @@ public class Character extends Actor implements Utils {
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != character.range || !circle.walkable) {
+		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.range || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
 					t.texture.setSecondaryTexture(null);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, character.range, true);
+			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.range, true);
 
 		}
 		Vector3 temporal = roundedClick();
@@ -235,12 +231,13 @@ public class Character extends Actor implements Utils {
 		ArrayList<Actor> temp = new ArrayList<>();
 		temp.add(this);
 		for (Attack a : attacks) {
-			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY,temp, false);
+			classes.onAttack();
+			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY,temp, false,this);
 			if (list != null)
 				for (Actor aa : list) {
-					aa.damage(character.outgoingDamage(), "Melee");
+					aa.damage(classes.outgoingDamage(), "Melee");
 					numberOfHits++;
-					if (!character.pierces)
+					if (!classes.pierces)
 						break;
 				}
 		}
@@ -256,7 +253,7 @@ public class Character extends Actor implements Utils {
 				attacks.add(new Attack(temporal.x, temporal.y));
 				canDecide = new boolean[]{false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!character.onAttackDecided())
+				if (!classes.onAttackDecided())
 					actionDecided();
 			}
 		}
@@ -265,7 +262,7 @@ public class Character extends Actor implements Utils {
 				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
 				canDecide = new boolean[]{false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!character.onAttackDecided())
+				if (!classes.onAttackDecided())
 					actionDecided();
 			}
 		}
@@ -303,36 +300,65 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-	public void textureUpdater(){
-		if (willDoNormalTextureChange) {
-			texture(false);
-			switch (textureOrientation) {
-				case 0: texture = "CharaDiagonalDownRight"; break;
-				case 1: texture = "CharaRight";			    break;
-				case 2: texture = "CharaDiagonalUpRight";   break;
-				case 3: texture = "CharaDiagonalDownLeft";  break;
-				case 4: texture = "CharaLeft";              break;
-				case 5: texture = "CharaDiagonalUpLeft";    break;
-				case 6: texture = "char";                   break;
-				case 8: texture = "CharaUp";                break;
-			}
-		}
-		if (speedLeft[0] == 0 && speedLeft[1] == 0 && lastTimeTilLastMovement >= 30 && !isGliding) {
-			texture = "char";
+	private void animationWalking(){
+		texture = null;
+		willDoNormalTextureChange = false;
 
+		String walkingFile = null;
+		switch (textureOrientation){
+			case 0: walkingFile = "walkingdiagrightdown";	break;
+			case 1: walkingFile = "walkingright";			break;
+			case 2: walkingFile = "walkingdiagrightup"; 	break;
+			case 3: walkingFile = "walkingdiagleftdown";	break;
+			case 4: walkingFile = "walkingleft";			break;
+			case 5: walkingFile = "walkingdiagleftup";		break;
+			case 6: walkingFile = "walkingdown";			break;
+			case 8: walkingFile = "walkingup";				break;
 		}
-		if (alreadyTextured)
-			print(textureOrientation +"");
+		if(walkingAnimation == null || (walkingAnimation.finished || walkingAnimation.name != walkingFile)) {
+			if (walkingAnimation != null)
+				walkingAnimation.stop();
+			walkingAnimation = new TextureManager.Animation(walkingFile, this){
+				public void onFinish() {
+					entityToFollow.texture = "char";
+					willDoNormalTextureChange = true;
+				}};
+
+			animations.add(walkingAnimation);
+		}
 	}
 
-	public void damage(float damage, String damageReason){
-		print("damaged character for " + damage + " damage!");
-		character.damage(damage);
+	public void textureUpdater(){
+
+			texture(false);
+			switch (textureOrientation) {
+				case 0: texture = "CharaDiagonalDownRight"; animationWalking();	 break;
+				case 1: texture = "CharaRight";				animationWalking();	 break;
+				case 2: texture = "CharaDiagonalUpRight";   animationWalking();  break;
+				case 3: texture = "CharaDiagonalDownLeft"; 	animationWalking();	 break;
+				case 4: texture = "CharaLeft";				animationWalking();  break;
+				case 5: texture = "CharaDiagonalUpLeft";   	animationWalking();	 break;
+				case 6: texture = "char"; 					animationWalking();  break;
+				case 8: texture = "CharaUp";				animationWalking();  break;
+			}
+
+		if (speedLeft[0] == 0 && speedLeft[1] == 0 && lastTimeTilLastMovement >= 2 && !isGliding) {
+			texture = "char";
+			if (walkingAnimation != null)
+				walkingAnimation.stop();
+		}
+		if (alreadyTextured)
+			print(textureOrientation +" is the texuter orientation");
+	}
+
+	public void damageOverridable(float damage, String damageReason){
+		print("damaged chara for " + damage + " damage!");
+		classes.damage(damage);
 	}
 
 
 	public void onDeath(){
-		if (character.currentHealth <= 0)
+		if (classes.currentHealth <= 0)
 			isDead = false;
 	}
 
@@ -346,7 +372,44 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
+	ArrayList<Tile> dumpList;
+	protected void softlockOverridable() {
+		if (overlapsWithStage(stage,this)){
+			print("SOFTLOCK SOFTLOCK");
+			for (Tile t : stage.tileset)
+				t.hasBeenChecked = false;
+			dumpList = new ArrayList<>();
+			ArrayList<Tile> currentTilesetChecking = new ArrayList<>();
+			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.x / globalSize()))));
+			if(currentAnalize(currentTilesetChecking.get(0))) {
+				dumpList = null;
+				return;
+			}
+			for (int i = 1; i <= stage.tileset.size(); i++) {
+				currentTilesetChecking = (ArrayList<Tile>) dumpList.clone();
+				dumpList.clear();
+				for (Tile t : currentTilesetChecking)
+					if (currentAnalize(t)) {
+						dumpList = null;
+						return;
+					}
+			}
+		}
+	}
 
+	private boolean currentAnalize(Tile currentTile){
+		ArrayList<Tile> neighbours = currentTile.walkableOrthogonalTiles(stage.tileset);
+		for (Tile t : neighbours)
+			if (!t.hasBeenChecked) {
+				t.hasBeenChecked = true;
+				dumpList.add(t);
+				dumpList.removeIf(tt -> t == tt);
+				testCollision.x = t.x; testCollision.y = t.y;
+				if (!overlapsWithStage(stage,testCollision))
+					x = t.x; y = t.y; return true;
+			}
+		return false;
+	}
 
 	// Debug
 
@@ -365,56 +428,59 @@ public class Character extends Actor implements Utils {
 
 	public void changeToHealer(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-			character = new Healer();
+			classes.destroy();
+			classes = new Tank();
 		}
 	}
 
 	public void changeToMelee(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			character = new Melee();
+			classes.destroy();
+			classes = new Melee();
 		}
 	}
 
 	public void changeToVencedor(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
-			character = new Vencedor();
+			classes.destroy();
+			classes = new Vencedor();
 		}
 	}
 
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			character.equipWeapon(new HealerWeapons.BlessedSword());
+			classes.equipWeapon(new HealerWeapons.BlessedSword());
 		}
 	}
 
 	public void equipBestSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
-			character.equipWeapon(new HealerWeapons.BestHealerSword());
+			classes.equipWeapon(new HealerWeapons.BestHealerSword());
 		}
 	}
 
 	public void equipBlessedShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
-			character.equipShield(new HealerShields.BlessedShield());
+			classes.equipShield(new HealerShields.BlessedShield());
 		}
 	}
 
 	public void equipMeleeSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			character.equipWeapon(new MeleeWeapons.ABat());
+			classes.equipWeapon(new MeleeWeapons.ABat());
 		}
 	}
 
 	public void equipMeleeShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
-			character.equipShield(new MeleeShields.MeleeShield());
+			classes.equipShield(new MeleeShields.MeleeShield());
 		}
 	}
 
 	public void equipVencedorSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)){
-			character.equipWeapon(new Weapons.VencedorSword());
+			classes.equipWeapon(new Weapons.VencedorSword());
 		}
 	}
 
@@ -436,11 +502,11 @@ public class Character extends Actor implements Utils {
 			print("speedLeft on x: " + speedLeft[0]);
 			print("speedLeft on y: " + speedLeft[1]);
 			print("permittedToAct: " + permittedToAct);
-			print("Weapon: " + character.weapon);
-			print("Health: " + character.totalHealth);
-			print("Damage: " + character.totalDamage);
-			print("Class: " + character.name);
-			print("Current health: " + character.currentHealth);
+			print("Weapon: " + classes.weapon);
+			print("Health: " + classes.totalHealth);
+			print("Damage: " + classes.totalDamage);
+			print("Class: " + classes.name);
+			print("Current health: " + classes.currentHealth);
 			print("Texture" + texture);
 			print("mouse moved? " + mouseMoved);
 		}
@@ -491,6 +557,26 @@ public class Character extends Actor implements Utils {
 			texture = null;
 			willDoNormalTextureChange = false;
 			animations.add(new TextureManager.Animation("gliding circle",x,y){
+				@Override
+				public void onFinish(){
+					finished = true;
+					Character chara = null;
+					for (Entity cha : Entity.entityList)
+						if (cha instanceof Character)
+							chara = (Character) cha;
+					Camara.attach(chara);
+					assert chara != null;
+					chara.texture = "char";
+					chara.willDoNormalTextureChange = true;
+					print("HEYOO");
+				}
+			});
+			//	Camara.attach(animations.get(0));
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
+			texture = null;
+			willDoNormalTextureChange = false;
+			animations.add(new TextureManager.Animation("walkingright",x,y){
 				@Override
 				public void onFinish(){
 					finished = true;

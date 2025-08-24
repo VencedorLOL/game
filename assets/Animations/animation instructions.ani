@@ -42,6 +42,8 @@ Explanation of format:
     ?y-98*76r54a32s10c;
     Another coordinate-example:
     ?:-1:2*3r4a5s6c;
+ Flip:
+   If, before the name of the texture you put "~" the texture will be reversed mirror-like   
 
 
 
@@ -72,5 +74,7 @@ Examples:
 <.1>
 <+.9>
 ?100?char*75r2a360s90cc;
+?49?~char;
 ?999?char<+.234>:3:-3/750X-10Y2*500r4a359s23cc;;
+?999?~char<+.234>:3:-3/750X-10Y2*500r4a359s23cc;;
 

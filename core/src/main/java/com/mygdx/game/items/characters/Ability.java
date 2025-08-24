@@ -22,10 +22,9 @@ public class Ability{
 	Circle circle = new Circle();
 
 
-	public Ability(String texture, String name, boolean isItActive, int cooldown,float x, float y,float radius){
+	public Ability(String texture, String name, int cooldown,float x, float y,float radius){
 		textureIcon = texture;
 		this.name = name;
-		this.isItActive = isItActive;
 		this.cooldown = cooldown + 1;
 		this.radius = radius;
 		this.xOffset = x;

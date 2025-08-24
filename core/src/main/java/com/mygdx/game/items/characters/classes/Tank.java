@@ -1,7 +1,12 @@
 package com.mygdx.game.items.characters.classes;
 
+import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.CharacterClasses;
+
+import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 
 public class Tank extends CharacterClasses {
 	public static String name = "Tank";
@@ -26,10 +31,18 @@ public class Tank extends CharacterClasses {
 				magicDamage,manaPerTurn,manaPerUse,magicHealing, aggro);
 	}
 
+	OnVariousScenarios oVE = new OnVariousScenarios() {
+			public void onDamagedActor(Actor damagedActor) {
+				if (damagedActor.team == character.team && character.classes.name == "Tank") {
+					damagedActor.damageRecieved *= 0.2f;
+					damage(damagedActor.damageRecieved * 4); //this is exactly 80% of the damage
+				}
+			}
+		};
 
 	@Override
-	public void updateOverridable() {
-		// Tank's only ability: Your teammates only suffer 20% of the damage, but you suffer it instead
+	protected void destroyOverridable() {
+		destroyListener(oVE);
 	}
 }
 

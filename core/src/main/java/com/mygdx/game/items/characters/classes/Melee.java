@@ -37,7 +37,7 @@ public class Melee extends CharacterClasses {
 		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
 				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
 		abilities = new ArrayList<>();
-		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", true, 4,
+		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4,
 				0.9f, 0.9f, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -47,7 +47,7 @@ public class Melee extends CharacterClasses {
 
 			}
 		});
-		abilities.add(new Ability("oneforall", "One For All", true, 4,
+		abilities.add(new Ability("oneforall", "One For All", 4,
 				-0.9f, -0.9f, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -88,6 +88,7 @@ public class Melee extends CharacterClasses {
 	public void finishAbilities(){
 		for (Ability a : abilities)
 			a.finished();
+		attackState = 0;
 	}
 
 	@Override
@@ -95,14 +96,16 @@ public class Melee extends CharacterClasses {
 		if (abilities.get(0).isItActive){
 			attackState++;
 			character.canDecide = new boolean[]{true, true};
+			print("FOA was registered correctly. AttackState is " + attackState);
 			if (attackState < FoANumberOfExtraHits)
 				return true;
+
 			finishAbilities();
 		}
 		return false;
 	}
 
-	public float outgoingDamage(){
+	public float outgoingDamageOverridable(){
 		if (abilities.get(1).isItActive) {
 			print("OFA was registered correctly");
 			finishAbilities();

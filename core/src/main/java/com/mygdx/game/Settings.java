@@ -40,6 +40,7 @@ public class Settings {
 	static boolean fastMode;
 	static float volume = 100;
 	static boolean mute = false;
+	public static boolean turnMode = true;
 
 	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override

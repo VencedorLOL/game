@@ -44,8 +44,8 @@ public class ClickDetector implements Utils {
 	}
 
 
-	public static ArrayList<Actor> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Actor> entityToIgnore, boolean pierces) {
-		print("started RayCasting");
+	public static ArrayList<Actor> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Actor> entityToIgnore, boolean pierces, Entity runFrom) {
+		print("started RayCasting. from " + runFrom);
 		ArrayList<Actor> piercesEnemyArrayOfTargets = new ArrayList<>();
 		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
 //		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
@@ -168,7 +168,7 @@ public class ClickDetector implements Utils {
 		float toX = utilVector.x;
 		float toY = utilVector.y;
 
-		return rayCasting(fromX,fromY,toX,toY,entityToIgnore, phases);
+		return rayCasting(fromX,fromY,toX,toY,entityToIgnore, phases,null);
 	}
 
 	public static boolean clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(float fromX, float fromY){

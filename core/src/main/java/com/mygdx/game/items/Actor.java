@@ -5,12 +5,15 @@ import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
+import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
@@ -29,12 +32,11 @@ public class Actor extends Entity{
 	public boolean pierces;
 	int[] speedLeft = new int[2];
 	Path path;
-	int thisTurnVSM;
+	int thisTurnVSM = getVisualSpeedMultiplier();
 	PathFinder pathFindAlgorithm;
 	public Entity testCollision = new Entity();
 	public boolean[] canDecide = {true, true};
 	public boolean permittedToAct;
-	public boolean turnMode = true;
 	public int range;
 	public float aggro = 1;
 
@@ -87,7 +89,14 @@ public class Actor extends Entity{
 		actors.add(this);
 	}
 
-	public void damage(float damage, String damageReason){}
+	public float damageRecieved;
+	public final void damage(float damage, String damageReason){
+		damageRecieved = damage;
+		triggerOnDamagedActor(this);
+		damageOverridable(damageRecieved,damageReason);
+	}
+
+	public void damageOverridable(float damage, String damageReason){}
 
 	//Override
 	public boolean isPermittedToAct(){return true;}
@@ -150,10 +159,14 @@ public class Actor extends Entity{
 			if (this instanceof Enemy){
 				enemyOnFreeMode();
 			}
+			if (this instanceof Character){
+				softlockOverridable();
+			}
 		}
 
 		super.refresh(texture,x, y, base, height);
 	}
+	protected void softlockOverridable(){}
 
 	protected void enemyOnFreeMode(){}
 
@@ -231,7 +244,7 @@ public class Actor extends Entity{
 
 
 	protected void automatedMovement(){
-		if(targetActor == null)
+		if(targetActor == null && turnMode)
 			targetFinder();
 		if (targetActor != null) {
 			path.pathReset();
@@ -393,9 +406,7 @@ public class Actor extends Entity{
 		}
 	}
 
-	public double dC(float x, float y){
-		return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));
-	}
+	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
 
 	private static class ActorAndDistance{
 		private Actor actor;
@@ -435,9 +446,10 @@ public class Actor extends Entity{
 
 	public void attackDetector(){
 		ArrayList<Actor> actuallyEnemies = new ArrayList<>(enemies);
+		actuallyEnemies.removeIf(e -> e.team != -1);
 		print("attack size " + attacks.size());
 		for (Attack a : attacks) {
-			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY, actuallyEnemies, pierces);
+			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY, actuallyEnemies, pierces,this);
 			if (list != null)
 				for (Actor e : list)
 					if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {

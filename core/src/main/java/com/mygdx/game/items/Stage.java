@@ -131,7 +131,7 @@ public class Stage implements Utils {
 				e.update(pm);
 				e.render();
 			}
-		}
+		} enemy.removeIf(e -> e.isDead);
 	}
 
 

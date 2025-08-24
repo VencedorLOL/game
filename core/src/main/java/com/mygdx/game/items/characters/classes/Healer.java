@@ -37,7 +37,7 @@ public class Healer extends CharacterClasses implements Utils {
 	}
 
 
-	public float outgoingDamage(){
+	public float outgoingDamageOverridable(){
 		float damage = totalDamage / 2;
 		currentHealth += damage * healingFromAbility * Utils.pickValueAUnlessEqualsZeroThenPickB(
 				weaponHealingAbilityBonus(),1);

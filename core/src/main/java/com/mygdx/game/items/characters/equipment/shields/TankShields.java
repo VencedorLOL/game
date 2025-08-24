@@ -48,7 +48,7 @@ public class TankShields extends Shields {
 
 		@Override
 		public void update() {
-			// This would make the Tank suffer 20% less damage, but character can't even take damage yet...
+			// This would make the Tank suffer 20% less damage, but classes can't even take damage yet...
 
 		}
 	}

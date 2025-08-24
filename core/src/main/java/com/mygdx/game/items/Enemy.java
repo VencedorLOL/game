@@ -11,6 +11,7 @@ import java.util.Objects;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Tile.findATile;
@@ -30,37 +31,17 @@ public class Enemy extends Actor {
 	public float[] tileToReach = new float[2];
 
 	static {
-	//	generation();
 		OnVariousScenarios oVE2 = new OnVariousScenarios(){
 			@Override
 			public void onStageChange() {
 				enemies.clear();
 			}
 
-			public void onTurnPass() {
-			//	generation();
-			}
-
 
 		};
 	}
 
-/*	public static void generation(){
-		Collections.shuffle(enemies);
-		//TODO: make it so it also takes speed in consideration
-		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed, o1.actingSpeed));
-		generateGrids();
-		enemyGrid = new ArrayList<>();
-		for (Tile t : grid)
-			enemyGrid.add(t.clone());
-		for (Tile t : enemyGrid)
-			for (Actor a : actors)
-				if (!(a instanceof Enemy) && a.x == t.x && a.y == t.y) {
-					t.isWalkable = false;
-					break;
-				}
 
-	}*/
 
 	public static void loop(){
 		for (Enemy e : enemies) {
@@ -87,11 +68,11 @@ public class Enemy extends Actor {
 	}
 
 	protected void automatedMovement(){
-		if(targetActor == null)
+		if(targetActor == null && turnMode)
 			targetFinder();
 		if (targetActor != null) {
 			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, enemyGrid)) {
+			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), enemyGrid)) {
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 				getObjectiveTitle();
 			}
@@ -99,6 +80,10 @@ public class Enemy extends Actor {
 				actionDecided();
 		} else actionDecided();
 
+	}
+
+	private float gridSetter(float coordinate){
+		return (float) (globalSize() * round(coordinate / globalSize()));
 	}
 
 	public Enemy(float x, float y, String texture, float health) {
@@ -212,7 +197,7 @@ public class Enemy extends Actor {
 			path.getStats(x,y,speed);
 			loop();
 			onDeath();
-			if (targetActor == null)
+			if (targetActor == null && turnMode)
 				targetFinder();
 			if (targetActor != null && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0)
 				attack();
@@ -224,6 +209,7 @@ public class Enemy extends Actor {
 				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
 				print("Coords: x" + x + " y" + y);
 				print("ASpeed: " + actingSpeed);
+				print("am i dead? " + isDead);
 				print("");
 			}
 		}
@@ -235,10 +221,11 @@ public class Enemy extends Actor {
 			permittedToAct = false;
 			actors.remove(this);
 			enemies.remove(this);
+			destroyListener(oVS);
 		}
 	}
 
-	public void damage(float damage, String damageReason){
+	public void damageOverridable(float damage, String damageReason){
 		float damagedFor = max(damage - defense,0);
 		health -= damagedFor;
 		if (Objects.equals(damageReason, "Melee") && damagedFor != 0){

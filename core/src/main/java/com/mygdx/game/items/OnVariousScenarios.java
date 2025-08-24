@@ -29,8 +29,8 @@ public class OnVariousScenarios {
 	}
 
 	public static void triggerOnStageChange(){
-		for (int i = 0; i < onScenarios.size(); i++)
-			onScenarios.get(i).onStageChange();
+		for (OnVariousScenarios onScenario : onScenarios)
+			onScenario.onStageChange();
 	}
 
 
@@ -51,4 +51,20 @@ public class OnVariousScenarios {
 			o.onVolumeChange();
 		}
 	}
+
+
+	public void onDamagedActor(Actor damagedActor){}
+
+	public static void triggerOnDamagedActor(Actor damagedActor) {
+		for (OnVariousScenarios o : onScenarios)
+			o.onDamagedActor(damagedActor);
+	}
+
+
+	public static void destroyListener(OnVariousScenarios listener){
+		onScenarios.removeIf(o -> o == listener);
+	}
+
+
+
 }

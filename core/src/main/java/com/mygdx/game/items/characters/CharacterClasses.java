@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -55,7 +56,7 @@ public class CharacterClasses {
 
 	public float currentHealth;
 
-	// Any character might have more than one ability.
+	// Any class might have more than one ability.
 	public ArrayList<Ability> abilities;
 
 	public boolean pierces;
@@ -128,13 +129,13 @@ public class CharacterClasses {
 	}
 
 	//Used in other classes
-	public float outgoingDamage(){
-		totalStatsCalculator();
+	public final float outgoingDamage(){
+		refresh();
 		return outgoingDamageOverridable();
 	}
 
 	//Used in CharacterClasses overrides
-	public float outgoingDamageOverridable(){
+	protected float outgoingDamageOverridable(){
 		return totalDamage;
 	}
 
@@ -151,7 +152,7 @@ public class CharacterClasses {
 	}
 
 	//Used in CharacterClasses overrides
-	public float overridableDamageTaken(float damageRecieved){
+	protected float overridableDamageTaken(float damageRecieved){
 		return damageRecieved - totalDefense;
 	}
 
@@ -185,14 +186,14 @@ public class CharacterClasses {
 			currentHealth = totalHealth;
 	}
 
-	public void update(){
+	public final void update(){
 		refresh();
 		updateOverridable();
 		refresh();
 	}
 
 
-	public void updateOverridable() {}
+	protected void updateOverridable() {}
 
 	// Conveniently overridable
 	public void turnHasPassed() {
@@ -202,7 +203,7 @@ public class CharacterClasses {
 			}
 	}
 
-	//Convenience methods for the future
+	//Convenience methods
 	public void onHurt(String source){}
 
 	public void onAttack(){}
@@ -210,6 +211,15 @@ public class CharacterClasses {
 	public void onMove(){}
 
 	public boolean onAttackDecided(){return false;}
+
+	public final void destroy(){
+		destroyListener(cooldownHelper);
+		abilities = null;
+		destroyOverridable();
+	}
+
+	// please destroy all listeners this way
+	protected void destroyOverridable(){}
 
 
 }
