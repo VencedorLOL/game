@@ -29,7 +29,6 @@ public class Healer extends CharacterClasses implements Utils {
 
 	public float healingFromAbility = 1.2f;
 
-	public boolean hasHealedInThisTurn = false;
 
 	public Healer(){
 		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
@@ -44,11 +43,6 @@ public class Healer extends CharacterClasses implements Utils {
 		return damage;
 	}
 
-	public float shieldAbilityHealing()  {
-		if(shield instanceof HealerShields)
-			return ((HealerShields) shield).shieldHealingPerTurn;
-		return 0;
-	}
 
 	public float weaponHealingAbilityBonus(){
 		if (weapon instanceof HealerWeapons)
@@ -56,9 +50,6 @@ public class Healer extends CharacterClasses implements Utils {
 		return 0;
 	}
 
-	public void turnHasPassed() {
-		currentHealth += shieldAbilityHealing();
-	}
 
 }
 

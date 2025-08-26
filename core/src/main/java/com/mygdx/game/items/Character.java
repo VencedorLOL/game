@@ -231,7 +231,7 @@ public class Character extends Actor implements Utils {
 		ArrayList<Actor> temp = new ArrayList<>();
 		temp.add(this);
 		for (Attack a : attacks) {
-			classes.onAttack();
+			classes.runAttack();
 			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY,temp, false,this);
 			if (list != null)
 				for (Actor aa : list) {
@@ -253,7 +253,7 @@ public class Character extends Actor implements Utils {
 				attacks.add(new Attack(temporal.x, temporal.y));
 				canDecide = new boolean[]{false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!classes.onAttackDecided())
+				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
@@ -262,7 +262,7 @@ public class Character extends Actor implements Utils {
 				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
 				canDecide = new boolean[]{false, false};
 				thisTurnVSM = getVisualSpeedMultiplier();
-				if (!classes.onAttackDecided())
+				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
@@ -352,8 +352,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void damageOverridable(float damage, String damageReason){
-		print("damaged chara for " + damage + " damage!");
-		classes.damage(damage);
+		classes.damage(damage,damageReason);
 	}
 
 
@@ -450,37 +449,37 @@ public class Character extends Actor implements Utils {
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			classes.equipWeapon(new HealerWeapons.BlessedSword());
+			classes.equipWeapon(new HealerWeapons.BlessedSword(classes));
 		}
 	}
 
 	public void equipBestSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
-			classes.equipWeapon(new HealerWeapons.BestHealerSword());
+			classes.equipWeapon(new HealerWeapons.BestHealerSword(classes));
 		}
 	}
 
 	public void equipBlessedShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
-			classes.equipShield(new HealerShields.BlessedShield());
+			classes.equipShield(new HealerShields.BlessedShield(classes));
 		}
 	}
 
 	public void equipMeleeSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			classes.equipWeapon(new MeleeWeapons.ABat());
+			classes.equipWeapon(new MeleeWeapons.ABat(classes));
 		}
 	}
 
 	public void equipMeleeShield(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
-			classes.equipShield(new MeleeShields.MeleeShield());
+			classes.equipShield(new MeleeShields.MeleeShield(classes));
 		}
 	}
 
 	public void equipVencedorSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)){
-			classes.equipWeapon(new Weapons.VencedorSword());
+			classes.equipWeapon(new Weapons.VencedorSword(classes));
 		}
 	}
 
@@ -506,6 +505,8 @@ public class Character extends Actor implements Utils {
 			print("Health: " + classes.totalHealth);
 			print("Damage: " + classes.totalDamage);
 			print("Class: " + classes.name);
+			print("Weapon: " + classes.weapon.weaponName);
+			print("Shield: " + classes.shield.shieldName);
 			print("Current health: " + classes.currentHealth);
 			print("Texture" + texture);
 			print("mouse moved? " + mouseMoved);

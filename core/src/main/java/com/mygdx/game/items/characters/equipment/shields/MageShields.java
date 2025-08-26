@@ -3,39 +3,42 @@ package com.mygdx.game.items.characters.equipment.shields;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.Shields;
 
-public class MeleeShields extends Shields {
+public class MageShields extends Shields {
 
-
-	public MeleeShields(CharacterClasses holder) {
+	public MageShields(CharacterClasses holder) {
 
 		super(holder);
 	}
 
 
-	public static class MeleeShield extends MeleeShields {
 
-		public MeleeShield(CharacterClasses holder) {
+
+
+	public static class RoughCrystal extends MageShields {
+
+		public RoughCrystal(CharacterClasses holder) {
 			super(holder);
-			shieldName = "MeleeShield";
-			shieldHealth = 20;
+			shieldName = "TankShield";
+			shieldHealth = 0;
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 5;
+			shieldDefense = 0;
 			shieldRange = 0;
 			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
-			shieldMana = 0;
+			shieldMana = 200;
 			shieldMagicDefense = 0;
-			shieldMagicDamage = 0;
-			shieldManaPerTurn = 0;
+			shieldMagicDamage = 20;
+			shieldManaPerTurn = 15;
 			shieldManaPerUse = 0;
 			shieldMagicHealing = 0;
-			equippableBy = "Melee";
+			equippableBy = "Mage";
 			aggro = 0;
-
 		}
-
 	}
+
+
+
 
 }

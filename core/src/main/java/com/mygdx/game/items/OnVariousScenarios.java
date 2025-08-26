@@ -53,11 +53,11 @@ public class OnVariousScenarios {
 	}
 
 
-	public void onDamagedActor(Actor damagedActor){}
+	public void onDamagedActor(Actor damagedActor,String source){}
 
-	public static void triggerOnDamagedActor(Actor damagedActor) {
+	public static void triggerOnDamagedActor(Actor damagedActor,String source) {
 		for (OnVariousScenarios o : onScenarios)
-			o.onDamagedActor(damagedActor);
+			o.onDamagedActor(damagedActor,source);
 	}
 
 

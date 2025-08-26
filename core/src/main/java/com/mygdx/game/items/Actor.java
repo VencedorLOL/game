@@ -92,7 +92,7 @@ public class Actor extends Entity{
 	public float damageRecieved;
 	public final void damage(float damage, String damageReason){
 		damageRecieved = damage;
-		triggerOnDamagedActor(this);
+		triggerOnDamagedActor(this,damageReason);
 		damageOverridable(damageRecieved,damageReason);
 	}
 

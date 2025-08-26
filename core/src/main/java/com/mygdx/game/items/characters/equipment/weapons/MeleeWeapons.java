@@ -1,42 +1,36 @@
 package com.mygdx.game.items.characters.equipment.weapons;
 
+import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.Weapons;
+
+import static com.mygdx.game.Settings.print;
 
 public class MeleeWeapons extends Weapons{
 
-	public MeleeWeapons(String weaponName, float weaponHealth, float weaponDamage, byte weaponSpeed,
-					   byte weaponAttackSpeed, float weaponDefense, int weaponRange, float weaponTempDefense,
-					   float weaponRainbowDefense, float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-					   float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy, float aggro) {
-
-		super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-				weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-				weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
-		}
+	public MeleeWeapons(CharacterClasses holder) {
+		super(holder);
+	}
 
 	public static class ABat extends MeleeWeapons{
-		public static String weaponName = "MeleeSword";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 40;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 0;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static String equipableBy = "Melee";
-		public static float aggro = 0;
-
-		public ABat() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
+		public ABat(CharacterClasses holder) {
+			super(holder);
+			weaponName = "MeleeSword";
+			weaponHealth = 0;
+			weaponDamage = 40;
+			weaponSpeed = 0;
+			weaponAttackSpeed = 0;
+			weaponDefense = 0;
+			weaponRange = 0;
+			weaponTempDefense = 0;
+			weaponRainbowDefense = 0;
+			weaponMana = 0;
+			weaponMagicDefense = 0;
+			weaponMagicDamage = 0;
+			weaponManaPerTurn = 0;
+			weaponManaPerUse = 0;
+			weaponMagicHealing = 0;
+			equippableBy = "Melee";
+			aggro = 0;
 		}
 
 	}

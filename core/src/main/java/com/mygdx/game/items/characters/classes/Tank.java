@@ -35,7 +35,7 @@ public class Tank extends CharacterClasses {
 			public void onDamagedActor(Actor damagedActor) {
 				if (damagedActor.team == character.team && character.classes.name == "Tank") {
 					damagedActor.damageRecieved *= 0.2f;
-					damage(damagedActor.damageRecieved * 4); //this is exactly 80% of the damage
+					damage(damagedActor.damageRecieved * 4,"Absorbed"); //this is exactly 80% of the damage
 				}
 			}
 		};

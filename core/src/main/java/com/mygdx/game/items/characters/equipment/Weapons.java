@@ -1,5 +1,8 @@
 package com.mygdx.game.items.characters.equipment;
 
+import com.mygdx.game.items.characters.CharacterClasses;
+
+import static com.mygdx.game.Settings.print;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Weapons {
@@ -19,31 +22,15 @@ public class Weapons {
 	public float weaponManaPerUse;
 	public float weaponMagicDamage;
 	public float weaponMagicHealing;
-	public String equipableBy;
+	public String equippableBy;
 	public float aggro;
 
-	public Weapons(String weaponName, float weaponHealth, float weaponDamage,
-				   byte weaponSpeed, byte weaponAttackSpeed, float weaponDefense,
-				   int weaponRange, float weaponTempDefense, float weaponRainbowDefense,
-				   float weaponMana, float weaponMagicDefense, float weaponMagicDamage,
-				   float weaponManaPerTurn, float weaponManaPerUse, float weaponMagicHealing, String equipableBy, float aggro){
-		this.weaponName = weaponName;
-		this.weaponHealth = weaponHealth;
-		this.weaponDamage = weaponDamage;
-		this.weaponSpeed = weaponSpeed;
-		this.weaponAttackSpeed = weaponAttackSpeed;
-		this.weaponDefense = weaponDefense;
-		this.weaponRange = weaponRange;
-		this.weaponTempDefense = weaponTempDefense;
-		this.weaponRainbowDefense = weaponRainbowDefense;
-		this.weaponMana = weaponMana;
-		this.weaponMagicDefense = weaponMagicDefense;
-		this.weaponMagicDamage = weaponMagicDamage;
-		this.weaponManaPerTurn = weaponManaPerTurn;
-		this.weaponManaPerUse = weaponManaPerUse;
-		this.weaponMagicHealing = weaponMagicHealing;
-		this.equipableBy = equipableBy;
-		this.aggro = aggro;
+	public CharacterClasses holder;
+
+	public Weapons(CharacterClasses holder){
+		this.holder = holder;
+		print(equippableBy);
+
 	}
 
 	public Weapons(Weapons weapon){
@@ -66,7 +53,7 @@ public class Weapons {
 		weaponManaPerTurn = weapon.weaponManaPerTurn;
 		weaponManaPerUse = weapon.weaponManaPerUse;
 		weaponMagicHealing = weapon.weaponMagicHealing;
-		equipableBy = weapon.equipableBy;
+		equippableBy = weapon.equippableBy;
 		aggro = weapon.aggro;
 	}
 
@@ -74,59 +61,60 @@ public class Weapons {
 		// Overridable method. Runs every tick. For weapon-specific abilities.
 	}
 
+	public void onHurt(String source){}
+
+	public void onAttack(){}
+
+	public void onMove(){}
+
+	public boolean onAttackDecided(){return true;}
+
+	public void turnHasPassed(){}
+
 	// New weapons can be nested here (note to self: please dont) or on other different classes, if and only if they are children of "Weapons"
 
 	public static class NoWeapon extends Weapons{
-		public static String weaponName = "NoWeapon";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 0;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = 0;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = 0;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static String equipableBy;
-		public static float aggro = 0;
-
-		public NoWeapon() {
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
+		public NoWeapon(CharacterClasses holder) {
+			super(holder);
+			weaponName = "NoWeapon";
+			weaponHealth = 0;
+			weaponDamage = 0;
+			weaponSpeed = 0;
+			weaponAttackSpeed = 0;
+			weaponDefense = 0;
+			weaponRange = 0;
+			weaponTempDefense = 0;
+			weaponRainbowDefense = 0;
+			weaponMana = 0;
+			weaponMagicDefense = 0;
+			weaponMagicDamage = 0;
+			weaponManaPerUse = 0;
+			weaponMagicHealing = 0;
+			aggro = 0;
 		}
 	}
 
 	// VENCEDOR
 	public static class VencedorSword extends Weapons {
-		public static String weaponName = "Vencedor's Sword";
-		public static float weaponHealth = 0;
-		public static float weaponDamage = 295;
-		public static byte weaponSpeed = 0;
-		public static byte weaponAttackSpeed = 0;
-		public static float weaponDefense = POSITIVE_INFINITY;
-		public static int weaponRange = 0;
-		public static float weaponTempDefense = 0;
-		public static float weaponRainbowDefense = 0;
-		public static float weaponMana = 0;
-		public static float weaponMagicDefense = POSITIVE_INFINITY;
-		public static float weaponMagicDamage = 0;
-		public static float weaponManaPerTurn = 0;
-		public static float weaponManaPerUse = 0;
-		public static float weaponMagicHealing = 0;
-		public static String equipableBy = "Vencedor";
-		public static float aggro = 2;
-
-		public VencedorSword() {
-
-			super(weaponName, weaponHealth, weaponDamage, weaponSpeed, weaponAttackSpeed,
-					weaponDefense, weaponRange, weaponTempDefense, weaponRainbowDefense, weaponMana, weaponMagicDefense,
-					weaponMagicDamage, weaponManaPerTurn, weaponManaPerUse, weaponMagicHealing, equipableBy, aggro);
+		public VencedorSword(CharacterClasses holder) {
+			super(holder);
+			weaponName = "Vencedor's Sword";
+			weaponHealth = 0;
+			weaponDamage = 295;
+			weaponSpeed = 0;
+			weaponAttackSpeed = 0;
+			weaponDefense = POSITIVE_INFINITY;
+			weaponRange = 0;
+			weaponTempDefense = 0;
+			weaponRainbowDefense = 0;
+			weaponMana = 0;
+			weaponMagicDefense = POSITIVE_INFINITY;
+			weaponMagicDamage = 0;
+			weaponManaPerTurn = 0;
+			weaponManaPerUse = 0;
+			weaponMagicHealing = 0;
+			equippableBy = "Vencedor";
+			aggro = 2;
 		}
 	}
 	
