@@ -8,26 +8,27 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 
 public class Mage extends CharacterClasses {
-	public static String name = "Mage";
-	public static float health = 30;
-	public static float damage = 20;
-	public static byte speed = 3;
-	public static byte attackSpeed = 4;
-	public static float defense = 0;
-	public static int range = 50;
-	public static float tempDefense = 0;
-	public static float rainbowDefense = 0;
-	public static float mana = 100;
-	public static float magicDefense = 0;
-	public static float magicDamage = 20;
-	public static float manaPerTurn = 50;
-	public static float manaPerUse = 0;
-	public static float magicHealing = 0;
-	public static float aggro;
-
 	public Mage(){
-		super(name,health,damage,speed,attackSpeed,defense,range,tempDefense,rainbowDefense,mana,magicDefense,
-				magicDamage,manaPerTurn,manaPerUse,magicHealing, aggro);
+		super();
+		name = "Mage";
+		health = 30;
+		damage = 20;
+		speed = 3;
+		attackSpeed = 4;
+		defense = 0;
+		range = 50;
+		tempDefense = 0;
+		rainbowDefense = 0;
+		mana = 100;
+		magicDefense = 0;
+		magicDamage = 20;
+		manaPerTurn = 50;
+		manaPerUse = 0;
+		magicHealing = 0;
+		aggro = 0;
+		reset();
+		currentHealth = totalHealth;
+		manaPool = mana;
 	}
 
 

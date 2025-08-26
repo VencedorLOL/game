@@ -109,6 +109,26 @@ public class CharacterClasses {
 		};
 	}
 
+	public CharacterClasses(){
+		abilities = new ArrayList<>();
+		reset();
+		currentHealth = totalHealth;
+		manaPool = mana;
+		oVE = new OnVariousScenarios(){
+			@Override
+			public void onTurnPass(){
+				turnHasPassed();
+			}
+			@Override
+			public void onDamagedActor(Actor damagedActor,String source) {
+				if (damagedActor == character){
+					onHurt(source);
+				}
+			}
+		};
+	}
+
+
 	public CharacterClasses(Character characteer){
 		this.character = characteer;
 		oVE = new OnVariousScenarios(){
@@ -128,7 +148,7 @@ public class CharacterClasses {
 	}
 
 
-	public void totalStatsCalculator(){
+	public final void totalStatsCalculator(){
 		totalHealth         = health + shield.shieldHealth + weapon.weaponHealth;
 		totalDamage         = damage + shield.shieldDamage + weapon.weaponDamage;
 		totalSpeed          = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
@@ -144,7 +164,11 @@ public class CharacterClasses {
 		totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
 		totalMagicDefense   = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
 		totalAggro          = aggro + weapon.aggro + shield.aggro;
+		totalStatsCalculatorOverridable();
 	}
+
+	protected void totalStatsCalculatorOverridable(){}
+
 
 	//Used in other classes
 	public final float outgoingDamage(){
@@ -191,7 +215,7 @@ public class CharacterClasses {
 		}
 	}
 
-	private void reset(){
+	protected void reset(){
 		if (shield == null)
 			shield = new Shields.NoShield(this);
 		if (weapon == null)
