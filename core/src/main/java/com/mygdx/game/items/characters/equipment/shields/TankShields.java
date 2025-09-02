@@ -5,8 +5,6 @@ import com.mygdx.game.items.characters.equipment.Shields;
 
 public class TankShields extends Shields {
 
-	public float shieldHealingPerTurn;
-
 	public TankShields(CharacterClasses holder) {
 		super(holder);
 	}
@@ -16,7 +14,7 @@ public class TankShields extends Shields {
 	public static class TankShield extends TankShields {
 		public TankShield(CharacterClasses holder) {
 			super(holder);
-			String shieldName = "TankShield";
+			shieldName = "TankShield";
 			shieldHealth = 100;
 			shieldDamage = 0;
 			shieldSpeed = 0;

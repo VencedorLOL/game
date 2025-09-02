@@ -61,7 +61,7 @@ public class PathFinder {
 		}
 		Collections.shuffle(enemies);
 		//TODO: make it so it also takes speed in consideration
-		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed, o1.actingSpeed));
+		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed * 100 + o2.speed, o1.actingSpeed * 100 + o1.speed));
 		enemyGrid = new ArrayList<>();
 		for (Tile t : grid) {
 			enemyGrid.add(t.clone());
@@ -168,15 +168,12 @@ public class PathFinder {
 
 	private boolean traceback(){
 		minimunDistance = objectiveTile.distanceToStart;
-		print("minimun distance is now " + minimunDistance);
 		solution.clear();
-		print("called traceback!!! distance is of " + objectiveTile.distanceToStart);
 		Tile checkedTile = objectiveTile;
 		do{
 			solution.add(checkedTile);
 			checkedTile.parent.sort((o1, o2) -> Float.compare(o2.distanceToStart, o1.distanceToStart));
 			Collections.reverse(checkedTile.parent);
-			print("checkedtile is " + checkedTile + " its generation is " + checkedTile.generation + " its x is " + checkedTile.x + " ots y os" + checkedTile.y);
 			checkedTile = checkedTile.parent.get(0);
 		}
 		while(checkedTile != startTile);
@@ -216,7 +213,7 @@ public class PathFinder {
 	public void setEnd(float x, float y){
 		objectiveTile = findATile(grid,x,y);
 		if (objectiveTile == null) {
-			print("ovktitile IS NULL WITH COORDS " + x + " y" + y);
+			print("objectiveTile IS NULL WITH COORDS " + x + " y" + y);
 			print("GRID SIZE IS OF " + grid.size());
 		}
 		if(objectiveTile != null)

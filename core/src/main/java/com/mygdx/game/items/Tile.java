@@ -164,7 +164,7 @@ public class Tile implements Cloneable {
 	public void checkIfWalkable(){
 		for (Wall w : stage.walls)
 			if (overlaps(w)) {
-				print("tile at " + x + " " + y + " wasnt walkable because of wall at " + w.x + " " + w.y + " called " + w);
+//				print("tile at " + x + " " + y + " wasnt walkable because of wall at " + w.x + " " + w.y + " called " + w);
 				walkable = false;
 				isWalkable = false;
 				break;
@@ -237,9 +237,9 @@ public class Tile implements Cloneable {
 		public void checkWalkable(){
 			for (Tile t : tileset) {
 				t.checkIfWalkable();
-				if (!t.walkable){
-				print("not walkalb at: " + t.x + " " + t.y);
-				}
+//				if (!t.walkable)
+//					print("not walkalb at: " + t.x + " " + t.y);
+
 			}
 		}
 
@@ -323,16 +323,16 @@ public class Tile implements Cloneable {
 				t.texture.setSecondaryTexture("SelectionWholeArea",.9f);
 			for (Tile.TileAndCirclePos t : circleSpecial){
 				switch (t.getTileCirclePos()){
-					case 0: t.getTile().texture.setSecondaryTexture("SelU",.9f); break;
-					case 1: t.getTile().texture.setSecondaryTexture("SelUR",.9f); break;
-					case 2: t.getTile().texture.setSecondaryTexture("SelR",.9f); break;
-					case 3: t.getTile().texture.setSecondaryTexture("SelRD",.9f); break;
-					case 4: t.getTile().texture.setSecondaryTexture("SelD",.9f); break;
-					case 5: t.getTile().texture.setSecondaryTexture("SelDL",.9f); break;
-					case 6: t.getTile().texture.setSecondaryTexture("SelL",.9f); break;
-					case 7: t.getTile().texture.setSecondaryTexture("SelLU",.9f); break;
-					case 8: t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
-					case 9: t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
+					case 0:  t.getTile().texture.setSecondaryTexture("SelU"   ,.9f); break;
+					case 1:  t.getTile().texture.setSecondaryTexture("SelUR"  ,.9f); break;
+					case 2:  t.getTile().texture.setSecondaryTexture("SelR"   ,.9f); break;
+					case 3:  t.getTile().texture.setSecondaryTexture("SelRD"  ,.9f); break;
+					case 4:  t.getTile().texture.setSecondaryTexture("SelD"   ,.9f); break;
+					case 5:  t.getTile().texture.setSecondaryTexture("SelDL"  ,.9f); break;
+					case 6:  t.getTile().texture.setSecondaryTexture("SelL"   ,.9f); break;
+					case 7:  t.getTile().texture.setSecondaryTexture("SelLU"  ,.9f); break;
+					case 8:  t.getTile().texture.setSecondaryTexture("SelInRU",.9f); break;
+					case 9:  t.getTile().texture.setSecondaryTexture("SelInRD",.9f); break;
 					case 10: t.getTile().texture.setSecondaryTexture("SelInDL",.9f); break;
 					case 11: t.getTile().texture.setSecondaryTexture("SelInLU",.9f); break;
 

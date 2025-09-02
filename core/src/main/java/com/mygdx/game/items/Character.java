@@ -11,6 +11,7 @@ import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.HealerShields;
 import com.mygdx.game.items.characters.equipment.shields.MeleeShields;
+import com.mygdx.game.items.characters.equipment.shields.TankShields;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
@@ -22,6 +23,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Interactable.interactables;
+import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.VideoManager.*;
@@ -373,14 +375,14 @@ public class Character extends Actor implements Utils {
 
 	ArrayList<Tile> dumpList;
 	protected void softlockOverridable() {
-		if (overlapsWithStage(stage,this)){
+		if (overlapsWithStage(stage,this) && !betweenStages){
 			print("SOFTLOCK SOFTLOCK");
 			for (Tile t : stage.tileset)
 				t.hasBeenChecked = false;
 			dumpList = new ArrayList<>();
 			ArrayList<Tile> currentTilesetChecking = new ArrayList<>();
-			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.x / globalSize()))));
-			if(currentAnalize(currentTilesetChecking.get(0))) {
+			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.y / globalSize()))));
+			if(currentTilesetChecking.get(0) != null && currentAnalize(currentTilesetChecking.get(0))) {
 				dumpList = null;
 				return;
 			}
@@ -429,6 +431,7 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
 			classes.destroy();
 			classes = new Tank();
+			classes.equipShield(new TankShields.TankShield(classes));
 		}
 	}
 

@@ -39,6 +39,8 @@ public class Actor extends Entity{
 	public boolean permittedToAct;
 	public int range;
 	public float aggro = 1;
+	public float sightRange = 10;
+	public float followRange = 40;
 
 	boolean isDead;
 
@@ -126,7 +128,8 @@ public class Actor extends Entity{
 	}
 
 
-	//Movement!! now here cuz convenience
+
+
 
 	public void movement(){
 		lastTimeTilLastMovement++;
@@ -139,15 +142,11 @@ public class Actor extends Entity{
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded)
 					speedLeft = path.pathProcess(this);
 
-
-
 				if (speedLeft[0] != 0 || speedLeft[1] != 0)
 					turnSpeedActuator();
 
-
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
 					finalizedTurn();
-
 
 			} else if (canDecide() && isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
 				movementInputTurnMode();
@@ -213,7 +212,7 @@ public class Actor extends Entity{
 	}
 
 	protected void turnSpeedActuator(){
-		print("speedLect x is "+ speedLeft[0] + " y " + speedLeft[1]);
+		print("speedLeft x is "+ speedLeft[0] + " y " + speedLeft[1]);
 		if (speedLeft[0] > 0) {
 			x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
@@ -246,14 +245,14 @@ public class Actor extends Entity{
 	protected void automatedMovement(){
 		if(targetActor == null && turnMode)
 			targetFinder();
-		if (targetActor != null) {
+		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, getTakeEnemiesIntoConsideration()))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-			else
-				actionDecided();
-		} else actionDecided();
-
+			return;
+		}
+		targetActor = null;
+		actionDecided();
 	}
 
 	protected void actionDecided(){
@@ -399,10 +398,11 @@ public class Actor extends Entity{
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
 		Collections.reverse(targets);
 		for (ActorAndDistance a : targets){
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration())) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
 				targetActor = a.actor;
 				return;
-			}
+			} else if (sightRange * globalSize() > dC(a.getActor().getX(), a.getActor().getY()))
+				return;
 		}
 	}
 

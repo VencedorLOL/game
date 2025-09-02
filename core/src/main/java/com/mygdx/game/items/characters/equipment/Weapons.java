@@ -29,8 +29,6 @@ public class Weapons {
 
 	public Weapons(CharacterClasses holder){
 		this.holder = holder;
-		print(equippableBy);
-
 	}
 
 	public Weapons(Weapons weapon){

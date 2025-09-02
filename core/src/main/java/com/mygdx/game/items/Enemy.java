@@ -70,15 +70,15 @@ public class Enemy extends Actor {
 	protected void automatedMovement(){
 		if(targetActor == null && turnMode)
 			targetFinder();
-		if (targetActor != null) {
+		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), enemyGrid)) {
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 				getObjectiveTitle();
-			}
-			else
-				actionDecided();
-		} else actionDecided();
+			} return;
+		}
+		targetActor = null;
+		actionDecided();
 
 	}
 
@@ -87,7 +87,7 @@ public class Enemy extends Actor {
 	}
 
 	public Enemy(float x, float y, String texture, float health) {
-		super(texture, x, y, 128, 128);
+		super(texture, x, y, globalSize(), globalSize());
 		pierces = false;
 		team = -1;
 		speed = 3;
@@ -159,12 +159,6 @@ public class Enemy extends Actor {
 	}
 
 
-	// Movement version: 6.0
-
-	//AKA: it doesnt work
-
-
-
 	protected void overlappingCheck() {
 		for (Enemy e : stage.enemy)
 			for (Enemy n : stage.enemy){
@@ -209,6 +203,8 @@ public class Enemy extends Actor {
 				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
 				print("Coords: x" + x + " y" + y);
 				print("ASpeed: " + actingSpeed);
+				print("Damage: " + damage);
+				print("Defense: " + defense);
 				print("am i dead? " + isDead);
 				print("");
 			}

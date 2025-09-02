@@ -11,6 +11,7 @@ import com.mygdx.game.items.stages.StageOne;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.isEscapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
+import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.Turns.*;
 import static com.mygdx.game.Settings.camaraZoom;
@@ -32,6 +33,7 @@ public class GameScreen implements Screen, Utils {
 	public boolean fullscreen;
 	public int latestNonFullScreenX = 640;
 	public int latestNonFullScreenY = 400;
+	TextureManager.Text text;
 
 
 	public void create () {
@@ -48,6 +50,7 @@ public class GameScreen implements Screen, Utils {
 		testUi.textBox();
 		InputHandler.defaultKeybinds();
 		Camara.attach(chara);
+		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
 	}
 
 	public GameScreen(MainClass mainClass){
@@ -62,7 +65,8 @@ public class GameScreen implements Screen, Utils {
 		if (isEscapePressed()){
 			print("YAY");
 		}
-		//System.out.println(Gdx.graphics.getFramesPerSecond());
+//		System.out.println(Gdx.graphics.getFramesPerSecond());
+		text.text = Gdx.graphics.getFramesPerSecond()+"";
 		turnLogic();
 		fullscreenDetector();
 		screenSizeChangeDetector();
@@ -127,6 +131,8 @@ public class GameScreen implements Screen, Utils {
 			camara.setToOrtho(camaraZoom -= .125f);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
 			System.out.println(camaraZoom);
+		if (Gdx.input.isKeyPressed(Input.Keys.Q))
+			camara.camara.direction.x = 1;
 	}
 
 

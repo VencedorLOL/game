@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 
 import java.io.File;
@@ -34,7 +35,15 @@ public class TextureManager {
 	static ArrayList<Animation> animations;
 	static ArrayList<AtlasAndName> atlases;
 	static ArrayList<DrawableTexture> videos;
-
+	static OnVariousScenarios oVE = new OnVariousScenarios(){
+		@Override
+		public void onStageChange() {
+			text.clear();
+			drawables.clear();
+			animations.clear();
+			videos.clear();
+		}
+	};
 
 	public TextureManager (){
 		drawables = new ArrayList<>();
@@ -163,8 +172,10 @@ public class TextureManager {
 		// Static text display
 
 		for (TextureManager.Text t : fixatedText){
-			if (!t.fakeNull)
-				t.drawStatic(Camara.x / Camara.zoom,Camara.y / Camara.zoom,batch);
+			if (!t.fakeNull) {
+				Vector3 coords = camara.camara.unproject(new Vector3(t.x,t.y,0f));
+				t.drawStatic(coords.x, coords.y, batch);
+			}
 		}
 		fixatedText.removeIf(tex -> tex.fakeNull);
 		// Most priority drawables
@@ -192,9 +203,16 @@ public class TextureManager {
 
 	}
 
-	public static void fixatedText (String text,float x, float y,Fonts font,int size){
-		TextureManager.fixatedText.add(new Text(text,x,y,createFont(font,size)));
+	public static void fixatedText (String text,float x, float y,int timeOnScreen,Fonts font,int size){
+		TextureManager.fixatedText.add(new Text(text,x,y,timeOnScreen,createFont(font,size)));
 	}
+
+	public static Text dinamicFixatedText (String text,float x, float y,int timeOnScreen,Fonts font,int size){
+		Text text1 = new Text(text,x,y,timeOnScreen,createFont(font,size));
+		TextureManager.fixatedText.add(text1);
+		return text1;
+	}
+
 
 	public static void text (String text,float x, float y,Fonts font,int size){
 		TextureManager.text.add(new Text(text,x,y,createFont(font,size)));
@@ -204,9 +222,9 @@ public class TextureManager {
 		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),r,g,b,opacity,vanishingThreshold));
 	}
 
-	public static void text (String text,float x, float y,int timeTilDisappear){
+	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font,int size){
 		if (text!= null)
-			TextureManager.text.add(new Text(text,x,y,timeTilDisappear));}
+			TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size)));}
 
 	public static class DrawableObject{
 		public float x,y;
@@ -279,12 +297,12 @@ public class TextureManager {
 			this.vanishingThreshold = vanishingThreshold;
 		}
 
-		public Text(String text, float x, float y,int onScreenTime){
+		public Text(String text, float x, float y,int onScreenTime,BitmapFont font){
 			this.onScreenTime = onScreenTime;
 			this.text = text;
 			this.x = x;
 			this. y = y;
-			font = new BitmapFont();
+			this.font = font;
 			this.r = -1;
 		}
 

@@ -13,7 +13,7 @@ public class Camara {
 	// of doing the static things other way
 	// ---
 
-	OrthographicCamera camara;
+	public OrthographicCamera camara;
 	static float x,y,base,height;
 	static float zoom = (float) 2;
 	static Entity attached;
