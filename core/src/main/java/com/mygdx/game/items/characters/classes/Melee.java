@@ -36,8 +36,7 @@ public class Melee extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4,
-				0.9f, 0.9f, (float) globalSize() /2){
+		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
 				character.attackMode = true;
@@ -46,8 +45,7 @@ public class Melee extends CharacterClasses {
 
 			}
 		});
-		abilities.add(new Ability("oneforall", "One For All", 4,
-				-0.9f, -0.9f, (float) globalSize() /2){
+		abilities.add(new Ability("oneforall", "One For All", 4, 87f, 30f, (float) globalSize() /2){
 			@Override
 			public void active() {
 				character.attackMode = true;

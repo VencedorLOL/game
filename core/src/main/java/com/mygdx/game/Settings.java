@@ -144,7 +144,7 @@ public class Settings {
 	public static boolean touchDetect(){
 		if (touchedGate) {
 			touchedGate = false;
-			return (Gdx.input.isTouched());
+			return (Gdx.input.justTouched());
 		}
 		return false;
 	}

@@ -6,10 +6,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.TextureManager;
 
-import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.Settings.touchDetect;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 public class Ability{
 	public String textureIcon;
@@ -17,7 +17,7 @@ public class Ability{
 	public boolean isItActive;
 	public int cooldown;
 	public int cooldownCounter = 0;
-	public float xOffset,yOffset;
+	public float x, y;
 	public float radius;
 	Circle circle = new Circle();
 
@@ -27,25 +27,26 @@ public class Ability{
 		this.name = name;
 		this.cooldown = cooldown + 1;
 		this.radius = radius;
-		this.xOffset = x;
-		this.yOffset = y;
-		circle.set(Gdx.graphics.getWidth() * xOffset + Camara.getX(),
-				Gdx.graphics.getHeight() * yOffset + Camara.getY(),radius);
+		this.x = x;
+		this.y = y;
+		circle.set(Gdx.graphics.getWidth() * this.x + Camara.getX(),
+				Gdx.graphics.getHeight() * this.y + Camara.getY(),radius);
 	}
 
 	public boolean isBeingPressed(){
 		if (touchDetect()){
 			// https://imgur.com/a/bgzC4LK
 			Vector3 vector = authenticClick();
-			return pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2) <= pow(circle.radius, 2);
+			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+			circle.setPosition(coords[0] + globalSize()/2 ,coords[1] + globalSize()/2);
+			return sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius;
 		}
 		return false;
 	}
 
 
 	public void render(){
-		circle.setPosition(xOffset * Camara.getBase() + Camara.getX(),Camara.getY() + yOffset * Camara.getHeight());
-		TextureManager.addToFixatedList(textureIcon,xOffset,yOffset,-radius,-radius);
+		TextureManager.addToFixatedList(textureIcon,Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100,1,0);
 	}
 
 
@@ -65,8 +66,10 @@ public class Ability{
 				print("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!");
 			else
 				print("Couldn't activate " + name + "! You still have to wait one more turn!");
-		} else
-			print("You can't activate this ability, as it is already active!");
+		} else {
+			cancelActivation();
+			print(name+ " deactivated!");
+		}
 	}
 
 	//Override this

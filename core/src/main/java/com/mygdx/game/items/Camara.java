@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 
 import static com.mygdx.game.Settings.print;
 
@@ -13,7 +14,7 @@ public class Camara {
 	// of doing the static things other way
 	// ---
 
-	public OrthographicCamera camara;
+	public static OrthographicCamera camara;
 	static float x,y,base,height;
 	static float zoom = (float) 2;
 	static Entity attached;
@@ -36,6 +37,15 @@ public class Camara {
 			camara.update();
 		}
 	}
+
+	public static float[] unproject(float x, float y){
+		Vector3 coords = camara.unproject(new Vector3(x,y,0));
+		float[] result = new float[2];
+		result[0] = coords.x; result[1] = coords.y;
+		return result;
+	}
+
+
 	public void updater(float x, float y){
 		camara.position.set(x,y,0);
 		camara.update();

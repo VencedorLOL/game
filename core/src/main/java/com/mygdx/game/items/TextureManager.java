@@ -26,7 +26,7 @@ public class TextureManager {
 	public TextureAtlas atlas;
 	public Sprite sprite;
 	TextureRegion region;
-	Camara camara;
+	public static Camara camara;
 	static ArrayList<Text> text;
 	static ArrayList<Text> fixatedText;
 	static ArrayList<DrawableObject> drawables;
@@ -69,17 +69,19 @@ public class TextureManager {
 		atlases.add(new AtlasAndName(atlas, "AtlasOne.atlas"));
 	}
 
-	private void drawer(String texture, float x, float y,float opacity){
-		drawer(texture,x,y,opacity,false);
+	private void drawer(String texture, float x, float y,float opacity,float rotationDegrees){
+		drawer(texture,x,y,opacity,false,rotationDegrees,1,1);
 	}
 
-	private void drawer(String texture, float x, float y,float opacity,boolean flipX){
+	private void drawer(String texture, float x, float y,float opacity,boolean flipX,float rotationDegrees,float scaleX,float scaleY){
 		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
 		sprite = new Sprite(region);
 		sprite.setAlpha(opacity);
 		sprite.setPosition(x,y);
 		sprite.setFlip(flipX,false);
+		sprite.setRotation(rotationDegrees);
+		sprite.setScale(scaleX,scaleY);
 		sprite.draw(batch);
 	}
 
@@ -107,10 +109,9 @@ public class TextureManager {
 
 
 
-	private void fixatedScreenDrawer(String texture,float xPercentage, float yPercentage, float xOffset, float yOffset, float opacity){
-		//if percentages are >1 || <-1 'll go offscreen. 0/0 is the center of the screen.
-		drawer(texture,xPercentage * Camara.getBase() + xOffset + Camara.getX(),
-				Camara.getY() + yPercentage * Camara.getHeight() + yOffset,opacity);
+	private void fixatedScreenDrawer(String texture, float x, float y, float opacity,float rotationDegrees,float scaleX, float scaleY){
+		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+		drawer(texture,coords.x, coords.y,opacity,false,rotationDegrees,scaleX,scaleY);
 	}
 
 	public static void animationToList(String file, float x, float y){
@@ -118,26 +119,30 @@ public class TextureManager {
 	}
 
 	public static void addToList(String texture, float x, float y){
-		addToList( texture,  x,  y,1);
+		addToList( texture,  x,  y,1,0);
 	}
 
 	public static void addToList(String texture, float x, float y,float opacity){
-		drawables.add(new DrawableObject(texture, x, y,opacity));
+		addToList(texture, x, y,opacity,0);
+	}
+
+	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees){
+		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees));
 	}
 
 	public static void addToFixatedList(String texture, float xPercentage, float yPercentage){
 		addToFixatedList(texture,xPercentage,yPercentage,0,0);
 	}
 
-	public static void addToFixatedList(String texture, float xPercentage, float yPercentage,float xOffset,float yOffset){
-		fixatedDrawables.add(new DrawableObject(texture, xPercentage, yPercentage,xOffset,yOffset));
+	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees){
+		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees));
 	}
 
 	public static void addToPriorityList(String texture, float x, float y){
 		addToPriorityList( texture,  x,  y,1);
 	}
 	public static void addToPriorityList(String texture, float x, float y,float opacity){
-		priorityDrawables.add(new DrawableObject(texture, x, y,opacity));
+		priorityDrawables.add(new DrawableObject(texture, x, y,opacity,0));
 	}
 
 	public static void renderVideo(Texture texture, float x, float y){
@@ -151,7 +156,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
-				 drawer(d.texture,d.x,d.y,d.opacity);
+				 drawer(d.texture,d.x,d.y,d.opacity,false,d.rotationDegrees,d.scaleX,d.scaleY);
 		}
 		drawables.clear();
 		// Animations
@@ -159,7 +164,7 @@ public class TextureManager {
 		for (TextureManager.Animation a : animations){
 			a.update();
 			if (a.texture != null)
-				drawer(a.texture, a.x, a.y, a.opacity, a.flipX);
+				drawer(a.texture, a.x, a.y, a.opacity,a.flipX,0,1,1);
 		}
 		animations.removeIf(ani -> ani.finished);
 		// Text display
@@ -173,8 +178,8 @@ public class TextureManager {
 
 		for (TextureManager.Text t : fixatedText){
 			if (!t.fakeNull) {
-				Vector3 coords = camara.camara.unproject(new Vector3(t.x,t.y,0f));
-				t.drawStatic(coords.x, coords.y, batch);
+
+				t.drawStatic(batch);
 			}
 		}
 		fixatedText.removeIf(tex -> tex.fakeNull);
@@ -182,7 +187,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : priorityDrawables){
 			if (d.texture != null)
-				drawer(d.texture,d.x,d.y,d.opacity);
+				drawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees);
 		}
 		priorityDrawables.clear();
 		// Static drawables
@@ -190,7 +195,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
-				fixatedScreenDrawer(d.texture,d.xPercentage,d.yPercentage,d.x,d.y,d.opacity);
+				fixatedScreenDrawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY);
 		}
 		fixatedDrawables.clear();
 		//Video reserved
@@ -229,39 +234,42 @@ public class TextureManager {
 	public static class DrawableObject{
 		public float x,y;
 		public String texture;
-		public float xPercentage;
-		public float yPercentage;
 		public float opacity;
+		public float rotationDegrees;
+		public float scaleX = 1, scaleY = 1;
+
 
 		public DrawableObject(String texture, float x, float y){
 			this.x = x;
 			this.y = y;
-			this.yPercentage = 0;
-			this.xPercentage = 0;
 			this.texture = texture;
 			opacity = 1;
 		}
 
-		public DrawableObject(String texture, float x, float y,float opacity){
+		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees){
 			this.x = x;
 			this.y = y;
-			this.yPercentage = 0;
-			this.xPercentage = 0;
 			this.texture = texture;
+			this.rotationDegrees = rotationDegrees;
 			if (opacity > 1)
 				this.opacity = opacity / 100;
 			else
 				this.opacity = opacity;
 		}
 
-
-		public DrawableObject(String texture,float xPercentage,float yPercentage,float x, float y){
+		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float scaleX,float scaleY){
 			this.x = x;
 			this.y = y;
 			this.texture = texture;
-			this.xPercentage = xPercentage;
-			this.yPercentage = yPercentage;
+			this.rotationDegrees = rotationDegrees;
+			if (opacity > 1)
+				this.opacity = opacity / 100;
+			else
+				this.opacity = opacity;
+			this.scaleX = scaleX;
+			this.scaleY = scaleY;
 		}
+
 	}
 
 	public static class Text {
@@ -311,7 +319,7 @@ public class TextureManager {
 			this.x = x;
 			this. y = y;
 			onScreenTime = -1;
-			font = new BitmapFont();
+			font = createFont(Fonts.ComicSans,40);
 			this.r = -1;
 		}
 
@@ -328,8 +336,11 @@ public class TextureManager {
 
 		}
 
-		public void drawStatic(float x, float y,Batch batch){
-			font.draw(batch, text,x,y);
+		public void drawStatic(Batch batch){
+			Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+			if (r != -1)
+				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
+			font.draw(batch, text,coords.x,coords.y);
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;

@@ -88,7 +88,19 @@ public class Path {
 		return testCollision.overlapsWithStage(stage, testCollision, entityToIgnore);
 	}
 
-	public void render(){ for(PathStep p : path) p.render();}
+	public void render(){
+		ArrayList<PathStep> renderList = new ArrayList<>();
+		for(PathStep p : path)
+			if(p.render)
+				renderList.add(p);
+		for(int i = 0; i < renderList.size(); i++)
+			if(i == 0)
+				renderList.get(renderList.size()-1).texture = "Center";
+			else
+				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY);
+		for (PathStep p : renderList)
+			p.render(0.95f, p.rotation);
+	}
 
 	public void pathStart(){
 		pathEnded = false;
@@ -209,17 +221,17 @@ public class Path {
 	public static class PathStep extends Entity {
 		int directionX;
 		int directionY;
-		boolean procesed = false;
+		int rotation = 0;
 
 		public PathStep(){
-			texture = "PathStepLocation";
+			texture = "Center";
 			reset();
 		}
 
 		public PathStep(int x, int y) {
 			directionX = x;
 			directionY = y;
-			texture = "PathStepLocation";
+			texture = "Center";
 			setRender(false);
 		}
 
@@ -228,12 +240,23 @@ public class Path {
 			directionX = 0;
 			directionY = 0;
 			setRender(false);
-			procesed = false;
 		}
 
 		public boolean hasNoDirection(){
 			return directionX == 0 && directionY == 0;
 		}
+
+		public void texturer(float directionX, float directionY){
+			if((directionY != 0 && directionX == 0) || (directionX != 0 && directionY == 0)){
+				texture = "Direction";
+				rotation = directionX > 0 ? 0 : directionX < 0 ? 180 : directionY > 0 ? 90 : 270;
+
+			} else if (directionX != 0){
+				texture = "DiagonalDirection";
+				rotation = directionX < 0 && directionY > 0 ? 90 : directionX < 0 ? 180 : directionY < 0 ? 270 : 0;
+			}
+		}
+
 
 	}
 

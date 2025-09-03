@@ -75,6 +75,11 @@ public class Entity {
 			TextureManager.addToList(texture,x,y);
 	}
 
+	public void render(float opacity,float rotation){
+		if(render)
+			TextureManager.addToList(texture,x,y,opacity,rotation);
+	}
+
 	public boolean overlapsWithWalls(Stage stage, Entity entity){
 		for(Wall b : stage.walls)
 			if (entity.overlapsTiles(b) || entity.overlaps(b))
