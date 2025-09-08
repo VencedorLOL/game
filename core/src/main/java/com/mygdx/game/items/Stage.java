@@ -121,14 +121,14 @@ public class Stage implements Utils {
 		haveEnemiesBeenRendered = true;
 	}
 
-	public void enemyRenderer(ParticleManager pm){
+	public void enemyRenderer(){
 		if (!haveEnemiesBeenRendered){
 			enemySetter();
 			haveEnemiesBeenRendered = true;
 		}
 		for (Enemy e : enemy){
 			if (!e.isDead) {
-				e.update(pm);
+				e.update();
 				e.render();
 			}
 		} enemy.removeIf(e -> e.isDead);
@@ -179,7 +179,7 @@ public class Stage implements Utils {
 			b.render();
 	}
 
-	public void stageRenderer(GameScreen gs){
+	public void stageRenderer(){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			enemy.clear();
@@ -191,9 +191,6 @@ public class Stage implements Utils {
 			enemySetter();
 			screenWarpSetter();
 			betweenStages = false;
-			print("enemy list ruccently s: ");
-			for (Actor e : enemies)
-				print(e+"");
 
 		}
 		else {
@@ -202,7 +199,7 @@ public class Stage implements Utils {
 			camaraBase = Camara.base;
 			camaraHeight = Camara.height;
 			tilesetRenderer();
-			enemyRenderer(gs.particle);
+			enemyRenderer();
 			wallRenderer();
 			screenWarpRenderer();
 			border.border(chara, this);
@@ -211,7 +208,7 @@ public class Stage implements Utils {
 		}
 	}
 
-	public void stageRenderer(TextureManager tm){
+	public void stageRendererr(){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			wallSetter();
@@ -227,7 +224,7 @@ public class Stage implements Utils {
 			camaraBase = Camara.base;
 			camaraHeight = Camara.height;
 			tilesetRenderer();
-			enemyRenderer(new ParticleManager(tm));
+			enemyRenderer();
 			screenWarpRenderer();
 			wallRenderer();
 		}
@@ -239,18 +236,18 @@ public class Stage implements Utils {
 				betweenStages = true;
 				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.ID)];
 				stage = getScreenWarpStage(pos);
-				stage.reseter(chara);
+				stage.reseter();
 			}
 	}
 
-	public void reseter(Character character){
-		reseter();
-		character.setX(spawnX);
-		character.setY(spawnY);
+	public void reseter(){
+		reseterr();
+		chara.setX(spawnX);
+		chara.setY(spawnY);
 		reStage();
 	}
 
-	public void reseter(){
+	public void reseterr(){
 		ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
 		betweenStages = true;
 		haveEnemiesBeenRendered = false;

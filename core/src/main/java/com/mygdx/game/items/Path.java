@@ -5,23 +5,27 @@ import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
 
 public class Path {
-	Entity testCollision = new Entity();
+	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());
 	ArrayList<PathStep> path;
 	byte steps;
 	float entityX, entityY;
 	byte currentNumberOfPaths = 0;
 	boolean pathEnded;
 	OnVariousScenarios oVS;
+	Actor owner;
 	// 1 = movement
 	// 2 = attack
 
-	public Path(float x, float y, int speed){
+	boolean renderBlue;
+
+	public Path(float x, float y, int speed,Actor owner){
 		getStats(x,y,speed);
 		path = new ArrayList<>();
 		path.add(new PathStep());
@@ -29,13 +33,13 @@ public class Path {
 			@Override
 			public void onStageChange(){
 				pathReset();
-				print("Path resetted because stage changed.");
 			}
 		};
+		this.owner = owner;
 	}
 
 
-	public int[] pathProcess(Entity entity){
+	public int[] pathProcess(){
 		if (!pathEnded) {
 			try {doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));}
 			catch (java.lang.IndexOutOfBoundsException ignored) {path.add(currentNumberOfPaths, new PathStep());}
@@ -44,7 +48,7 @@ public class Path {
 				path.get(currentNumberOfPaths - 1).setRender(false);
 			int[] speedLeft = new int[2];
 			if (currentNumberOfPaths >= steps) currentNumberOfPaths = 0;
-			if (cannotContinue(path.get(currentNumberOfPaths).directionX, path.get(currentNumberOfPaths).directionY, entity) || betweenStages) {
+			if (cannotContinue(path.get(currentNumberOfPaths).directionX, path.get(currentNumberOfPaths).directionY, owner) || betweenStages) {
 				pathReset();
 				pathEnded = true;
 				return new int[]{0, 0};
@@ -82,10 +86,10 @@ public class Path {
 	}
 
 
-	public boolean cannotContinue(int x, int y,Entity entityToIgnore){
+	public boolean cannotContinue(int x, int y, Actor entityToIgnore){
 		testCollision.x = entityX + x;
 		testCollision.y = entityY + y;
-		return testCollision.overlapsWithStage(stage, testCollision, entityToIgnore);
+		return entityToIgnore.overlapsWithStageWithException(stage, testCollision, entityToIgnore);
 	}
 
 	public void render(){
@@ -98,8 +102,13 @@ public class Path {
 				renderList.get(renderList.size()-1).texture = "Center";
 			else
 				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY);
-		for (PathStep p : renderList)
-			p.render(0.95f, p.rotation);
+		float r =  renderBlue ? 0 : 256;
+		float g = 256;
+		float b =  renderBlue ? 182 : 256;
+		for (PathStep p : renderList) {
+			p.render(0.95f, p.rotation, r, g, b);
+			p.glideProcess();
+		}
 	}
 
 	public void pathStart(){
@@ -109,6 +118,7 @@ public class Path {
 
 	public void pathReset(){
 		currentNumberOfPaths = 0;
+		renderBlue = false;
 		for (PathStep p : path){
 			p.reset();
 		}
@@ -118,67 +128,99 @@ public class Path {
 		this.path = path;
 	}
 
+	public boolean areGliding(){
+		for(PathStep p : path){
+			if(p.isGliding)
+				return true;
+		}
+		return false;
+	}
 
 	public boolean pathCreate(float x, float y, int speed,Actor typeOfActor){
 		getStats(x, y, speed);
+		if (!areGliding()) {
 
-		if (currentNumberOfPaths >= steps){
-			// set currentNumbe.. to steps for safety and to use getCurrentParthCoords safely
-			currentNumberOfPaths = steps;
-			if (typeOfActor instanceof Character) {
-				if (getDecidedPathFlexibility() == 1) {
-					int temporalX = 0, temporalY = 0;
-					if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-						temporalY = globalSize();
-					if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-						temporalX = -globalSize();
-					if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-						temporalY = -globalSize();
-					if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-						temporalX = globalSize();
+			if (currentNumberOfPaths != 0 && typeOfActor instanceof Character) {
+				int temporalX = 0, temporalY = 0;
+				if (Gdx.input.isKeyJustPressed(Input.Keys.W))
+					temporalY = globalSize();
+				if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+					temporalX = -globalSize();
+				if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+					temporalY = -globalSize();
+				if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+					temporalX = globalSize();
 
-					if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
+				if (getPreviousPathCoords()[0] == temporalX * -1 && getPreviousPathCoords()[1] == temporalY * -1) {
+					path.get(--currentNumberOfPaths).reset();
+					renderBlue = false;
+					return false;
+				}
+			}
+
+
+			if (currentNumberOfPaths >= steps) {
+				// set currentNumbe.. to steps for safety and to use getCurrentParthCoords safely
+				renderBlue = true;
+				currentNumberOfPaths = steps;
+
+				if (typeOfActor instanceof Character) {
+					if (getDecidedPathFlexibility() == 1) {
+						int temporalX = 0, temporalY = 0;
+						if (Gdx.input.isKeyJustPressed(Input.Keys.W))
+							temporalY = globalSize();
+						if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+							temporalX = -globalSize();
+						if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+							temporalY = -globalSize();
+						if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+							temporalX = globalSize();
+						if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
+							currentNumberOfPaths = 0;
+							return true;
+						}
+					}
+					if (getDecidedPathFlexibility() == 2)
+						if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A) ||
+								Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+							currentNumberOfPaths = 0;
+							return true;
+						}
+					if (getDecidedPathFlexibility() == 3) {
 						currentNumberOfPaths = 0;
 						return true;
 					}
 				}
-				if (getDecidedPathFlexibility() == 2)
-					if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A) ||
-							Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-						currentNumberOfPaths = 0;
-						return true;
-					}
-				if (getDecidedPathFlexibility() == 3) {
-					currentNumberOfPaths = 0;
-					return true;
+			}
+
+			if (currentNumberOfPaths < steps) {
+				try {
+					doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));
+				} catch (java.lang.IndexOutOfBoundsException ignored) {
+					path.add(currentNumberOfPaths, new PathStep());
+				}
+				if (currentNumberOfPaths == 0) {
+					createPathStep(path.get(0), entityX, entityY);
+				} else {
+					createPathStep(path.get(currentNumberOfPaths),
+							path.get(currentNumberOfPaths - 1).getX(),
+							path.get(currentNumberOfPaths - 1).getY());
 				}
 			}
-		}
 
-		if (currentNumberOfPaths < steps) {
-			try { doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));
-			} catch (java.lang.IndexOutOfBoundsException ignored) {
-				path.add(currentNumberOfPaths, new PathStep()); }
-			if (currentNumberOfPaths == 0) {
-				createPathStep(path.get(0), entityX, entityY);
+			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+				currentNumberOfPaths = 0;
+				renderBlue = true;
+				return true;
 			}
-			else {
-				createPathStep(path.get(currentNumberOfPaths),
-					path.get(currentNumberOfPaths - 1).getX(),
-					path.get(currentNumberOfPaths - 1).getY());
+
+			if (Gdx.input.isKeyJustPressed(Input.Keys.R))
+				pathReset();
+
+			if (!(typeOfActor instanceof Character) && !path.isEmpty()) {
+				currentNumberOfPaths = 0;
+				return true;
 			}
-		}
-
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			currentNumberOfPaths = 0;
-			return true;
-		}
-
-		if(Gdx.input.isKeyJustPressed(Input.Keys.R))
-			pathReset();
-
-		if(!(typeOfActor instanceof Character) && !path.isEmpty()){
-			currentNumberOfPaths = 0; return true;
 		}
 
 		return false;
@@ -265,3 +307,25 @@ public class Path {
 	}
 
 }
+
+/*			if (owner instanceof Character) {
+			if (pathStep.directionY > 0)
+				if(pathStep.directionX > 0)
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingUR",x,y){public void onFinish(){pathStep.setRender(true);}});
+				else if (pathStep.directionX < 0)
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingUL",x,y){public void onFinish(){pathStep.setRender(true);}});
+				else
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingU",x,y){public void onFinish(){pathStep.setRender(true);}});
+			else if (pathStep.directionY < 0)
+				if(pathStep.directionX > 0)
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingDR",x,y){public void onFinish(){pathStep.setRender(true);}});
+				else if (pathStep.directionX < 0)
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingDL",x,y){public void onFinish(){pathStep.setRender(true);}});
+				else
+					TextureManager.animations.add(new TextureManager.Animation("glide//glidingD",x,y){public void onFinish(){pathStep.setRender(true);}});
+			else if(pathStep.directionX > 0)
+				TextureManager.animations.add(new TextureManager.Animation("glide//glidingR",x,y){public void onFinish(){pathStep.setRender(true);}});
+			else if (pathStep.directionX < 0)
+				TextureManager.animations.add(new TextureManager.Animation("glide//glidingL",x,y){public void onFinish(){pathStep.setRender(true);}});
+
+			} */

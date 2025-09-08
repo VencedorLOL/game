@@ -30,15 +30,13 @@ public class StageOne extends Stage {
 		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, wallType, enemyX, enemyY, screenWarpX,
 				screenWarpY,screenWarpDestination,floorTexture,
 				screenWarpDestinationSpecification,enemyType);
+		betweenStages = true;
 		haveEnemiesBeenRendered = false;
 		haveWallsBeenRendered = false;
 		haveScreenWarpsBeenRendered = false;
+		screenWarpDestination.add(new StageTwo());
 	}
 
-	@Override
-	public void reStage(){
-		screenWarpDestination.add(new StageThree());
-	}
 
 
 }

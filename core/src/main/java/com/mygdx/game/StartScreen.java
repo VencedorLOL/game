@@ -27,8 +27,10 @@ public class StartScreen implements Screen, Utils {
 		ScreenUtils.clear(Utils.cC(0), Utils.cC(50), Utils.cC(100), 0);
 		mainClass.camara.fixedUpdater();
 		menuScreenBatch.begin();
-		font.draw(menuScreenBatch, "Start Screen", 100, 150);
+		font.draw(menuScreenBatch, "Java version: " + System.getProperty("java.version"), 100, 150);
+		font.draw(menuScreenBatch, "Game Version: vBeta", 100, 125);
 		font.draw(menuScreenBatch, "Click to Start", 100, 100);
+		font.draw(menuScreenBatch, "Tip: Press F11 to Fullscreen once you start the game.", 100, 175);
 		menuScreenBatch.end();
 		if (Gdx.input.isTouched()) {
 			mainClass.setGameScreen();

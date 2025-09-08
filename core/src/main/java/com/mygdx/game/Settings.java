@@ -5,6 +5,7 @@ import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnVolume;
+import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.TextureManager.text;
 
 public class Settings {
@@ -31,7 +32,7 @@ public class Settings {
 	// 1: actor path
 	// TODO: change to desired implementation
 
-	static byte decidedPathFlexibility = 3;
+	static byte decidedPathFlexibility = 2;
 	// When should decide a path has been made
 	// 0: exclusively on spacebar. default
 	// 1: on spacebar or if pressed the key of the direction of the last path if path was completed
@@ -42,6 +43,8 @@ public class Settings {
 	static boolean mute = false;
 	public static boolean turnMode = true;
 
+	static final boolean releaseVersion = true;
+
 	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
 		public void onTickStart() {
@@ -49,6 +52,7 @@ public class Settings {
 		}
 	};
 
+	public static boolean getReleaseVersion() {return releaseVersion;}
 	public static boolean getFastMode() {return fastMode;}
 	public static void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
 	public static boolean getPathMode() {return pathPerTurn;}
@@ -71,10 +75,10 @@ public class Settings {
 	public static float getVolume() {return mute ? 0 : volume;}
 	public static float getRealVolume() {return volume;}
 	public static void setVolume(float volume) {Settings.volume = volume;
-		text(Settings.volume+"",40,500,100, TextureManager.Fonts.ComicSans,40,255,255,0,1,100);
+		fixatedText(Settings.volume+"",40,50,100, TextureManager.Fonts.ComicSans,40);
 		triggerOnVolume();}
 	public static void setMute(boolean mute) {Settings.mute = mute;
-		text("mute is now " + mute,40,540,100, TextureManager.Fonts.ComicSans,40,255,255,0,1,100);
+		fixatedText("mute is now " + mute,40,54,100, TextureManager.Fonts.ComicSans,40);
 		triggerOnVolume();}
 	public static boolean getMute() {return mute;}
 

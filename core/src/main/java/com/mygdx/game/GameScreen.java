@@ -21,8 +21,7 @@ public class GameScreen implements Screen, Utils {
 	// ---------------
 	public GUI testUi;
 	// ---------------
-	public ParticleManager particle;
-	public MainClass mainClass;
+	public static ParticleManager particle;
 	public TextureManager textureManager = new TextureManager();
 	public static Character chara;
 	public Camara camara = new Camara();
@@ -42,19 +41,18 @@ public class GameScreen implements Screen, Utils {
 		camara.camaraStarter(camaraZoom);
 		stage = new StageOne();
 		chara = new Character(512, 512, globalSize(), globalSize());
-		stage.reseter(chara);
+		stage.reseter();
 		testUi = new GUI();
 		testUi.testButton();
 		particle = new ParticleManager(textureManager);
-		clickDetector = new ClickDetector(camara);
+		clickDetector = new ClickDetector();
 		testUi.textBox();
 		InputHandler.defaultKeybinds();
 		Camara.attach(chara);
 		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
 	}
 
-	public GameScreen(MainClass mainClass){
-		this.mainClass = mainClass;
+	public GameScreen(){
 		create();
 	}
 
@@ -71,14 +69,12 @@ public class GameScreen implements Screen, Utils {
 		fullscreenDetector();
 		screenSizeChangeDetector();
 		textureManager.batch.begin();
-			clickDetector.camaraUpdater(camara);
 			screenSizeChangeDetector();
-			stage.stageRenderer(this);
-			chara.update(this);
+			stage.screenWarpTrigger();
+			stage.stageRenderer();
+			chara.update();
 			textureManager.render(camara);
 			zoomManagement();
-
-
 	}
 
 
@@ -130,9 +126,8 @@ public class GameScreen implements Screen, Utils {
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
 			camara.setToOrtho(camaraZoom -= .125f);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			System.out.println(camaraZoom);
-		if (Gdx.input.isKeyPressed(Input.Keys.Q))
-			camara.camara.direction.x = 1;
+			fixatedText("Zoom level is of: "+camaraZoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * camaraZoom));
+
 	}
 
 

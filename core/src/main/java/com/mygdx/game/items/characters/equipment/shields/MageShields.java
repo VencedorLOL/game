@@ -6,11 +6,8 @@ import com.mygdx.game.items.characters.equipment.Shields;
 public class MageShields extends Shields {
 
 	public MageShields(CharacterClasses holder) {
-
 		super(holder);
 	}
-
-
 
 
 

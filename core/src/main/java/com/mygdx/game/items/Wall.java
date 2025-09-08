@@ -10,13 +10,13 @@ public class Wall extends Entity {
     public static ArrayList<Wall> walls = new ArrayList<>();
 
     public Wall(float x, float y) {
-        super("BoxToTestCollisionsAndHitboxes",x,y,globalSize(),globalSize());
+        super("Rock",x,y,globalSize(),globalSize());
         refresh(x,y,globalSize(),globalSize());
         walls.add(this);
     }
 
     public Wall(float x, float y, float base, float height, boolean render) {
-        super("BoxToTestCollisionsAndHitboxes",x,y,base,height);
+        super("Rock",x,y,base,height);
         this.render = render;
         walls.add(this);
     }

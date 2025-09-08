@@ -76,12 +76,12 @@ public class StageCreator {
 			stage.startY = 0;
 			stage.finalX = sizeX * 128;
 			stage.finalY = sizeY * 128;
-			stage.reseter(chara);
+			stage.reseter();
 			hasStageBeenCreated = true;
 			System.out.println("created");
 		}
 		if (hasStageBeenCreated) {
-			stage.stageRenderer(tm);
+			stage.stageRendererr();
 		}
 
 

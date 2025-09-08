@@ -1,17 +1,16 @@
 package com.mygdx.game.items.characters;
 
-import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.OnVariousScenarios;
-import com.mygdx.game.items.TextureManager;
+import com.mygdx.game.items.*;
+import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
-import com.mygdx.game.items.Character;
 
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.max;
@@ -58,6 +57,8 @@ public class CharacterClasses {
 
 	public float currentHealth;
 
+	public boolean attacksIgnoreTerrain = false;
+
 	// Any class might have more than one ability.
 	public ArrayList<Ability> abilities;
 
@@ -101,7 +102,7 @@ public class CharacterClasses {
 			}
 
 			@Override
-			public void onDamagedActor(Actor damagedActor,String source) {
+			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);
 				}
@@ -120,7 +121,7 @@ public class CharacterClasses {
 				turnHasPassed();
 			}
 			@Override
-			public void onDamagedActor(Actor damagedActor,String source) {
+			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);
 				}
@@ -138,7 +139,7 @@ public class CharacterClasses {
 			}
 			// Detecting damage this way so damage can be manipulated before damage() method is run
 			@Override
-			public void onDamagedActor(Actor damagedActor,String source) {
+			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);
 				}
@@ -182,19 +183,15 @@ public class CharacterClasses {
 	}
 
 	//Used in other classes
-	public void damage(float damage, String source){
+	public void damage(float damage, AttackTextProcessor.DamageReasons source){
 		refresh();
 		float damagedFor = max(overridableDamageTaken(damage, source), 0);
 		currentHealth -= damagedFor;
-		int fontSize = 40;
-		text(""+(damagedFor > 0 ? damagedFor : "0"), character.getX()
-						+(fontSize-(float) (damagedFor > 0 ? (damagedFor + "").toCharArray().length - 1 : 1)/(fontSize*2*globalSize()))
-				// original: +(16-(float) ((damagedFor + "").toCharArray().length))/32*globalSize()
-				, (float) (character.getY()+(globalSize()*1.3*min(max(fontSize/25,1),2))),200, TextureManager.Fonts.ComicSans,fontSize, damagedFor == 0 ? 125 : 255, damagedFor == 0 ? 125 : 0, damagedFor == 0 ? 125 : 0,1,50);
+		addAttackText(damagedFor,source,character);
 	}
 
 	//Used in CharacterClasses overrides
-	protected float overridableDamageTaken(float damageRecieved, String source){
+	protected float overridableDamageTaken(float damageRecieved, AttackTextProcessor.DamageReasons source){
 		return damageRecieved - totalDefense;
 	}
 
@@ -255,13 +252,13 @@ public class CharacterClasses {
 	protected void turnHasPassedOverridable() {}
 
 	//Convenience methods
-	public final void runHurt(String source){
+	public final void runHurt(AttackTextProcessor.DamageReasons source){
 		onHurt(source);
 		weapon.onHurt(source);
 		shield.onHurt(source);
 	}
 
-	protected void onHurt(String source){}
+	protected void onHurt(AttackTextProcessor.DamageReasons source){}
 
 	public final void runAttack(){
 		onAttack();
@@ -281,7 +278,7 @@ public class CharacterClasses {
 	public void onMove(){}
 
 	public boolean runOnAttackDecided(){
-		return !onAttackDecided() || !weapon.onAttackDecided() || !shield.onAttackDecided();
+		return onAttackDecided() && weapon.onAttackDecided() && shield.onAttackDecided();
 	}
 
 	public boolean onAttackDecided(){return true;}

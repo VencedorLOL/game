@@ -25,6 +25,7 @@ public class Turns implements Utils {
 		finalList = new ArrayList<>();
 		canTurnFinish = false;
 		turnCount = 0;
+		isTurnApproved = false;
 		finalizedToChoose = new ArrayList<>();
 		for (Actor a : actors){
 			a.setDidItAct(false);
@@ -44,11 +45,14 @@ public class Turns implements Utils {
 		willTurnRun = true;
 	}
 
-	// it wasnt the best way of doing it, it turns out.
+	public static boolean isTurnRunning(){
+		return isTurnApproved;
+	}
+
 	private static ArrayList<ActorAndSpeed> finalList;
 
 
-	public static void actorsFinalizedChoosing(Actor actor){
+	public static void finalizedChoosing(Actor actor){
 		if(valueSearcher(finalizedToChoose,actor) != null)
 			valueSearcher(finalizedToChoose,actor).setBool(true);
 		else
@@ -63,13 +67,9 @@ public class Turns implements Utils {
 			if(f.getBool())
 				numberOfTrueFinalizedChoosers++;
 		}
-		if (listOfActors.size() == numberOfTrueFinalizedChoosers)
-			print("aproveddadw. turn can start");
-
-		return listOfActors.size() == numberOfTrueFinalizedChoosers;
+		return listOfActors.size() == numberOfTrueFinalizedChoosers && !finalizedToChoose.isEmpty();
 	}
 
-	// cant believe how i overcomplicated this in the past lmfao and it didnt even work lmfaoo
 	public static boolean isDecidingWhatToDo(Actor entity){
 		for (ActorAndBoolean f : finalizedToChoose)
 			if(f.actor == entity)
@@ -166,7 +166,7 @@ public class Turns implements Utils {
 
 		public void letAct(){
 			if (!actor.didItAct()) {
-				actor.permitToMove();
+				actor.permitToAct();
 				actor.didItAct = true;
 			}
 		}

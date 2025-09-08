@@ -18,16 +18,18 @@ import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.Stage.betweenStages;
-import static com.mygdx.game.items.TextureManager.animations;
-import static com.mygdx.game.items.TextureManager.text;
+import static com.mygdx.game.items.TextureManager.*;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.VideoManager.*;
-import static java.lang.Math.round;
+import static java.lang.Math.*;
+import static java.lang.Math.pow;
 
 public class Character extends Actor implements Utils {
 
@@ -41,6 +43,7 @@ public class Character extends Actor implements Utils {
 
 	TextureManager.Animation walkingAnimation;
 
+
 	public Character(float x, float y, float base, float height) {
 		super("char",x,y,base,height);
 		this.x = x;
@@ -52,25 +55,19 @@ public class Character extends Actor implements Utils {
 		testCollision.base = base;
 		testCollision.height = height;
 		oVS2 = new OnVariousScenarios(){
-			@Override
 			public void onStageChange(){
 				attackMode = false;
-				canDecide[0] = true; canDecide[1] = true;
-				speedLeft[0] = 0;    speedLeft[1] = 0;
+				speedLeft[0] = 0; speedLeft[1] = 0;
 				didItAct = false;
 				permittedToAct = false;
+				lockClassTilAnimationFinishes = false;
 				texture = "char";
-			}
-
-			@Override
-			public void onTurnPass(){
-				canDecide[1] = true;
 			}
 		};
 		team = 1;
 		classes = new Classless();
 		classes.character = this;
-		path = new Path(x,y, classes.speed);
+		path = new Path(x,y, classes.speed,this);
 	}
 
 	public void spendTurn(){
@@ -80,15 +77,6 @@ public class Character extends Actor implements Utils {
 		isOnTheGrid();
 	}
 
-	public void permitToMove(){
-		//print("permitted to move");
-		permittedToAct = true;
-	}
-
-	public boolean isPermittedToAct() {
-		return permittedToAct;
-	}
-
 	protected void automatedMovement(){
 		if(Gdx.input.justTouched()){
 			lastClickX = roundedClick().x;
@@ -96,9 +84,9 @@ public class Character extends Actor implements Utils {
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
-			pathFinding();
-		}
+//		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
+//			pathFinding();
+//		}
 	}
 
 
@@ -113,13 +101,13 @@ public class Character extends Actor implements Utils {
 
 
 
-	public void update(GameScreen cam){
+	public void update(){
 		classes.update();
 		speed = classes.speed;
 		actingSpeed = classes.attackSpeed;
 		range = classes.range;
+		pierces = classes.pierces;
 		onDeath();
-		actingSpeed = classes.attackSpeed;
 		path.getStats(x,y, classes.speed);
 
 		if (!attackMode)
@@ -132,14 +120,26 @@ public class Character extends Actor implements Utils {
 
 
 		textureUpdater();
-		debug(cam);
+		debug();
 		path.render();
+		attackRenderer();
 		render();
 	}
 
-	int numberOfHits = 0;
 
-
+	public void attackRenderer(){
+		for (int i = 0; i < attacks.size(); i++){
+			if(attacks.get(i).render) {
+				byte counter = 0;
+				for (int j = i; j < attacks.size(); j++) {
+					if (attacks.get(j).targetX == attacks.get(i).targetX && attacks.get(j).targetY == attacks.get(i).targetY && attacks.get(j) != attacks.get(i))
+						counter++;
+				}
+				addToList("attackIndicator", attacks.get(i).targetX - 5 * counter, attacks.get(i).targetY - 5 *counter, 1,
+						0, 256, attacks.get(i).isBeingExecuted ? 20 : 256, attacks.get(i).isBeingExecuted ? 68 : 256);
+			}
+		}
+	}
 
 
 
@@ -155,8 +155,9 @@ public class Character extends Actor implements Utils {
 		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.range || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
-					t.texture.setSecondaryTexture(null);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.range, true);
+					for (int i = 0; i < 9; i++)
+						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
+			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.range, true,classes.attacksIgnoreTerrain);
 
 		}
 		Vector3 temporal = roundedClick();
@@ -190,11 +191,11 @@ public class Character extends Actor implements Utils {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation("target", targetsTarget);
+			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation("target", targetsTarget);
+			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -220,30 +221,38 @@ public class Character extends Actor implements Utils {
 
 
 	public void cancelAttackMode(){
+		attackMode = false;
 		if (circle != null)
 			for (Tile t : circle.circle)
-				t.texture.setSecondaryTexture(null);
+				for (int i = 0; i < 9; i++)
+					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
 		circle = null;
 		animations.remove(target);
 		target = null;
+		attacks.clear();
 	}
 
 
 	public void attackDetector(){
 		ArrayList<Actor> temp = new ArrayList<>();
 		temp.add(this);
-		for (Attack a : attacks) {
-			classes.runAttack();
-			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY,temp, false,this);
-			if (list != null)
-				for (Actor aa : list) {
-					aa.damage(classes.outgoingDamage(), "Melee");
-					numberOfHits++;
-					if (!classes.pierces)
-						break;
-				}
+		classes.runAttack();
+		ArrayList<Actor> list = null;
+		try {
+			list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
+		} catch (Exception e) {
+			printErr("attackState is " + attackMode);
+			e.printStackTrace();
 		}
-		finalizedTurn();
+		if (list != null)
+			for (Actor aa : list) {
+				aa.damage(classes.outgoingDamage(), AttackTextProcessor.DamageReasons.MELEE);
+				if (!classes.pierces)
+					break;
+			}
+		else
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+		attacks.get(elementOfAttack - 1).render = false;
 	}
 
 
@@ -253,8 +262,6 @@ public class Character extends Actor implements Utils {
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
 				attacks.add(new Attack(temporal.x, temporal.y));
-				canDecide = new boolean[]{false, false};
-				thisTurnVSM = getVisualSpeedMultiplier();
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
@@ -262,8 +269,6 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
 				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
-				canDecide = new boolean[]{false, false};
-				thisTurnVSM = getVisualSpeedMultiplier();
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
@@ -305,7 +310,6 @@ public class Character extends Actor implements Utils {
 	private void animationWalking(){
 		texture = null;
 		willDoNormalTextureChange = false;
-
 		String walkingFile = null;
 		switch (textureOrientation){
 			case 0: walkingFile = "walkingdiagrightdown";	break;
@@ -331,7 +335,6 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void textureUpdater(){
-
 			texture(false);
 			switch (textureOrientation) {
 				case 0: texture = "CharaDiagonalDownRight"; animationWalking();	 break;
@@ -353,7 +356,7 @@ public class Character extends Actor implements Utils {
 			print(textureOrientation +" is the texuter orientation");
 	}
 
-	public void damageOverridable(float damage, String damageReason){
+	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
 		classes.damage(damage,damageReason);
 	}
 
@@ -373,44 +376,7 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
-	ArrayList<Tile> dumpList;
-	protected void softlockOverridable() {
-		if (overlapsWithStage(stage,this) && !betweenStages){
-			print("SOFTLOCK SOFTLOCK");
-			for (Tile t : stage.tileset)
-				t.hasBeenChecked = false;
-			dumpList = new ArrayList<>();
-			ArrayList<Tile> currentTilesetChecking = new ArrayList<>();
-			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.y / globalSize()))));
-			if(currentTilesetChecking.get(0) != null && currentAnalize(currentTilesetChecking.get(0))) {
-				dumpList = null;
-				return;
-			}
-			for (int i = 1; i <= stage.tileset.size(); i++) {
-				currentTilesetChecking = (ArrayList<Tile>) dumpList.clone();
-				dumpList.clear();
-				for (Tile t : currentTilesetChecking)
-					if (currentAnalize(t)) {
-						dumpList = null;
-						return;
-					}
-			}
-		}
-	}
 
-	private boolean currentAnalize(Tile currentTile){
-		ArrayList<Tile> neighbours = currentTile.walkableOrthogonalTiles(stage.tileset);
-		for (Tile t : neighbours)
-			if (!t.hasBeenChecked) {
-				t.hasBeenChecked = true;
-				dumpList.add(t);
-				dumpList.removeIf(tt -> t == tt);
-				testCollision.x = t.x; testCollision.y = t.y;
-				if (!overlapsWithStage(stage,testCollision))
-					x = t.x; y = t.y; return true;
-			}
-		return false;
-	}
 
 	// Debug
 
@@ -487,44 +453,61 @@ public class Character extends Actor implements Utils {
 	}
 
 
-	private void debug(GameScreen cam){
+	private void debug(){
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.X))
-			print("Chara real x pos is: " + x + " and simplified x is: " + x/globalSize());
+			if(!getReleaseVersion())
+				print("Chara real x pos is: " + x + " and simplified x is: " + x/globalSize());
+			else
+				fixatedText("Chara real x pos is: " + x + " and on-the-grid x is: " + x/globalSize(),300,300,100,Fonts.ComicSans,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Y))
-			print("Chara real y pos is: " + y + " and simplified y is: " + y/globalSize());
+			if(!getReleaseVersion())
+				print("Chara real y pos is: " + y + " and simplified y is: " + y/globalSize());
+			else
+				fixatedText("Chara real y pos is: " + y + " and on-the-grid y is: " + y/globalSize(),300,300,100,Fonts.ComicSans,40);
 
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.B)){
-			canDecide[0] = true; canDecide[1] = true;
+			Turns.reset();
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			print("canDecide: " + (canDecide[1] && canDecide[0]));
-			print("speedLeft on x: " + speedLeft[0]);
-			print("speedLeft on y: " + speedLeft[1]);
-			print("permittedToAct: " + permittedToAct);
-			print("Weapon: " + classes.weapon);
-			print("Health: " + classes.totalHealth);
-			print("Damage: " + classes.totalDamage);
-			print("Class: " + classes.name);
-			print("Weapon: " + classes.weapon.weaponName);
-			print("Shield: " + classes.shield.shieldName);
-			print("Current health: " + classes.currentHealth);
-			print("Texture" + texture);
-			print("mouse moved? " + mouseMoved);
+			if(!getReleaseVersion()) {
+				print("");
+				print("speedLeft on x: " + speedLeft[0]);
+				print("speedLeft on y: " + speedLeft[1]);
+				print("permittedToAct: " + permittedToAct);
+				print("Weapon: " + classes.weapon);
+				print("Health: " + classes.totalHealth);
+				print("Damage: " + classes.totalDamage);
+				print("Class: " + classes.name);
+				print("WeaponName: " + classes.weapon.weaponName);
+				print("ShieldName: " + classes.shield.shieldName);
+				print("Current health: " + classes.currentHealth);
+				print("Texture" + texture);
+				print("mouse moved? " + mouseMoved);
+				print("Real x: " + x + " simplified x: " + x / globalSize());
+				print("Real y: " + y + " simplified y: " + y / globalSize());
+				print("Base is: " + base + " Height is: " + height);
+				print("");
+			} else
+				fixatedText("speedLeft on x: " + speedLeft[0] + "\n"+
+			"speedLeft on y: " + speedLeft[1] +"\n"+
+			"permittedToAct: " + permittedToAct +"\n"+
+			"Weapon: " + classes.weapon +"\n"+
+			"Health: " + classes.totalHealth+"\n"+
+			"Damage: " + classes.totalDamage+"\n"+
+			"Class: " + classes.name+"\n"+
+			"WeaponName: " + classes.weapon.weaponName+"\n"+
+			"ShieldName: " + classes.shield.shieldName+"\n"+
+			"Current health: " + classes.currentHealth+"\n"+
+			"Texture" + texture+"\n"+
+			"mouse moved? " + mouseMoved+"\n"+
+			"Real x: " + x + " simplified x: " + x / globalSize()+"\n"+
+			"Real y: " + y + " simplified y: " + y / globalSize(),300,100,500,Fonts.ComicSans,40);
 		}
 
-		if(Gdx.input.isKeyJustPressed(Input.Keys.V) && canDecide[0] && canDecide[1]) {
-			Settings.setFastMode(!Settings.getFastMode());
-			print("FastMode is now "+Settings.getFastMode());
-			if (Settings.getFastMode())
-				setVisualSpeedMultiplier(32);
-			else
-				setVisualSpeedMultiplier(8);
-
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && canDecide()) {
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && isDecidingWhatToDo(this)) {
 			if (turnMode) {
 				attackMode = !attackMode;
 				path.pathReset();
@@ -546,68 +529,13 @@ public class Character extends Actor implements Utils {
 		}
 
 		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
-			cam.particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
+			particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
 					y+ (float) globalSize() /2,1, 10,true,false);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
 			stage.enemy.add(new Enemy(x+256,y));
 		}
 
-		if(Gdx.input.isKeyPressed(Input.Keys.N)){
-			//	stop("test");
-			//	load("test",true);
-			//	play("test");
-			//	print("Size is: "+ sounds.size());
-			texture = null;
-			willDoNormalTextureChange = false;
-			animations.add(new TextureManager.Animation("gliding circle",x,y){
-				@Override
-				public void onFinish(){
-					finished = true;
-					Character chara = null;
-					for (Entity cha : Entity.entityList)
-						if (cha instanceof Character)
-							chara = (Character) cha;
-					Camara.attach(chara);
-					assert chara != null;
-					chara.texture = "char";
-					chara.willDoNormalTextureChange = true;
-					print("HEYOO");
-				}
-			});
-			//	Camara.attach(animations.get(0));
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
-			texture = null;
-			willDoNormalTextureChange = false;
-			animations.add(new TextureManager.Animation("walkingright",x,y){
-				@Override
-				public void onFinish(){
-					finished = true;
-					Character chara = null;
-					for (Entity cha : Entity.entityList)
-						if (cha instanceof Character)
-							chara = (Character) cha;
-					Camara.attach(chara);
-					assert chara != null;
-					chara.texture = "char";
-					chara.willDoNormalTextureChange = true;
-					print("HEYOO");
-				}
-			});
-			//	Camara.attach(animations.get(0));
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1))
-			quickPlay("test1");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-			quickPlay("test2");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
-			quickPlay("test3");
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			quickPlay("test1");
-			quickPlay("test2");
-			quickPlay("test3");
-		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
 			quickPlay("test");
 			animations.add(new TextureManager.Animation("beneath the mask",x,y));
@@ -627,25 +555,27 @@ public class Character extends Actor implements Utils {
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
 			for (Actor a : actors){
-				a.damage(1000,"God Damage");
+				a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL);
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
-			print(stage+"");
+			if(!getReleaseVersion())
+				print(stage+"");
+			else fixatedText("Current Stage: " + stage,300,200,200,Fonts.ComicSans,40);
 		}
 		changeTo();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-			damage(20,"SelfDamage");
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
-			createVideo(x,y);
+			damage(20, AttackTextProcessor.DamageReasons.SELF);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
-		print("its " + getTakeEnemiesIntoConsideration());
+		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			text("Version: A",x,y,100, TextureManager.Fonts.ComicSans,40,150,150,150,1,100);
+			fixatedText("Version: V",400,200,100, TextureManager.Fonts.ComicSans,40);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
 		}
 
 	}

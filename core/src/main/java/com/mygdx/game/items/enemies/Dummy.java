@@ -6,6 +6,7 @@ import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.TextureManager.text;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 public class Dummy extends Enemy {
 
@@ -27,7 +28,7 @@ public class Dummy extends Enemy {
 	public void attack(){
 	if (isPermittedToAct())
 		finalizedTurn();
-	else if (canDecide())
+	else if (isDecidingWhatToDo(this))
 		actionDecided();}
 
 	@Override
@@ -41,7 +42,7 @@ public class Dummy extends Enemy {
 	public void movement() {
 		if (isPermittedToAct())
 			finalizedTurn();
-		else if (canDecide())
+		else if (isDecidingWhatToDo(this))
 			actionDecided();
 	}
 }

@@ -1,5 +1,6 @@
 package com.mygdx.game.items.characters.equipment;
 
+import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.Settings.print;
@@ -59,7 +60,7 @@ public class Weapons {
 		// Overridable method. Runs every tick. For weapon-specific abilities.
 	}
 
-	public void onHurt(String source){}
+	public void onHurt(AttackTextProcessor.DamageReasons source){}
 
 	public void onAttack(){}
 

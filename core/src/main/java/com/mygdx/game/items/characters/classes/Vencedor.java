@@ -3,6 +3,7 @@ package com.mygdx.game.items.characters.classes;
 import static com.mygdx.game.Settings.touchDetect;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.TextureManager.addToFixatedList;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 import com.badlogic.gdx.Gdx;
@@ -14,30 +15,30 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import java.util.ArrayList;
 
 public class Vencedor extends CharacterClasses {
-	public static String name = "Vencedor";
-	public static float health = 40;
-	public static float damage = 5;
-	public static byte speed = 30;
-	public static byte attackSpeed = 8;
-	public static float defense = 0;
-	public static int range = 7;
-	public static float tempDefense = 0;
-	public static float rainbowDefense = 0;
-	public static float mana = 0;
-	public static float magicDefense = 0;
-	public static float magicDamage = 0;
-	public static float manaPerTurn = 0;
-	public static float manaPerUse = 0;
-	public static float magicHealing = 0;
-	public static float aggro;
+
 
 	public boolean attackMode = false;
 	public boolean controlVenceSwordMode = false;
 	public ArrayList<VenceSword> venceSwordArray = new ArrayList<>();
 
 	public Vencedor() {
-		super(name, health, damage, speed, attackSpeed, defense, range, tempDefense, rainbowDefense, mana, magicDefense,
-				magicDamage, manaPerTurn, manaPerUse, magicHealing,aggro);
+		super();
+		name = "Vencedor";
+		health = 40;
+		damage = 5;
+		speed = 30;
+		attackSpeed = 8;
+		defense = 0;
+		range = 7;
+		tempDefense = 0;
+		rainbowDefense = 0;
+		mana = 0;
+		magicDefense = 0;
+		magicDamage = 0;
+		manaPerTurn = 0;
+		manaPerUse = 0;
+		magicHealing = 0;
+		aggro = 1;
 	}
 
 	public void updateOverridable(){
@@ -50,11 +51,11 @@ public class Vencedor extends CharacterClasses {
 
 
 	public void VenceSword(){
-		if (character.canDecide() && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
+		if (isDecidingWhatToDo(character) && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
 			attackMode = true;
 			return;
 		}
-		if (character.canDecide() && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
+		if (isDecidingWhatToDo(character) && Gdx.input.isKeyJustPressed(Input.Keys.E) && attackMode){
 			attackMode = false;
 			return;
 		}

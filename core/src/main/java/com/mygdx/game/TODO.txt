@@ -5,3 +5,6 @@ Character: Code the +80 characters :D. Make a zone to be able to change your cha
 Game: The rest of the game.
 Char.Class idea: Psyquic shot: controll a proyectile. The proyectile has infinite reach. It moves 10 tiles per act. turn subdivision. If it didnt end on the first turn, on the
 next turn you cant decide what to do, you will keep moving the ball.
+
+idea:
+path indicator having same theme as ambient

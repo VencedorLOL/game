@@ -9,19 +9,21 @@ import java.util.Collections;
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
+import static com.mygdx.game.GameScreen.particle;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.Stage.*;
+import static com.mygdx.game.items.TextureManager.animationToList;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Tile.findATile;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Enemy extends Actor {
 	public float health = 20;
 	public float defense = 5;;
 
-	boolean localFastMode;
 
 
 	public static ArrayList<Enemy> enemies = new ArrayList<>();
@@ -30,22 +32,9 @@ public class Enemy extends Actor {
 
 	public float[] tileToReach = new float[2];
 
-	static {
-		OnVariousScenarios oVE2 = new OnVariousScenarios(){
-			@Override
-			public void onStageChange() {
-				enemies.clear();
-			}
-
-
-		};
-	}
-
-
-
 	public static void loop(){
 		for (Enemy e : enemies) {
-			if (e.canDecide[1])
+			if (isDecidingWhatToDo(e))
 				break;
 			if (enemyGrid != null && findATile(enemyGrid, e.x, e.y) != null) {
 				findATile(enemyGrid, e.x, e.y).isWalkable = false;
@@ -103,14 +92,9 @@ public class Enemy extends Actor {
 		testCollision.base = base;
 		testCollision.height = height;
 		this.texture = texture;
-		path = new Path(x,y,speed);
+		path = new Path(x,y,speed,this);
 		team = -1;
-		oVS = new OnVariousScenarios(){
-			@Override
-			public void onTurnPass() {
-				canDecide[1] = true;
-			}
-		};
+		permittedToAct = false;
 		enemies.add(this);
 	}
 
@@ -120,28 +104,12 @@ public class Enemy extends Actor {
 		this.y = y;
 		testCollision.x = x;
 		testCollision.y = y;
-		path = new Path(x,y,speed);
+		path = new Path(x,y,speed,this);
 		team = -1;
-		oVS = new OnVariousScenarios(){
-			@Override
-			public void onTurnPass() {
-				canDecide[1] = true;
-			}
-		};
+		permittedToAct = false;
 		enemies.add(this);
 	}
 	// Movement
-
-
-
-	public void permitToMove(){
-		permittedToAct = true;
-	}
-
-	@Override
-	public boolean isPermittedToAct() {
-		return permittedToAct;
-	}
 
 
 	public boolean amIRendered(){
@@ -151,12 +119,7 @@ public class Enemy extends Actor {
 				y + globalSize()*2 >= stage.camaraY - stage.camaraHeight / 2;
 
 	}
-	public void fastModeSetter(){
-		if (amIRendered())
-			localFastMode = Settings.getFastMode();
-		else
-			localFastMode = true;
-	}
+
 
 
 	protected void overlappingCheck() {
@@ -185,15 +148,14 @@ public class Enemy extends Actor {
 
 
 
-	public void update(ParticleManager pm){
+	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			gameScreenGetter(pm);
 			path.getStats(x,y,speed);
 			loop();
 			onDeath();
 			if (targetActor == null && turnMode)
 				targetFinder();
-			if (targetActor != null && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0)
+			if (((targetActor != null && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -213,6 +175,7 @@ public class Enemy extends Actor {
 
 	public void onDeath(){
 		if (health <= 0) {
+			animationToList("dying",x,y);
 			isDead = true;
 			permittedToAct = false;
 			actors.remove(this);
@@ -221,22 +184,48 @@ public class Enemy extends Actor {
 		}
 	}
 
-	public void damageOverridable(float damage, String damageReason){
+	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
 		float damagedFor = max(damage - defense,0);
 		health -= damagedFor;
 		if (Objects.equals(damageReason, "Melee") && damagedFor != 0){
-			pm.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
+			particle.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
 		}
-		int fontSize = 40;
-		text(""+(damagedFor > 0 ? damagedFor : "0"),getX()
-						+(fontSize-(float) (damagedFor > 0 ? (damagedFor + "").toCharArray().length - 1 : 1)/(fontSize*2*globalSize()))
-				// original: +(16-(float) ((damagedFor + "").toCharArray().length))/32*globalSize()
-				, (float) (getY()+(globalSize()*1.3*min(max(fontSize/25,1),2))),200, TextureManager.Fonts.ComicSans,fontSize, damagedFor == 0 ? 125 : 255, damagedFor == 0 ? 125 : 0, damagedFor == 0 ? 125 : 0,1,50);
+		AttackTextProcessor.addAttackText(damagedFor,damageReason,this);
 		print("remaining health is: " + health);
 		printErr("damaged for " + damagedFor + " damage");
 
 	}
 
-	public ParticleManager pm;
-	public void gameScreenGetter(ParticleManager pm){ this.pm = pm; }
+/*	protected void turnSpeedActuator(){
+		if (speedLeft[0] > 0) {
+			testCollision.x += thisTurnVSM;
+			if (!overlapsWithStageWithException(stage,testCollision,this))
+				x += thisTurnVSM;
+			speedLeft[0] -= thisTurnVSM;
+			movedThisTurn++;
+		}
+		else if (speedLeft[0] < 0) {
+			testCollision.x -= thisTurnVSM;
+			if (!overlapsWithStageWithException(stage,testCollision,this))
+				x -= thisTurnVSM;
+			speedLeft[0] += thisTurnVSM;
+			movedThisTurn++;
+		}
+		testCollision.x = x;
+		if (speedLeft[1] > 0) {
+			testCollision.y += thisTurnVSM;
+			if (!overlapsWithStageWithException(stage,testCollision,this))
+				y += thisTurnVSM;
+			speedLeft[1] -= thisTurnVSM;
+			movedThisTurn++;
+		}
+		else if (speedLeft[1] < 0) {
+			testCollision.y -= thisTurnVSM;
+			if (!overlapsWithStageWithException(stage,testCollision,this))
+				y -= thisTurnVSM;
+			speedLeft[1] += thisTurnVSM;
+			movedThisTurn++;
+		}
+	}*/
+
 }

@@ -19,6 +19,7 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.cC;
+import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static java.lang.Math.*;
 
 public class TextureManager {
@@ -40,7 +41,6 @@ public class TextureManager {
 		public void onStageChange() {
 			text.clear();
 			drawables.clear();
-			animations.clear();
 			videos.clear();
 		}
 	};
@@ -70,18 +70,18 @@ public class TextureManager {
 	}
 
 	private void drawer(String texture, float x, float y,float opacity,float rotationDegrees){
-		drawer(texture,x,y,opacity,false,rotationDegrees,1,1);
+		drawer(texture,x,y,opacity,false,false,rotationDegrees,1,1,1,1,1);
 	}
 
-	private void drawer(String texture, float x, float y,float opacity,boolean flipX,float rotationDegrees,float scaleX,float scaleY){
+	private void drawer(String texture, float x, float y,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
 		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
 		sprite = new Sprite(region);
-		sprite.setAlpha(opacity);
 		sprite.setPosition(x,y);
-		sprite.setFlip(flipX,false);
+		sprite.setFlip(flipX,flipY);
 		sprite.setRotation(rotationDegrees);
 		sprite.setScale(scaleX,scaleY);
+		sprite.setColor(r,g,b,opacity);
 		sprite.draw(batch);
 	}
 
@@ -111,7 +111,7 @@ public class TextureManager {
 
 	private void fixatedScreenDrawer(String texture, float x, float y, float opacity,float rotationDegrees,float scaleX, float scaleY){
 		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
-		drawer(texture,coords.x, coords.y,opacity,false,rotationDegrees,scaleX,scaleY);
+		drawer(texture,coords.x, coords.y,opacity,false,false,rotationDegrees,scaleX,scaleY,1,1,1);
 	}
 
 	public static void animationToList(String file, float x, float y){
@@ -119,15 +119,23 @@ public class TextureManager {
 	}
 
 	public static void addToList(String texture, float x, float y){
-		addToList( texture,  x,  y,1,0);
+		addToList( texture,  x,  y,1,0,256,256,256);
 	}
 
 	public static void addToList(String texture, float x, float y,float opacity){
-		addToList(texture, x, y,opacity,0);
+		addToList(texture, x, y,opacity,0,256,256,256);
 	}
 
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees){
-		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees));
+		addToList(texture, x, y,opacity,rotationDegrees,256,256,256);
+	}
+
+	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,boolean flipX, boolean flipY){
+		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,flipX,flipY));
+	}
+
+	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,float r,float g,float b){
+		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b));
 	}
 
 	public static void addToFixatedList(String texture, float xPercentage, float yPercentage){
@@ -145,6 +153,10 @@ public class TextureManager {
 		priorityDrawables.add(new DrawableObject(texture, x, y,opacity,0));
 	}
 
+	public static void addToPriorityList(String texture, float x, float y,float opacity,float rotationDegrees,boolean flipX, boolean flipY){
+		priorityDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,flipX,flipY));
+	}
+
 	public static void renderVideo(Texture texture, float x, float y){
 		videos.add(new DrawableTexture(texture, x, y));
 	}
@@ -156,7 +168,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
-				 drawer(d.texture,d.x,d.y,d.opacity,false,d.rotationDegrees,d.scaleX,d.scaleY);
+				 drawer(d.texture,d.x,d.y,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		drawables.clear();
 		// Animations
@@ -164,21 +176,20 @@ public class TextureManager {
 		for (TextureManager.Animation a : animations){
 			a.update();
 			if (a.texture != null)
-				drawer(a.texture, a.x, a.y, a.opacity,a.flipX,0,1,1);
+				 drawer(a.texture, a.x, a.y, a.opacity,a.flipX,false,0,1,1,1,1,1);
 		}
 		animations.removeIf(ani -> ani.finished);
 		// Text display
 
 		for (TextureManager.Text t : text){
-			if (!t.fakeNull)
+			if (!t.fakeNull && t.render)
 				t.draw(batch);
 		}
 		text.removeIf(tex -> tex.fakeNull);
 		// Static text display
 
 		for (TextureManager.Text t : fixatedText){
-			if (!t.fakeNull) {
-
+			if (!t.fakeNull && t.render) {
 				t.drawStatic(batch);
 			}
 		}
@@ -187,7 +198,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : priorityDrawables){
 			if (d.texture != null)
-				drawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees);
+				drawer(d.texture,d.x,d.y,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		priorityDrawables.clear();
 		// Static drawables
@@ -205,7 +216,6 @@ public class TextureManager {
 				textureDrawer(t.texture,t.x,t.y);
 		}
 		videos.clear();
-
 	}
 
 	public static void fixatedText (String text,float x, float y,int timeOnScreen,Fonts font,int size){
@@ -237,6 +247,8 @@ public class TextureManager {
 		public float opacity;
 		public float rotationDegrees;
 		public float scaleX = 1, scaleY = 1;
+		public float r = 1,g = 1,b = 1;
+		public boolean flipX = false, flipY = false;
 
 
 		public DrawableObject(String texture, float x, float y){
@@ -250,6 +262,31 @@ public class TextureManager {
 			this.x = x;
 			this.y = y;
 			this.texture = texture;
+			this.rotationDegrees = rotationDegrees;
+			if (opacity > 1)
+				this.opacity = opacity / 100;
+			else
+				this.opacity = opacity;
+		}
+
+		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,boolean flipX, boolean flipY){
+			this.x = x;
+			this.y = y;
+			this.texture = texture;
+			this.rotationDegrees = rotationDegrees;
+			if (opacity > 1)
+				this.opacity = opacity / 100;
+			else
+				this.opacity = opacity;
+			this.flipX = flipX;
+			this.flipY = flipY;
+		}
+
+		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float r, float g, float b){
+			this.x = x;
+			this.y = y;
+			this.texture = texture;
+			this.r = r / 256; this.g = g / 256; this.b = b / 256;
 			this.rotationDegrees = rotationDegrees;
 			if (opacity > 1)
 				this.opacity = opacity / 100;
@@ -281,6 +318,7 @@ public class TextureManager {
 		int r,g,b;
 		float opacity;
 		float vanishingThreshold;
+		public boolean render = true;
 
 		public Text(String text, float x, float y, BitmapFont font){
 			this.text = text;
@@ -323,15 +361,17 @@ public class TextureManager {
 			this.r = -1;
 		}
 
+		public Text(){}
 
 
 		public void draw(Batch batch){
 			if (r != -1)
-				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
+				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
 			font.draw(batch, text,x,y);
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;
+				onFinishOverridable();
 			}
 
 		}
@@ -344,7 +384,36 @@ public class TextureManager {
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;
+				onFinishOverridable();
 			}
+		}
+
+
+		public void onFinishOverridable(){}
+
+
+		public void setColor(int[] color){
+			this.r = color[0];
+			this.g = color[1];
+			this.b = color[2];
+		}
+
+		public static BitmapFont createFont(Fonts name, int size) {
+			FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+			fontParameter.size = size;
+			return new FreeTypeFontGenerator(Gdx.files.internal(name.path)).generateFont(fontParameter);
+		}
+
+
+
+	}
+
+	public enum Fonts {
+		ComicSans("Fonts\\Comic Sans MS.ttf");
+
+		public final String path;
+		Fonts(String path) {
+			this.path = path;
 		}
 	}
 
@@ -358,7 +427,7 @@ public class TextureManager {
 		public ArrayList<String> code = new ArrayList<>();
 		public int framesForCurrentAnimation = 0;
 		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
-		public float opacity;
+		public float opacity = 1;
 
 
 		int glideFrames;
@@ -558,7 +627,6 @@ public class TextureManager {
 			this.orbitFrames = orbitFrames;
 			this.orbitCounter = 0;
 			this.x = x; this.y = y;
-			print("Is it clockwise? " + clockwise+".");
 		}
 
 
@@ -591,7 +659,8 @@ public class TextureManager {
 
 
 
-		public void update(){
+		public final void update(){
+			updateOverridable();
 			if (entityToFollow != null)
 				move(true,0);
 			if (isOrbiting)
@@ -606,8 +675,10 @@ public class TextureManager {
 			else framesForCurrentAnimation--;
 		}
 
+		public void updateOverridable(){}
 
-		public void read(){
+
+		public final void read(){
 			while (fileReader.hasNext()){
 				code.add(fileReader.next());
 			}
@@ -649,23 +720,6 @@ public class TextureManager {
 		private String getName(){return path;}
 		private void setPath(String path){this.path = path;}
 
-	}
-
-
-
-	public static BitmapFont createFont(Fonts name, int size) {
-		FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		fontParameter.size = size;
-		return new FreeTypeFontGenerator(Gdx.files.internal(name.path)).generateFont(fontParameter);
-	}
-
-	public enum Fonts {
-		ComicSans("Fonts\\Comic Sans MS.ttf");
-
-		public final String path;
-		Fonts(String path) {
-			this.path = path;
-		}
 	}
 
 

@@ -15,7 +15,7 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 	@Override
 	public void create () {
         System.out.println(System.getProperty("java.version"));
-		gameScreen = new GameScreen(this);
+		gameScreen = new GameScreen();
 		camara.camaraStarter(camaraZoom);
 		this.setGameScreen();
 		this.setStartScreen();
@@ -35,7 +35,7 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 		setScreen(pauseScreen);
 	}
 	public void setStageCreatorScreen() {
-		StageCreatorScreen sCScreen = new StageCreatorScreen(this);
+		StageCreatorScreen sCScreen = new StageCreatorScreen();
 		setScreen(sCScreen);
 	}
 

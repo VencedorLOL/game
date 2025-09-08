@@ -231,7 +231,7 @@ public class PathFinder {
 	public void setEnd(float x, float y,ArrayList<Tile> grid){
 		objectiveTile = findATile(grid,x,y);
 		if (objectiveTile == null)
-			print("ovktitile OS NILL");
+			print("ObjectiveTiile IS NULL");
 		objectiveTile.isWalkable = true;
 	}
 

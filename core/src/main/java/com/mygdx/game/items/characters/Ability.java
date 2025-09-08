@@ -6,8 +6,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.TextureManager;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -34,7 +36,7 @@ public class Ability{
 	}
 
 	public boolean isBeingPressed(){
-		if (touchDetect()){
+		if (Gdx.input.justTouched()){
 			// https://imgur.com/a/bgzC4LK
 			Vector3 vector = authenticClick();
 			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
@@ -60,15 +62,17 @@ public class Ability{
 			if (cooldownCounter >= cooldown) {
 				isItActive = true;
 				active();
-				print(name+" activated!");
+				text(name+" activated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4,120, TextureManager.Fonts.ComicSans,32,40,200,40,1,30);
 			}
 			else if (cooldown - cooldownCounter > 1)
-				print("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!");
+				text("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!"
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + globalSize() * 3/4 + chara.getHeight(),120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
 			else
-				print("Couldn't activate " + name + "! You still have to wait one more turn!");
+				text("Couldn't activate " + name + "! You still have to wait one more turn!"
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + chara.getHeight() + globalSize() * 3/4,120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
 		} else {
 			cancelActivation();
-			print(name+ " deactivated!");
+			text(name+ " deactivated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4 ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
 		}
 	}
 

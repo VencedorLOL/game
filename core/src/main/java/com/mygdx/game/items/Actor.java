@@ -1,11 +1,7 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
@@ -13,6 +9,8 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
+import static com.mygdx.game.items.Stage.betweenStages;
+import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
@@ -21,7 +19,7 @@ public class Actor extends Entity{
 
 	public float movedThisTurn;
 	public float maxHealth;
-	byte speed;
+	public byte speed;
 
 	public byte team;
 	// -1 = evil
@@ -35,7 +33,6 @@ public class Actor extends Entity{
 	int thisTurnVSM = getVisualSpeedMultiplier();
 	PathFinder pathFindAlgorithm;
 	public Entity testCollision = new Entity();
-	public boolean[] canDecide = {true, true};
 	public boolean permittedToAct;
 	public int range;
 	public float aggro = 1;
@@ -57,22 +54,29 @@ public class Actor extends Entity{
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
-	OnVariousScenarios oVS = new OnVariousScenarios(){
+	public boolean lockClassTilAnimationFinishes = false;
+
+	static OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
 		public void onTickStart() {
-			alreadyTextured = false;
+			for (Actor a : actors)
+				a.alreadyTextured = false;
 		}
 
 		@Override
 		public void onStageChange() {
-			didItAct = false;
-			permittedToAct = false;
+			for (Actor a : actors) {
+				a.didItAct = false;
+				a.permittedToAct = false;
+			}
 		}
 
 		@Override
 		public void onTurnPass() {
-			path.pathReset();
-			movedThisTurn = 0;
+			for (Actor a : actors) {
+				a.path.pathReset();
+				a.movedThisTurn = 0;
+			}
 		//	path = new Path(x,y,speed);
 		}
 	};
@@ -92,26 +96,30 @@ public class Actor extends Entity{
 	}
 
 	public float damageRecieved;
-	public final void damage(float damage, String damageReason){
+	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason){
 		damageRecieved = damage;
 		triggerOnDamagedActor(this,damageReason);
 		damageOverridable(damageRecieved,damageReason);
 	}
 
-	public void damageOverridable(float damage, String damageReason){}
+	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){}
 
-	//Override
-	public boolean isPermittedToAct(){return true;}
-	//Override
-	public void permitToMove(){}
+	public boolean isPermittedToAct(){return permittedToAct;}
 
+	public void permitToAct(){permittedToAct = true;}
 
 	public boolean overlapsWithStage(Stage stage, Entity tester){
+		return overlapsWithStageWithException(stage,tester,null);
+	}
+
+	public boolean overlapsWithStageWithException(Stage stage, Entity tester, Entity ignore){
 		for (Wall b : stage.walls){
 			if (tester.overlaps(b))
 				return true;
 		}
 		for (Enemy e : stage.enemy) {
+			if (ignore == e)
+				continue;
 			if (tester != e.testCollision && !e.isDead) {
 				if (tester.overlaps(e))
 					return true;
@@ -120,6 +128,8 @@ public class Actor extends Entity{
 
 			}
 		}
+		if (tester.overlaps(chara) && tester != chara && ignore != chara && this != chara)
+			return true;
 		return  chara.x == tester.x && chara.y == tester.y && tester != chara ||
 				stage.finalY >= 0 ? tester.y >= stage.finalY + 1 : tester.y <= stage.finalY - 1 ||
 				stage.startY >= 0 ? tester.y <= stage.startY - 1 : tester.y >= stage.startY + 1 ||
@@ -140,32 +150,70 @@ public class Actor extends Entity{
 			if (isPermittedToAct()) {
 				lastTimeTilLastMovement = 0;
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && !path.pathEnded)
-					speedLeft = path.pathProcess(this);
+					speedLeft = path.pathProcess();
 
 				if (speedLeft[0] != 0 || speedLeft[1] != 0)
 					turnSpeedActuator();
 
-				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded)
+				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
+					softlockOverridable();
 					finalizedTurn();
+				}
 
-			} else if (canDecide() && isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
+			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
 				movementInputTurnMode();
 
-
 		} else {
-			movementInputManual();
 			speedActuator();
 			if (this instanceof Enemy){
 				enemyOnFreeMode();
 			}
 			if (this instanceof Character){
+				movementInputManual();
 				softlockOverridable();
 			}
 		}
 
 		super.refresh(texture,x, y, base, height);
 	}
-	protected void softlockOverridable(){}
+	ArrayList<Tile> dumpList;
+	protected void softlockOverridable() {
+		if (overlapsWithStageWithException(stage,this,this) && !betweenStages){
+			print("SOFTLOCK SOFTLOCK");
+			for (Tile t : stage.tileset)
+				t.hasBeenChecked = false;
+			dumpList = new ArrayList<>();
+			ArrayList<Tile> currentTilesetChecking = new ArrayList<>();
+			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.y / globalSize()))));
+			if(currentTilesetChecking.get(0) != null && currentAnalize(currentTilesetChecking.get(0))) {
+				dumpList = null;
+				return;
+			}
+			for (int i = 1; i <= stage.tileset.size(); i++) {
+				currentTilesetChecking = (ArrayList<Tile>) dumpList.clone();
+				dumpList.clear();
+				for (Tile t : currentTilesetChecking)
+					if (currentAnalize(t)) {
+						dumpList = null;
+						return;
+					}
+			}
+		}
+	}
+
+	private boolean currentAnalize(Tile currentTile){
+		ArrayList<Tile> neighbours = currentTile.walkableOrthogonalTiles(stage.tileset);
+		for (Tile t : neighbours)
+			if (!t.hasBeenChecked) {
+				t.hasBeenChecked = true;
+				dumpList.add(t);
+				dumpList.removeIf(tt -> t == tt);
+				testCollision.x = t.x; testCollision.y = t.y;
+				if (!overlapsWithStageWithException(stage,testCollision,chara))
+					x = t.x; y = t.y; return true;
+			}
+		return false;
+	}
 
 	protected void enemyOnFreeMode(){}
 
@@ -199,20 +247,9 @@ public class Actor extends Entity{
 			speedLeft[1] += thisTurnVSM;
 			movedThisTurn++;
 		}
-
-
-		//failsafe!!
-		if(overlapsWithStage(stage,this))
-			overrideSpawnIfFail();
-
-	}
-	// should any actor need any different overlaping behaviour override this!
-	public void overrideSpawnIfFail(){
-		x = stage.startX; y = stage.startY;
 	}
 
 	protected void turnSpeedActuator(){
-		print("speedLeft x is "+ speedLeft[0] + " y " + speedLeft[1]);
 		if (speedLeft[0] > 0) {
 			x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
@@ -256,17 +293,13 @@ public class Actor extends Entity{
 	}
 
 	protected void actionDecided(){
-		canDecide = new boolean[] {false, false};
 		thisTurnVSM = getVisualSpeedMultiplier();
-		Turns.actorsFinalizedChoosing(this);
-	//	canEnemiesAct = false;
+		Turns.finalizedChoosing(this);
 	}
 
 	public void finalizedTurn(){
-		print("moved this turn " + movedThisTurn);
 		speedLeft[0] = 0;
 		speedLeft[1] = 0;
-		canDecide[0] = true;
 		attacks.clear();
 		spendTurn();
 	}
@@ -307,41 +340,8 @@ public class Actor extends Entity{
 	}
 
 
-	public boolean canDecide(){
-		return canDecide[0] && canDecide[1];
-	}
-
 //FIXME: revisit when proper key handling
 	public void movementInputManual(){
-		if (Gdx.input.isKeyPressed(Input.Keys.W))
-			speedLeft[1] += globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.A))
-			speedLeft[0] -= globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.S))
-			speedLeft[1] -= globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.D))
-			speedLeft[0] += globalSize()/16;
-		if (speedLeft[0] != 0 || speedLeft[1] != 0)
-			lastTimeTilLastMovement = 0;
-
-	}
-
-
-	private float glideXPerFrame, glideYPerFrame;
-	public boolean isGliding = false;
-	public float glideTime;
-	public void glide(float x, float y, float time){
-		if (!isGliding){
-			isGliding = true;
-			glideTime = time;
-			glideXPerFrame = x / time;
-			glideYPerFrame = y / time;
-		} else
-			printErr("ERROR: ALREADY GLIDING");
-	}
-
-	public void glide(float x, float y){
-		glide(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
 	}
 
 	public void glideProcess(){
@@ -427,6 +427,8 @@ public class Actor extends Entity{
 
 	public static class Attack{
 		float targetX, targetY;
+		boolean render = true;
+		boolean isBeingExecuted = false;
 		public Attack(float x, float y){
 			targetX = x; targetY = y;
 		}
@@ -436,36 +438,64 @@ public class Actor extends Entity{
 		testCollision.x = x;
 		testCollision.y = y;
 		if (isPermittedToAct())
-			attackDetector();
+			attackActuator();
 
-		else if (canDecide() && isDecidingWhatToDo(this))
+		else if (isDecidingWhatToDo(this))
 			attackInput();
 	}
 
 
+	public int elementOfAttack = 0;
+	// explanation of method:
+	// the method checks if there's an attack to do and if the attack isnt locked.
+	// then it locks the attack and plays an animation. when the animation finishes the attack will be calculated and done
+	// then it advances in one elementOfAttack, so the animation queued will do the correct attack calculation when it finishes
+	// after the animation finishes the method is then unlocked so it can proceed to the next animation/attack.
+	// when the last attack of the list has to be queued up, it will queue itself with the instructions to finalize its turn.
+	public void attackActuator(){
+		if(!attacks.isEmpty() && !lockClassTilAnimationFinishes) {
+			lockClassTilAnimationFinishes = true;
+			attacks.get(elementOfAttack).isBeingExecuted = true;
+			elementOfAttack++;
+			if (elementOfAttack >= attacks.size())
+				animations.add(new TextureManager.Animation("attack", x, y) {
+					public void onFinish() {
+						lockClassTilAnimationFinishes = false;
+						attackDetector();
+						finalizedTurn();
+						elementOfAttack = 0;
+					}});
+			else
+				animations.add(new TextureManager.Animation("attack", x, y) {
+					public void onFinish() {
+						lockClassTilAnimationFinishes = false;
+						attackDetector();
+					}});
+
+		}
+	}
 
 	public void attackDetector(){
 		ArrayList<Actor> actuallyEnemies = new ArrayList<>(enemies);
 		actuallyEnemies.removeIf(e -> e.team != -1);
-		print("attack size " + attacks.size());
-		for (Attack a : attacks) {
-			ArrayList<Actor> list = rayCasting(x, y, a.targetX, a.targetY, actuallyEnemies, pierces,this);
-			if (list != null)
-				for (Actor e : list)
-					if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
-						e.damage(damage, "Melee");
-						if (!pierces)
-							break;
-					}
+		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
+		if (list != null) {
+			for (Actor e : list)
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
+					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE);
+					if (!pierces)
+						break;
+				}
 		}
-		finalizedTurn();
+		else
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
 	}
 
-	ArrayList<Attack> attacks = new ArrayList<>();
+
+	public ArrayList<Attack> attacks = new ArrayList<>();
 	protected void attackInput() {
 		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range) {
 			attacks.add(new Attack(targetActor.x, targetActor.y));
-			canDecide = new boolean[]{false, false};
 			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();
 		}

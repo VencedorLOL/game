@@ -3,11 +3,9 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
-import com.mygdx.game.items.stages.StageOne;
 
 import static com.mygdx.game.Settings.camaraZoom;
 import static com.mygdx.game.items.Stage.betweenStages;
@@ -24,7 +22,7 @@ public class StageCreatorScreen implements Screen, Utils {
 	public boolean isScreenChanging = false;
 	StageCreator sc;
 
-	StageCreatorScreen(MainClass mainClass) {
+	StageCreatorScreen() {
 		if (camaraZoom <= 0)
 			camaraZoom = 2;
 		camara.camaraStarter(camaraZoom);
@@ -56,7 +54,7 @@ public class StageCreatorScreen implements Screen, Utils {
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
 				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
 			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-				sc.stage.reseter(chara);
+				sc.stage.reseter();
 			}
 			if (Gdx.input.isKeyPressed(Input.Keys.X))
 				System.out.println(chara.getX());

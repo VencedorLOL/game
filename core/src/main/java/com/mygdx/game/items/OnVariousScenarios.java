@@ -53,9 +53,9 @@ public class OnVariousScenarios {
 	}
 
 
-	public void onDamagedActor(Actor damagedActor,String source){}
+	public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source){}
 
-	public static void triggerOnDamagedActor(Actor damagedActor,String source) {
+	public static void triggerOnDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 		for (OnVariousScenarios o : onScenarios)
 			o.onDamagedActor(damagedActor,source);
 	}

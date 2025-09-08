@@ -15,7 +15,7 @@ Explanation of format:
  Glide instructions:
     Will apply FROM the indicated x or y location, if none, from the start pos. 
     After everything else (not including ";") add a "/", then tell the number of frames you want it to take for the sprite to reach its position. This number cannot be larger than the total number of frames. If larger, will be set to the number of total frames. If blank, will also be set to the number of total frames.
-    Then add an UPPERCASE "X" for the number of tiles you want to move in "x" (can be negative or 0 or nothing, leave blank (NOT SPACE, BLANK. This is blank: "" and this is space. " ". Remember, blank.)), and do the same with the "Y" position. 
+    Then add an UPPERCASE "X" for the number of tiles you want to move in "x" (can be negative or 0 or nothing, leave blank (NOT SPACE, BLANK. This is blank: "" and this is space. " ". Remember: blank.)), and do the same with the "Y" position. 
     End the glide statement with ";" 
  For both Glide and Coordinate instructions; ";;" Command:
     If you want the coordinates be the result of the texture after the coordinate and glide instructions, then let the instructions be. If not; you this instruction to take the original coordinates as the first point and to reset the overall coordinates; add two semicolons at the end of the expression, like so: ";;". 

@@ -216,7 +216,7 @@ public class AudioManager {
 				clip.open(sound);
 				clip.loop(willSetLoop ? -1 : 0);
 				clip.setLoopPoints(startLoopAt,-1);
-			//	setVolume(Settings.getVolume());
+				setVolume(Settings.getVolume());
 			}
 			catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 				e.printStackTrace();

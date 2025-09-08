@@ -2,7 +2,9 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.*;
+import static java.lang.Math.*;
+import static java.lang.Math.abs;
 
 public class Entity {
 
@@ -75,9 +77,9 @@ public class Entity {
 			TextureManager.addToList(texture,x,y);
 	}
 
-	public void render(float opacity,float rotation){
+	public void render(float opacity,float rotation,float r, float g,float b){
 		if(render)
-			TextureManager.addToList(texture,x,y,opacity,rotation);
+			TextureManager.addToList(texture,x,y,opacity,rotation,r,g,b);
 	}
 
 	public boolean overlapsWithWalls(Stage stage, Entity entity){
@@ -96,7 +98,46 @@ public class Entity {
 		return false;
 	}
 
-	// Actor will have this
+	public float glideXPerFrame, glideYPerFrame;
+	public boolean isGliding = false;
+	public float glideTime;
+	public void glide(float x, float y, float time){
+		if (!isGliding){
+			isGliding = true;
+			glideTime = time;
+			glideXPerFrame = x / time;
+			glideYPerFrame = y / time;
+		} else
+			printErr("ERROR: ALREADY GLIDING");
+	}
+
+	public void glideAbsoluteCoords(float x, float y, float time){
+		if (!isGliding){
+			isGliding = true;
+			glideTime = time;
+			glideXPerFrame = (x - this.x) / time;
+			glideYPerFrame = (y - this.y) / time;
+		} else
+			printErr("ERROR: ALREADY GLIDING");
+	}
+
+
+	public void glide(float x, float y){
+		glide(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
+	}
+
+	public void glideProcess(){
+		if (isGliding)
+			if (glideTime-- <= 0) {
+				isGliding = false;
+			}
+			else {
+				x += glideXPerFrame;
+				y += glideYPerFrame;
+			}
+	}
+
+
 
 
 }

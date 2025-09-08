@@ -20,8 +20,9 @@ public class EvilGuy extends Enemy {
 				createVideo(x,y);
 			}
 		};
-		sightRange = 3;
-		followRange = 4;
+		sightRange = 30;
+		followRange = 40;
+		speed = 4;
 	}
 
 	Interactable tenna;

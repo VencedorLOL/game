@@ -1,5 +1,6 @@
 package com.mygdx.game.items.characters.equipment;
 
+import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 public class Shields {
@@ -32,7 +33,7 @@ public class Shields {
 		// Overridable method. Runs every tick. For shield-specific abilities.
 	}
 
-	public void onHurt(String source){}
+	public void onHurt(AttackTextProcessor.DamageReasons source){}
 
 	public void onAttack(){}
 
