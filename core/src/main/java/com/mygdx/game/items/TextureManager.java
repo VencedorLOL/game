@@ -19,6 +19,7 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.cC;
+import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static java.lang.Math.*;
 
@@ -180,7 +181,7 @@ public class TextureManager {
 		}
 		animations.removeIf(ani -> ani.finished);
 		// Text display
-
+		coordsUpdater();
 		for (TextureManager.Text t : text){
 			if (!t.fakeNull && t.render)
 				t.draw(batch);

@@ -1,5 +1,9 @@
 package com.mygdx.game.items;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
+import java.security.Key;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
@@ -18,6 +22,10 @@ public class AttackTextProcessor {
 					t.fade();
 				}
 			}
+			public void onStageChange(){
+				delete();
+			}
+
 		};
 	}
 
@@ -30,6 +38,12 @@ public class AttackTextProcessor {
 			}
 		}
 		textList.add(new AttackText(victim,reason,damage));
+	}
+
+
+	public static void coordsUpdater() {
+		for (AttackText a : textList)
+			a.coordsUpdater();
 	}
 
 
@@ -80,7 +94,7 @@ public class AttackTextProcessor {
 					delete = false;
 				}
 				t.text.text = Float.toString(t.damage);
-				t.text.x = follow.x + (globalSize() /2 - ((String.format("%.2f", t.damage).length()-1) * 20 + 8) / 2);
+				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() - 1) * 20 + 8) / 2);
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				t.text.font = createFont(TextureManager.Fonts.ComicSans,40);
 				t.text.setColor(t.reason.getColor());
@@ -94,6 +108,16 @@ public class AttackTextProcessor {
 					t.text.onScreenTime = 120;
 					t.text.vanishingThreshold = 60;
 				}
+		}
+
+		public void coordsUpdater() {
+			textDamageAndReason.removeIf(t -> t.text.fakeNull);
+			int aid = 0;
+			for (TextDamageAndReason t : textDamageAndReason) {
+				t.text.x = follow.x + ((float) globalSize() / 2 - (float) ((String.format("%.2f", t.damage).length() - 1) * 20 + 8) / 2);
+				t.text.y = follow.y + globalSize() + 50 * (++aid);
+			}
+
 		}
 
 

@@ -511,7 +511,6 @@ public class Character extends Actor implements Utils {
 			if (turnMode) {
 				attackMode = !attackMode;
 				path.pathReset();
-				print("attackMode is now: " + attackMode);
 				if (!attackMode)
 					cancelAttackMode();
 				mouseMoved = true;
@@ -522,7 +521,7 @@ public class Character extends Actor implements Utils {
 			if (!attackMode) {
 				turnMode = !turnMode;
 				path.pathReset();
-				print("turnMode is now: " + turnMode);
+				fixatedText("turnMode is now: " + turnMode,500,500,100,Fonts.ComicSans,40);
 				if (turnMode)
 					isOnTheGrid();
 			}
