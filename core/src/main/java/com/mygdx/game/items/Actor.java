@@ -51,6 +51,8 @@ public class Actor extends Entity{
 
 	public boolean didItAct = false;
 
+	public ConditionsManager conditions = new ConditionsManager(this);
+
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
@@ -76,6 +78,8 @@ public class Actor extends Entity{
 			for (Actor a : actors) {
 				a.path.pathReset();
 				a.movedThisTurn = 0;
+				print("wan turn pass ofr "+ a );
+				a.conditions.onTurnPass();
 			}
 		//	path = new Path(x,y,speed);
 		}
@@ -98,6 +102,7 @@ public class Actor extends Entity{
 	public float damageRecieved;
 	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason){
 		damageRecieved = damage;
+		conditions.onDamaged(damageReason);
 		triggerOnDamagedActor(this,damageReason);
 		damageOverridable(damageRecieved,damageReason);
 	}
@@ -158,6 +163,7 @@ public class Actor extends Entity{
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
 					softlockOverridable();
 					finalizedTurn();
+					conditions.onMove();
 				}
 
 			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
@@ -378,7 +384,7 @@ public class Actor extends Entity{
 			if (x < 0) textureOrientation = 4;
 			if (y > 0) textureOrientation++;
 			if (y < 0) textureOrientation--;
-			alreadyTextured = true;
+//			alreadyTextured = true;
 		}
 	}
 

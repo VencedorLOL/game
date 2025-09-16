@@ -180,7 +180,6 @@ public class Enemy extends Actor {
 			permittedToAct = false;
 			actors.remove(this);
 			enemies.remove(this);
-			destroyListener(oVS);
 		}
 	}
 

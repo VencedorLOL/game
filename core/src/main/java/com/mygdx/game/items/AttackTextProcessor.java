@@ -143,10 +143,12 @@ public class AttackTextProcessor {
 
 
 	public enum DamageReasons{
-		MELEE    (255,0,0),
-		SELF     (255,128,128),
-		ABSORBED (0,0,255),
-		UNIVERSAL(255,0,255)
+		MELEE     (255,0,0),
+		SELF      (255,128,128),
+		ABSORBED  (0,0,255),
+		UNIVERSAL (255,0,255),
+		BURNT     (214,128,128),
+		FROSTBITE (11,255,250),
 
 
 		;

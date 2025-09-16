@@ -123,6 +123,7 @@ public class Character extends Actor implements Utils {
 		debug();
 		path.render();
 		attackRenderer();
+		conditions.render();
 		render();
 	}
 
@@ -557,7 +558,7 @@ public class Character extends Actor implements Utils {
 				a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL);
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
 			if(!getReleaseVersion())
 				print(stage+"");
 			else fixatedText("Current Stage: " + stage,300,200,200,Fonts.ComicSans,40);
@@ -571,13 +572,12 @@ public class Character extends Actor implements Utils {
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			fixatedText("Version: V",400,200,100, TextureManager.Fonts.ComicSans,40);
+			fixatedText("Version: B",400,200,100, TextureManager.Fonts.ComicSans,40);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
 			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
 		}
 
 	}
-
 
 }

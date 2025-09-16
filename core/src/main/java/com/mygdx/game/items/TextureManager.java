@@ -139,12 +139,16 @@ public class TextureManager {
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b));
 	}
 
-	public static void addToFixatedList(String texture, float xPercentage, float yPercentage){
-		addToFixatedList(texture,xPercentage,yPercentage,0,0);
+	public static void addToFixatedList(String texture, float x, float y){
+		addToFixatedList(texture,x,y,1,0);
 	}
 
 	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees){
 		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees));
+	}
+
+	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees,float scaleX, float scaleY){
+		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,scaleX,scaleY));
 	}
 
 	public static void addToPriorityList(String texture, float x, float y){

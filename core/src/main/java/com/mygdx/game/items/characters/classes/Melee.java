@@ -3,6 +3,7 @@ package com.mygdx.game.items.characters.classes;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
@@ -52,6 +53,7 @@ public class Melee extends CharacterClasses {
 			public void cancelActivation() {
 				isItActive = false;
 				character.cancelAttackMode();
+				character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
 			}
 		});
 		abilities.add(new Ability("oneforall", "One For All", 4, 87f, 30f, (float) globalSize() /2){
@@ -60,12 +62,14 @@ public class Melee extends CharacterClasses {
 				cancelFoA();
 				character.attackMode = true;
 				isItActive = true;
+				character.conditions.status(Conditions.ConditionNames.ONE_FOR_ALL);
 			}
 
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
 				character.cancelAttackMode();
+				character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
 			}
 		});
 
@@ -108,12 +112,14 @@ public class Melee extends CharacterClasses {
 		abilities.get(0).cancelActivation();
 		attackState = 0;
 		character.attacks.clear();
+		character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
 	}
 
 	public void cancelOfA(){
 		abilities.get(1).cancelActivation();
 		attackState = 0;
 		character.attacks.clear();
+		character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
 	}
 
 
@@ -135,7 +141,7 @@ public class Melee extends CharacterClasses {
 		return true;
 	}
 
-	public float outgoingDamageOverridable(){
+/*	public float outgoingDamageOverridable(){
 		if (abilities.get(1).isItActive) {
 			print("OFA was registered correctly");
 			finishAbilities();
@@ -143,7 +149,7 @@ public class Melee extends CharacterClasses {
 		}
 		return totalDamage;
 	}
-
+*/
 	public void destroyOverridable(){
 		destroyListener(oVSce);
 	}

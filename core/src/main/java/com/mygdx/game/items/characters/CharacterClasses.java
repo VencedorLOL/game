@@ -8,7 +8,6 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
@@ -150,21 +149,40 @@ public class CharacterClasses {
 
 
 	public final void totalStatsCalculator(){
-		totalHealth         = health + shield.shieldHealth + weapon.weaponHealth;
-		totalDamage         = damage + shield.shieldDamage + weapon.weaponDamage;
-		totalSpeed          = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
-		totalAttackSpeed    = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
-		totalDefense        = defense + shield.shieldDefense + weapon.weaponDefense;
-		totalRange          = range + shield.shieldRange + weapon.weaponRange;
-		totalMana           = mana + weapon.weaponMana + shield.shieldMana;
-		totalManaPerTurn    = manaPerTurn + weapon.weaponMana + shield.shieldMana;
-		totalManaPerUse     = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
-		totalMagicDamage    = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
-		totalMagicHealing   = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
-		totalTempDefense    = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
-		totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
-		totalMagicDefense   = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
-		totalAggro          = aggro + weapon.aggro + shield.aggro;
+		if (character != null) {
+			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0)) * character.conditions.getMultiplier(0);
+			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1)) * character.conditions.getMultiplier(1);
+			totalSpeed = (byte) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2)) * character.conditions.getMultiplier(2));
+			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3)) * character.conditions.getMultiplier(3));
+			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4)) * character.conditions.getMultiplier(4);
+			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5)) * character.conditions.getMultiplier(5));
+			totalMana = (mana + weapon.weaponMana + shield.shieldMana + character.conditions.getAdditive(6)) * character.conditions.getMultiplier(6);
+			totalManaPerTurn = (manaPerTurn + weapon.weaponManaPerTurn + shield.shieldManaPerTurn + character.conditions.getAdditive(7)) * character.conditions.getMultiplier(7);
+			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8)) * character.conditions.getMultiplier(8);
+			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9)) * character.conditions.getMultiplier(9);
+			totalMagicHealing = (magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing);
+			totalTempDefense = (tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense + character.conditions.getAdditive(12)) * character.conditions.getMultiplier(12);
+			totalRainbowDefense = (rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense);
+			totalMagicDefense = (magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense);
+			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11)) * character.conditions.getMultiplier(11);
+		}
+		else {
+			totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
+			totalDamage = damage + shield.shieldDamage + weapon.weaponDamage;
+			totalSpeed = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
+			totalAttackSpeed = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
+			totalDefense = defense + shield.shieldDefense + weapon.weaponDefense;
+			totalRange = range + shield.shieldRange + weapon.weaponRange;
+			totalMana = mana + weapon.weaponMana + shield.shieldMana;
+			totalManaPerTurn = manaPerTurn + weapon.weaponMana + shield.shieldMana;
+			totalManaPerUse = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
+			totalMagicDamage = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
+			totalMagicHealing = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
+			totalTempDefense = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
+			totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
+			totalMagicDefense = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
+			totalAggro = aggro + weapon.aggro + shield.aggro;
+		}
 		totalStatsCalculatorOverridable();
 	}
 
