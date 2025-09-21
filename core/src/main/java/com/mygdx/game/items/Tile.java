@@ -278,22 +278,22 @@ public class Tile implements Cloneable {
 						lu = true;
 				}
 				if(!u)
-					t.texture.setSecondaryTexture("selectionIndicatorS",0.8f,180,false,false,0);
+					t.texture.setSecondaryTexture("selectionIndicatorS",0.6f,180,false,false,0);
 				if(!ru)
-					t.texture.setSecondaryTexture("selectionIndicatorC",0.8f,0,false,true,1);
+					t.texture.setSecondaryTexture("selectionIndicatorC",0.6f,0,false,true,1);
 				if(!r)
-					t.texture.setSecondaryTexture("selectionIndicatorS",0.8f,90,false,false,2);
+					t.texture.setSecondaryTexture("selectionIndicatorS",0.6f,90,false,false,2);
 				if(!rd)
-					t.texture.setSecondaryTexture("selectionIndicatorC",0.8f,0,false,false,3);
+					t.texture.setSecondaryTexture("selectionIndicatorC",0.6f,0,false,false,3);
 				if(!d)
-					t.texture.setSecondaryTexture("selectionIndicatorS",0.8f,0,false,false,4);
+					t.texture.setSecondaryTexture("selectionIndicatorS",0.6f,0,false,false,4);
 				if(!dl)
-					t.texture.setSecondaryTexture("selectionIndicatorC",0.8f,0,true,false,5);
+					t.texture.setSecondaryTexture("selectionIndicatorC",0.6f,0,true,false,5);
 				if(!l)
-					t.texture.setSecondaryTexture("selectionIndicatorS",0.8f,270,false,false,6);
+					t.texture.setSecondaryTexture("selectionIndicatorS",0.6f,270,false,false,6);
 				if(!lu)
-					t.texture.setSecondaryTexture("selectionIndicatorC",0.8f,180,false,false,7);
-				t.texture.setSecondaryTexture("selectionIndicator",0.8f,0,false,false,8);
+					t.texture.setSecondaryTexture("selectionIndicatorC",0.6f,180,false,false,7);
+				t.texture.setSecondaryTexture("selectionIndicator",0.6f,0,false,false,8);
 
 			}
 		}

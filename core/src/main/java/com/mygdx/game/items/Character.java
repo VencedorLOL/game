@@ -3,8 +3,6 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.GameScreen;
-import com.mygdx.game.Settings;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
@@ -22,14 +20,9 @@ import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
-import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Interactable.interactables;
-import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.VideoManager.*;
-import static java.lang.Math.*;
-import static java.lang.Math.pow;
 
 public class Character extends Actor implements Utils {
 
@@ -39,13 +32,13 @@ public class Character extends Actor implements Utils {
 
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
-	boolean willDoNormalTextureChange = true;
+	public byte lastDamageCounter;
 
-	TextureManager.Animation walkingAnimation;
+	Animation walkingAnimation;
 
 
 	public Character(float x, float y, float base, float height) {
-		super("char",x,y,base,height);
+		super("animaWalkDown00",x,y,base,height);
 		this.x = x;
 		this.y = y;
 		this.base = base;
@@ -61,7 +54,7 @@ public class Character extends Actor implements Utils {
 				didItAct = false;
 				permittedToAct = false;
 				lockClassTilAnimationFinishes = false;
-				texture = "char";
+				texture = "animaWalkDown00";
 			}
 		};
 		team = 1;
@@ -119,11 +112,11 @@ public class Character extends Actor implements Utils {
 			interact();
 
 
-		textureUpdater();
 		debug();
 		path.render();
 		attackRenderer();
 		conditions.render();
+		textureUpdater();
 		render();
 	}
 
@@ -148,7 +141,7 @@ public class Character extends Actor implements Utils {
 
 
 	Entity targetsTarget = new Entity("default",x,y,false);
-	TextureManager.Animation target;
+	Animation target;
 	Tile.Circle circle;
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
@@ -192,11 +185,11 @@ public class Character extends Actor implements Utils {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -233,6 +226,31 @@ public class Character extends Actor implements Utils {
 		attacks.clear();
 	}
 
+	public void attackActuator(){
+		if(!attacks.isEmpty() && !lockClassTilAnimationFinishes) {
+			lockClassTilAnimationFinishes = true;
+			attacks.get(elementOfAttack).isBeingExecuted = true;
+			elementOfAttack++;
+			if (elementOfAttack >= attacks.size())
+				animations.add(new TextureManager.Animation("animaAttack", x, y) {
+					public void onFinish() {
+						lockClassTilAnimationFinishes = false;
+						attackDetector();
+						finalizedTurn();
+						elementOfAttack = 0;
+					}});
+			else
+				animations.add(new TextureManager.Animation("animaAttack", x, y) {
+					public void onFinish() {
+						lockClassTilAnimationFinishes = false;
+						attackDetector();
+					}});
+
+		}
+	}
+
+
+
 
 	public void attackDetector(){
 		ArrayList<Actor> temp = new ArrayList<>();
@@ -252,7 +270,7 @@ public class Character extends Actor implements Utils {
 					break;
 			}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, Fonts.ComicSans,40,127,127,127,1,30);
 		attacks.get(elementOfAttack - 1).render = false;
 	}
 
@@ -310,7 +328,6 @@ public class Character extends Actor implements Utils {
 
 	private void animationWalking(){
 		texture = null;
-		willDoNormalTextureChange = false;
 		String walkingFile = null;
 		switch (textureOrientation){
 			case 0: walkingFile = "walkingdiagrightdown";	break;
@@ -325,39 +342,34 @@ public class Character extends Actor implements Utils {
 		if(walkingAnimation == null || (walkingAnimation.finished || walkingAnimation.name != walkingFile)) {
 			if (walkingAnimation != null)
 				walkingAnimation.stop();
-			walkingAnimation = new TextureManager.Animation(walkingFile, this){
+			walkingAnimation = new Animation(walkingFile, this){
 				public void onFinish() {
-					entityToFollow.texture = "char";
-					willDoNormalTextureChange = true;
+					entityToFollow.texture = "anima";
 				}};
-
 			animations.add(walkingAnimation);
 		}
 	}
 
+	@SuppressWarnings("all")
 	public void textureUpdater(){
 			texture(false);
-			switch (textureOrientation) {
-				case 0: texture = "CharaDiagonalDownRight"; animationWalking();	 break;
-				case 1: texture = "CharaRight";				animationWalking();	 break;
-				case 2: texture = "CharaDiagonalUpRight";   animationWalking();  break;
-				case 3: texture = "CharaDiagonalDownLeft"; 	animationWalking();	 break;
-				case 4: texture = "CharaLeft";				animationWalking();  break;
-				case 5: texture = "CharaDiagonalUpLeft";   	animationWalking();	 break;
-				case 6: texture = "char"; 					animationWalking();  break;
-				case 8: texture = "CharaUp";				animationWalking();  break;
-			}
-
+			if(textureOrientation != 7)
+				animationWalking();
 		if (speedLeft[0] == 0 && speedLeft[1] == 0 && lastTimeTilLastMovement >= 2 && !isGliding) {
-			texture = "char";
-			if (walkingAnimation != null)
+			texture = lastDamageCounter > 0 ? lastDamageCounter-- >= 0 ? "animaPain" + damageAnimation : "anima" : "anima";
+			if(lockClassTilAnimationFinishes)
+				texture = null;
+			if (walkingAnimation != null && !walkingAnimation.finished)
 				walkingAnimation.stop();
 		}
 		if (alreadyTextured)
 			print(textureOrientation +" is the texuter orientation");
 	}
 
+	byte damageAnimation;
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
+		lastDamageCounter = (byte) (damage > 0 ? 120 : 0);
+		damageAnimation = (byte) (damage / classes.health > 0.4 ? 2 : damage / classes.health >= 0.2 ? 1 : 3);
 		classes.damage(damage,damageReason);
 	}
 
@@ -475,6 +487,8 @@ public class Character extends Actor implements Utils {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
 			if(!getReleaseVersion()) {
 				print("");
+				print("Current Health is of: " + classes.health);
+				print("Max Health is of: " + classes.totalHealth);
 				print("speedLeft on x: " + speedLeft[0]);
 				print("speedLeft on y: " + speedLeft[1]);
 				print("permittedToAct: " + permittedToAct);
@@ -492,7 +506,8 @@ public class Character extends Actor implements Utils {
 				print("Base is: " + base + " Height is: " + height);
 				print("");
 			} else
-				fixatedText("speedLeft on x: " + speedLeft[0] + "\n"+
+				fixatedText(
+						"speedLeft on x: " + speedLeft[0] + "\n"+
 			"speedLeft on y: " + speedLeft[1] +"\n"+
 			"permittedToAct: " + permittedToAct +"\n"+
 			"Weapon: " + classes.weapon +"\n"+
@@ -538,7 +553,7 @@ public class Character extends Actor implements Utils {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
 			quickPlay("test");
-			animations.add(new TextureManager.Animation("beneath the mask",x,y));
+			animations.add(new Animation("beneath the mask",x,y));
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
 			setVolume(getRealVolume() > 0 ? getRealVolume()-10 : 100);
@@ -550,7 +565,7 @@ public class Character extends Actor implements Utils {
 			setMute(!getMute());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
-			AudioManager.stopAll();
+			stopAll();
 			VideoManager.stopAll();
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
@@ -562,6 +577,8 @@ public class Character extends Actor implements Utils {
 			if(!getReleaseVersion())
 				print(stage+"");
 			else fixatedText("Current Stage: " + stage,300,200,200,Fonts.ComicSans,40);
+			classes.currentHealth = classes.totalHealth;
+			fixatedText("Healed to max hp",400,400,200,Fonts.ComicSans,40);
 		}
 		changeTo();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
@@ -572,7 +589,7 @@ public class Character extends Actor implements Utils {
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			fixatedText("Version: B",400,200,100, TextureManager.Fonts.ComicSans,40);
+			fixatedText("Version: B",400,200,100, Fonts.ComicSans,40);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
 			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;

@@ -45,7 +45,7 @@ public class StartScreen implements Screen, Utils {
 		this.mainClass = mainClass;
 		menuScreenBatch = new SpriteBatch();
 		font = new BitmapFont();
-		tipSelected = random(0,tips.length);
+		tipSelected = random(0,tips.length-1);
 	}
 
 	@Override

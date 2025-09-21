@@ -7,6 +7,7 @@ public class OnVariousScenarios {
 	static ArrayList<OnVariousScenarios> onScenarios = new ArrayList<>();
 
 
+
 	public OnVariousScenarios(){
 		onScenarios.add(this);
 	}
@@ -42,6 +43,14 @@ public class OnVariousScenarios {
 	public static void triggerOnTick(){
 		for (OnVariousScenarios t : onScenarios)
 			t.onTickStart();
+		triggerOnCounter();
+	}
+
+	public static void triggerOnCounter(){
+		onScenarios.removeIf(t -> t instanceof CounterObject && ((CounterObject) t).didItDie);
+		for(OnVariousScenarios t : onScenarios)
+			if(t instanceof CounterObject)
+				((CounterObject) t).trueOnCounterFinish();
 	}
 
 	public void onVolumeChange(){}
@@ -65,6 +74,23 @@ public class OnVariousScenarios {
 		onScenarios.removeIf(o -> o == listener);
 	}
 
+	public static class CounterObject extends OnVariousScenarios{
+		long timer;
+		boolean didItDie;
 
+		public CounterObject(long counter){
+			super();
+			timer = counter;
+		}
+
+		private void trueOnCounterFinish(){
+			onCounterFinish();
+			if (--timer <= 0)
+				didItDie = true;
+		}
+
+		public void onCounterFinish(){}
+
+	}
 
 }

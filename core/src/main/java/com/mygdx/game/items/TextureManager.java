@@ -16,8 +16,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.cC;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
@@ -77,7 +76,9 @@ public class TextureManager {
 	private void drawer(String texture, float x, float y,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
 		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
-		sprite = new Sprite(region);
+		try {
+			sprite = new Sprite(region);
+		} catch (NullPointerException ignored){printErr("NPE caught while trying to print " + texture);}
 		sprite.setPosition(x,y);
 		sprite.setFlip(flipX,flipY);
 		sprite.setRotation(rotationDegrees);
@@ -466,7 +467,8 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);}
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);
+			print("Name of NFA: " + name);}
 		}
 
 		public Animation(String file, Entity entityToFollow){
@@ -479,7 +481,8 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);}
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);
+				print("Name of NFA: " + name);}
 		}
 
 		public void play(){
@@ -579,8 +582,7 @@ public class TextureManager {
 					play();
 			}
 			else {
-				finished = true;
-				onFinish();
+				stop();
 			}
 		}
 
