@@ -57,6 +57,7 @@ public class GameScreen implements Screen, Utils {
 	}
 
 	public void start(){
+		//Gdx.graphics.setForegroundFPS(120);
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 		InputHandler.resetter();

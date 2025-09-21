@@ -27,7 +27,7 @@ public class Ability{
 	public Ability(String texture, String name, int cooldown,float x, float y,float radius){
 		textureIcon = texture;
 		this.name = name;
-		this.cooldown = cooldown + 1;
+		this.cooldown = cooldown;
 		this.radius = radius;
 		this.x = x;
 		this.y = y;

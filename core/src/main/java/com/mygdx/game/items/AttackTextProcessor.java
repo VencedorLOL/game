@@ -149,6 +149,7 @@ public class AttackTextProcessor {
 		UNIVERSAL (255,0,255),
 		BURNT     (214,128,128),
 		FROSTBITE (11,255,250),
+		MAGICAL   (0,168,244);
 
 
 		;

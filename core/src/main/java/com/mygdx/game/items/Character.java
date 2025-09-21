@@ -7,11 +7,11 @@ import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
-import com.mygdx.game.items.characters.equipment.shields.HealerShields;
-import com.mygdx.game.items.characters.equipment.shields.MeleeShields;
-import com.mygdx.game.items.characters.equipment.shields.TankShields;
+import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
+import com.mygdx.game.items.characters.equipment.weapons.SpeedsterWeapons;
 import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
+import com.mygdx.game.items.characters.equipment.weapons.SwordMageWeapons;
 
 
 import java.util.ArrayList;
@@ -96,9 +96,9 @@ public class Character extends Actor implements Utils {
 
 	public void update(){
 		classes.update();
-		speed = classes.speed;
-		actingSpeed = classes.attackSpeed;
-		range = classes.range;
+		speed = classes.totalSpeed;
+		actingSpeed = classes.totalAttackSpeed;
+		range = classes.totalRange;
 		pierces = classes.pierces;
 		onDeath();
 		path.getStats(x,y, classes.speed);
@@ -146,12 +146,12 @@ public class Character extends Actor implements Utils {
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.range || !circle.walkable) {
+		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.totalRange || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
 					for (int i = 0; i < 9; i++)
 						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.range, true,classes.attacksIgnoreTerrain);
+			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.totalRange, true,classes.attacksIgnoreTerrain);
 
 		}
 		Vector3 temporal = roundedClick();
@@ -256,16 +256,10 @@ public class Character extends Actor implements Utils {
 		ArrayList<Actor> temp = new ArrayList<>();
 		temp.add(this);
 		classes.runAttack();
-		ArrayList<Actor> list = null;
-		try {
-			list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
-		} catch (Exception e) {
-			printErr("attackState is " + attackMode);
-			e.printStackTrace();
-		}
+		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
 		if (list != null)
 			for (Actor aa : list) {
-				aa.damage(classes.outgoingDamage(), AttackTextProcessor.DamageReasons.MELEE);
+				aa.damage(classes.outgoingDamage(), classes.damageReason);
 				if (!classes.pierces)
 					break;
 			}
@@ -409,8 +403,9 @@ public class Character extends Actor implements Utils {
 	public void changeToHealer(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
 			classes.destroy();
-			classes = new Tank();
-			classes.equipShield(new TankShields.TankShield(classes));
+			classes = new SwordMage();
+			classes.equipWeapon(new SwordMageWeapons.SwordWand(classes));
+			classes.equipShield(new SwordMageShields.CrystalizedShield(classes));
 		}
 	}
 
@@ -418,13 +413,17 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
 			classes.destroy();
 			classes = new Melee();
+			classes.equipWeapon(new MeleeWeapons.ABat(classes));
+			classes.equipShield(new MeleeShields.MeleeShield(classes));
 		}
 	}
 
 	public void changeToVencedor(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
 			classes.destroy();
-			classes = new Vencedor();
+			classes = new Speedster();
+			classes.equipShield(new SpeedsterShields.SpeedsterShield(classes));
+			classes.equipWeapon(new SpeedsterWeapons.SpeedsterDagger(classes));
 		}
 	}
 
@@ -507,7 +506,11 @@ public class Character extends Actor implements Utils {
 				print("");
 			} else
 				fixatedText(
-						"speedLeft on x: " + speedLeft[0] + "\n"+
+	   "Max Mana: " + classes.totalMana + "\n" +
+			"Mana Pool: " + classes.manaPool + "\n" +
+			"Mana Per Use: " + classes.totalManaPerUse + "\n" +
+			"Mana Regeneration: " + classes.totalManaPerTurn + "\n" +
+	   		"speedLeft on x: " + speedLeft[0] + "\n"+
 			"speedLeft on y: " + speedLeft[1] +"\n"+
 			"permittedToAct: " + permittedToAct +"\n"+
 			"Weapon: " + classes.weapon +"\n"+

@@ -239,6 +239,10 @@ public class TextureManager {
 		TextureManager.text.add(new Text(text,x,y,createFont(font,size)));
 	}
 
+	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font,int size,Entity entityToFollow){
+		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),entityToFollow));
+	}
+
 	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font, int size,int r, int g, int b,float opacity,float vanishingThreshold){
 		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),r,g,b,opacity,vanishingThreshold));
 	}
@@ -325,6 +329,7 @@ public class TextureManager {
 		float opacity;
 		float vanishingThreshold;
 		public boolean render = true;
+		public Entity entityToFollow;
 
 		public Text(String text, float x, float y, BitmapFont font){
 			this.text = text;
@@ -358,12 +363,13 @@ public class TextureManager {
 			this.r = -1;
 		}
 
-		public Text(String text, float x, float y){
+		public Text(String text, float x, float y,int onScreenTime,BitmapFont font,Entity entityToFollow){
 			this.text = text;
+			this.onScreenTime = onScreenTime;
 			this.x = x;
 			this. y = y;
-			onScreenTime = -1;
-			font = createFont(Fonts.ComicSans,40);
+			this.entityToFollow = entityToFollow;
+			this.font = font;
 			this.r = -1;
 		}
 
@@ -373,7 +379,10 @@ public class TextureManager {
 		public void draw(Batch batch){
 			if (r != -1)
 				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
-			font.draw(batch, text,x,y);
+			if(entityToFollow!=null)
+				font.draw(batch, text,x + entityToFollow.x,y + entityToFollow.y);
+			else
+				font.draw(batch, text,x,y);
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;
@@ -384,8 +393,10 @@ public class TextureManager {
 
 		public void drawStatic(Batch batch){
 			Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
-			if (r != -1)
+			if (r != -1 && vanishingThreshold > 0)
 				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
+			else if (r != -1)
+				font.setColor(cC(r),cC(g),cC(b),1);
 			font.draw(batch, text,coords.x,coords.y);
 			onScreenTime--;
 			if(onScreenTime == 0){

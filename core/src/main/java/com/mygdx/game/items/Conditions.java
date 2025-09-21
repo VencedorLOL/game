@@ -1,6 +1,10 @@
 package com.mygdx.game.items;
 
 import com.mygdx.game.items.characters.classes.Melee;
+import com.mygdx.game.items.characters.classes.SwordMage;
+
+import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.TextureManager.text;
 
 public class Conditions {
 
@@ -24,7 +28,7 @@ public class Conditions {
 
 	protected void onAttack(){}
 
-	protected void onAttackDecided(){}
+	protected boolean onAttackDecided(){return true;}
 
 	protected void onMove(){}
 
@@ -154,6 +158,70 @@ public class Conditions {
 
 	}
 
+
+	public static class ManaHit extends Conditions{
+		public ManaHit(Actor owner) {
+			super(owner); name = "ManaHit"; texture = "MagicallyEnhanced"; turnsActive = -1; tickDownOnTurn = false;
+		}
+
+		boolean hits = false;
+
+		protected void onAttack() {
+			if (owner instanceof Character && ((Character) owner).classes instanceof SwordMage) {
+				if (((Character) owner).classes.totalDamage *
+						((SwordMage) ((Character) owner).classes).finalDamageMultiplier *
+						((SwordMage) ((Character) owner).classes).finalManaCost
+						<= ((Character) owner).classes.manaPool){
+					hits = true;
+				}
+			} else 	text("Out Of Mana!",0,150,200, TextureManager.Fonts.ComicSans,40,owner);
+		}
+
+		float getDamageMultiplier() {
+			if (owner instanceof Character && ((Character) owner).classes instanceof SwordMage && hits &&
+					((Character) owner).classes.manaPool >= ((Character) owner).classes.totalDamage *
+					((SwordMage) ((Character) owner).classes).finalDamageMultiplier *
+					((SwordMage) ((Character) owner).classes).finalManaCost) {
+
+				((Character) owner).classes.manaPool -= ((Character) owner).classes.totalDamage *
+						((SwordMage) ((Character) owner).classes).finalDamageMultiplier *
+						((SwordMage) ((Character) owner).classes).finalManaCost;
+				hits = false;
+				return ((SwordMage) ((Character) owner).classes).finalDamageMultiplier;
+			}
+			hits = false;
+			return 1;
+		}
+
+		float getRangeAdditive(){
+			if (owner instanceof Character && ((Character) owner).classes instanceof SwordMage &&
+					((Character) owner).classes.manaPool >= ((Character) owner).classes.totalDamage *
+							((SwordMage) ((Character) owner).classes).finalDamageMultiplier *
+							((SwordMage) ((Character) owner).classes).finalManaCost)
+				return 2;
+			return 0;
+		}
+
+	}
+
+	public static class EvenFaster extends Conditions{
+		public EvenFaster(Actor owner){
+			super(owner); texture = "evenFasterStatus"; name = "EvenFaster"; turnsActive = 1; tickDownOnTurn = true;
+		}
+
+		float getSpeedAdditive(){
+			return 2;
+		}
+
+		float getActingSpeedAdditive(){
+			return 1;
+		}
+
+	}
+
+
+
+
 	public enum ConditionNames {
 		BURNING("Burning"),
 		BURNING_BRIGHT("BurningBright"),
@@ -163,7 +231,10 @@ public class Conditions {
 		SUBLIMATING("Sublimating"),
 		FROSTBITE("Frostbite"),
 		FROZEN("Frozen"),
-		ONE_FOR_ALL("OneForAll");
+		ONE_FOR_ALL("OneForAll"),
+		MANA_HIT("ManaHit"),
+		EVEN_FASTER("EvenFaster"),
+		;
 
 
 		public final String name;

@@ -3,39 +3,38 @@ package com.mygdx.game.items.characters.equipment.shields;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.Shields;
 
-public class MageShields extends Shields {
+public class SpeedsterShields extends Shields {
 
-	public MageShields(CharacterClasses holder) {
+
+	public SpeedsterShields(CharacterClasses holder) {
 		super(holder);
 	}
 
 
+	public static class SpeedsterShield extends SpeedsterShields {
 
-	public static class RoughCrystal extends MageShields {
-
-		public RoughCrystal(CharacterClasses holder) {
+		public SpeedsterShield(CharacterClasses holder) {
 			super(holder);
-			shieldName = "RoughCrystal";
-			shieldHealth = 0;
+			shieldName = "SpeedsterShield";
+			shieldHealth = 10;
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 0;
+			shieldDefense = 1;
 			shieldRange = 0;
 			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
-			shieldMana = 200;
+			shieldMana = 0;
 			shieldMagicDefense = 0;
-			shieldMagicDamage = 20;
-			shieldManaPerTurn = 15;
+			shieldMagicDamage = 0;
+			shieldManaPerTurn = 0;
 			shieldManaPerUse = 0;
 			shieldMagicHealing = 0;
-			equippableBy = "Mage";
+			equippableBy = "Speedster";
 			aggro = 0;
+
 		}
+
 	}
-
-
-
 
 }

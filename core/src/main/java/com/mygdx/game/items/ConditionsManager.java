@@ -2,8 +2,6 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.Settings.print;
-
 public class ConditionsManager {
 
 	Actor owner;
@@ -67,15 +65,17 @@ public class ConditionsManager {
 
 	private Conditions conditionBuilder(Conditions.ConditionNames conditionName){
 		switch (conditionName){
-			case BURNING: 		 return new Conditions.Burning(owner);
+			case BURNING: 		 return new Conditions.Burning		(owner);
 			case BURNING_BRIGHT: return new Conditions.BurningBright(owner);
-			case MELTING:  		 return new Conditions.Melting(owner);
-			case SUBLIMATING: 	 return new Conditions.Sublimating(owner);
-			case FROZEN: 		 return new Conditions.Frozen(owner);
-			case HYPERTHERMIA:   return new Conditions.Hyperthermia(owner);
-			case HYPOTHERMIA:    return new Conditions.Hypothermia(owner);
-			case ONE_FOR_ALL: 	 return new Conditions.OneForAll(owner);
-			case FROSTBITE: 	 return new Conditions.Frostbite(owner);
+			case MELTING:  		 return new Conditions.Melting	    (owner);
+			case SUBLIMATING: 	 return new Conditions.Sublimating  (owner);
+			case FROZEN: 		 return new Conditions.Frozen	    (owner);
+			case HYPERTHERMIA:   return new Conditions.Hyperthermia (owner);
+			case HYPOTHERMIA:    return new Conditions.Hypothermia  (owner);
+			case ONE_FOR_ALL: 	 return new Conditions.OneForAll    (owner);
+			case FROSTBITE: 	 return new Conditions.Frostbite    (owner);
+			case MANA_HIT:		 return new Conditions.ManaHit	    (owner);
+			case EVEN_FASTER:    return new Conditions.EvenFaster   (owner);
 		}
 		return null;
 	}
@@ -115,9 +115,12 @@ public class ConditionsManager {
 			c.onDamaged(reason);
 	}
 
-	public void onAttackDecided(){
+	public boolean onAttackDecided(){
+		boolean returnTrue = true;
 		for (Conditions c : conditions)
-			c.onAttackDecided();
+			if(!c.onAttackDecided())
+				returnTrue = false;
+		return returnTrue;
 	}
 
 	public void onMove(){

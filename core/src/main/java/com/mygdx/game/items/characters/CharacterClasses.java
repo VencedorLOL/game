@@ -58,6 +58,8 @@ public class CharacterClasses {
 
 	public boolean attacksIgnoreTerrain = false;
 
+	public AttackTextProcessor.DamageReasons damageReason = AttackTextProcessor.DamageReasons.MELEE;
+
 	// Any class might have more than one ability.
 	public ArrayList<Ability> abilities;
 
@@ -274,6 +276,7 @@ public class CharacterClasses {
 		onHurt(source);
 		weapon.onHurt(source);
 		shield.onHurt(source);
+		character.conditions.onDamaged(source);
 	}
 
 	protected void onHurt(AttackTextProcessor.DamageReasons source){}
@@ -282,6 +285,7 @@ public class CharacterClasses {
 		onAttack();
 		weapon.onAttack();
 		shield.onAttack();
+		character.conditions.onAttack();
 	}
 
 	public void onAttack(){}
@@ -291,12 +295,13 @@ public class CharacterClasses {
 		onMove();
 		weapon.onMove();
 		shield.onMove();
+		character.conditions.onMove();
 	}
 
 	public void onMove(){}
 
 	public boolean runOnAttackDecided(){
-		return onAttackDecided() && weapon.onAttackDecided() && shield.onAttackDecided();
+		return onAttackDecided() && weapon.onAttackDecided() && shield.onAttackDecided() && character.conditions.onAttackDecided();
 	}
 
 	public boolean onAttackDecided(){return true;}
