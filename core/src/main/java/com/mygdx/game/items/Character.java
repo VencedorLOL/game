@@ -20,9 +20,11 @@ import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.isTurnRunning;
 
 public class Character extends Actor implements Utils {
 
@@ -35,14 +37,10 @@ public class Character extends Actor implements Utils {
 	public byte lastDamageCounter;
 
 	Animation walkingAnimation;
-
+	public static ArrayList<ControllableFriend> controllableCharacters = new ArrayList<>();
 
 	public Character(float x, float y, float base, float height) {
-		super("animaWalkDown00",x,y,base,height);
-		this.x = x;
-		this.y = y;
-		this.base = base;
-		this.height = height;
+		super("anima",x,y,base,height);
 		testCollision.x = x;
 		testCollision.y = y;
 		testCollision.base = base;
@@ -54,13 +52,13 @@ public class Character extends Actor implements Utils {
 				didItAct = false;
 				permittedToAct = false;
 				lockClassTilAnimationFinishes = false;
-				texture = "animaWalkDown00";
+				texture = "anima";
 			}
 		};
 		team = 1;
 		classes = new Classless();
 		classes.character = this;
-		path = new Path(x,y, classes.speed,this);
+		path = new Path(x,y, classes.totalSpeed,this);
 	}
 
 	public void spendTurn(){
@@ -92,6 +90,32 @@ public class Character extends Actor implements Utils {
 			print("no path found");
 	}
 
+	public void controlProcessor(){
+		controllableCharacters.removeIf(c -> c.isDead);
+		if(!isDecidingWhatToDo(this) && !isTurnRunning()) {
+			for (ControllableFriend c : controllableCharacters) {
+				if (!c.active && isDecidingWhatToDo(c) && !c.isDead) {
+					c.active = true;
+					Camara.attach(c);
+					return;
+				} else if (c.active)
+					return;
+			}
+			Camara.attach(this);
+		} else if (isTurnRunning())
+			Camara.attach(this);
+	}
+
+	public void massCancel(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+			for(ControllableFriend c : controllableCharacters) {
+				c.cancelDecision();
+				c.active = false;
+			}
+			cancelDecision();
+			Camara.attach(chara);
+		}
+	}
 
 
 	public void update(){
@@ -101,7 +125,7 @@ public class Character extends Actor implements Utils {
 		range = classes.totalRange;
 		pierces = classes.pierces;
 		onDeath();
-		path.getStats(x,y, classes.speed);
+		path.getStats(x,y, classes.totalSpeed);
 
 		if (!attackMode)
 			movement();
@@ -111,7 +135,9 @@ public class Character extends Actor implements Utils {
 		if (!turnMode)
 			interact();
 
-
+		updateFriends();
+		controlProcessor();
+		massCancel();
 		debug();
 		path.render();
 		attackRenderer();
@@ -119,6 +145,17 @@ public class Character extends Actor implements Utils {
 		textureUpdater();
 		render();
 	}
+
+	@SuppressWarnings("all")
+	public void updateFriends(){
+		friend.removeIf(f -> f.isDead);
+			for (int i = 0; i < friend.size(); i++)
+				if (!friend.get(i).isDead) {
+					friend.get(i).update();
+					friend.get(i).render();
+				}
+	}
+
 
 
 	public void attackRenderer(){
@@ -596,6 +633,9 @@ public class Character extends Actor implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
 			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
+			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable();
 		}
 
 	}

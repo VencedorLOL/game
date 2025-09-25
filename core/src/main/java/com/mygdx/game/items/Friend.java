@@ -2,17 +2,16 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.mygdx.game.Settings;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
-import static com.mygdx.game.GameScreen.particle;
-import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.ClickDetector.rayCasting;
+import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.animationToList;
 import static com.mygdx.game.items.TextureManager.text;
@@ -20,25 +19,34 @@ import static com.mygdx.game.items.Tile.findATile;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
-public class Enemy extends Actor {
+public class Friend extends Actor {
 	public float health = 20;
-	public float defense = 5;;
+	public float defense = 5;
 
 
+	public static OnVariousScenarios oVSc = new OnVariousScenarios(){
+		@Override
+		public void onStageChange() {
+			for (Friend f : friend){
+				f.x = chara.x; f.y = chara.y;
+				f.softlockOverridable();
+			}
+		}
+	};
 
-	public static ArrayList<Enemy> enemies = new ArrayList<>();
 
-	public static ArrayList<Tile> enemyGrid;
+	public static ArrayList<Friend> friend = new ArrayList<>();
+
+	public static ArrayList<Tile> allaiesGrid;
 
 	public float[] tileToReach = new float[2];
 
 	public static void loop(){
-		for (Enemy e : enemies) {
+		for (Friend e : friend) {
 			if (isDecidingWhatToDo(e))
 				break;
-			if (enemyGrid != null && findATile(enemyGrid, e.x, e.y) != null) {
-				findATile(enemyGrid, e.x, e.y).isWalkable = false;
-			}
+			if (allaiesGrid != null && findATile(allaiesGrid, e.x, e.y) != null)
+				findATile(allaiesGrid, e.x, e.y).isWalkable = false;
 		}
 
 	}
@@ -61,7 +69,7 @@ public class Enemy extends Actor {
 			targetFinder();
 		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), enemyGrid)) {
+			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), allaiesGrid)) {
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 				getObjectiveTitle();
 			} return;
@@ -75,16 +83,16 @@ public class Enemy extends Actor {
 		return (float) (globalSize() * round(coordinate / globalSize()));
 	}
 
-	public Enemy(float x, float y, String texture, float health) {
+	public Friend(float x, float y, String texture, float health) {
 		super(texture, x, y, globalSize(), globalSize());
 		aggro = 1;
 		pierces = false;
-		team = -1;
+		team = 1;
 		speed = 3;
 		range = 2;
 		damage = 20;
 		actingSpeed = random(1, 7);
-		print("acting speed of this enemy is of " + actingSpeed);
+		print("acting speed of this friend is of " + actingSpeed);
 		this.health = health;
 		testCollision.x = x;
 		testCollision.y = y;
@@ -92,44 +100,20 @@ public class Enemy extends Actor {
 		testCollision.height = height;
 		this.texture = texture;
 		path = new Path(x,y,speed,this);
-		team = -1;
 		permittedToAct = false;
-		enemies.add(this);
+		friend.add(this);
 	}
 
-	public Enemy(float x, float y) {
-		super("EvilGuy",x,y,globalSize(),globalSize());
+	public Friend(float x, float y) {
+		super("animaWithMustacheAndSurprisedWtfDidIJustDo",x,y,globalSize(),globalSize());
 		aggro = 1;
 		testCollision.x = x;
 		testCollision.y = y;
 		path = new Path(x,y,speed,this);
-		team = -1;
+		team = 1;
 		permittedToAct = false;
-		enemies.add(this);
+		friend.add(this);
 	}
-	// Movement
-
-
-	public boolean amIRendered(){
-		return x - globalSize()*2 <= stage.camaraX + stage.camaraBase / 2 &&
-				x + globalSize()*2 >= stage.camaraX - stage.camaraBase / 2 &&
-				y - globalSize()*2 <= stage.camaraY + stage.camaraHeight / 2 &&
-				y + globalSize()*2 >= stage.camaraY - stage.camaraHeight / 2;
-
-	}
-
-
-
-	protected void overlappingCheck() {
-		for (Enemy e : stage.enemy)
-			for (Enemy n : stage.enemy){
-				if (n.x == e.x && n.y == e.y && n != e && !e.isDead) {
-					print("Discrepancy with enemy: " + n + " :and enemy: " + e);
-					print("In x: " + n.x + " :in y: " + e.y);
-				}
-			}
-	}
-
 
 	protected void isOnTheGrid(){
 		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isDead) {
@@ -145,7 +129,6 @@ public class Enemy extends Actor {
 	}
 
 
-
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
 			path.getStats(x,y,speed);
@@ -153,7 +136,7 @@ public class Enemy extends Actor {
 			onDeath();
 			if ((targetActor == null || targetActor.isDead || targetActor.team != -team) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
-			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.isDead && ((targetActor.team == -team && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -177,7 +160,6 @@ public class Enemy extends Actor {
 			isDead = true;
 			permittedToAct = false;
 			actors.remove(this);
-			enemies.remove(this);
 			entityList.remove(this);
 		}
 	}
@@ -194,6 +176,51 @@ public class Enemy extends Actor {
 
 	}
 
+	public void attackDetector(){
+		ArrayList<Actor> allMyFriends = new ArrayList<>(friend);
+		allMyFriends.add(chara);
+		allMyFriends.removeIf(e -> e.team != 1);
+		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
+		if (list != null) {
+			for (Actor e : list)
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
+					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE);
+					if (!pierces)
+						break;
+				}
+		}
+		else
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+	}
+
+
+	public void targetFinder() {
+		ArrayList<ActorAndDistance> targets = new ArrayList<>();
+		for (Actor a : actors)
+			if (!a.isDead && a.team == team * -1)
+				targets.add(new ActorAndDistance(a, dC(a.x, a.y) * a.aggro));
+		Collections.shuffle(targets);
+		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
+		Collections.reverse(targets);
+		for (ActorAndDistance a : targets) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
+				targetActor = a.getActor();
+				return;
+			}
+		}
+		for (Actor a : actors)
+			if (!a.isDead && a.team == team && a == chara)
+				targets.add(new ActorAndDistance(a, dC(a.x, a.y)));
+		Collections.shuffle(targets);
+		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
+		Collections.reverse(targets);
+		for (ActorAndDistance a : targets) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
+				targetActor = a.getActor();
+				return;
+			}
+		}
+	}
 /*	protected void turnSpeedActuator(){
 		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;

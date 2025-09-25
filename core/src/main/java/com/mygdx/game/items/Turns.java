@@ -75,8 +75,19 @@ public class Turns implements Utils {
 			if(f.actor == entity)
 				return !f.bool;
 		finalizedToChoose.add(new ActorAndBoolean(false, entity));
-		return false;
+		return true;
 	}
+
+	public static boolean cancelDecision(Actor actor){
+		if(!isTurnApproved){
+			if(valueSearcher(finalizedToChoose,actor) != null)
+				valueSearcher(finalizedToChoose,actor).setBool(false);
+			else
+				finalizedToChoose.add(new ActorAndBoolean(false,actor));
+			return true;
+		} return false;
+	}
+
 
 	public static long getTurnCount(){return turnCount;}
 

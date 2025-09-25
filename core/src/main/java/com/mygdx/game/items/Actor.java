@@ -8,6 +8,7 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.animations;
@@ -53,6 +54,8 @@ public class Actor extends Entity{
 
 	public ConditionsManager conditions = new ConditionsManager(this);
 
+	public Actions actions;
+
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
@@ -93,12 +96,6 @@ public class Actor extends Entity{
 		actors.add(this);
 	}
 
-	public Actor() {
-		super();
-		pathFindAlgorithm = new PathFinder();
-		actors.add(this);
-	}
-
 	public float damageRecieved;
 	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason){
 		damageRecieved = damage;
@@ -122,7 +119,7 @@ public class Actor extends Entity{
 			if (tester.overlaps(b))
 				return true;
 		}
-		for (Enemy e : stage.enemy) {
+		for (Actor e : actors) {
 			if (ignore == e)
 				continue;
 			if (tester != e.testCollision && !e.isDead) {
@@ -143,7 +140,13 @@ public class Actor extends Entity{
 	}
 
 
-
+	public void cancelDecision(){
+		if(Turns.cancelDecision(this)){
+			speedLeft[0] = 0; speedLeft[1] = 0;
+			path.pathStart();
+			attacks.clear();
+		}
+	}
 
 
 	public void movement(){
@@ -166,7 +169,7 @@ public class Actor extends Entity{
 					conditions.onMove();
 				}
 
-			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 )
+			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && actions == null)
 				movementInputTurnMode();
 
 		} else {
@@ -179,8 +182,6 @@ public class Actor extends Entity{
 				softlockOverridable();
 			}
 		}
-
-		super.refresh(texture,x, y, base, height);
 	}
 	ArrayList<Tile> dumpList;
 	protected void softlockOverridable() {
@@ -215,7 +216,7 @@ public class Actor extends Entity{
 				dumpList.add(t);
 				dumpList.removeIf(tt -> t == tt);
 				testCollision.x = t.x; testCollision.y = t.y;
-				if (!overlapsWithStageWithException(stage,testCollision,chara))
+				if (!overlapsWithStageWithException(stage,testCollision,this))
 					x = t.x; y = t.y; return true;
 			}
 		return false;
@@ -390,7 +391,10 @@ public class Actor extends Entity{
 
 
 	public static void flushActorListButCharacter(){
+		entityList.removeIf(e -> e instanceof Actor);
 		actors.clear();
+		friend.clear();
+		enemies.clear();
 		actors.add(chara);
 	}
 
@@ -414,17 +418,17 @@ public class Actor extends Entity{
 
 	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
 
-	private static class ActorAndDistance{
+	static class ActorAndDistance{
 		private Actor actor;
 		private double distance;
 
-		private ActorAndDistance(Actor actor, double distance){
+		ActorAndDistance(Actor actor, double distance){
 			this.actor = actor;
 			this.distance = distance;
 		}
 
-		private Actor getActor(){return actor;}
-		private double getDistance() {return distance;}
+		Actor getActor(){return actor;}
+		double getDistance() {return distance;}
 
 		private void setActor(Actor actor){this.actor = actor;}
 		private void setDistance(double distance){this.distance = distance;}
@@ -506,5 +510,49 @@ public class Actor extends Entity{
 			actionDecided();
 		}
 	}
+
+	public static class Actions {
+		boolean controlledByPlayer;
+
+		public Actions(boolean controlledByPlayer){
+			this.controlledByPlayer = controlledByPlayer;
+		}
+
+		public static class AttackAction extends Actions {
+			ArrayList<Attack> attacks;
+
+			public AttackAction(boolean controlledByPlayer, ArrayList<Attack> attacks) {
+				super(controlledByPlayer);
+				this.attacks = attacks;
+			}
+
+		}
+
+		public static class MoveAction extends Actions {
+
+
+			public MoveAction(boolean controlledByPlayer){
+				super(controlledByPlayer);
+			}
+
+
+		}
+
+		public static class SkipTurn extends Actions {
+			public SkipTurn(boolean controlledByPlayer){
+				super(controlledByPlayer);
+			}
+		}
+
+	}
+
+
+
+
+
+
+
+
+
 
 }

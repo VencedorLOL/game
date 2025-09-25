@@ -10,6 +10,8 @@ import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Enemy.enemyGrid;
+import static com.mygdx.game.items.Friend.allaiesGrid;
+import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.Tile.findATile;
 import static java.lang.Math.abs;
 import static java.lang.Float.POSITIVE_INFINITY;
@@ -73,6 +75,22 @@ public class PathFinder {
 					t.isWalkable = false;
 					break;
 				}
+
+
+		friend.sort((o1, o2) -> Integer.compare(o2.actingSpeed * 100 + o2.speed, o1.actingSpeed * 100 + o1.speed));
+		allaiesGrid = new ArrayList<>();
+		for (Tile t : grid) {
+			allaiesGrid.add(t.clone());
+			t.parent = new ArrayList<>();
+		}
+		for (Tile t : allaiesGrid)
+			for (Actor a : actors)
+				if (!(a instanceof Enemy) && a.x == t.x && a.y == t.y) {
+					t.isWalkable = false;
+					break;
+				}
+
+
 
 	}
 
@@ -232,7 +250,8 @@ public class PathFinder {
 		objectiveTile = findATile(grid,x,y);
 		if (objectiveTile == null)
 			print("ObjectiveTiile IS NULL");
-		objectiveTile.isWalkable = true;
+		else
+			objectiveTile.isWalkable = true;
 	}
 
 	public void setPlayerAsEnd(){

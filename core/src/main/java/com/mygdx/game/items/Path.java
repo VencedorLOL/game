@@ -140,7 +140,7 @@ public class Path {
 		getStats(x, y, speed);
 		if (!areGliding()) {
 
-			if (currentNumberOfPaths != 0 && typeOfActor instanceof Character) {
+			if (currentNumberOfPaths != 0 && (typeOfActor instanceof  Character || typeOfActor instanceof ControllableFriend)) {
 				int temporalX = 0, temporalY = 0;
 				if (Gdx.input.isKeyJustPressed(Input.Keys.W))
 					temporalY = globalSize();
@@ -164,7 +164,7 @@ public class Path {
 				renderBlue = true;
 				currentNumberOfPaths = steps;
 
-				if (typeOfActor instanceof Character) {
+				if (typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) {
 					if (getDecidedPathFlexibility() == 1) {
 						int temporalX = 0, temporalY = 0;
 						if (Gdx.input.isKeyJustPressed(Input.Keys.W))
@@ -217,7 +217,7 @@ public class Path {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.R))
 				pathReset();
 
-			if (!(typeOfActor instanceof Character) && !path.isEmpty()) {
+			if (!(typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) && !path.isEmpty()) {
 				currentNumberOfPaths = 0;
 				return true;
 			}
