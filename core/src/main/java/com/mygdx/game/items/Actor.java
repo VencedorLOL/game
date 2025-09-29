@@ -29,10 +29,10 @@ public class Actor extends Entity{
 	public int actingSpeed;
 	public float damage;
 	public boolean pierces;
-	int[] speedLeft = new int[2];
-	Path path;
+	public int[] speedLeft = new int[2];
+	public Path path;
 	int thisTurnVSM = getVisualSpeedMultiplier();
-	PathFinder pathFindAlgorithm;
+	public PathFinder pathFindAlgorithm;
 	public Entity testCollision = new Entity();
 	public boolean permittedToAct;
 	public int range;
@@ -299,7 +299,7 @@ public class Actor extends Entity{
 		actionDecided();
 	}
 
-	protected void actionDecided(){
+	public void actionDecided(){
 		thisTurnVSM = getVisualSpeedMultiplier();
 		Turns.finalizedChoosing(this);
 	}
@@ -456,7 +456,7 @@ public class Actor extends Entity{
 
 
 	public int elementOfAttack = 0;
-	// explanation of method:
+	// explanation of da method:
 	// the method checks if there's an attack to do and if the attack isnt locked.
 	// then it locks the attack and plays an animation. when the animation finishes the attack will be calculated and done
 	// then it advances in one elementOfAttack, so the animation queued will do the correct attack calculation when it finishes

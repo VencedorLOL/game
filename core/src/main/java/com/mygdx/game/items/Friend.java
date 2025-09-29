@@ -140,17 +140,6 @@ public class Friend extends Actor {
 				attack();
 			else
 				movement();
-			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-				print("");
-				print("Myself: " + this);
-				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
-				print("Coords: x" + x + " y" + y);
-				print("ASpeed: " + actingSpeed);
-				print("Damage: " + damage);
-				print("Defense: " + defense);
-				print("am i dead? " + isDead);
-				print("");
-			}
 		}
 	}
 

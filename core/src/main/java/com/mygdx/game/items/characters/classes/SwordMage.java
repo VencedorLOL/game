@@ -112,6 +112,7 @@ public class SwordMage extends CharacterClasses {
 	public void destroyOverridable(){
 		destroyListener(oVSce);
 		text.onScreenTime = 1;
+		character.conditions.remove(Conditions.ConditionNames.MANA_HIT);
 	}
 
 

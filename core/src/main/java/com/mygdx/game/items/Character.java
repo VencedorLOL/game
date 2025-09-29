@@ -186,11 +186,11 @@ public class Character extends Actor implements Utils {
 		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.totalRange || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
-					for (int i = 0; i < 9; i++)
+					for (int i = 0; i < 13; i++)
 						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
 			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.totalRange, true,classes.attacksIgnoreTerrain);
-
 		}
+		circle.renderCircle();
 		Vector3 temporal = roundedClick();
 		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
 		if (Gdx.input.justTouched())
@@ -428,6 +428,7 @@ public class Character extends Actor implements Utils {
 		changeToHealer();
 		changeToMelee();
 		changeToVencedor();
+		changeToSummon();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -461,6 +462,13 @@ public class Character extends Actor implements Utils {
 			classes = new Speedster();
 			classes.equipShield(new SpeedsterShields.SpeedsterShield(classes));
 			classes.equipWeapon(new SpeedsterWeapons.SpeedsterDagger(classes));
+		}
+	}
+
+	public void changeToSummon(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)){
+			classes.destroy();
+			classes = new Summoner();
 		}
 	}
 

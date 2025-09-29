@@ -23,6 +23,16 @@ public class ControllableFriend extends Friend {
 	public boolean active = false;
 	public boolean attackMode;
 
+	public static OnVariousScenarios oVSc;
+
+	static {
+		oVSc = new OnVariousScenarios(){
+			@Override
+			public void onStageChange() {
+				controllableCharacters.clear();
+			}
+		};
+	}
 
 	public float lastClickX, lastClickY;
 	protected void automatedMovement(){
@@ -178,7 +188,7 @@ public class ControllableFriend extends Friend {
 		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != range || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
-					for (int i = 0; i < 9; i++)
+					for (int i = 0; i < 13; i++)
 						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
 			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, range, true,false);
 

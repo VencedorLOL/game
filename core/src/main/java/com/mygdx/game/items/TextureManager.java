@@ -33,7 +33,7 @@ public class TextureManager {
 	static ArrayList<DrawableObject> drawables;
 	static ArrayList<DrawableObject> priorityDrawables;
 	static ArrayList<DrawableObject> fixatedDrawables;
-	static ArrayList<Animation> animations;
+	public static ArrayList<Animation> animations;
 	static ArrayList<AtlasAndName> atlases;
 	static ArrayList<DrawableTexture> videos;
 	static OnVariousScenarios oVE = new OnVariousScenarios(){
@@ -462,7 +462,7 @@ public class TextureManager {
 		boolean isOrbiting;
 		boolean clockwise;
 
-		boolean finished = false;
+		public boolean finished = false;
 
 		Entity entityToFollow;
 

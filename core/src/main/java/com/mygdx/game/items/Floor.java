@@ -8,11 +8,11 @@ public class Floor {
 
 	public String texture;
 	public float opacity;
-	public String[] secondaryTexture = new String[9];
-	public int[] rotationDegrees = new int[9];
-	public boolean[] flipX = new boolean[9];
-	public boolean[] flipY = new boolean[9];
-	public float[] secondaryOpacity = new float[9];
+	public String[] secondaryTexture = new String[13];
+	public int[] rotationDegrees = new int[13];
+	public boolean[] flipX = new boolean[13];
+	public boolean[] flipY = new boolean[13];
+	public float[] secondaryOpacity = new float[13];
 	public int ID;
 	public static int IDState = 0;
 
@@ -55,9 +55,22 @@ public class Floor {
 
 	}
 
+	public boolean getHasTexture(int numberOfTexture){
+		return secondaryTexture[numberOfTexture] != null;
+	}
+
 	public void render(float x, float y){
 		TextureManager.addToList(texture,x,y,opacity,0);
-		for(int i = 0; i < 9; i++) {
+	}
+
+	public void secondaryReset(){
+		for(int i = 0; i < 13; i++) {
+			secondaryTexture[i] = null;
+		}
+	}
+
+	public void renderCircle(float x, float y){
+		for(int i = 0; i < 13; i++) {
 			if (secondaryTexture[i] != null) {
 				TextureManager.addToPriorityList(secondaryTexture[i], x, y, secondaryOpacity[i], rotationDegrees[i], flipX[i], flipY[i]);
 			}
