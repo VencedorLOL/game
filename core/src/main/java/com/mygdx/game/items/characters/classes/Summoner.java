@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
-import com.mygdx.game.items.allays.Summon;
+import com.mygdx.game.items.allaies.Summon;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
@@ -13,15 +13,18 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.animations;
+import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Summoner extends CharacterClasses {
 
 	public float summonRange = 3;
 	public float[] summonLocation = new float[2];
-	public ArrayList<Summon> summons = new ArrayList<>();
+	public static ArrayList<Summon> summons = new ArrayList<>();
 	public boolean summonDecided = false;
+	OnVariousScenarios oVS;
 
 	public Summoner() {
 		super();
@@ -78,6 +81,14 @@ public class Summoner extends CharacterClasses {
 				character.actions = null;
 			}
 		});
+
+		oVS = new OnVariousScenarios(){
+			@Override
+			public void onStageChange() {
+				summons.clear();
+			}
+		};
+
 		reset();
 		currentHealth = totalHealth;
 	}
@@ -93,13 +104,37 @@ public class Summoner extends CharacterClasses {
 			abilities.get(0).keybindActivate();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.C))
 			abilities.get(1).keybindActivate();
+		if(character.attackMode){
+			cancelSummon();
+			cancelControl();
+		}
 
 		if(abilities.get(0).isItActive)
 			summonInput();
 
 		if (character.isPermittedToAct() && summonDecided) {
-			if(summons.size() < 6)
+			if(summons.size() < 5)
 				summons.add(new Summon(summonLocation[0],summonLocation[1],20));
+			else{
+				boolean checker = false;
+				for (Summon s : summons)
+					if (summonLocation[0] == s.getX() && summonLocation[1] == s.getY() && !checker) {
+						s.health = s.maxHealth;
+						checker = true;
+					}
+				if (!checker) {
+					float weakest = POSITIVE_INFINITY;
+					Summon weakestSummon = null;
+					for (Summon s : summons)
+						if (s.health < weakest) {
+							weakest = s.health;
+							weakestSummon = s;
+						}
+					weakestSummon.setX(summonLocation[0]);
+					weakestSummon.setY(summonLocation[1]);
+					weakestSummon.health = weakestSummon.maxHealth;
+				}
+			}
 			endSummonSelector();
 			character.spendTurn();
 		}
@@ -108,7 +143,11 @@ public class Summoner extends CharacterClasses {
 			controlInput();
 		}
 
-
+		if(summons.size() >= 5)
+			abilities.get(0).textureIcon = "ReSummon";
+		else
+			abilities.get(0).textureIcon = "Summon";
+		
 	}
 
 	public void cancelSummon(){
@@ -145,6 +184,7 @@ public class Summoner extends CharacterClasses {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				for(Summon s : summons){
+					s.cancelDecision();
 					s.setTarget(targetsTarget.getX(), targetsTarget.getY());
 				}
 				cancelControl();
@@ -156,14 +196,25 @@ public class Summoner extends CharacterClasses {
 
 	protected void summonInput() {
 		targetProcesor();
+		if(summons.size() >= 5) {
+			float weakest = POSITIVE_INFINITY;
+			Summon weakestSummon = null;
+			for (Summon s : summons)
+				if (s.health < weakest) {
+					weakest = s.health;
+					weakestSummon = s;
+				}
+			addToList("Ball",weakestSummon.getX(),weakestSummon.getY() + globalSize()/4,1,0,240,25,25);
+		}
+
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
-				summonLocation[0] = temporal.x;
-				summonLocation[1] = temporal.y;
-				character.actionDecided();
-				abilities.get(0).finished();
-				summonDecided = true;
+					summonLocation[0] = temporal.x;
+					summonLocation[1] = temporal.y;
+					character.actionDecided();
+					abilities.get(0).finished();
+					summonDecided = true;
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -256,16 +307,8 @@ public class Summoner extends CharacterClasses {
 	}
 
 
-
-
-
-
-
-
-
-	public void destroyOverridable(){
-
+	@Override
+	protected void destroyOverridable() {
+		destroyListener(oVS);
 	}
-
-
 }

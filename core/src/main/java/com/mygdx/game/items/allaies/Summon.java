@@ -1,8 +1,8 @@
-package com.mygdx.game.items.allays;
+package com.mygdx.game.items.allaies;
 
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.Friend;
+import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.Tile;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -11,6 +11,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.Stage.haveScreenWarpsBeenRendered;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -60,6 +61,9 @@ public class Summon extends Friend {
 				attack();
 			else
 				movement();
+
+//			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
+//				path.renderLastStep();
 		}
 	}
 

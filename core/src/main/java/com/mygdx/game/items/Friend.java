@@ -10,18 +10,20 @@ import java.util.Objects;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Stage.*;
-import static com.mygdx.game.items.TextureManager.animationToList;
-import static com.mygdx.game.items.TextureManager.text;
+import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Tile.findATile;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.*;
 
 public class Friend extends Actor {
 	public float health = 20;
 	public float defense = 5;
+	public int[] color;
 
 
 	public static OnVariousScenarios oVSc = new OnVariousScenarios(){
@@ -93,6 +95,7 @@ public class Friend extends Actor {
 		damage = 20;
 		actingSpeed = random(1, 7);
 		print("acting speed of this friend is of " + actingSpeed);
+		this.maxHealth = health;
 		this.health = health;
 		testCollision.x = x;
 		testCollision.y = y;
@@ -102,6 +105,9 @@ public class Friend extends Actor {
 		path = new Path(x,y,speed,this);
 		permittedToAct = false;
 		friend.add(this);
+		actorsThatAttack.add(this);
+		if(color == null)
+			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
 	}
 
 	public Friend(float x, float y) {
@@ -113,6 +119,9 @@ public class Friend extends Actor {
 		team = 1;
 		permittedToAct = false;
 		friend.add(this);
+		actorsThatAttack.add(this);
+		if(color == null)
+			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
 	}
 
 	protected void isOnTheGrid(){
@@ -140,6 +149,8 @@ public class Friend extends Actor {
 				attack();
 			else
 				movement();
+//			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
+//				path.renderLastStep();
 		}
 	}
 
@@ -150,6 +161,7 @@ public class Friend extends Actor {
 			permittedToAct = false;
 			actors.remove(this);
 			entityList.remove(this);
+			actorsThatAttack.remove(this);
 		}
 	}
 
@@ -179,8 +191,9 @@ public class Friend extends Actor {
 				}
 		}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
 	}
+
 
 
 	public void targetFinder() {

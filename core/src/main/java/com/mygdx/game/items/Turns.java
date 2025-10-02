@@ -22,6 +22,7 @@ public class Turns implements Utils {
 	private static boolean willTurnRun = true;
 
 	static void reset(){
+		timer = 0;
 		finalList = new ArrayList<>();
 		canTurnFinish = false;
 		turnCount = 0;
@@ -37,10 +38,27 @@ public class Turns implements Utils {
 
 	public static void turnStop(){
 		willTurnRun = false;
-		reset();
+	}
+
+	private static int timer = 0;
+	public static void turnStopTimer(int time){
+		timer = time;
+		willTurnRun = false;
 	}
 
 	public static void turnResume(){
+		if(timer == 0)
+			willTurnRun = true;
+		else
+			print("Can't resume turn as there's an active timer!");
+	}
+
+	public static void turnCancel(){
+		willTurnRun = false;
+		reset();
+	}
+
+	public static void turnRestart(){
 		reset();
 		willTurnRun = true;
 	}
@@ -93,6 +111,8 @@ public class Turns implements Utils {
 
 	public static void turnLogic() {
 		finalizedToChoose.removeIf(a -> a.actor.isDead);
+		if(timer > 0){ timer--;
+			if(timer == 0) willTurnRun = true;}
 		if (willTurnRun) {
 			if (isTurnApproved) {
 				finalList = new ArrayList<>();

@@ -28,7 +28,8 @@ public class TextureManager {
 	public Sprite sprite;
 	TextureRegion region;
 	public static Camara camara;
-	static ArrayList<Text> text;
+	public static ArrayList<Text> text;
+	public static ArrayList<Text> priorityText;
 	static ArrayList<Text> fixatedText;
 	static ArrayList<DrawableObject> drawables;
 	static ArrayList<DrawableObject> priorityDrawables;
@@ -55,6 +56,7 @@ public class TextureManager {
 		animations = new ArrayList<>();
 		atlases = new ArrayList<>();
 		videos = new ArrayList<>();
+		priorityText = new ArrayList<>();
 		bounder();
 	}
 
@@ -111,9 +113,9 @@ public class TextureManager {
 
 
 
-	private void fixatedScreenDrawer(String texture, float x, float y, float opacity,float rotationDegrees,float scaleX, float scaleY){
+	private void fixatedScreenDrawer(String texture, float x, float y, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
 		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
-		drawer(texture,coords.x, coords.y,opacity,false,false,rotationDegrees,scaleX,scaleY,1,1,1);
+		drawer(texture,coords.x, coords.y,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b);
 	}
 
 	public static void animationToList(String file, float x, float y){
@@ -145,12 +147,17 @@ public class TextureManager {
 	}
 
 	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees){
-		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees));
+		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,255,255,255));
 	}
 
 	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees,float scaleX, float scaleY){
 		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,scaleX,scaleY));
 	}
+
+	public static void addToFixatedList(String texture, float x, float y,float opacity,float rotationDegrees,float r,float g,float b){
+		fixatedDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b));
+	}
+
 
 	public static void addToPriorityList(String texture, float x, float y){
 		addToPriorityList( texture,  x,  y,1);
@@ -162,6 +169,7 @@ public class TextureManager {
 	public static void addToPriorityList(String texture, float x, float y,float opacity,float rotationDegrees,boolean flipX, boolean flipY){
 		priorityDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,flipX,flipY));
 	}
+
 
 	public static void renderVideo(Texture texture, float x, float y){
 		videos.add(new DrawableTexture(texture, x, y));
@@ -212,9 +220,17 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
-				fixatedScreenDrawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY);
+				fixatedScreenDrawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		fixatedDrawables.clear();
+		//Priority Text
+		for (TextureManager.Text t : priorityText){
+			if (!t.fakeNull && t.render)
+				t.draw(batch);
+		}
+		priorityText.removeIf(tex -> tex.fakeNull);
+
+
 		//Video reserved
 
 		for (TextureManager.DrawableTexture t : videos){
@@ -296,7 +312,7 @@ public class TextureManager {
 			this.x = x;
 			this.y = y;
 			this.texture = texture;
-			this.r = r / 256; this.g = g / 256; this.b = b / 256;
+			this.r = r / 255; this.g = g / 255; this.b = b / 255;
 			this.rotationDegrees = rotationDegrees;
 			if (opacity > 1)
 				this.opacity = opacity / 100;
@@ -326,7 +342,7 @@ public class TextureManager {
 		public boolean fakeNull = false;
 		public BitmapFont font;
 		int r,g,b;
-		float opacity;
+		public float opacity;
 		float vanishingThreshold;
 		public boolean render = true;
 		public Entity entityToFollow;

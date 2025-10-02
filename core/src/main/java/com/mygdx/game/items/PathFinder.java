@@ -15,6 +15,7 @@ import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.Tile.findATile;
 import static java.lang.Math.abs;
 import static java.lang.Float.POSITIVE_INFINITY;
+import static java.lang.System.nanoTime;
 
 
 public class PathFinder {
@@ -120,6 +121,7 @@ public class PathFinder {
 		if (objectiveTile != null) {
 			if (listType == 0) solve(grid);
 			else if (listType == 1) solve(actorGrid);
+//			print("time difference is of: "+ (nanoTime() - time));
 			return !solution.isEmpty();
 		} return false;
 	}
@@ -134,7 +136,9 @@ public class PathFinder {
 
 	ArrayList<Tile> currentAnalizing = new ArrayList<>();
 	ArrayList<Tile> dumpList = new ArrayList<>();
+//	long time;
 	private boolean solve(ArrayList<Tile> currentGrid){
+//		time = nanoTime();
 		if (!needsReset.bool) {
 			if (currentAnalize(startTile,currentGrid))
 				return true;

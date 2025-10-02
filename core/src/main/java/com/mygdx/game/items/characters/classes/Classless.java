@@ -11,7 +11,7 @@ public class Classless extends CharacterClasses {
 		name = "Classless";
 		health = 40;
 		damage = 5;
-		speed = 2;
+		speed = 100;
 		attackSpeed = 2;
 		defense = 0;
 		range = 2;

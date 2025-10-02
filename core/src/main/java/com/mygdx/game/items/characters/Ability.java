@@ -9,6 +9,7 @@ import com.mygdx.game.items.TextureManager;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -22,15 +23,23 @@ public class Ability{
 	public float x, y;
 	public float radius;
 	Circle circle = new Circle();
+	TextureManager.Text text;
 
 
 	public Ability(String texture, String name, int cooldown,float x, float y,float radius){
 		textureIcon = texture;
 		this.name = name;
 		this.cooldown = cooldown;
+		cooldownCounter = cooldown;
 		this.radius = radius;
 		this.x = x;
 		this.y = y;
+		text = new TextureManager.Text();
+		text.render = false;
+		text.onScreenTime = 1;
+		text.font = createFont(TextureManager.Fonts.ComicSans,50);
+		text.setColor(new int[]{255,255,255});
+		text.opacity = 1;
 		circle.set(Gdx.graphics.getWidth() * this.x + Camara.getX(),
 				Gdx.graphics.getHeight() * this.y + Camara.getY(),radius);
 	}
@@ -48,7 +57,19 @@ public class Ability{
 
 
 	public void render(){
-		TextureManager.addToFixatedList(textureIcon,Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100,1,0);
+		if(cooldownCounter >= cooldown)
+			TextureManager.addToFixatedList(textureIcon,Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100,1,0);
+		else {
+			TextureManager.addToFixatedList(textureIcon, Gdx.graphics.getWidth() * x / 100, Gdx.graphics.getHeight() * y / 100, 1, 0, 175, 175, 175);
+			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+			TextureManager.priorityText.add(text);
+			text.onScreenTime = 1;
+			text.fakeNull = false;
+			text.render = true;
+			text.text = String.format("%.0f",( (float) cooldown - cooldownCounter));
+			text.x = coords[0] + ((float) globalSize() /2) - 15;
+			text.y = coords[1] + ((float) globalSize() /2) + 20;
+		}
 	}
 
 
@@ -92,7 +113,8 @@ public class Ability{
 
 
 	public void updateCooldown(){
-		cooldownCounter++;
+		if(cooldownCounter < cooldown)
+			cooldownCounter++;
 	}
 
 

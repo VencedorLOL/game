@@ -10,6 +10,7 @@ import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.Character.controllableCharacters;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
@@ -22,7 +23,6 @@ public class ControllableFriend extends Friend {
 
 	public boolean active = false;
 	public boolean attackMode;
-
 	public static OnVariousScenarios oVSc;
 
 	static {
@@ -66,6 +66,7 @@ public class ControllableFriend extends Friend {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+			speed = 5;
 			path.getStats(x,y,speed);
 			onDeath();
 			if (attackMode)
@@ -73,7 +74,6 @@ public class ControllableFriend extends Friend {
 			else
 				movement();
 
-			attackRenderer();
 			path.render();
 
 			if(Gdx.input.isKeyJustPressed(Input.Keys.T) && isDecidingWhatToDo(this)) {
@@ -85,20 +85,7 @@ public class ControllableFriend extends Friend {
 					mouseMoved = true;
 				}
 			}
-
-
-			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-				print("");
-				print("Myself: " + this);
-				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
-				print("Coords: x" + x + " y" + y);
-				print("ASpeed: " + actingSpeed);
-				print("Damage: " + damage);
-				print("Defense: " + defense);
-				print("am i dead? " + isDead);
-				print("active?: " + active);
-				print("");
-			}
+			renderBall();
 		}
 	}
 
@@ -130,6 +117,11 @@ public class ControllableFriend extends Friend {
 		}
 	}
 
+	public void renderBall(){
+		if(active)
+			addToList("Ball",x ,y  + height/2 + globalSize()/4,1,0,color[0],color[1],color[2]);
+	}
+
 	public void actionDecided(){
 		thisTurnVSM = getVisualSpeedMultiplier();
 		Turns.finalizedChoosing(this);
@@ -146,33 +138,20 @@ public class ControllableFriend extends Friend {
 			attackInput();
 	}
 
-	public void attackRenderer(){
-		for (int i = 0; i < attacks.size(); i++){
-			if(attacks.get(i).render) {
-				byte counter = 0;
-				for (int j = i; j < attacks.size(); j++) {
-					if (attacks.get(j).targetX == attacks.get(i).targetX && attacks.get(j).targetY == attacks.get(i).targetY && attacks.get(j) != attacks.get(i))
-						counter++;
-				}
-				addToList("attackIndicator", attacks.get(i).targetX - 5 * counter, attacks.get(i).targetY - 5 *counter, 1,
-						0, 256, attacks.get(i).isBeingExecuted ? 20 : 256, attacks.get(i).isBeingExecuted ? 68 : 256);
-			}
-		}
-	}
 
 	protected void attackInput() {
 		targetProcesor();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
-				attacks.add(new Attack(temporal.x, temporal.y));
+				attacks.add(new Attack(temporal.x, temporal.y,this));
 //				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
-				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
+				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
 //				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
@@ -193,6 +172,7 @@ public class ControllableFriend extends Friend {
 			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, range, true,false);
 
 		}
+		circle.renderCircle();
 		Vector3 temporal = roundedClick();
 		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
 		if (Gdx.input.justTouched())
@@ -277,7 +257,7 @@ public class ControllableFriend extends Friend {
 					break;
 			}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, Fonts.ComicSans,40,127,127,127,1,30);
 		attacks.get(elementOfAttack - 1).render = false;
 	}
 
@@ -289,6 +269,7 @@ public class ControllableFriend extends Friend {
 			actors.remove(this);
 			entityList.remove(this);
 			controllableCharacters.remove(this);
+			actorsThatAttack.remove(this);
 		}
 	}
 /*	protected void turnSpeedActuator(){

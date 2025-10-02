@@ -30,12 +30,54 @@ public class Camara {
 	}
 
 	public void updater(){
-		if (attached != null){
+		if (attached != null && time <= 0){
 			x = attached.getX() + attached.getBase() / 2;
 			y = attached.getY() + attached.getHeight() / 2;
-			camara.position.set(x,y,0);
-			camara.update();
 		}
+		else {
+			time--;
+			x -= xPerTick;
+			y -= yPerTick;
+		}
+		if(zoomTime > 0){
+			zoomTime--;
+			zoom -= zoomPerTick;
+			base = Gdx.graphics.getWidth() * zoom;
+			height = Gdx.graphics.getHeight() * zoom;
+			camara.setToOrtho(false, base , height);
+		}
+		camara.position.set(x,y,0);
+		camara.update();
+
+	}
+	public static boolean isCamaraMoving(){
+		return time > 0 && (xPerTick != 0 || yPerTick != 0);
+	}
+
+	public static boolean areCoordsOnTheScreen(float x, float y){
+		return (float) Gdx.graphics.getHeight() / 2 + Camara.y > (y+1) || (float) Gdx.graphics.getHeight() / 2 + Camara.y < (y-1) ||
+			   (float) Gdx.graphics. getWidth() / 2 + Camara.x > (x+1) || (float) Gdx.graphics. getWidth() / 2 + Camara.x < (x-1);
+	}
+
+
+
+	static int time;
+	static float xPerTick;
+	static float yPerTick;
+	public static void smoothAttachment(Entity entity,int time){
+		if (attached != entity) {
+			attached = entity;
+			Camara.time = time;
+			xPerTick = (x - (attached.x + attached.getBase() / 2)) / time;
+			yPerTick = (y - (attached.y + attached.getHeight() / 2)) / time;
+		}
+	}
+
+	public static float zoomTime;
+	public static float zoomPerTick;
+	public static void smoothZoom(float zoom, int time){
+		zoomTime = time;
+		zoomPerTick = (Camara.zoom - zoom)/time;
 	}
 
 	public static float[] unproject(float x, float y){
@@ -46,23 +88,11 @@ public class Camara {
 	}
 
 
-	public void updater(float x, float y){
+	public static void updater(float x, float y){
 		camara.position.set(x,y,0);
 		camara.update();
 	}
-	public void updater(float x, float y, float z){
-		camara.position.set(x,y,z);
-		camara.update();
-	}
-	public void xSetter(float x){
-		Camara.x = x;
-	}
-	public void ySetter(float y){
-		Camara.y = y;
-	}
-	static public float getZoom(){
-		return zoom;
-	}
+
 	public void fixedUpdater(){
 		camara.update();
 	}
@@ -78,21 +108,11 @@ public class Camara {
 		camara.setToOrtho(yDown,base,height);
 		updater();
 	}
-	public void setToOrtho(boolean yDown, float x, float y){
-		base = x;
-		height = y;
-		camara.setToOrtho(yDown,base,height);
-		updater();
-	}
-	public void setToOrtho(){
-		zoom = 1;
-		base = Gdx.graphics.getWidth();
-		height = Gdx.graphics.getHeight();
-		camara.setToOrtho(false, base , height);
-		updater();
-	}
+
 	public void setToOrtho(float zoom){
 		Camara.zoom = zoom;
+		zoomPerTick = 0;
+		zoomTime = 0;
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
 		camara.setToOrtho(false, base , height);

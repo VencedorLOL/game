@@ -219,6 +219,14 @@ public class Conditions {
 
 	}
 
+	public static class Protected extends Conditions {
+
+		public Protected(Actor owner) {
+			super(owner);
+			texture = "Protected"; name = "Protected";
+		}
+	}
+
 
 
 

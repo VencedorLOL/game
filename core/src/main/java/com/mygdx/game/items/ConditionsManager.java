@@ -85,7 +85,7 @@ public class ConditionsManager {
 			int aid = 0; int aidY = 0;
 			for(Conditions c : conditions)
 				if (c.texture != null) {
-				TextureManager.addToFixatedList(c.texture,150 + 40f*aid, 100 + 40f*aidY,1,0,6,6);
+				TextureManager.addToFixatedList(c.texture,150 + 40f*aid, 100 + 40f*aidY,1,0,3,3);
 					if(++aid > 5) {
 						aid = 0;
 						aidY++;

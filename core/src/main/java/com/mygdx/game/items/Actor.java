@@ -436,11 +436,12 @@ public class Actor extends Entity{
 
 
 	public static class Attack{
+		Actor owner;
 		float targetX, targetY;
 		boolean render = true;
 		boolean isBeingExecuted = false;
-		public Attack(float x, float y){
-			targetX = x; targetY = y;
+		public Attack(float x, float y,Actor owner){
+			targetX = x; targetY = y; this.owner = owner;
 		}
 	}
 
@@ -498,14 +499,14 @@ public class Actor extends Entity{
 				}
 		}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
 	}
 
 
 	public ArrayList<Attack> attacks = new ArrayList<>();
 	protected void attackInput() {
 		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range) {
-			attacks.add(new Attack(targetActor.x, targetActor.y));
+			attacks.add(new Attack(targetActor.x, targetActor.y,this));
 			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();
 		}

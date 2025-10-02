@@ -71,6 +71,12 @@ public class Melee extends CharacterClasses {
 				character.cancelAttackMode();
 				character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
 			}
+
+			public void finished(){
+				resetAbilities();
+			}
+
+
 		});
 
 		oVSce = new OnVariousScenarios(){
@@ -124,32 +130,40 @@ public class Melee extends CharacterClasses {
 
 
 	public void finishAbilities(){
-		for (Ability a : abilities)
+		for (Ability a : abilities) {
 			a.finished();
+		}
 		attackState = 0;
 	}
+
+	public void resetAbilities(){
+		for (Ability a : abilities) {
+			a.cooldownCounter = 0;
+			a.isItActive = false;
+		}
+		attackState = 0;
+	}
+
 
 	@Override
 	public boolean onAttackDecided() {
 		if (abilities.get(0).isItActive){
 			attackState++;
-			print("FOA was registered correctly. AttackState is " + attackState);
-			if (attackState < FoANumberOfExtraHits)
-				return false;
-			finishAbilities();
+			return attackState >= FoANumberOfExtraHits;
 		}
 		return true;
 	}
 
-/*	public float outgoingDamageOverridable(){
-		if (abilities.get(1).isItActive) {
-			print("OFA was registered correctly");
-			finishAbilities();
-			return totalDamage * OfAMultiplier;
+
+	/*	public float outgoingDamageOverridable(){
+			if (abilities.get(1).isItActive) {
+				print("OFA was registered correctly");
+				finishAbilities();
+				return totalDamage * OfAMultiplier;
+			}
+			return totalDamage;
 		}
-		return totalDamage;
-	}
-*/
+	*/
 	public void destroyOverridable(){
 		destroyListener(oVSce);
 	}

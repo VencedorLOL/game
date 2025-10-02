@@ -92,6 +92,29 @@ public class Path {
 		return entityToIgnore.overlapsWithStageWithException(stage, testCollision, entityToIgnore);
 	}
 
+	public boolean isListSizeOne(){
+		return path.size() == 1;
+	}
+
+
+	public void renderLastStep(){
+		for(int i = 0; i < path.size(); i++){
+			if (i == 0) {
+				path.get(0).x = owner.x;
+				path.get(0).y = owner.y;
+				continue;
+			}
+			path.get(i).x = path.get(i-1).x + path.get(i).directionX;
+			path.get(i).y = path.get(i-1).y + path.get(i).directionY;
+		}
+		float r =  owner instanceof Friend ? ((Friend) owner).color[0] : 255;
+		float g =  owner instanceof Friend ? ((Friend) owner).color[1] : 255;
+		float b =  owner instanceof Friend ? ((Friend) owner).color[2] : 255;
+		path.get(path.size() - 1).render = true;
+		path.get(path.size() - 1).render(0.95f,0,r,g,b);
+	}
+
+
 	public void render(){
 		ArrayList<PathStep> renderList = new ArrayList<>();
 		for(PathStep p : path)
@@ -102,9 +125,9 @@ public class Path {
 				renderList.get(renderList.size()-1).texture = "Center";
 			else
 				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY);
-		float r =  renderBlue ? 0 : 256;
-		float g = 256;
-		float b =  renderBlue ? 182 : 256;
+		float r =  renderBlue ? 0   : owner instanceof Friend ? ((Friend) owner).color[0] : 255;
+		float g =  renderBlue ? 255 : owner instanceof Friend ? ((Friend) owner).color[1] : 255;
+		float b =  renderBlue ? 182 : owner instanceof Friend ? ((Friend) owner).color[2] : 255;
 		for (PathStep p : renderList) {
 			p.render(0.95f, p.rotation, r, g, b);
 			p.glideProcess();

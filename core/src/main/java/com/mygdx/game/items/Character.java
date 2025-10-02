@@ -18,13 +18,13 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.isTurnRunning;
+import static com.mygdx.game.items.Turns.*;
 
 public class Character extends Actor implements Utils {
 
@@ -59,6 +59,7 @@ public class Character extends Actor implements Utils {
 		classes = new Classless();
 		classes.character = this;
 		path = new Path(x,y, classes.totalSpeed,this);
+		actorsThatAttack.add(this);
 	}
 
 	public void spendTurn(){
@@ -96,24 +97,37 @@ public class Character extends Actor implements Utils {
 			for (ControllableFriend c : controllableCharacters) {
 				if (!c.active && isDecidingWhatToDo(c) && !c.isDead) {
 					c.active = true;
-					Camara.attach(c);
+					Camara.smoothAttachment(c,40);
+					circle = null;
+					c.circle = null;
 					return;
 				} else if (c.active)
 					return;
 			}
-			Camara.attach(this);
+			Camara.smoothAttachment(this,40);
+			if(Camara.isCamaraMoving())
+				turnStopTimer(30);
 		} else if (isTurnRunning())
-			Camara.attach(this);
+			Camara.smoothAttachment(this,40);
 	}
 
 	public void massCancel(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+			boolean isDeciding = false;
+			for(ControllableFriend c : controllableCharacters)
+				if(isDecidingWhatToDo(c)){
+					isDeciding = true;
+					break;
+				}
+			if(!isDeciding)
+				return;
 			for(ControllableFriend c : controllableCharacters) {
 				c.cancelDecision();
 				c.active = false;
+				c.circle = null;
 			}
 			cancelDecision();
-			Camara.attach(chara);
+			Camara.smoothAttachment(chara,40);
 		}
 	}
 
@@ -140,7 +154,6 @@ public class Character extends Actor implements Utils {
 		massCancel();
 		debug();
 		path.render();
-		attackRenderer();
 		conditions.render();
 		textureUpdater();
 		render();
@@ -155,24 +168,6 @@ public class Character extends Actor implements Utils {
 					friend.get(i).render();
 				}
 	}
-
-
-
-	public void attackRenderer(){
-		for (int i = 0; i < attacks.size(); i++){
-			if(attacks.get(i).render) {
-				byte counter = 0;
-				for (int j = i; j < attacks.size(); j++) {
-					if (attacks.get(j).targetX == attacks.get(i).targetX && attacks.get(j).targetY == attacks.get(i).targetY && attacks.get(j) != attacks.get(i))
-						counter++;
-				}
-				addToList("attackIndicator", attacks.get(i).targetX - 5 * counter, attacks.get(i).targetY - 5 *counter, 1,
-						0, 256, attacks.get(i).isBeingExecuted ? 20 : 256, attacks.get(i).isBeingExecuted ? 68 : 256);
-			}
-		}
-	}
-
-
 
 
 
@@ -301,7 +296,7 @@ public class Character extends Actor implements Utils {
 					break;
 			}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 140,60, Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, Fonts.ComicSans,40,127,127,127,1,30);
 		attacks.get(elementOfAttack - 1).render = false;
 	}
 
@@ -311,14 +306,14 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
-				attacks.add(new Attack(temporal.x, temporal.y));
+				attacks.add(new Attack(temporal.x, temporal.y,this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
 			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
-				attacks.add(new Attack(targetsTarget.x, targetsTarget.y));
+				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
@@ -406,8 +401,11 @@ public class Character extends Actor implements Utils {
 
 
 	public void onDeath(){
-		if (classes.currentHealth <= 0)
-			isDead = false;
+		if (classes.currentHealth <= 0) {
+			isDead = true;
+			byte[] gitGud = new byte[1];
+			gitGud[1] = 1;
+		}
 	}
 
 
