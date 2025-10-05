@@ -21,10 +21,6 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Enemy extends Actor {
-	public float defense = 5;
-
-
-
 	public static ArrayList<Enemy> enemies = new ArrayList<>();
 
 	public static ArrayList<Tile> enemyGrid;
@@ -45,7 +41,7 @@ public class Enemy extends Actor {
 	public void getObjectiveTitle(){
 		Tile objective;
 		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
-			try {objective = pathFindAlgorithm.solution.get(speed / 2 - 1);}
+			try {objective = pathFindAlgorithm.solution.get(totalSpeed / 2 - 1);}
 			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
 			tileToReach[0] = objective.x;tileToReach[1] = objective.y;
 		} else {
@@ -58,7 +54,7 @@ public class Enemy extends Actor {
 	protected void automatedMovement(){
 		if(targetActor == null && turnMode)
 			targetFinder();
-		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
+		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), enemyGrid)) {
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
@@ -82,8 +78,10 @@ public class Enemy extends Actor {
 		speed = 3;
 		range = 2;
 		damage = 20;
+		defense = 5;
 		actingSpeed = random(1, 7);
-		print("acting speed of this enemy is of " + actingSpeed);
+		print("acting speed of this enemy is of " + totalActingSpeed);
+		maxHealth = health;
 		this.health = health;
 		testCollision.x = x;
 		testCollision.y = y;
@@ -148,12 +146,13 @@ public class Enemy extends Actor {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			path.getStats(x,y,speed);
+			statsUpdater();
+			path.getStats(x,y,totalSpeed);
 			loop();
 			onDeath();
 			if ((targetActor == null || targetActor.isDead || targetActor.team != -team) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
-			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -162,10 +161,12 @@ public class Enemy extends Actor {
 				print("Myself: " + this);
 				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
 				print("Coords: x" + x + " y" + y);
-				print("ASpeed: " + actingSpeed);
-				print("Damage: " + damage);
-				print("Defense: " + defense);
+				print("ASpeed: " + totalActingSpeed);
+				print("Damage: " + totalDamage);
+				print("Defense: " + totalDefense);
 				print("am i dead? " + isDead);
+				print("health " + health);
+				print("total health " + totalMaxHealth);
 				print("");
 			}
 		}
@@ -183,8 +184,14 @@ public class Enemy extends Actor {
 	}
 
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
-		float damagedFor = max(damage - defense,0);
+		float damagedFor;
+		if(damageReason != AttackTextProcessor.DamageReasons.LIGHTNING)
+			damagedFor = max(damage - totalDefense,0);
+		else
+			damagedFor = damage;
+
 		health -= damagedFor;
+
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
 			particle.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
 		}

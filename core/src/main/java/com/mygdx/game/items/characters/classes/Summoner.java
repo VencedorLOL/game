@@ -119,7 +119,7 @@ public class Summoner extends CharacterClasses {
 				boolean checker = false;
 				for (Summon s : summons)
 					if (summonLocation[0] == s.getX() && summonLocation[1] == s.getY() && !checker) {
-						s.health = s.maxHealth;
+						s.health = s.totalMaxHealth;
 						checker = true;
 					}
 				if (!checker) {
@@ -132,7 +132,7 @@ public class Summoner extends CharacterClasses {
 						}
 					weakestSummon.setX(summonLocation[0]);
 					weakestSummon.setY(summonLocation[1]);
-					weakestSummon.health = weakestSummon.maxHealth;
+					weakestSummon.health = weakestSummon.totalMaxHealth;
 				}
 			}
 			endSummonSelector();

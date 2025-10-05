@@ -2,11 +2,13 @@ package com.mygdx.game.items.stages;
 
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.FieldEffects;
 import com.mygdx.game.items.Stage;
 
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.FieldEffects.addField;
 
 public class StageThree extends Stage {
 	public int startX = 0;
@@ -41,4 +43,8 @@ public class StageThree extends Stage {
 		screenWarpDestination.add(new StageFour());
 	}
 
+	@Override
+	public void fieldSetter() {
+		addField(FieldEffects.FieldNames.HAILSTORM);
+	}
 }

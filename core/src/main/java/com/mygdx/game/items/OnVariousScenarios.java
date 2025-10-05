@@ -20,7 +20,8 @@ public class OnVariousScenarios {
 
 	public static void triggerOnTurnPass(){
 		for (OnVariousScenarios t : onScenarios)
-			t.onTurnPass();
+			if(!t.queuedForDeletion)
+				t.onTurnPass();
 	}
 
 
@@ -31,7 +32,8 @@ public class OnVariousScenarios {
 
 	public static void triggerOnStageChange(){
 		for (OnVariousScenarios onScenario : onScenarios)
-			onScenario.onStageChange();
+			if(!onScenario.queuedForDeletion)
+				onScenario.onStageChange();
 	}
 
 
@@ -42,7 +44,8 @@ public class OnVariousScenarios {
 
 	public static void triggerOnTick(){
 		for (OnVariousScenarios t : onScenarios)
-			t.onTickStart();
+			if(!t.queuedForDeletion)
+				t.onTickStart();
 		triggerOnCounter();
 	}
 
@@ -57,7 +60,8 @@ public class OnVariousScenarios {
 
 	public static void triggerOnVolume() {
 		for (OnVariousScenarios o : onScenarios){
-			o.onVolumeChange();
+			if(!o.queuedForDeletion)
+				o.onVolumeChange();
 		}
 	}
 
@@ -66,14 +70,16 @@ public class OnVariousScenarios {
 
 	public static void triggerOnDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 		for (OnVariousScenarios o : onScenarios)
-			o.onDamagedActor(damagedActor,source);
+			if(!o.queuedForDeletion)
+				o.onDamagedActor(damagedActor,source);
 	}
 
 	public void onActorDeath(Actor deadActor){}
 
 	public static void triggerOnActorDeath(Actor deadActor){
 		for(OnVariousScenarios o : onScenarios){
-			o.onActorDeath(deadActor);
+			if(!o.queuedForDeletion)
+				o.onActorDeath(deadActor);
 		}
 	}
 

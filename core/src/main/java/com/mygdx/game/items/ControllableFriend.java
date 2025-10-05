@@ -67,7 +67,7 @@ public class ControllableFriend extends Friend {
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
 			speed = 5;
-			path.getStats(x,y,speed);
+			path.getStats(x,y,totalSpeed);
 			onDeath();
 			if (attackMode)
 				attack();
@@ -164,12 +164,12 @@ public class ControllableFriend extends Friend {
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != range || !circle.walkable) {
+		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != totalRange || !circle.walkable) {
 			if (circle != null)
 				for (Tile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, range, true,false);
+			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, totalRange, true,false);
 
 		}
 		circle.renderCircle();
@@ -252,7 +252,7 @@ public class ControllableFriend extends Friend {
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, pierces,this);
 		if (list != null)
 			for (Actor aa : list) {
-				aa.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
+				aa.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 				if (!pierces)
 					break;
 			}

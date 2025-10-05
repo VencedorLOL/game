@@ -7,6 +7,7 @@ import com.mygdx.game.items.characters.classes.SwordMage;
 
 import java.util.ArrayList;
 
+import static com.badlogic.gdx.math.MathUtils.floor;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
@@ -18,6 +19,7 @@ public class Conditions {
 	String name = "NullCondition";
 	Actor owner;
 	String texture;
+	boolean queuedForRemoval = false;
 
 	public Conditions(Actor owner){
 		this.owner = owner;
@@ -40,6 +42,8 @@ public class Conditions {
 	protected boolean onAttackDecided(){return true;}
 
 	protected void onMove(){}
+
+	protected void onStageChange(){}
 
 	float getHealthMultiplier(){return 1;}
 
@@ -99,11 +103,11 @@ public class Conditions {
 		}
 
 		protected void onAttack() {
-			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
+			owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
 		}
 
 		protected void onMove() {
-			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
+			owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
 		}
 
 	}
@@ -144,24 +148,24 @@ public class Conditions {
 	}
 	public static class Burning extends Conditions{
 		public Burning(Actor owner){super(owner); name = "Burning"; texture  = "BurntStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .5f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class BurningBright extends Conditions{
 		public BurningBright(Actor owner){super(owner); name = "BurningBright"; texture = "VeryBurntStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Melting extends Conditions{
 		public Melting(Actor owner){super(owner); name = "Melting"; texture = "MeltingStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Sublimating extends Conditions{
 		public Sublimating(Actor owner){super(owner); name = "Sublimating";}
-		protected void onTurn(){owner.damage(owner.maxHealth * 2, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * 2, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 
 	public static class Frostbite extends Conditions{
 		public Frostbite(Actor owner){super(owner); name = "Frostbite"; texture = "FrostbiteStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.FROSTBITE,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .5f, AttackTextProcessor.DamageReasons.FROSTBITE,null);}
 	}
 	public static class Frozen extends Conditions{
 		public Frozen(Actor owner){super(owner); name = "Frozen"; texture = "FrozenStatus";}
@@ -330,7 +334,50 @@ public class Conditions {
 		}
 	}
 
+	public static class Clowdy extends Conditions{
+		public Clowdy(Actor owner){
+			super(owner);
+			texture = "ClowdyStatus"; name = "Clowdy"; tickDownOnTurn = false; turnsActive = 2;
+		}
+		float getDamageMultiplier() {return 0.95f;}
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
 
+	public static class Rainy extends Conditions{
+		public Rainy(Actor owner){
+			super(owner);
+			texture = "RainyStatus"; name = "Rainy"; tickDownOnTurn = false; turnsActive = 2;
+		}
+		float getDamageMultiplier() {return 0.90f;}
+		protected void onStageChange() {
+			queuedForRemoval = true;}
+	}
+
+	public static class Snowy extends Conditions{
+		int turnCounter;
+		public Snowy(Actor owner){
+			super(owner);
+			texture = "SnowyStatus"; name = "Snowy"; tickDownOnTurn = false; turnsActive = 2;
+		}
+		float getDamageMultiplier() {return 0.95f;}
+		protected void onTurn() {turnCounter++;}
+		float getSpeedAdditive() {return -floor(turnCounter/20f);}
+		protected void onStageChange() {
+			queuedForRemoval = true;}
+	}
+
+	public static class Sunny extends Conditions{
+		public Sunny(Actor owner){
+			super(owner);
+			texture = "SunnyStatus"; name = "Sunny"; tickDownOnTurn = false; turnsActive = 2;
+		}
+		float getDamageMultiplier() {return 1.05f;}
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
 
 	public enum ConditionNames {
 		BURNING("Burning"),
@@ -348,6 +395,10 @@ public class Conditions {
 		PROTECTING("Protecting"),
 		RITUAL("Ritual"),
 		DEMONIZED("Demonized"),
+		CLOWDY("Clowdy"),
+		RAINY("Rainy"),
+		SNOWY("Snowy"),
+		SUNNY("Sunny"),
 		;
 
 

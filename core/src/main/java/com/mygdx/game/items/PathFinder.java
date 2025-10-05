@@ -64,7 +64,7 @@ public class PathFinder {
 		}
 		Collections.shuffle(enemies);
 		//TODO: make it so it also takes speed in consideration
-		enemies.sort((o1, o2) -> Integer.compare(o2.actingSpeed * 100 + o2.speed, o1.actingSpeed * 100 + o1.speed));
+		enemies.sort((o1, o2) -> Integer.compare(o2.totalActingSpeed * 100 + o2.totalSpeed, o1.totalActingSpeed * 100 + o1.totalSpeed));
 		enemyGrid = new ArrayList<>();
 		for (Tile t : grid) {
 			enemyGrid.add(t.clone());
@@ -78,7 +78,7 @@ public class PathFinder {
 				}
 
 
-		friend.sort((o1, o2) -> Integer.compare(o2.actingSpeed * 100 + o2.speed, o1.actingSpeed * 100 + o1.speed));
+		friend.sort((o1, o2) -> Integer.compare(o2.totalActingSpeed * 100 + o2.totalSpeed, o1.totalActingSpeed * 100 + o1.totalSpeed));
 		allaiesGrid = new ArrayList<>();
 		for (Tile t : grid) {
 			allaiesGrid.add(t.clone());

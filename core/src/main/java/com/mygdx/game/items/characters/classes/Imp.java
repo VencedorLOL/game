@@ -115,12 +115,16 @@ public class Imp extends CharacterClasses {
 			a.render();
 			a.touchActivate();
 		}
+		if(character.attackMode){
+			cancelDemonize();
+			cancelRitual();
+		}
 
 		if(diedMark && !isTurnRunning() && isDecidingWhatToDo(character)){
 			if(abilities.get(0).cooldownCounter < abilities.get(0).cooldown)
-				abilities.get(0).cooldownCounter += abilities.get(0).cooldownCounter > 8 ? 1 : abilities.get(0).cooldownCounter > 4 ? 2 : 3;
+				abilities.get(0).cooldownCounter += abilities.get(0).cooldownCounter > 6 ? 1 : abilities.get(0).cooldownCounter > 3 ? 2 : 3;
 			if(abilities.get(1).cooldownCounter < abilities.get(1).cooldown)
-				abilities.get(1).cooldownCounter += abilities.get(1).cooldownCounter > 8 ? 1 : abilities.get(1).cooldownCounter > 4 ? 2 : 3;
+				abilities.get(1).cooldownCounter += abilities.get(1).cooldownCounter > 6 ? 1 : abilities.get(1).cooldownCounter > 3 ? 2 : 3;
 			diedMark = false;
 		}
 

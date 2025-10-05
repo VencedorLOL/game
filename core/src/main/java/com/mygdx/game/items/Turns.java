@@ -6,6 +6,7 @@ import java.util.*;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
 
 public class Turns implements Utils {
@@ -118,7 +119,7 @@ public class Turns implements Utils {
 				finalList = new ArrayList<>();
 				for (Actor a : actors)
 					if(!a.isDead)
-						finalList.add(new ActorAndSpeed(a.actingSpeed * 100 + a.speed, a));
+						finalList.add(new ActorAndSpeed(a.totalActingSpeed * 100 + a.totalSpeed, a));
 				Collections.shuffle(finalList);
 				finalList.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
 				act();
@@ -129,6 +130,8 @@ public class Turns implements Utils {
 						f.setBool(false);
 					for (ActorAndSpeed l : finalList)
 						l.getActor().setDidItAct(false);
+					for(FieldEffects f : fieldEffects)
+						f.didFieldAct = false;
 					isTurnApproved = false;
 					triggerOnTurnPass();
 				}
@@ -140,6 +143,16 @@ public class Turns implements Utils {
 
 
 	private static void act(){
+		for (FieldEffects f : fieldEffects)
+			if (f != null && !f.didFieldAct) {
+				f.canFieldAct = true;
+				f.didFieldAct = true;
+				return;
+			}
+		for (FieldEffects f : fieldEffects)
+			if (f.canFieldAct) {
+				return;
+			}
 		for (ActorAndSpeed a : finalList)
 			if (a.getActor().didItAct() && a.getActor().isPermittedToAct())
 				return;

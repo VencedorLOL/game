@@ -89,6 +89,10 @@ public class ConditionsManager {
 			case PROTECTED:    	 return new Conditions.Protecting   (owner);
 			case RITUAL:		 return new Conditions.Ritual       (owner);
 			case DEMONIZED:		 return new Conditions.Demonized    (owner);
+			case CLOWDY: 		 return new Conditions.Clowdy       (owner);
+			case RAINY:   		 return new Conditions.Rainy		(owner);
+			case SNOWY: 		 return new Conditions.Snowy		(owner);
+			case SUNNY:			 return new Conditions.Sunny		(owner);
 		}
 		return null;
 	}
@@ -98,7 +102,7 @@ public class ConditionsManager {
 			int aid = 0; int aidY = 0;
 			for(Conditions c : conditions)
 				if (c.texture != null) {
-				TextureManager.addToFixatedList(c.texture,150 + 40f*aid, 100 + 40f*aidY,1,0,3,3);
+				TextureManager.addToFixatedList(c.texture,150 + 150f*aid, 100 + 40f*aidY,1,0,3,3);
 					if(++aid > 5) {
 						aid = 0;
 						aidY++;
@@ -152,7 +156,26 @@ public class ConditionsManager {
 			c.onMove();
 	}
 
+	public void onStageChange(){
+		for (Conditions c : conditions)
+			c.onStageChange();
+		conditions.removeIf(c -> c.queuedForRemoval);
+	}
 
+	/**
+	 * 0: maxHealth
+	 * 1: damage
+	 * 2: speed
+	 * 3: actingSpeed
+	 * 4: defense
+	 * 5: range
+	 * 6: mana
+	 * 7: mana regenerated/turn
+	 * 8: mana/use
+	 * 9: magicDamage
+	 * 11: aggro
+	 * 12: temp. defense
+	 **/
 	public float getMultiplier(int type){
 		float finalMultiplier = 1;
 		for (Conditions c : conditions)
@@ -174,6 +197,20 @@ public class ConditionsManager {
 		return finalMultiplier;
 	}
 
+	/**
+	 * 0: maxHealth
+	 * 1: damage
+	 * 2: speed
+	 * 3: actingSpeed
+	 * 4: defense
+	 * 5: range
+	 * 6: mana
+	 * 7: mana regenerated/turn
+	 * 8: mana/use
+	 * 9: magicDamage
+	 * 11: aggro
+	 * 12: temp. defense
+	 **/
 	public float getAdditive(int type){
 		float finalSum = 0;
 		for (Conditions c : conditions)

@@ -36,7 +36,7 @@ public class Summon extends Friend {
 		}
 		if(!isThereAnAliveSetTarget)
 			targetFinder();
-		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
+		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
@@ -54,10 +54,11 @@ public class Summon extends Friend {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !this.getIsDead()) {
-			path.getStats(this.getX(),this.getY(),speed);
+			statsUpdater();
+			path.getStats(this.getX(),this.getY(),totalSpeed);
 			loop();
 			onDeath();
-			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.team == -team && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.team == -team && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -69,7 +70,7 @@ public class Summon extends Friend {
 
 	public void setTarget(float x, float y){
 		for (Actor a: actors){
-			if(a.getX() == x && a.getY() == y && dC(a.getX(),a.getY()) <= sightRange * globalSize()){
+			if(a.getX() == x && a.getY() == y && dC(a.getX(),a.getY()) <= totalSightRange * globalSize()){
 				if(a == chara) {
 					targetTile = null;
 					targetActor = null;

@@ -21,6 +21,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
@@ -53,6 +54,7 @@ public class Character extends Actor implements Utils {
 				permittedToAct = false;
 				lockClassTilAnimationFinishes = false;
 				texture = "anima";
+				conditions.onStageChange();
 			}
 		};
 		team = 1;
@@ -131,13 +133,21 @@ public class Character extends Actor implements Utils {
 		}
 	}
 
+	public void statsUpdater(){
+		totalSpeed = classes.totalSpeed;
+		totalActingSpeed = classes.totalAttackSpeed;
+		totalRange = classes.totalRange;
+		totalDamage = classes.totalDamage;
+		totalMaxHealth = classes.totalHealth;
+		pierces = classes.pierces;
+		health = classes.currentHealth;
+		totalDefense = classes.totalDefense;
+		totalAggro = classes.totalAggro;
+	}
 
 	public void update(){
 		classes.update();
-		speed = classes.totalSpeed;
-		actingSpeed = classes.totalAttackSpeed;
-		range = classes.totalRange;
-		pierces = classes.pierces;
+		statsUpdater();
 		onDeath();
 		path.getStats(x,y, classes.totalSpeed);
 
@@ -654,6 +664,10 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
 			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable();
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
+			addField(FieldEffects.FieldNames.LIGHTNING);
+		}
+
 
 	}
 

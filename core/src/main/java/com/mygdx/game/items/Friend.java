@@ -21,7 +21,6 @@ import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.*;
 
 public class Friend extends Actor {
-	public float defense = 5;
 	public int[] color;
 
 
@@ -55,7 +54,7 @@ public class Friend extends Actor {
 	public void getObjectiveTitle(){
 		Tile objective;
 		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
-			try {objective = pathFindAlgorithm.solution.get(speed / 2 - 1);}
+			try {objective = pathFindAlgorithm.solution.get(totalSpeed / 2 - 1);}
 			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
 			tileToReach[0] = objective.x;tileToReach[1] = objective.y;
 		} else {
@@ -68,7 +67,7 @@ public class Friend extends Actor {
 	protected void automatedMovement(){
 		if(targetActor == null && turnMode)
 			targetFinder();
-		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
+		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), allaiesGrid)) {
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
@@ -93,7 +92,7 @@ public class Friend extends Actor {
 		range = 2;
 		damage = 20;
 		actingSpeed = random(1, 7);
-		print("acting speed of this friend is of " + actingSpeed);
+		print("acting speed of this friend is of " + totalActingSpeed);
 		this.maxHealth = health;
 		this.health = health;
 		testCollision.x = x;
@@ -139,12 +138,13 @@ public class Friend extends Actor {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			path.getStats(x,y,speed);
+			statsUpdater();
+			path.getStats(x,y,totalSpeed);
 			loop();
 			onDeath();
 			if ((targetActor == null || targetActor.isDead || targetActor.team != -team) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
-			if (targetActor != null && !targetActor.isDead && ((targetActor.team == -team && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.isDead && ((targetActor.team == -team && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -165,7 +165,7 @@ public class Friend extends Actor {
 	}
 
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
-		float damagedFor = max(damage - defense,0);
+		float damagedFor = max(damage - totalDefense,0);
 		health -= damagedFor;
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
 			particle.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);
@@ -183,8 +183,8 @@ public class Friend extends Actor {
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
 		if (list != null) {
 			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
-					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.team != team) {
+					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
 				}
@@ -199,12 +199,12 @@ public class Friend extends Actor {
 		ArrayList<ActorAndDistance> targets = new ArrayList<>();
 		for (Actor a : actors)
 			if (!a.isDead && a.team == team * -1)
-				targets.add(new ActorAndDistance(a, dC(a.x, a.y) * a.aggro));
+				targets.add(new ActorAndDistance(a, dC(a.x, a.y) * a.totalAggro));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
 		Collections.reverse(targets);
 		for (ActorAndDistance a : targets) {
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
 				targetActor = a.getActor();
 				return;
 			}
@@ -216,7 +216,7 @@ public class Friend extends Actor {
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
 		Collections.reverse(targets);
 		for (ActorAndDistance a : targets) {
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
 				targetActor = a.getActor();
 				return;
 			}

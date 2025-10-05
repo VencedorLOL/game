@@ -14,6 +14,7 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
@@ -179,6 +180,13 @@ public class Stage implements Utils {
 			b.render();
 	}
 
+	//Override if field on stage enter
+	public void fieldSetter(){
+		//for example, do this:
+		//addField(FieldEffects.FieldNames.LIGTHNING);
+	}
+
+
 	public void stageRenderer(){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
@@ -190,6 +198,7 @@ public class Stage implements Utils {
 			tilesetSetter(this);
 			enemySetter();
 			screenWarpSetter();
+			fieldSetter();
 			betweenStages = false;
 
 		}
@@ -202,6 +211,7 @@ public class Stage implements Utils {
 			enemyRenderer();
 			wallRenderer();
 			screenWarpRenderer();
+			updateFields();
 			border.border(chara, this);
 			border.border(this);
 			screenWarpTrigger();
@@ -259,6 +269,7 @@ public class Stage implements Utils {
 		walls = new ArrayList<>(); Wall.flushList();
 		floor = new ArrayList<>();
 		screenWarp = new ArrayList<>();
+		clearFields();
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,wallType, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 		triggerOnStageChange();

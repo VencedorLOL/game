@@ -18,18 +18,34 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Actor extends Entity{
-	public float health = 20;
-	public Entity lastDamager;
-	public float movedThisTurn;
 	public float maxHealth;
-	public byte speed;
+	public float health = 20;
+	public float damage;
+	public int speed;
+	public int actingSpeed;
+	public float defense;
+	public int range;
+	public float aggro = 1;
+	public float sightRange = 10;
+	public float followRange = 40;
 
+	public float totalMaxHealth;
+	public float totalDamage;
+	public int totalSpeed;
+	public int totalActingSpeed;
+	public float totalDefense;
+	public int totalRange;
+	public float totalAggro = 1;
+	public float totalSightRange = 10;
+	public float totalFollowRange = 40;
+
+
+	public float movedThisTurn;
+	public Entity lastDamager;
 	public byte team;
 	// -1 = evil
 	// 0 = neutral
 	// 1 = good
-	public int actingSpeed;
-	public float damage;
 	public boolean pierces;
 	public int[] speedLeft = new int[2];
 	public Path path;
@@ -37,10 +53,6 @@ public class Actor extends Entity{
 	public PathFinder pathFindAlgorithm;
 	public Entity testCollision = new Entity();
 	public boolean permittedToAct;
-	public int range;
-	public float aggro = 1;
-	public float sightRange = 10;
-	public float followRange = 40;
 
 	boolean isDead;
 
@@ -97,6 +109,19 @@ public class Actor extends Entity{
 		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
 	}
+
+	public void statsUpdater(){
+		totalMaxHealth = (maxHealth + conditions.getAdditive(0)) * conditions.getMultiplier(0);
+		totalDamage = (damage + conditions.getAdditive(1)) * conditions.getMultiplier(1);
+		totalSpeed = (int) ((speed + conditions.getAdditive(2)) * conditions.getMultiplier(2));
+		totalActingSpeed = (int) ((actingSpeed + conditions.getAdditive(3)) * conditions.getMultiplier(3));
+		totalDefense = (defense + conditions.getAdditive(4)) * conditions.getMultiplier(4);
+		totalRange = (int) ((range + conditions.getAdditive(5)) * conditions.getMultiplier(5));
+		totalAggro = (aggro + conditions.getAdditive(11)) * conditions.getMultiplier(11);
+		totalSightRange = sightRange;
+		totalFollowRange = followRange;
+	}
+
 
 	public float damageRecieved;
 	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason, Entity lastDamager){
@@ -284,7 +309,7 @@ public class Actor extends Entity{
 
 	protected void movementInputTurnMode(){
 		automatedMovement();
-		if (path.pathCreate(x,y, speed,this))
+		if (path.pathCreate(x,y, totalSpeed,this))
 			actionDecided();
 	}
 
@@ -292,7 +317,7 @@ public class Actor extends Entity{
 	protected void automatedMovement(){
 		if(targetActor == null && turnMode)
 			targetFinder();
-		if (targetActor != null && followRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
+		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, getTakeEnemiesIntoConsideration()))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
@@ -406,15 +431,15 @@ public class Actor extends Entity{
 		ArrayList<ActorAndDistance> targets = new ArrayList<>();
 		for (Actor a : actors)
 			if (!a.isDead && a.team == team*-1)
-				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.aggro));
+				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.totalAggro));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
 		Collections.reverse(targets);
 		for (ActorAndDistance a : targets){
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= sightRange * globalSize()) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
 				targetActor = a.actor;
 				return;
-			} else if (sightRange * globalSize() > dC(a.getActor().getX(), a.getActor().getY()))
+			} else if (totalSightRange * globalSize() > dC(a.getActor().getX(), a.getActor().getY()))
 				return;
 		}
 	}
@@ -495,8 +520,8 @@ public class Actor extends Entity{
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
 		if (list != null) {
 			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
-					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.team != team) {
+					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
 				}
@@ -508,7 +533,7 @@ public class Actor extends Entity{
 
 	public ArrayList<Attack> attacks = new ArrayList<>();
 	protected void attackInput() {
-		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= range) {
+		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange) {
 			attacks.add(new Attack(targetActor.x, targetActor.y,this));
 			thisTurnVSM = getVisualSpeedMultiplier();
 			actionDecided();
