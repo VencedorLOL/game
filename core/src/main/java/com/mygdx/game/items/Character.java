@@ -169,6 +169,9 @@ public class Character extends Actor implements Utils {
 				}
 	}
 
+	public void onKillOverridable(){
+		classes.runKill();
+	}
 
 
 
@@ -291,7 +294,7 @@ public class Character extends Actor implements Utils {
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
 		if (list != null)
 			for (Actor aa : list) {
-				aa.damage(classes.outgoingDamage(), classes.damageReason);
+				aa.damage(classes.outgoingDamage(), classes.damageReason,this);
 				if (!classes.pierces)
 					break;
 			}
@@ -400,7 +403,7 @@ public class Character extends Actor implements Utils {
 	}
 
 
-	public void onDeath(){
+	public void onDeathOverridable(){
 		if (classes.currentHealth <= 0) {
 			isDead = true;
 			byte[] gitGud = new byte[1];
@@ -427,6 +430,7 @@ public class Character extends Actor implements Utils {
 		changeToMelee();
 		changeToVencedor();
 		changeToSummon();
+		changeToImp();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -467,6 +471,13 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)){
 			classes.destroy();
 			classes = new Summoner();
+		}
+	}
+
+	public void changeToImp(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F5)){
+			classes.destroy();
+			classes = new Imp();
 		}
 	}
 
@@ -616,7 +627,7 @@ public class Character extends Actor implements Utils {
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
 			for (Actor a : actors){
-				a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL);
+				a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL,null);
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
@@ -628,7 +639,7 @@ public class Character extends Actor implements Utils {
 		}
 		changeTo();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-			damage(20, AttackTextProcessor.DamageReasons.SELF);
+			damage(20, AttackTextProcessor.DamageReasons.SELF,null);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));

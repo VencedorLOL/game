@@ -252,7 +252,7 @@ public class ControllableFriend extends Friend {
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, pierces,this);
 		if (list != null)
 			for (Actor aa : list) {
-				aa.damage(damage, AttackTextProcessor.DamageReasons.MELEE);
+				aa.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
 				if (!pierces)
 					break;
 			}
@@ -261,7 +261,7 @@ public class ControllableFriend extends Friend {
 		attacks.get(elementOfAttack - 1).render = false;
 	}
 
-	public void onDeath(){
+	public void onDeathOverridable(){
 		if (health <= 0) {
 			animationToList("dying",x,y);
 			isDead = true;

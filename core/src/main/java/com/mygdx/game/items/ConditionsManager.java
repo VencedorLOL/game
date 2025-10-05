@@ -1,6 +1,7 @@
 package com.mygdx.game.items;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 public class ConditionsManager {
 
@@ -13,7 +14,7 @@ public class ConditionsManager {
 
 
 	/**
-	 * Only adds an effect to a not-affected actor, it doesn't refresh it.
+	 * Adds an effect to a not-affected actor, but it doesn't refresh it.
 	 **/
 	public void condition(Conditions.ConditionNames condition){
 		for (Conditions c : conditions){
@@ -24,7 +25,7 @@ public class ConditionsManager {
 	}
 
 	/**
-	 * Adds an effect and refreshes it.
+	 * Adds an effect or refreshes it.
 	 * **/
 	public void status(Conditions.ConditionNames condition){
 		for (Conditions c : conditions){
@@ -57,13 +58,21 @@ public class ConditionsManager {
 		return false;
 	}
 
+	public Conditions getStatus(Conditions.ConditionNames condition){
+		for(Conditions c : conditions)
+			if(c.name.equals(condition.name))
+				return c;
+		return null;
+	}
 
 
 	public void remove(Conditions.ConditionNames condition){
+		for (Conditions c : conditions)
+			c.destroyCondition();
 		conditions.removeIf(c -> c.name.equals(condition.name));
 	}
 
-	private Conditions conditionBuilder(Conditions.ConditionNames conditionName){
+	public Conditions conditionBuilder(Conditions.ConditionNames conditionName){
 		switch (conditionName){
 			case BURNING: 		 return new Conditions.Burning		(owner);
 			case BURNING_BRIGHT: return new Conditions.BurningBright(owner);
@@ -76,6 +85,10 @@ public class ConditionsManager {
 			case FROSTBITE: 	 return new Conditions.Frostbite    (owner);
 			case MANA_HIT:		 return new Conditions.ManaHit	    (owner);
 			case EVEN_FASTER:    return new Conditions.EvenFaster   (owner);
+			case PROTECTING:	 return new Conditions.Protected	(owner);
+			case PROTECTED:    	 return new Conditions.Protecting   (owner);
+			case RITUAL:		 return new Conditions.Ritual       (owner);
+			case DEMONIZED:		 return new Conditions.Demonized    (owner);
 		}
 		return null;
 	}
@@ -94,14 +107,25 @@ public class ConditionsManager {
 		}
 	}
 
+	public void onKill(){
+		for(Conditions c : conditions)
+			c.onKill();
+	}
 
+	public void onDeath(){
+		for(Conditions c : conditions)
+			c.onDeath();
+	}
 
 	public void onTurnPass(){
 		for (Conditions c : conditions)
 			c.onTurn();
-		for (Conditions c : conditions)
+		for (Conditions c : conditions) {
 			if (c.tickDownOnTurn)
-				c.turnsActive--;
+				--c.turnsActive;
+			if(c.turnsActive == 0)
+				c.destroyCondition();
+		}
 		conditions.removeIf(c -> c.turnsActive == 0);
 	}
 

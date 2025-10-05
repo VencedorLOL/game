@@ -9,6 +9,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnActorDeath;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.animations;
@@ -17,7 +18,8 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Actor extends Entity{
-
+	public float health = 20;
+	public Entity lastDamager;
 	public float movedThisTurn;
 	public float maxHealth;
 	public byte speed;
@@ -97,7 +99,8 @@ public class Actor extends Entity{
 	}
 
 	public float damageRecieved;
-	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason){
+	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason, Entity lastDamager){
+		this.lastDamager = lastDamager;
 		damageRecieved = damage;
 		conditions.onDamaged(damageReason);
 		triggerOnDamagedActor(this,damageReason);
@@ -493,7 +496,7 @@ public class Actor extends Entity{
 		if (list != null) {
 			for (Actor e : list)
 				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
-					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE);
+					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
 				}
@@ -511,6 +514,27 @@ public class Actor extends Entity{
 			actionDecided();
 		}
 	}
+
+
+	public final void onDeath(){
+		if(health <= 0) {
+			conditions.onDeath();
+			if (lastDamager != null && lastDamager instanceof Actor)
+				((Actor) lastDamager).onKill();
+			triggerOnActorDeath(this);
+			onDeathOverridable();
+		}
+	}
+
+	public final void onKill(){
+		conditions.onKill();
+	}
+
+	public void onKillOverridable(){}
+
+	public void onDeathOverridable(){}
+
+
 
 	public static class Actions {
 		boolean controlledByPlayer;

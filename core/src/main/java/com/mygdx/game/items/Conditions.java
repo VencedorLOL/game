@@ -1,9 +1,14 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.items.characters.CharacterClasses;
+import com.mygdx.game.items.characters.classes.Imp;
 import com.mygdx.game.items.characters.classes.Melee;
 import com.mygdx.game.items.characters.classes.SwordMage;
 
+import java.util.ArrayList;
+
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 
 public class Conditions {
@@ -21,6 +26,10 @@ public class Conditions {
 	public void setTurns(int turns){turnsActive = turns;}
 
 	public int getTurns(){return turnsActive;}
+
+	protected void onKill(){}
+
+	protected void onDeath(){}
 
 	protected void onTurn(){}
 
@@ -80,6 +89,7 @@ public class Conditions {
 
 	float getAggroAdditive(){return 0;}
 
+	public void destroyCondition(){}
 
 	public static class Hyperthermia extends Conditions {
 
@@ -89,11 +99,11 @@ public class Conditions {
 		}
 
 		protected void onAttack() {
-			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT);
+			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
 		}
 
 		protected void onMove() {
-			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT);
+			owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
 		}
 
 	}
@@ -134,24 +144,24 @@ public class Conditions {
 	}
 	public static class Burning extends Conditions{
 		public Burning(Actor owner){super(owner); name = "Burning"; texture  = "BurntStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.BURNT);}
+		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class BurningBright extends Conditions{
 		public BurningBright(Actor owner){super(owner); name = "BurningBright"; texture = "VeryBurntStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT);}
+		protected void onTurn(){owner.damage(owner.maxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Melting extends Conditions{
 		public Melting(Actor owner){super(owner); name = "Melting"; texture = "MeltingStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT);}
+		protected void onTurn(){owner.damage(owner.maxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Sublimating extends Conditions{
 		public Sublimating(Actor owner){super(owner); name = "Sublimating";}
-		protected void onTurn(){owner.damage(owner.maxHealth * 2, AttackTextProcessor.DamageReasons.BURNT);}
+		protected void onTurn(){owner.damage(owner.maxHealth * 2, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 
 	public static class Frostbite extends Conditions{
 		public Frostbite(Actor owner){super(owner); name = "Frostbite"; texture = "FrostbiteStatus";}
-		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.FROSTBITE);}
+		protected void onTurn(){owner.damage(owner.maxHealth * .5f, AttackTextProcessor.DamageReasons.FROSTBITE,null);}
 	}
 	public static class Frozen extends Conditions{
 		public Frozen(Actor owner){super(owner); name = "Frozen"; texture = "FrozenStatus";}
@@ -221,12 +231,104 @@ public class Conditions {
 
 	public static class Protected extends Conditions {
 
+		public ArrayList<Actor> protectors;
+
 		public Protected(Actor owner) {
 			super(owner);
 			texture = "Protected"; name = "Protected";
 		}
+
+		float getAggroMultiplier(){
+			return checkForProtections() ? 0 : 1;
+		}
+
+		protected void onDamaged(AttackTextProcessor.DamageReasons reasons){
+			owner.damageRecieved *= checkForProtections() ? 0 : 1;
+		}
+
+		public boolean checkForProtections(){
+			protectors.removeIf(a -> a.conditions.hasStatus(ConditionNames.PROTECTING));
+			if(protectors.isEmpty()) {
+				owner.conditions.remove(ConditionNames.PROTECTED);
+				return false;
+			}
+			return true;
+		}
+		
 	}
 
+	public static class Protecting extends Conditions{
+
+		public ArrayList<Actor> protecting;
+
+		public Protecting(Actor owner) {
+			super(owner);
+			texture = "Protecting"; name = "Protecting";
+		}
+
+		public void onTurn(){
+			protecting.removeIf(a -> a.conditions.hasStatus(ConditionNames.PROTECTED));
+			if(protecting.isEmpty()) {
+				owner.conditions.remove(ConditionNames.PROTECTING);
+			}
+		}
+
+	}
+
+
+	public static class Ritual extends Conditions {
+		OnVariousScenarios deathListener;
+		int extraTurnsGiven;
+		int extraTurnsLimit;
+		public Ritual(Actor owner) {
+			super(owner);
+			texture = "RitualEffect"; name = "Ritual"; tickDownOnTurn = true;
+			deathListener = new OnVariousScenarios(){
+				@Override
+				public void onActorDeath(Actor deadActor) {
+					if(extraTurnsGiven < extraTurnsLimit){
+						extraTurnsGiven++;
+						turnsActive++;
+					}
+				}
+			};
+		}
+
+		float getDamageMultiplier() {return 1.33f;}
+		float getSpeedAdditive() {return 2;}
+		float getActingSpeedAdditive() {return 2;}
+		float getRangeAdditive() {return 2;}
+		public void setExtraTurnsLimit(int extraTurnsLimit){this.extraTurnsLimit = extraTurnsLimit;}
+		public void destroyCondition(){
+			destroyListener(deathListener);
+		}
+	}
+
+
+	public static class Demonized extends Conditions{
+		CharacterClasses beneficiary;
+		public Demonized(Actor owner) {
+			super(owner);
+			texture = "Demonize"; name = "Demonized"; tickDownOnTurn = true;
+		}
+
+		protected void onDamaged(AttackTextProcessor.DamageReasons reason) {
+			owner.damageRecieved *= (1 + 2/3f);
+		}
+
+		float getSpeedAdditive() {return -1;}
+		float getDamageMultiplier() {return 0.75f;}
+		float getDefenseMultiplier() {return 0.75f;}
+
+		public void getBeneficiary(CharacterClasses chara){beneficiary = chara;}
+
+		@Override
+		protected void onDeath() {
+			if (beneficiary instanceof Imp){
+				((Imp) beneficiary).diedMark = true;
+			}
+		}
+	}
 
 
 
@@ -242,6 +344,10 @@ public class Conditions {
 		ONE_FOR_ALL("OneForAll"),
 		MANA_HIT("ManaHit"),
 		EVEN_FASTER("EvenFaster"),
+		PROTECTED("Protected"),
+		PROTECTING("Protecting"),
+		RITUAL("Ritual"),
+		DEMONIZED("Demonized"),
 		;
 
 

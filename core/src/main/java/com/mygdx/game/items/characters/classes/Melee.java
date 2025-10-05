@@ -129,13 +129,6 @@ public class Melee extends CharacterClasses {
 	}
 
 
-	public void finishAbilities(){
-		for (Ability a : abilities) {
-			a.finished();
-		}
-		attackState = 0;
-	}
-
 	public void resetAbilities(){
 		for (Ability a : abilities) {
 			a.cooldownCounter = 0;
@@ -155,15 +148,6 @@ public class Melee extends CharacterClasses {
 	}
 
 
-	/*	public float outgoingDamageOverridable(){
-			if (abilities.get(1).isItActive) {
-				print("OFA was registered correctly");
-				finishAbilities();
-				return totalDamage * OfAMultiplier;
-			}
-			return totalDamage;
-		}
-	*/
 	public void destroyOverridable(){
 		destroyListener(oVSce);
 	}

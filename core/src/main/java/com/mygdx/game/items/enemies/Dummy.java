@@ -32,7 +32,7 @@ public class Dummy extends Enemy {
 		actionDecided();}
 
 	@Override
-	public void onDeath() {
+	public void onDeathOverridable() {
 		if (health <= 0) {
 			maxHealth += 100;
 			health = maxHealth;

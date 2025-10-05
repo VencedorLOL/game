@@ -43,6 +43,7 @@ public class Shields {
 
 	public void turnHasPassed(){}
 
+	public void onKill() {}
 
 
 	public static class NoShield extends Shields {

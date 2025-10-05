@@ -281,6 +281,14 @@ public class CharacterClasses {
 
 	protected void onHurt(AttackTextProcessor.DamageReasons source){}
 
+	public final void runKill(){
+		onKill();
+		weapon.onKill();
+		shield.onKill();
+	}
+
+	public void onKill(){}
+
 	public final void runAttack(){
 		onAttack();
 		weapon.onAttack();

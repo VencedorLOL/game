@@ -21,7 +21,6 @@ import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.*;
 
 public class Friend extends Actor {
-	public float health = 20;
 	public float defense = 5;
 	public int[] color;
 
@@ -154,7 +153,7 @@ public class Friend extends Actor {
 		}
 	}
 
-	public void onDeath(){
+	public void onDeathOverridable(){
 		if (health <= 0) {
 			animationToList("dying",x,y);
 			isDead = true;
@@ -185,7 +184,7 @@ public class Friend extends Actor {
 		if (list != null) {
 			for (Actor e : list)
 				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= range && e.team != team) {
-					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE);
+					e.damage(damage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
 				}

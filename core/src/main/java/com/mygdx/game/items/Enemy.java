@@ -21,8 +21,7 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
 
 public class Enemy extends Actor {
-	public float health = 20;
-	public float defense = 5;;
+	public float defense = 5;
 
 
 
@@ -106,6 +105,7 @@ public class Enemy extends Actor {
 		team = -1;
 		permittedToAct = false;
 		enemies.add(this);
+		health = 20;
 	}
 	// Movement
 
@@ -171,7 +171,7 @@ public class Enemy extends Actor {
 		}
 	}
 
-	public void onDeath(){
+	public void onDeathOverridable(){
 		if (health <= 0) {
 			animationToList("dying",x,y);
 			isDead = true;

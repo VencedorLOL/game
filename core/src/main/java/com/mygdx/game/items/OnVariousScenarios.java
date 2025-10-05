@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class OnVariousScenarios {
  	//convenient listener class
 	static ArrayList<OnVariousScenarios> onScenarios = new ArrayList<>();
-
+	boolean queuedForDeletion = false;
 
 
 	public OnVariousScenarios(){
@@ -69,9 +69,19 @@ public class OnVariousScenarios {
 			o.onDamagedActor(damagedActor,source);
 	}
 
+	public void onActorDeath(Actor deadActor){}
+
+	public static void triggerOnActorDeath(Actor deadActor){
+		for(OnVariousScenarios o : onScenarios){
+			o.onActorDeath(deadActor);
+		}
+	}
 
 	public static void destroyListener(OnVariousScenarios listener){
-		onScenarios.removeIf(o -> o == listener);
+		for(OnVariousScenarios o : onScenarios){
+			if(o == listener)
+				o.queuedForDeletion = true;
+		}
 	}
 
 	public static class CounterObject extends OnVariousScenarios{
