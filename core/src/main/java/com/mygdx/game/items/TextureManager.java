@@ -61,7 +61,7 @@ public class TextureManager {
 	}
 
 	public void getCamara(Camara camara){
-		this.camara = camara;
+		TextureManager.camara = camara;
 	}
 
 
@@ -72,10 +72,10 @@ public class TextureManager {
 	}
 
 	private void drawer(String texture, float x, float y,float opacity,float rotationDegrees){
-		drawer(texture,x,y,opacity,false,false,rotationDegrees,1,1,1,1,1);
+		drawer(texture,x,y,0,opacity,false,false,rotationDegrees,1,1,1,1,1);
 	}
 
-	private void drawer(String texture, float x, float y,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
+	private void drawer(String texture, float x, float y,float z,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
 		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
 		try {
@@ -84,8 +84,8 @@ public class TextureManager {
 		sprite.setPosition(x,y);
 		sprite.setFlip(flipX,flipY);
 		sprite.setRotation(rotationDegrees);
-		sprite.setScale(scaleX,scaleY);
-		sprite.setColor(r,g,b,opacity);
+		sprite.setScale(scaleX*(z*0.2f + 1),scaleY*(z*0.2f + 1));
+		sprite.setColor(r,g,b,(1/(z*0.1f + 1))+(opacity-1));
 		sprite.draw(batch);
 	}
 
@@ -113,9 +113,9 @@ public class TextureManager {
 
 
 
-	private void fixatedScreenDrawer(String texture, float x, float y, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
+	private void fixatedScreenDrawer(String texture, float x, float y,float z, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
 		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
-		drawer(texture,coords.x, coords.y,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b);
+		drawer(texture,coords.x, coords.y,z,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b);
 	}
 
 	public static void animationToList(String file, float x, float y){
@@ -126,8 +126,8 @@ public class TextureManager {
 		addToList( texture,  x,  y,1,0,256,256,256);
 	}
 
-	public static void addToList(String texture, float x, float y,float opacity){
-		addToList(texture, x, y,opacity,0,256,256,256);
+	public static void addToList(String texture, float x, float y,float z){
+		drawables.add(new DrawableObject(texture, x, y,z));
 	}
 
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees){
@@ -182,7 +182,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
-				 drawer(d.texture,d.x,d.y,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
+				 drawer(d.texture,d.x,d.y,d.z,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		drawables.clear();
 		// Animations
@@ -190,7 +190,7 @@ public class TextureManager {
 		for (TextureManager.Animation a : animations){
 			a.update();
 			if (a.texture != null)
-				 drawer(a.texture, a.x, a.y, a.opacity,a.flipX,false,0,1,1,1,1,1);
+				 drawer(a.texture, a.x, a.y,0, a.opacity,a.flipX,false,0,1,1,1,1,1);
 		}
 		animations.removeIf(ani -> ani.finished);
 		// Text display
@@ -212,7 +212,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : priorityDrawables){
 			if (d.texture != null)
-				drawer(d.texture,d.x,d.y,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
+				drawer(d.texture,d.x,d.y,d.z,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		priorityDrawables.clear();
 		// Static drawables
@@ -220,7 +220,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
-				fixatedScreenDrawer(d.texture,d.x,d.y,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
+				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
 		}
 		fixatedDrawables.clear();
 		//Priority Text
@@ -268,7 +268,7 @@ public class TextureManager {
 			TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size)));}
 
 	public static class DrawableObject{
-		public float x,y;
+		public float x,y,z = 0;
 		public String texture;
 		public float opacity;
 		public float rotationDegrees;
@@ -277,9 +277,10 @@ public class TextureManager {
 		public boolean flipX = false, flipY = false;
 
 
-		public DrawableObject(String texture, float x, float y){
+		public DrawableObject(String texture, float x, float y,float z){
 			this.x = x;
 			this.y = y;
+			this.z = z;
 			this.texture = texture;
 			opacity = 1;
 		}

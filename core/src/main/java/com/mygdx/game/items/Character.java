@@ -69,6 +69,7 @@ public class Character extends Actor implements Utils {
 		permittedToAct = false;
 		path.pathStart();
 		isOnTheGrid();
+		classes.runFinalizedTurn();
 	}
 
 	protected void automatedMovement(){
@@ -441,6 +442,7 @@ public class Character extends Actor implements Utils {
 		changeToVencedor();
 		changeToSummon();
 		changeToImp();
+		changeToCatapult();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -488,6 +490,13 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F5)){
 			classes.destroy();
 			classes = new Imp();
+		}
+	}
+
+	public void changeToCatapult(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F6)){
+			classes.destroy();
+			classes = new Catapult();
 		}
 	}
 

@@ -8,7 +8,7 @@ import static java.lang.Math.abs;
 
 public class Entity {
 
-	float x, y, base, height;
+	public float x, y,z, base, height;
 	String texture;
 	boolean render = true;
 	public static ArrayList<Entity> entityList = new ArrayList<>();
@@ -74,7 +74,7 @@ public class Entity {
 
 	public void render(){
 		if(render)
-			TextureManager.addToList(texture,x,y);
+			TextureManager.addToList(texture,x,y,z);
 	}
 
 	public void render(float opacity,float rotation,float r, float g,float b){
@@ -98,27 +98,33 @@ public class Entity {
 		return false;
 	}
 
-	public float glideXPerFrame, glideYPerFrame;
+	public float glideXPerFrame, glideYPerFrame, glideZPerFrame;
 	public boolean isGliding = false;
 	public float glideTime;
 	public void glide(float x, float y, float time){
-		if (!isGliding){
-			isGliding = true;
-			glideTime = time;
-			glideXPerFrame = x / time;
-			glideYPerFrame = y / time;
-		} else
-			printErr("ERROR: ALREADY GLIDING");
+		isGliding = true;
+		glideTime = time;
+		glideXPerFrame = (x+glideXPerFrame*glideTime) / time;
+		glideYPerFrame = (y+glideYPerFrame*glideTime) / time;
+	}
+
+	public void glide(float x, float y,float z, float time){
+		isGliding = true;
+		glideXPerFrame = (x+glideXPerFrame*glideTime) / time;
+		glideYPerFrame = (y+glideYPerFrame*glideTime) / time;
+		glideZPerFrame = (z+glideZPerFrame*glideTime) / time;
+		glideTime = time;
 	}
 
 	public void glideAbsoluteCoords(float x, float y, float time){
-		if (!isGliding){
-			isGliding = true;
-			glideTime = time;
-			glideXPerFrame = (x - this.x) / time;
-			glideYPerFrame = (y - this.y) / time;
-		} else
-			printErr("ERROR: ALREADY GLIDING");
+		isGliding = true;
+		glideTime = time;
+		glideXPerFrame = (x - this.x) / time;
+		glideYPerFrame = (y - this.y) / time;
+	}
+
+	public void glideAbsoluteCoords(float x, float y){
+		glideAbsoluteCoords(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
 	}
 
 
@@ -126,18 +132,26 @@ public class Entity {
 		glide(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
 	}
 
-	public void glideProcess(){
-		if (isGliding)
-			if (glideTime-- <= 0) {
-				isGliding = false;
-			}
-			else {
-				x += glideXPerFrame;
-				y += glideYPerFrame;
-			}
+	public void autoGlide(float x, float y,float z){
+		glide(x,y,z,(float)sqrt(pow(x,2)+pow(y,2))/2);
 	}
 
+	public void glideProcess(){
+		if (glideTime <= 0) {
+			glideXPerFrame = 0;
+			glideYPerFrame = 0;
+			glideZPerFrame = 0;
+			isGliding = false;
+		}
+		else {
+			glideTime--;
+			x += glideXPerFrame;
+			y += glideYPerFrame;
+			z += glideZPerFrame;
+		}
+	}
 
+	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
 
 
 }

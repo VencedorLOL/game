@@ -102,6 +102,13 @@ public class Actor extends Entity{
 		}
 	};
 
+	public static Actor actorInPos(float x, float y){
+		for(Actor a : actors)
+			if(a.x == x && a.y == y)
+				return a;
+		return null;
+	}
+
 	public boolean getIsDead() { return isDead; }
 
 	public Actor(String aChar, float x, float y, float base, float height) {
@@ -444,7 +451,6 @@ public class Actor extends Entity{
 		}
 	}
 
-	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
 
 	static class ActorAndDistance{
 		private Actor actor;

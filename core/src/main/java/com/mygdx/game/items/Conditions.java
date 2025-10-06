@@ -159,7 +159,7 @@ public class Conditions {
 		protected void onTurn(){owner.damage(owner.totalMaxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Sublimating extends Conditions{
-		public Sublimating(Actor owner){super(owner); name = "Sublimating";}
+		public Sublimating(Actor owner){super(owner); name = "Sublimating"; tickDownOnTurn = false; turnsActive = 2;}
 		protected void onTurn(){owner.damage(owner.totalMaxHealth * 2, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 

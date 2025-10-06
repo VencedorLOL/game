@@ -314,6 +314,14 @@ public class CharacterClasses {
 
 	public boolean onAttackDecided(){return true;}
 
+	public final void runFinalizedTurn(){
+		onFinalizedTurn();
+	}
+
+	public void onFinalizedTurn(){}
+
+
+
 	public final void destroy(){
 		destroyListener(oVE);
 		abilities = null;

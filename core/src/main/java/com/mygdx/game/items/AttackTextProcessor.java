@@ -152,6 +152,7 @@ public class AttackTextProcessor {
 		MAGICAL   (0,168,244),
 		LIGHTNING (245,237,0),
 		ICE_BALL  (100,250,250),
+		RANGED(120,59,38),
 
 		;
 
