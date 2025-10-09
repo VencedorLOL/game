@@ -21,8 +21,8 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
-import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.*;
@@ -79,9 +79,6 @@ public class Character extends Actor implements Utils {
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
-//		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
-//			pathFinding();
-//		}
 	}
 
 
@@ -160,6 +157,7 @@ public class Character extends Actor implements Utils {
 		if (!turnMode)
 			interact();
 
+		glideProcess();
 		updateFriends();
 		controlProcessor();
 		massCancel();
@@ -231,24 +229,24 @@ public class Character extends Actor implements Utils {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
 
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.x; float y = targetsTarget.y;
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
+		if (upJustPressed())
 			y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+		if (leftJustPressed())
 			x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+		if (downJustPressed())
 			y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		if (rightJustPressed())
 			x += globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.x = x;
@@ -281,9 +279,10 @@ public class Character extends Actor implements Utils {
 				animations.add(new TextureManager.Animation("animaAttack", x, y) {
 					public void onFinish() {
 						lockClassTilAnimationFinishes = false;
+						textureUpdater();
 						attackDetector();
-						finalizedTurn();
 						elementOfAttack = 0;
+						finalizedTurn();
 					}});
 			else
 				animations.add(new TextureManager.Animation("animaAttack", x, y) {
@@ -325,7 +324,7 @@ public class Character extends Actor implements Utils {
 					actionDecided();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if (actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
 				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
 				if (classes.runOnAttackDecided())
@@ -335,16 +334,15 @@ public class Character extends Actor implements Utils {
 	}
 
 
-	//FIXME: revisit when proper key handlin
 	public void movementInputManual(){
-		if (Gdx.input.isKeyPressed(Input.Keys.W))
-			speedLeft[1] += globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.A))
-			speedLeft[0] -= globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.S))
-			speedLeft[1] -= globalSize()/16;
-		if (Gdx.input.isKeyPressed(Input.Keys.D))
+		if (rightPressed())
 			speedLeft[0] += globalSize()/16;
+		if(leftPressed())
+			speedLeft[0] -= globalSize()/16;
+		if(upPressed())
+			speedLeft[1] += globalSize()/16;
+		if(downPressed())
+			speedLeft[1] -= globalSize()/16;
 		if (speedLeft[0] != 0 || speedLeft[1] != 0)
 			lastTimeTilLastMovement = 0;
 		textureUpdater();
@@ -354,13 +352,13 @@ public class Character extends Actor implements Utils {
 	public void texture(boolean state){
 		if (!alreadyTextured) {
 			textureOrientation = 7;
-			if (speedLeft[0] > 0)
+			if (speedLeft[0] > 0 || glideXPerFrame > 0)
 				textureOrientation = 1;
-			if (speedLeft[0] < 0)
+			if (speedLeft[0] < 0 || glideXPerFrame < 0)
 				textureOrientation = 4;
-			if (speedLeft[1] > 0)
+			if (speedLeft[1] > 0 || glideYPerFrame > 0)
 				textureOrientation++;
-			if (speedLeft[1] < 0)
+			if (speedLeft[1] < 0 || glideYPerFrame < 0)
 				textureOrientation--;
 			alreadyTextured = state;
 		}
@@ -379,7 +377,7 @@ public class Character extends Actor implements Utils {
 			case 6: walkingFile = "walkingdown";			break;
 			case 8: walkingFile = "walkingup";				break;
 		}
-		if(walkingAnimation == null || (walkingAnimation.finished || walkingAnimation.name != walkingFile)) {
+		if(walkingAnimation == null || (walkingAnimation.finished || !walkingAnimation.name.equals(walkingFile))) {
 			if (walkingAnimation != null)
 				walkingAnimation.stop();
 			walkingAnimation = new Animation(walkingFile, this){
@@ -424,7 +422,7 @@ public class Character extends Actor implements Utils {
 
 
 	public void interact(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+		if(actionConfirmJustPressed()){
 			testCollision.x = x; testCollision.y = y + globalSize();
 			for(Interactable i : interactables)
 				if (testCollision.overlaps(i))
@@ -599,7 +597,7 @@ public class Character extends Actor implements Utils {
 			"Real y: " + y + " simplified y: " + y / globalSize(),300,100,500,Fonts.ComicSans,40);
 		}
 
-		if(Gdx.input.isKeyJustPressed(Input.Keys.T) && isDecidingWhatToDo(this)) {
+		if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
 			if (turnMode) {
 				attackMode = !attackMode;
 				path.pathReset();
@@ -614,8 +612,11 @@ public class Character extends Actor implements Utils {
 				turnMode = !turnMode;
 				path.pathReset();
 				fixatedText("turnMode is now: " + turnMode,500,500,100,Fonts.ComicSans,40);
-				if (turnMode)
+				if (turnMode) {
+					speedLeft[0] = 0;
+					speedLeft[1] = 0;
 					isOnTheGrid();
+				}
 			}
 		}
 
@@ -643,6 +644,7 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
 			stopAll();
 			VideoManager.stopAll();
+			print("x: " + glideXPerFrame + " y " + glideYPerFrame);
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
 			for (Actor a : actors){
@@ -671,10 +673,11 @@ public class Character extends Actor implements Utils {
 			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
-			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable();
+			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
-			addField(FieldEffects.FieldNames.LIGHTNING);
+			classes.health = 1000000;
+			classes.currentHealth = 1000000;
 		}
 
 

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
 
@@ -165,14 +166,15 @@ public class Path {
 
 			if (currentNumberOfPaths != 0 && (typeOfActor instanceof  Character || typeOfActor instanceof ControllableFriend)) {
 				int temporalX = 0, temporalY = 0;
-				if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-					temporalY = globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+				byte counter = directionalBuffer();
+				if (counter % 2 != 0)
+					temporalX =  globalSize();
+				if(counter - 8 >= 0)
 					temporalX = -globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+				if((counter & (1<<2)) != 0)
+					temporalY =  globalSize();
+				if((counter & (1<<1)) != 0)
 					temporalY = -globalSize();
-				if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-					temporalX = globalSize();
 
 				if (getPreviousPathCoords()[0] == temporalX * -1 && getPreviousPathCoords()[1] == temporalY * -1) {
 					path.get(--currentNumberOfPaths).reset();
@@ -190,22 +192,24 @@ public class Path {
 				if (typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) {
 					if (getDecidedPathFlexibility() == 1) {
 						int temporalX = 0, temporalY = 0;
-						if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-							temporalY = globalSize();
-						if (Gdx.input.isKeyJustPressed(Input.Keys.A))
+						byte counter = directionalBuffer();
+						if (counter % 2 != 0)
+							temporalX =  globalSize();
+						if(counter - 8 >= 0)
 							temporalX = -globalSize();
-						if (Gdx.input.isKeyJustPressed(Input.Keys.S))
+						if((counter & (1<<2)) != 0)
+							temporalY =  globalSize();
+						if((counter & (1<<1)) != 0)
 							temporalY = -globalSize();
-						if (Gdx.input.isKeyJustPressed(Input.Keys.D))
-							temporalX = globalSize();
+
 						if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
 							currentNumberOfPaths = 0;
 							return true;
 						}
 					}
 					if (getDecidedPathFlexibility() == 2)
-						if (Gdx.input.isKeyJustPressed(Input.Keys.W) || Gdx.input.isKeyJustPressed(Input.Keys.A) ||
-								Gdx.input.isKeyJustPressed(Input.Keys.S) || Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+						if (upJustPressed() || rightJustPressed() ||
+								downJustPressed() || leftJustPressed()) {
 							currentNumberOfPaths = 0;
 							return true;
 						}
@@ -231,13 +235,13 @@ public class Path {
 				}
 			}
 
-			if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+			if (actionConfirmJustPressed()) {
 				currentNumberOfPaths = 0;
 				renderBlue = true;
 				return true;
 			}
 
-			if (Gdx.input.isKeyJustPressed(Input.Keys.R))
+			if (actionResetJustPressed())
 				pathReset();
 
 			if (!(typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) && !path.isEmpty()) {
@@ -260,14 +264,16 @@ public class Path {
 	}
 
 	public void createPathStep(PathStep pathStep, float x, float y){
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			pathStep.directionY =  globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-			pathStep.directionX = -globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-			pathStep.directionY = -globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		byte counter = directionalBuffer();
+		if (counter % 2 != 0)
 			pathStep.directionX =  globalSize();
+		if(counter - 8 >= 0)
+			pathStep.directionX = -globalSize();
+		if((counter & (1<<2)) != 0)
+			pathStep.directionY =  globalSize();
+		if((counter & (1<<1)) != 0)
+			pathStep.directionY = -globalSize();
+
 
 		testCollision.x = x + pathStep.directionX;
 		testCollision.y = y + pathStep.directionY;

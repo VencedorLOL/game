@@ -101,7 +101,7 @@ public class StageCreatorScreen implements Screen, Utils {
 
 
 /*
-		if (Gdx.input.isKeyJustPressed(Input.Keys.T))
+		if (attackModeJustPressed())
 			gui.tesTable();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.B))
 			gui.testButton();

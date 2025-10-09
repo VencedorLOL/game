@@ -50,7 +50,7 @@ public class OnVariousScenarios {
 	}
 
 	public static void triggerOnCounter(){
-		onScenarios.removeIf(t -> t instanceof CounterObject && ((CounterObject) t).didItDie);
+		onScenarios.removeIf(t -> t instanceof CounterObject && ((CounterObject) t).didItExpire);
 		for(OnVariousScenarios t : onScenarios)
 			if(t instanceof CounterObject)
 				((CounterObject) t).trueOnCounterFinish();
@@ -92,7 +92,7 @@ public class OnVariousScenarios {
 
 	public static class CounterObject extends OnVariousScenarios{
 		long timer;
-		boolean didItDie;
+		boolean didItExpire;
 
 		public CounterObject(long counter){
 			super();
@@ -100,9 +100,10 @@ public class OnVariousScenarios {
 		}
 
 		private void trueOnCounterFinish(){
-			onCounterFinish();
-			if (--timer <= 0)
-				didItDie = true;
+			if (--timer <= 0) {
+				onCounterFinish();
+				didItExpire = true;
+			}
 		}
 
 		public void onCounterFinish(){}

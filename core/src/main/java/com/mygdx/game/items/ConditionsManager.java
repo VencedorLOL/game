@@ -93,6 +93,7 @@ public class ConditionsManager {
 			case RAINY:   		 return new Conditions.Rainy		(owner);
 			case SNOWY: 		 return new Conditions.Snowy		(owner);
 			case SUNNY:			 return new Conditions.Sunny		(owner);
+			case STUNNED:		 return new Conditions.Stunned		(owner);
 		}
 		return null;
 	}

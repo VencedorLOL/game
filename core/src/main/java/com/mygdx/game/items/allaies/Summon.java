@@ -62,6 +62,7 @@ public class Summon extends Friend {
 				attack();
 			else
 				movement();
+			glideProcess();
 
 //			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();

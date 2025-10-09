@@ -8,14 +8,11 @@ import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.StageOne;
 import com.mygdx.game.items.stages.StagePathfinding;
-import com.mygdx.game.items.stages.StageThree;
-
-import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
-import static com.mygdx.game.items.InputHandler.isEscapePressed;
+import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedText;
@@ -40,6 +37,7 @@ public class GameScreen implements Screen, Utils {
 	public int latestNonFullScreenY = 400;
 	TextureManager.Text text;
 	Entity attacher = new Entity(null,5 * globalSize(), 5 * globalSize(),false);
+	InputHandler handler;
 
 
 	public void create () {
@@ -58,6 +56,9 @@ public class GameScreen implements Screen, Utils {
 		InputHandler.defaultKeybinds();
 		Camara.attach(startAsPathfinding ? attacher : chara);
 		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
+		handler = new InputHandler();
+		Gdx.input.setInputProcessor(handler);
+
 	}
 
 	public GameScreen(){
@@ -68,8 +69,7 @@ public class GameScreen implements Screen, Utils {
 		//Gdx.graphics.setForegroundFPS(120);
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-		InputHandler.resetter();
-		if (isEscapePressed()){
+		if (escapePressed()){
 			print("YAY");
 		}
 //		System.out.println(Gdx.graphics.getFramesPerSecond());
@@ -93,6 +93,7 @@ public class GameScreen implements Screen, Utils {
 		particle.particleRenderer();
 		camara.finalizer(textureManager.batch);
 		textureManager.batch.end();
+		InputHandler.resetter();
 	}
 
 

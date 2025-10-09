@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.InputHandler.directionalBuffer;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.animations;
@@ -181,7 +183,7 @@ public class Summoner extends CharacterClasses {
 				cancelSummon();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				for(Summon s : summons){
 					s.cancelDecision();
@@ -217,7 +219,7 @@ public class Summoner extends CharacterClasses {
 					summonDecided = true;
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				summonLocation[0] = targetsTarget.getX();
 				summonLocation[1] = targetsTarget.getY();
@@ -277,11 +279,11 @@ public class Summoner extends CharacterClasses {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -289,14 +291,15 @@ public class Summoner extends CharacterClasses {
 
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-			x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-			y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		byte counter = directionalBuffer();
+		if (counter % 2 != 0)
 			x += globalSize();
+		if(counter - 8 >= 0)
+			x -= globalSize();
+		if((counter & (1<<2)) != 0)
+			y += globalSize();
+		if((counter & (1<<1)) != 0)
+			y -= globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.setX(x);
 			targetsTarget.setY(y);

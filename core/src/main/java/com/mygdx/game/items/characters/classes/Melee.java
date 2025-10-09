@@ -82,10 +82,8 @@ public class Melee extends CharacterClasses {
 		oVSce = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass() {
-				if (abilities.get(0).isItActive)
-					abilities.get(0).finished();
-				if (abilities.get(1).isItActive)
-					abilities.get(1).finished();
+				if (abilities.get(0).isItActive || abilities.get(1).isItActive)
+					resetAbilities();
 			}
 		};
 		reset();

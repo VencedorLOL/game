@@ -15,6 +15,7 @@ import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
@@ -155,7 +156,7 @@ public class Imp extends CharacterClasses {
 			character.spendTurn();
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.R) && isDecidingWhatToDo(character)) {
+		if (actionResetJustPressed() && isDecidingWhatToDo(character)) {
 			abilities.get(0).keybindActivate();
 		}
 
@@ -195,7 +196,7 @@ public class Imp extends CharacterClasses {
 				character.actionDecided();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				markCoords = new float[]{targetsTarget.getX(),targetsTarget.getY()};
 				character.actionDecided();
@@ -257,11 +258,11 @@ public class Imp extends CharacterClasses {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -269,14 +270,15 @@ public class Imp extends CharacterClasses {
 
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-			x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-			y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		byte counter = directionalBuffer();
+		if (counter % 2 != 0)
 			x += globalSize();
+		if(counter - 8 >= 0)
+			x -= globalSize();
+		if((counter & (1<<2)) != 0)
+			y += globalSize();
+		if((counter & (1<<1)) != 0)
+			y -= globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.setX(x);
 			targetsTarget.setY(y);

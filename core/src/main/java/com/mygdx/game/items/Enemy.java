@@ -156,6 +156,7 @@ public class Enemy extends Actor {
 				attack();
 			else
 				movement();
+			glideProcess();
 			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
 				print("");
 				print("Myself: " + this);

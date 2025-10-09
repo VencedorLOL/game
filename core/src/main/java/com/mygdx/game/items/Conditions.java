@@ -379,6 +379,21 @@ public class Conditions {
 		}
 	}
 
+	public static class Stunned extends Conditions{
+		public Stunned(Actor owner){
+			super(owner);
+			texture = "StunnedStatus"; name = "Stunned"; tickDownOnTurn = true; turnsActive = 2;
+		}
+		float getDamageMultiplier() {
+			if(owner.permittedToAct)
+				owner.spendTurn();
+			return 1;
+		}
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
+
 	public enum ConditionNames {
 		BURNING("Burning"),
 		BURNING_BRIGHT("BurningBright"),
@@ -399,6 +414,7 @@ public class Conditions {
 		RAINY("Rainy"),
 		SNOWY("Snowy"),
 		SUNNY("Sunny"),
+		STUNNED("Stunned"),
 		;
 
 

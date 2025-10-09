@@ -14,6 +14,7 @@ import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.Character.controllableCharacters;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
@@ -42,9 +43,6 @@ public class ControllableFriend extends Friend {
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
-//		if(Gdx.input.isKeyJustPressed(Input.Keys.F)){
-//			pathFinding();
-//		}
 	}
 
 	private void pathFinding(){
@@ -74,9 +72,10 @@ public class ControllableFriend extends Friend {
 			else
 				movement();
 
+			glideProcess();
 			path.render();
 
-			if(Gdx.input.isKeyJustPressed(Input.Keys.T) && isDecidingWhatToDo(this)) {
+			if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
 				if (turnMode) {
 					attackMode = !attackMode;
 					path.pathReset();
@@ -93,7 +92,6 @@ public class ControllableFriend extends Friend {
 		lastTimeTilLastMovement++;
 		testCollision.x = x;
 		testCollision.y = y;
-		glideProcess();
 		if (turnMode) {
 			if (isPermittedToAct()) {
 				lastTimeTilLastMovement = 0;
@@ -104,7 +102,7 @@ public class ControllableFriend extends Friend {
 					turnSpeedActuator();
 
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
-					softlockOverridable();
+					softlockOverridable(false);
 					finalizedTurn();
 					conditions.onMove();
 				}
@@ -149,7 +147,7 @@ public class ControllableFriend extends Friend {
 					actionDecided();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
 				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
 //				if (classes.runOnAttackDecided())
@@ -204,11 +202,11 @@ public class ControllableFriend extends Friend {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -216,14 +214,15 @@ public class ControllableFriend extends Friend {
 
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.x; float y = targetsTarget.y;
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-			x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-			y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		byte counter = directionalBuffer();
+		if (counter % 2 != 0)
 			x += globalSize();
+		if(counter - 8 >= 0)
+			x -= globalSize();
+		if((counter & (1<<2)) != 0)
+			y += globalSize();
+		if((counter & (1<<1)) != 0)
+			y -= globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.x = x;
 			targetsTarget.y = y;

@@ -101,6 +101,7 @@ public class Entity {
 	public float glideXPerFrame, glideYPerFrame, glideZPerFrame;
 	public boolean isGliding = false;
 	public float glideTime;
+	public Floatt expectedX, expectedY;
 	public void glide(float x, float y, float time){
 		isGliding = true;
 		glideTime = time;
@@ -121,6 +122,8 @@ public class Entity {
 		glideTime = time;
 		glideXPerFrame = (x - this.x) / time;
 		glideYPerFrame = (y - this.y) / time;
+		expectedX = new Floatt(x);
+		expectedY = new Floatt(y);
 	}
 
 	public void glideAbsoluteCoords(float x, float y){
@@ -142,16 +145,28 @@ public class Entity {
 			glideYPerFrame = 0;
 			glideZPerFrame = 0;
 			isGliding = false;
+			expectedX = null;
+			expectedY = null;
 		}
 		else {
 			glideTime--;
 			x += glideXPerFrame;
 			y += glideYPerFrame;
 			z += glideZPerFrame;
+			if(glideTime == 0 && expectedX != null && expectedY != null){
+				x = expectedX.aFloat;
+				y = expectedY.aFloat;
+			}
 		}
 	}
 
 	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
 
+	public static class Floatt{
+		float aFloat;
+		Floatt (float aFloat){
+			this.aFloat = aFloat;
+		}
+	}
 
 }

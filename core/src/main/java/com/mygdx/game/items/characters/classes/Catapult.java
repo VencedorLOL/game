@@ -11,14 +11,16 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.isDevMode;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.InputHandler.directionalBuffer;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.Turns.turnStopTimer;
 
 public class Catapult extends CharacterClasses {
 
@@ -30,6 +32,7 @@ public class Catapult extends CharacterClasses {
 	public boolean isCharged = false;
 	public boolean willShoot = false;
 	OnVariousScenarios oVS;
+	OnVariousScenarios oVS2;
 
 	public Catapult() {
 		super();
@@ -59,8 +62,6 @@ public class Catapult extends CharacterClasses {
 					character.cancelAttackMode();
 					character.actionDecided();
 				}
-				else
-					text("Cannot charge the catapult as it's already charged!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4 ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
 
 			}
 
@@ -71,6 +72,25 @@ public class Catapult extends CharacterClasses {
 				chargeCoords = new float[2];
 			}
 
+			public void keybindActivate(){
+				if(!isCharged) {
+					if (!isItActive) {
+						if (cooldownCounter >= cooldown) {
+							isItActive = true;
+							active();
+							text(name + " activated!", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3/4f, 120, TextureManager.Fonts.ComicSans, 32, 40, 200, 40, 1, 30);
+						} else if (cooldown - cooldownCounter > 1)
+							text("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!"
+									, chara.getX() + chara.getBase() - globalSize() * 5, chara.getY() + globalSize() * 3f/4 + chara.getHeight(), 120, TextureManager.Fonts.ComicSans, 32, 256, 0, 0, 1, 30);
+						else
+							text("Couldn't activate " + name + "! You still have to wait one more turn!"
+									, chara.getX() + chara.getBase() - globalSize() * 5, chara.getY() + chara.getHeight() + globalSize() * 3f/4, 120, TextureManager.Fonts.ComicSans, 32, 256, 0, 0, 1, 30);
+					} else {
+						cancelActivation();
+						text(name + " deactivated!", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3/4f, 120, TextureManager.Fonts.ComicSans, 32, 200, 200, 40, 1, 30);
+					}
+				} else text("Cannot charge the catapult as it's already charged!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
+			}
 
 		});
 
@@ -119,10 +139,10 @@ public class Catapult extends CharacterClasses {
 			a.render();
 			a.touchActivate();
 		}
-		rocks.removeIf(r -> r.finished);
+		rocks.removeIf(r -> r.finished && !r.isGliding);
 		for(Rock r : rocks)
 			r.update();
-		if(chara.permittedToAct){
+		if(character.permittedToAct){
 			if(willShoot && isCharged){
 				isCharged = false;
 				willShoot = false;
@@ -136,14 +156,25 @@ public class Catapult extends CharacterClasses {
 				character.spendTurn();
 			}
 			if(abilities.get(1).isItActive){
-				ArrayList<Actor> chara = new ArrayList<>();
-				chara.add(character);
-				ArrayList<Actor> list = rayCasting(character.x, character.y, chargeCoords[0],chargeCoords[1],(chara),true,character);
-				if(list != null)
-					for(Actor l : list){
-						l.conditions.status(Conditions.ConditionNames.SUBLIMATING);
+				turnStopTimer(60);
+				character.glideAbsoluteCoords(chargeCoords[0],chargeCoords[1],60);
+				float charX = character.x, charY = character.y;
+				oVS2 = new OnVariousScenarios.CounterObject(60){
+					@Override
+					public void onCounterFinish() {
+						ArrayList<Actor> chara = new ArrayList<>();
+						chara.add(character);
+						ArrayList<Actor> list = rayCasting(charX, charY, chargeCoords[0], chargeCoords[1], (chara), true, character);
+						if (list != null)
+							for (Actor l : list) {
+								l.conditions.status(Conditions.ConditionNames.STUNNED);
+								l.conditions.getStatus(Conditions.ConditionNames.STUNNED).setTurns(4);
+								l.damage(damage, AttackTextProcessor.DamageReasons.MELEE, character);
+							}
+						character.softlockOverridable(true);
+						destroyListener(oVS2);
 					}
-				character.glideAbsoluteCoords(chargeCoords[0],chargeCoords[1]);
+				};
 				abilities.get(1).finished();
 				character.spendTurn();
 			}
@@ -155,11 +186,14 @@ public class Catapult extends CharacterClasses {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R))
 			abilities.get(1).keybindActivate();
 
+		if (Gdx.input.isKeyJustPressed(Input.Keys.P))
+			print(rocks.get(0).turnsToFall+"");
+
 
 		if(character.attackMode && isCharged && isDecidingWhatToDo(character)) {
 			rockThrowInput();
 		}
-		else if(character.attackMode){
+		else if(character.attackMode && isDecidingWhatToDo(character)){
 			cancelRam();
 		}
 
@@ -170,9 +204,6 @@ public class Catapult extends CharacterClasses {
 		
 	}
 
-	public void cancelCharge(){
-		abilities.get(0).cancelActivation();
-	}
 
 	public void cancelRam(){
 		abilities.get(1).cancelActivation();
@@ -195,7 +226,7 @@ public class Catapult extends CharacterClasses {
 				character.actionDecided();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				chargeCoords[0] = targetsTarget.getX();
 				chargeCoords[1] = targetsTarget.getY();
@@ -216,7 +247,7 @@ public class Catapult extends CharacterClasses {
 				character.actionDecided();
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+		if(actionConfirmJustPressed()) {
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				rocksCoords[0] = targetsTarget.getX();
 				rocksCoords[1] = targetsTarget.getY();
@@ -275,11 +306,11 @@ public class Catapult extends CharacterClasses {
 
 	private void targetRender(){
 		if (target == null) {
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new Animation("target" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) this.stop();}};
+			target = new Animation("target" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
@@ -287,14 +318,15 @@ public class Catapult extends CharacterClasses {
 
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.W))
-			y += globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A))
-			x -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S))
-			y -= globalSize();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.D))
+		byte counter = directionalBuffer();
+		if (counter % 2 != 0)
 			x += globalSize();
+		if(counter - 8 >= 0)
+			x -= globalSize();
+		if((counter & (1<<2)) != 0)
+			y += globalSize();
+		if((counter & (1<<1)) != 0)
+			y -= globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.setX(x);
 			targetsTarget.setY(y);
@@ -312,13 +344,14 @@ public class Catapult extends CharacterClasses {
 
 
 	public static class Rock extends Entity {
-		float objectiveX, objectiveY,xPerTurn,yPerTurn;
+		float objectiveX, objectiveY,xPerTurn,yPerTurn,zPerTurn;
 		int turnsToFall;
 		float damage;
 		boolean finished;
+		OnVariousScenarios ove;
 
 		public Rock(float x,float y,float objectiveX, float objectiveY,float damage){
-			super("Rock",x,y);
+			super("Boulder",x,y);
 			this.damage = damage;
 			this.objectiveX = objectiveX;
 			this.objectiveY = objectiveY;
@@ -326,16 +359,23 @@ public class Catapult extends CharacterClasses {
 			turnsToFall = distance <= 3 ? 4 : distance <= 6 ? 3 : distance <= 9  ? 2 : 1;
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);
+			zPerTurn = 3f / turnsToFall;
 		}
 
 		public void advanceRock(){
-			glide(xPerTurn, yPerTurn);
-			if(turnsToFall-- <= 0){
-				if (actorInPos(objectiveX,objectiveY) != null)
-					actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
-				finished  = true;
+			glide(xPerTurn, yPerTurn, turnsToFall > 1 ? zPerTurn : 0,60);
+			turnStopTimer(60);
+			if(turnsToFall == 0){
+				if (actorInPos(objectiveX,objectiveY) != null && !finished)
+					ove = new OnVariousScenarios.CounterObject(60){
+					public void onCounterFinish(){
+						actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
+						destroyListener(ove);
+					}
+				};
+				finished = true;
 			}
-
+			turnsToFall--;
 		}
 
 		public void update(){

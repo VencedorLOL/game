@@ -188,7 +188,6 @@ public class Actor extends Entity{
 		lastTimeTilLastMovement++;
 		testCollision.x = x;
 		testCollision.y = y;
-		glideProcess();
 		if (turnMode) {
 			if (isPermittedToAct()) {
 				lastTimeTilLastMovement = 0;
@@ -199,7 +198,7 @@ public class Actor extends Entity{
 					turnSpeedActuator();
 
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
-					softlockOverridable();
+					softlockOverridable(false);
 					finalizedTurn();
 					conditions.onMove();
 				}
@@ -214,20 +213,20 @@ public class Actor extends Entity{
 			}
 			if (this instanceof Character){
 				movementInputManual();
-				softlockOverridable();
+				softlockOverridable(false);
 			}
 		}
 	}
 	ArrayList<Tile> dumpList;
-	protected void softlockOverridable() {
+	public void softlockOverridable(boolean type) {
 		if (overlapsWithStageWithException(stage,this,this) && !betweenStages){
-			print("SOFTLOCK SOFTLOCK");
+			print("SOFTLOCK SOFTLOCK at " + x  + " " + y);
 			for (Tile t : stage.tileset)
 				t.hasBeenChecked = false;
 			dumpList = new ArrayList<>();
 			ArrayList<Tile> currentTilesetChecking = new ArrayList<>();
 			currentTilesetChecking.add(Tile.findATile(stage.tileset,(float) (globalSize() * round(this.x / globalSize())),(float) (globalSize() * round(this.y / globalSize()))));
-			if(currentTilesetChecking.get(0) != null && currentAnalize(currentTilesetChecking.get(0))) {
+			if(currentTilesetChecking.get(0) != null && currentAnalize(currentTilesetChecking.get(0),type)) {
 				dumpList = null;
 				return;
 			}
@@ -235,7 +234,7 @@ public class Actor extends Entity{
 				currentTilesetChecking = (ArrayList<Tile>) dumpList.clone();
 				dumpList.clear();
 				for (Tile t : currentTilesetChecking)
-					if (currentAnalize(t)) {
+					if (currentAnalize(t,type)) {
 						dumpList = null;
 						return;
 					}
@@ -243,7 +242,7 @@ public class Actor extends Entity{
 		}
 	}
 
-	private boolean currentAnalize(Tile currentTile){
+	private boolean currentAnalize(Tile currentTile,boolean type){
 		ArrayList<Tile> neighbours = currentTile.walkableOrthogonalTiles(stage.tileset);
 		for (Tile t : neighbours)
 			if (!t.hasBeenChecked) {
@@ -251,8 +250,14 @@ public class Actor extends Entity{
 				dumpList.add(t);
 				dumpList.removeIf(tt -> t == tt);
 				testCollision.x = t.x; testCollision.y = t.y;
-				if (!overlapsWithStageWithException(stage,testCollision,this))
-					x = t.x; y = t.y; return true;
+				if (!overlapsWithStageWithException(stage,testCollision,this)) {
+					if(type)
+						glideAbsoluteCoords(t.x,t.y,20);
+					else {
+						x = t.x; y = t.y;
+					}
+					return true;
+				}
 			}
 		return false;
 	}
@@ -351,22 +356,17 @@ public class Actor extends Entity{
 		printErr("Called spendTurn on + " + this);
 		permittedToAct = false;
 		path.pathStart();
+		attacks.clear();
 	}
 
 
 	protected void isOnTheGrid(){
 		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isGliding) {
-			float x = 0, y = 0;
-			if (!(this.x % globalSize() == 0)) {
-				print("Offset in x caused at: " + this.x + " :by: " + this + " :New x is: " + 128 * round(this.x / 128));
-				x = (float) (globalSize() * round(this.x / globalSize())) - this.x;
-			}
-			if (!(this.y % globalSize() == 0)) {
-				print("Offset in y caused at: " + this.y + " :by: " + this + " :New y is: " + 128 * round(this.y / 128));
-				y = (float) (globalSize() * round(this.y / globalSize())) - this.y;
-			}
+			float x, y;
+			x = (float) (globalSize() * round(this.x / globalSize()));
+			y = (float) (globalSize() * round(this.y / globalSize()));
 			if (x !=0 || y != 0)
-				glide(x,y);
+				glideAbsoluteCoords(x,y,20);
 		}
 	}
 
@@ -381,21 +381,28 @@ public class Actor extends Entity{
 		}
 	}
 
-
-//FIXME: revisit when proper key handling
-	public void movementInputManual(){
-	}
+	public void movementInputManual(){}
 
 	public void glideProcess(){
-		if (isGliding)
-			if (glideTime-- <= 0) {
+			if (glideTime <= 0) {
+				glideXPerFrame = 0;
+				glideYPerFrame = 0;
+				glideZPerFrame = 0;
 				isGliding = false;
+				expectedX = null;
+				expectedY = null;
 				if (turnMode)
 					isOnTheGridForced();
 			}
 			else {
+				glideTime--;
 				x += glideXPerFrame;
 				y += glideYPerFrame;
+				z += glideZPerFrame;
+				if(glideTime == 0 && expectedX != null && expectedY != null){
+					x = expectedX.aFloat;
+					y = expectedY.aFloat;
+				}
 				textureCustomSpeed(abs(glideXPerFrame * glideTime) < 1 ? 0 : glideXPerFrame,
 						abs(glideYPerFrame * glideTime) < 1 ? 0 : glideYPerFrame);
 			}

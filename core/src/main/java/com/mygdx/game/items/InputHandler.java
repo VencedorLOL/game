@@ -1,20 +1,12 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.mygdx.game.Settings;
+import com.badlogic.gdx.InputProcessor;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.mygdx.game.Settings.*;
 
-public class InputHandler {
+public class InputHandler implements InputProcessor {
 
 	static Input up = new Input();
 	static Input down = new Input();
@@ -24,9 +16,6 @@ public class InputHandler {
 	static Input actionConfirm = new Input();
 	static Input actionReset = new Input();
 	static Input escape = new Input();
-	static KeyEvent keyPress;
-
-//	static VFrame frame = new VFrame();
 
 
 	static ArrayList<Input> keys = new ArrayList<>();
@@ -40,47 +29,20 @@ public class InputHandler {
 		keys.add(actionConfirm);
 		keys.add(actionReset);
 		keys.add(escape);
-		keyPressed();
-//		frame.initialize();
 	}
 
 	public static void resetter(){
-		/*if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.G)){
-			System.out.println(KeyboardFocusManager.getCurrentKeyboardFocusManager());
-			Method[] field = KeyboardFocusManager.getCurrentKeyboardFocusManager().getClass().getDeclaredMethods();
-
-			for (Method f : field){
-				System.out.println(f.getName());
-				if (f.getName() == "getKeyEventDispatchers"){
-					print("got merthod");
-					f.setAccessible(true);
-					try {
-						Object o = f.invoke(f.getName());
-
-						if (o instanceof List){
-							print("size: "  + ((List<?>) o).size());
-
-							for (int i = 0; i < ((List<?>) o).size(); i++){
-								print("KeyEventDispatcher " + ((List<?>) o).get(i));
-
-
-							}
-						}
-
-					} catch (InvocationTargetException | IllegalAccessException ignored){print("failed");}
-				}
+		for(Input i : keys){
+			if(i.released)
+				i.resetRelease();
+			if(i.wasUsed() && !i.getGettingUsed())
+				i.gettingUsed();
+			if(i.buffer > 0 && i.wasUsed())
+				i.buffer--;
 			}
+		thisTickCounter = -1;
+	}
 
-			System.out.println();
-		}
-		justPressedKeyID = -1;
-		for (Input i : keys)
-			i.setUsed(false);
-		for (Input i : keys)
-			i.setReleased(false);
-		if (!isOverridingEscAllowed() && escape.keyChar != 27)
-			escape.setKey(27);
-	*/}
 
 	public static boolean isActionPressed(byte action){
 		switch (action){
@@ -110,27 +72,68 @@ public class InputHandler {
 	}
 
 
-	public static boolean isUpPressed() {return up.wasUsed();}
-	public static boolean isDownPressed() {return down.wasUsed();}
-	public static boolean isLeftPressed() {return left.wasUsed();}
-	public static boolean isRightPressed() {return right.wasUsed();}
-	public static boolean isAttackModePressed() {return attackMode.wasUsed();}
-	public static boolean isActionConfirmPressed() {return actionConfirm.wasUsed();}
-	public static boolean isActionResetPressed() {return actionReset.wasUsed();}
-	public static boolean isEscapePressed() {return escape.wasUsed();}
+	public static boolean upPressed() {return up.wasUsed();}
+	public static boolean downPressed() {return down.wasUsed();}
+	public static boolean leftPressed() {return left.wasUsed();}
+	public static boolean rightPressed() {return right.wasUsed();}
+	public static boolean attackModePressed() {return attackMode.wasUsed();}
+	public static boolean actionConfirmPressed() {return actionConfirm.wasUsed();}
+	public static boolean actionResetPressed() {return actionReset.wasUsed();}
+	public static boolean escapePressed() {return escape.wasUsed();}
 
-	public static boolean isUpReleased() {return up.wasReleased();}
-	public static boolean isDownReleased() {return down.wasReleased();}
-	public static boolean isLeftReleased() {return left.wasReleased();}
-	public static boolean isRightReleased() {return right.wasReleased();}
-	public static boolean isAttackModeReleased() {return attackMode.wasReleased();}
-	public static boolean isActionConfirmReleased() {return actionConfirm.wasReleased();}
-	public static boolean isActionResetReleased() {return actionReset.wasReleased();}
-	public static boolean isEscapeReleased() {return escape.wasReleased();}
 
+	public static boolean upJustPressed() {return up.wasUsed() && !up.getGettingUsed();}
+	public static boolean downJustPressed() {return down.wasUsed() && !down.getGettingUsed(); }
+	public static boolean leftJustPressed() {return left.wasUsed() && !left.getGettingUsed();}
+	public static boolean rightJustPressed() {return right.wasUsed() && !right.getGettingUsed();}
+	public static boolean attackModeJustPressed() {return attackMode.wasUsed() && !attackMode.getGettingUsed();}
+	public static boolean actionConfirmJustPressed() {return actionConfirm.wasUsed() && !actionConfirm.getGettingUsed();}
+	public static boolean actionResetJustPressed() {return actionReset.wasUsed() && !actionReset.getGettingUsed();}
+	public static boolean escapeJustPressed() {return escape.wasUsed() && !escape.getGettingUsed();}
+
+	public static boolean upReleased() {return up.wasReleased();}
+	public static boolean downReleased() {return down.wasReleased();}
+	public static boolean leftReleased() {return left.wasReleased();}
+	public static boolean rightReleased() {return right.wasReleased();}
+	public static boolean attackModeReleased() {return attackMode.wasReleased();}
+	public static boolean actionConfirmReleased() {return actionConfirm.wasReleased();}
+	public static boolean actionResetReleased() {return actionReset.wasReleased();}
+	public static boolean escapeReleased() {return escape.wasReleased();}
+
+	static byte thisTickCounter = -1;
+	public static byte directionalBuffer(){
+		if(thisTickCounter == -1) {
+			byte counter = 0;
+			if 		(((up.buffer == 0 && up.wasUsed()) || (up.wasReleased() && up.buffer != -2)) ||
+					((down.buffer == 0 && down.wasUsed()) || (down.wasReleased() && down.buffer != -2)) ||
+					((right.buffer == 0 && right.wasUsed())) || (right.wasReleased() && right.buffer != -2) ||
+					((left.buffer == 0 && left.wasUsed()) || (left.wasReleased() && left.buffer != -2)))
+			{
+				if (right.wasUsed() || right.wasReleased()) {
+					counter += 1;
+					right.buffer = -2;
+				}
+				if (down.wasUsed() || down.wasReleased()) {
+					counter += 2;
+					down.buffer = -2;
+				}
+				if (up.wasUsed() || up.wasReleased()) {
+					counter += 4;
+					up.buffer = -2;
+				}
+				if (left.wasUsed() || left.wasReleased()) {
+					counter += 8;
+					left.buffer = -2;
+				}
+			}
+			thisTickCounter = counter;
+			return counter;
+		} else return thisTickCounter;
+	}
 
 
 	// Just pass in the current keybind number, then run once a frame until returns true. or cancel whenever.
+	static int justPressedKeyID;
 	public static boolean setKeybind (int keybind) {
 		if (justPressedKeyID != -1) {
 			if (keybind == escape.keyChar && !isOverridingEscAllowed()) {
@@ -148,114 +151,91 @@ public class InputHandler {
 	}
 
 	public static void defaultKeybinds(){
-		up.setKey(87);
-		down.setKey(83);
-		left.setKey(65);
-		right.setKey(68);
-		attackMode.setKey(86);
-		actionConfirm.setKey(32);
-		actionReset.setKey(82);
-		escape.setKey(27);
+		up.setKey(51);
+		down.setKey(47);
+		left.setKey(29);
+		right.setKey(32);
+		attackMode.setKey(48);
+		actionConfirm.setKey(62);
+		actionReset.setKey(46);
+		escape.setKey(111);
 	}
 
-	public static int justPressedKeyID;
-	static public void keyPressed() {
+	@Override
+	public boolean keyDown(int keycode) {
+		for (Input i : keys){
+			if(i.getKey() == keycode)
+				i.press();
+		}
+		justPressedKeyID = keycode;
+		return false;
+	}
 
+	@Override
+	public boolean keyUp(int keycode) {
+		for (Input i : keys){
+			if(i.getKey() == keycode)
+				i.release();
+		}
+		return false;
+	}
 
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(ke -> {
-			synchronized (InputHandler.class) {
-				switch (ke.getID()) {
-					case KeyEvent.KEY_PRESSED: {
-						if (ke.getKeyCode() == KeyEvent.VK_W) {
-							up.setUsed(true);
-							System.out.println("up!!!!!!!!!!!!");
-						}
-						if (ke.getKeyCode() == down.getKey()) {
-							down.setUsed(true);
-						}
-						if (ke.getKeyCode() == left.getKey()) {
-							left.setUsed(true);
-						}
-						if (ke.getKeyCode() == right.getKey()) {
-							right.setUsed(true);
-						}
+	@Override
+	public boolean keyTyped(char character) {
+		return false;
+	}
 
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
 
-						break;
-					}
-					case KeyEvent.KEY_RELEASED:
-						if (ke.getKeyCode() == up.getKey()) {
-							up.setReleased(true);
-						}
-						break;
-				}
-				return false;
-		}});
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
 
+	@Override
+	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+		return false;
+	}
 
-		/*justPressedKeyID = e.getID();
-		for (Input i : keys)
-			if (justPressedKeyID == i.getKey()) {
-				i.setUsed(true);
-				break;
-			}
-		*/
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(float amountX, float amountY) {
+		return false;
 	}
 
 
 	public static class Input{
 		boolean used;
 		boolean released;
+		boolean gettingUsed;
+		int buffer = 10;
 		private int keyChar;
 
 		private void setKey(int key){keyChar = key;}
 		private int getKey(){return keyChar;}
-		private void setUsed(boolean used){this.used = used;}
+
+		private void press(){used = true;}
 		private boolean wasUsed(){return used;}
+
+		private void release(){released = true; used = false; gettingUsed = false; }
 		private boolean wasReleased(){return released;}
-		private void setReleased(boolean released){this.released = released;}
+		private void resetRelease(){released = false;buffer = 10;}
+
+		public boolean getGettingUsed(){return gettingUsed;}
+		private void gettingUsed(){gettingUsed = true;}
 	}
 
-/*	public static class VFrame extends Frame implements KeyListener {
-
-		private Label displayLabel;
-
-		public void initialize(){
-
-			setTitle("Typed Text Display");
-			setSize(400, 200);
-			setLayout(new FlowLayout());
-
-			TextField textField = new TextField(20);
-			textField.addKeyListener(frame);
-			frame.add(textField);
-
-			displayLabel = new Label("Typed Text: ");
-			add(displayLabel);
-
-			setFocusable(true);
-			setFocusTraversalKeysEnabled(false);
-
-			setVisible(true);
-		}
-
-
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-
-		}
-
-		@Override
-		public void keyPressed(KeyEvent e) {
-			Settings.print("key detected");
-			InputHandler.keyPressed();
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-
-		}
-	}*/
 
 }

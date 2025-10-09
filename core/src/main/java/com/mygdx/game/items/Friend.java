@@ -29,7 +29,7 @@ public class Friend extends Actor {
 		public void onStageChange() {
 			for (Friend f : friend){
 				f.x = chara.x; f.y = chara.y;
-				f.softlockOverridable();
+				f.softlockOverridable(false);
 			}
 		}
 	};
@@ -148,6 +148,7 @@ public class Friend extends Actor {
 				attack();
 			else
 				movement();
+			glideProcess();
 //			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();
 		}
