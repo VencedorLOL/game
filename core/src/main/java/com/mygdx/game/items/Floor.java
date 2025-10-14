@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import java.util.ArrayList;
+
 import static com.mygdx.game.Settings.globalSize;
 
 public class Floor {
@@ -8,11 +10,8 @@ public class Floor {
 
 	public String texture;
 	public float opacity;
-	public String[] secondaryTexture = new String[13];
-	public int[] rotationDegrees = new int[13];
-	public boolean[] flipX = new boolean[13];
-	public boolean[] flipY = new boolean[13];
-	public float[] secondaryOpacity = new float[13];
+	public TextureManager.DrawableObject[] secondTexture = new TextureManager.DrawableObject[13];
+	public boolean corner = false;
 	public int ID;
 	public static int IDState = 0;
 
@@ -31,8 +30,7 @@ public class Floor {
 	public Floor(String texture,float opacity, String[] secondaryTexture, float secondaryOpacity) {
 		this.texture = texture;
 		this.opacity = opacity;
-		this.secondaryTexture = secondaryTexture;
-		this.secondaryOpacity = null;
+
 		ID = IDState + 1;
 	}
 
@@ -48,15 +46,7 @@ public class Floor {
 	public void setTexture(String texture,float opacity){this.texture = texture; this.opacity = opacity;}
 
 	public void setSecondaryTexture(String texture, float opacity,int rotationDegrees, boolean flipX, boolean flipY, int numberOfTexture){
-		secondaryTexture[numberOfTexture] = texture;
-		secondaryOpacity[numberOfTexture] = opacity;
-		this.flipX[numberOfTexture] = flipX; this.flipY[numberOfTexture] = flipY;
-		this.rotationDegrees[numberOfTexture] = rotationDegrees;
-
-	}
-
-	public boolean getHasTexture(int numberOfTexture){
-		return secondaryTexture[numberOfTexture] != null;
+		secondTexture[numberOfTexture] = new TextureManager.DrawableObject(texture,0,0,opacity,rotationDegrees,flipX,flipY);
 	}
 
 	public void render(float x, float y){
@@ -65,14 +55,15 @@ public class Floor {
 
 	public void secondaryReset(){
 		for(int i = 0; i < 13; i++) {
-			secondaryTexture[i] = null;
+			secondTexture[i] = null;
 		}
 	}
 
 	public void renderCircle(float x, float y){
 		for(int i = 0; i < 13; i++) {
-			if (secondaryTexture[i] != null) {
-				TextureManager.addToPriorityList(secondaryTexture[i], x, y, secondaryOpacity[i], rotationDegrees[i], flipX[i], flipY[i]);
+			if (secondTexture[i] != null) {
+				secondTexture[i].x = x; secondTexture[i].y = y;
+				TextureManager.priorityDrawables.add(secondTexture[i]);
 			}
 		}
 	}

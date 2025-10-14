@@ -8,14 +8,16 @@ import static com.mygdx.game.Settings.*;
 
 public class InputHandler implements InputProcessor {
 
-	static Input up = new Input();
-	static Input down = new Input();
-	static Input left = new Input();
-	static Input right = new Input();
-	static Input attackMode = new Input();
-	static Input actionConfirm = new Input();
-	static Input actionReset = new Input();
-	static Input escape = new Input();
+	static Input up 			= new Input();
+	static Input down 			= new Input();
+	static Input left 			= new Input();
+	static Input right 			= new Input();
+	static Input attackMode 	= new Input();
+	static Input actionConfirm 	= new Input();
+	static Input actionReset 	= new Input();
+	static Input escape 		= new Input();
+	static Input abilityKey1 	= new Input();
+	static Input abilityKey2 	= new Input();
 
 
 	static ArrayList<Input> keys = new ArrayList<>();
@@ -29,6 +31,8 @@ public class InputHandler implements InputProcessor {
 		keys.add(actionConfirm);
 		keys.add(actionReset);
 		keys.add(escape);
+		keys.add(abilityKey1);
+		keys.add(abilityKey2);
 	}
 
 	public static void resetter(){
@@ -90,6 +94,8 @@ public class InputHandler implements InputProcessor {
 	public static boolean actionConfirmJustPressed() {return actionConfirm.wasUsed() && !actionConfirm.getGettingUsed();}
 	public static boolean actionResetJustPressed() {return actionReset.wasUsed() && !actionReset.getGettingUsed();}
 	public static boolean escapeJustPressed() {return escape.wasUsed() && !escape.getGettingUsed();}
+	public static boolean ability1JustPressed() {return abilityKey1.wasUsed() && !abilityKey1.getGettingUsed();}
+	public static boolean ability2JustPressed() {return abilityKey2.wasUsed() && !abilityKey2.getGettingUsed();}
 
 	public static boolean upReleased() {return up.wasReleased();}
 	public static boolean downReleased() {return down.wasReleased();}
@@ -159,6 +165,8 @@ public class InputHandler implements InputProcessor {
 		actionConfirm.setKey(62);
 		actionReset.setKey(46);
 		escape.setKey(111);
+		abilityKey1.setKey(30);
+		abilityKey2.setKey(36);
 	}
 
 	@Override

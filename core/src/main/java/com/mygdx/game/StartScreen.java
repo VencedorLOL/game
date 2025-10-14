@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.Camara;
 
 import static com.badlogic.gdx.math.MathUtils.random;
-import static com.mygdx.game.Settings.camaraZoom;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.Camara.zoom;
 
 public class StartScreen implements Screen, Utils {
 	public int screenSizeX = Gdx.graphics.getWidth();
@@ -40,7 +40,7 @@ public class StartScreen implements Screen, Utils {
 			"Combat in this game is turn-based, you can only give orders during your turn.\nThe character moves when the turn reaches their acting speed bracket,\nthe higher the acting speed the earlier you move!"
 	};
 	int tipSelected;
-	static boolean startAsPathfinding;
+	public static boolean startAsPathfinding;
 
 	public StartScreen(MainClass mainClass) {
 		this.mainClass = mainClass;
@@ -89,7 +89,7 @@ public class StartScreen implements Screen, Utils {
 			screenSizeX = Gdx.graphics.getWidth();
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-			mainClass.camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), camaraZoom);
+			mainClass.camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), zoom);
 			if (!fullscreen){
 				latestNonFullScreenX = screenSizeX;
 				latestNonFullScreenY = screenSizeY;

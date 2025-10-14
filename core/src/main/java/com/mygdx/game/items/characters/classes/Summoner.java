@@ -18,6 +18,7 @@ import static com.mygdx.game.items.InputHandler.directionalBuffer;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.animations;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Summoner extends CharacterClasses {
@@ -81,6 +82,7 @@ public class Summoner extends CharacterClasses {
 			public void cancelActivation() {
 				isItActive = false;
 				character.actions = null;
+				Camara.smoothZoom(1,30);
 			}
 		});
 
@@ -99,12 +101,13 @@ public class Summoner extends CharacterClasses {
 		summons.removeIf(Actor::getIsDead);
 		for (Ability a : abilities) {
 			a.render();
-			a.touchActivate();
+			if(isDecidingWhatToDo(character))
+				a.touchActivate();
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.U))
+		if (Gdx.input.isKeyJustPressed(Input.Keys.U) && (isDecidingWhatToDo(character)))
 			abilities.get(0).keybindActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.C))
+		if (Gdx.input.isKeyJustPressed(Input.Keys.C) && (isDecidingWhatToDo(character)))
 			abilities.get(1).keybindActivate();
 		if(character.attackMode){
 			cancelSummon();
@@ -168,11 +171,13 @@ public class Summoner extends CharacterClasses {
 		character.actions = null;
 		summonLocation = new float[2];
 		summonDecided = false;
+		Camara.smoothZoom(1,30);
 	}
 
 	void controlInput(){
 		targetProcesor();
 		if(Gdx.input.justTouched()) {
+			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
 				for(Summon s : summons){
@@ -184,6 +189,7 @@ public class Summoner extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
+			Camara.smoothZoom(1,30);
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				for(Summon s : summons){
 					s.cancelDecision();
@@ -210,6 +216,7 @@ public class Summoner extends CharacterClasses {
 		}
 
 		if(Gdx.input.justTouched()) {
+			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
 					summonLocation[0] = temporal.x;
@@ -220,6 +227,7 @@ public class Summoner extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
+			Camara.smoothZoom(1,30);
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				summonLocation[0] = targetsTarget.getX();
 				summonLocation[1] = targetsTarget.getY();

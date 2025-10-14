@@ -5,8 +5,11 @@ import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
+import com.mygdx.game.items.enemies.GoalDummy;
 import com.mygdx.game.items.enemies.LoopingHat;
+import com.mygdx.game.items.solids.Crater;
 import com.mygdx.game.items.solids.LargeBarricade;
+import com.mygdx.game.items.solids.Tree;
 
 import java.util.ArrayList;
 
@@ -114,9 +117,7 @@ public class Stage implements Utils {
 	}
 
 	public void enemySetter(){
-		printErr("x,y,type len: " + enemyType.length + " " + enemySpawnX.length + " " + enemySpawnY.length);
 		for (int i = 0; i < enemySpawnX.length; i++) {
-			printErr("x,y,type len: " + enemyType.length + " " + enemySpawnX.length + " " + enemySpawnY.length);
 			enemy.add(enemyClass(enemySpawnX[i], enemySpawnY[i], enemyType == null || enemyType.length < i ? 1 : enemyType[i]));
 		}
 		haveEnemiesBeenRendered = true;
@@ -283,15 +284,10 @@ public class Stage implements Utils {
 
 	public Enemy enemyClass(int x, int y, int enemyType){
 		switch (enemyType){
-			case -1:{
-				return new Dummy(globalSize() * x, globalSize() * y);
-			}
-			case 1:{
-				return new EvilGuy(globalSize() * x, globalSize() * y);
-			}
-			case 2 :{
-				return new LoopingHat(globalSize() * x, globalSize() * y);
-			}
+			case -2: return new GoalDummy(globalSize() * x, globalSize() * y);
+			case -1: return new Dummy(globalSize() * x, globalSize() * y);
+			case 1 : return new EvilGuy(globalSize() * x, globalSize() * y);
+			case 2 : return new LoopingHat(globalSize() * x, globalSize() * y);
 		}
 		return new Enemy(globalSize() * x, globalSize() * y);
 
@@ -299,12 +295,10 @@ public class Stage implements Utils {
 
 	public Wall wallClass(int x, int y, int wallType){
 		switch (wallType){
-			case 1:{
-				return new Wall(globalSize() * x, globalSize() * y);
-			}
-			case 2 :{
-				return new LargeBarricade(globalSize() * x, globalSize() * y);
-			}
+			case 1 : return new Wall(globalSize() * x, globalSize() * y);
+			case 2 : return new LargeBarricade(globalSize() * x, globalSize() * y);
+			case 3 : return new Crater(globalSize() * x, globalSize() * y);
+			case 4 : return new Tree(globalSize() * x, globalSize() * y);
 		}
 		return new Wall(globalSize() * x, globalSize() * y);
 

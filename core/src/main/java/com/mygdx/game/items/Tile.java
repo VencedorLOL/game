@@ -208,6 +208,7 @@ public class Tile implements Cloneable {
 		public void renderCircle(){
 			for (Tile t : circle){
 				t.texture.renderCircle(t.x,t.y);
+				Camara.zoomToPoint(t.x,t.y,globalSize(),globalSize());
 			}
 		}
 
@@ -221,12 +222,8 @@ public class Tile implements Cloneable {
 
 
 		public void checkWalkable(){
-			for (Tile t : tileset) {
+			for (Tile t : tileset)
 				t.checkIfWalkable();
-//				if (!t.walkable)
-//					print("not walkalb at: " + t.x + " " + t.y);
-
-			}
 		}
 
 		public ArrayList<Tile> circle(){return circle(center, tileset,radius,rayCast);}
@@ -234,8 +231,10 @@ public class Tile implements Cloneable {
 		public ArrayList<Tile> circle(Tile center, ArrayList<Tile> tileset, float radius,boolean raycast){
 			radius += 0.5f;
 			for (Tile t : center.orthogonalTiles(tileset)) {
-				if (center.relativeModuleTo(t) <= radius && (!walkable || t.walkable))
+				if (center.relativeModuleTo(t) <= radius && (!walkable || t.walkable)) {
 					circle.add(t);
+					t.texture.corner = false;
+				}
 			}
 			// +3 jst to be safe
 			int failsafe = (int) (radius + 3);
@@ -308,7 +307,6 @@ public class Tile implements Cloneable {
 					else
 						t.texture.setSecondaryTexture("selectionIndicatorC",0.6f,180,false,false,7);
 
-
 				if(!u) {
 					t.texture.setSecondaryTexture("selectionIndicatorS", 0.6f, 180, false, false, 0);
 					if(l)
@@ -337,8 +335,6 @@ public class Tile implements Cloneable {
 					if(u)
 						t.texture.setSecondaryTexture("selectionIndicatorSMinus", 0.6f, 270, true, false, 7);
 				}
-
-
 
 				t.texture.setSecondaryTexture("selectionIndicator",0f,0,false,false,8);
 

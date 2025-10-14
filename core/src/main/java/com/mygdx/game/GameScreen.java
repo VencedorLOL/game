@@ -6,12 +6,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.stages.CraterStage;
 import com.mygdx.game.items.stages.StageOne;
 import com.mygdx.game.items.stages.StagePathfinding;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
+import static com.mygdx.game.items.Camara.zoom;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
@@ -38,13 +40,13 @@ public class GameScreen implements Screen, Utils {
 	TextureManager.Text text;
 	Entity attacher = new Entity(null,5 * globalSize(), 5 * globalSize(),false);
 	InputHandler handler;
-
+	public static boolean initalized = false;
 
 	public void create () {
-		if (camaraZoom <= 0)
-			camaraZoom = 1;
+		camaraZoom = 1;
+		zoom = 1;
 		camara.camaraStarter(camaraZoom);
-		stage = startAsPathfinding ? new StagePathfinding() : new StageOne();
+		stage = startAsPathfinding ? new StagePathfinding() : new CraterStage();
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();
@@ -58,6 +60,7 @@ public class GameScreen implements Screen, Utils {
 		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);
+		initalized = true;
 
 	}
 
@@ -137,7 +140,7 @@ public class GameScreen implements Screen, Utils {
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
 			Camara.smoothZoom(camaraZoom -= .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			fixatedText("Zoom level is of: "+camaraZoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * camaraZoom));
+			fixatedText("Zoom level is of: "+zoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * zoom));
 
 	}
 

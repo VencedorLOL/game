@@ -113,7 +113,8 @@ public class Imp extends CharacterClasses {
 	public void updateOverridable() {
 		for (Ability a : abilities) {
 			a.render();
-			a.touchActivate();
+			if(isDecidingWhatToDo(character))
+				a.touchActivate();
 		}
 		if(character.attackMode){
 			cancelDemonize();
@@ -162,6 +163,7 @@ public class Imp extends CharacterClasses {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.M) && isDecidingWhatToDo(character)) {
 			abilities.get(1).keybindActivate();
+			Camara.smoothZoom(1,30);
 		}
 	}
 
@@ -174,6 +176,7 @@ public class Imp extends CharacterClasses {
 
 	public void cancelDemonize(){
 		abilities.get(1).cancelActivation();
+		Camara.smoothZoom(1,30);
 
 	}
 
@@ -190,6 +193,7 @@ public class Imp extends CharacterClasses {
 	protected void demonizeInput() {
 		targetProcesor();
 		if(Gdx.input.justTouched()) {
+			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (circle.findATile(temporal.x,temporal.y) != null) {
 				markCoords = new float[]{temporal.x,temporal.y};
@@ -197,6 +201,7 @@ public class Imp extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
+			Camara.smoothZoom(1,30);
 			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
 				markCoords = new float[]{targetsTarget.getX(),targetsTarget.getY()};
 				character.actionDecided();
@@ -208,6 +213,7 @@ public class Imp extends CharacterClasses {
 		circle = null;
 		animations.remove(target);
 		target = null;
+		Camara.smoothZoom(1,30);
 	}
 
 

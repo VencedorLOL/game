@@ -11,6 +11,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
+import static com.mygdx.game.items.Turns.turnStopTimer;
 
 public class Path {
 	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());
@@ -133,6 +134,10 @@ public class Path {
 			p.render(0.95f, p.rotation, r, g, b);
 			p.glideProcess();
 		}
+		if(!renderList.isEmpty() && currentNumberOfPaths > 0 && (!renderBlue || currentNumberOfPaths >= steps) && !pathEnded) {
+			Camara.smoothAttachment(renderList.get(renderList.size() - 1), 30);
+		} else if (owner.controlOfCamara)
+			Camara.smoothAttachment(owner,11);
 	}
 
 	public void pathStart(){
@@ -203,17 +208,22 @@ public class Path {
 							temporalY = -globalSize();
 
 						if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
+							Camara.smoothAttachment(chara,12);
+							turnStopTimer(10);
 							currentNumberOfPaths = 0;
 							return true;
 						}
 					}
 					if (getDecidedPathFlexibility() == 2)
-						if (upJustPressed() || rightJustPressed() ||
-								downJustPressed() || leftJustPressed()) {
+						if (directionalBuffer() != 0) {
+							Camara.smoothAttachment(chara,13);
+							turnStopTimer(10);
 							currentNumberOfPaths = 0;
 							return true;
 						}
 					if (getDecidedPathFlexibility() == 3) {
+						Camara.smoothAttachment(chara,14);
+						turnStopTimer(10);
 						currentNumberOfPaths = 0;
 						return true;
 					}
@@ -236,13 +246,17 @@ public class Path {
 			}
 
 			if (actionConfirmJustPressed()) {
+				Camara.smoothAttachment(chara,30);
+				turnStopTimer(10);
 				currentNumberOfPaths = 0;
 				renderBlue = true;
 				return true;
 			}
 
-			if (actionResetJustPressed())
+			if (actionResetJustPressed()) {
+				Camara.smoothAttachment(chara,10);
 				pathReset();
+			}
 
 			if (!(typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) && !path.isEmpty()) {
 				currentNumberOfPaths = 0;
@@ -300,6 +314,7 @@ public class Path {
 		}
 
 		public PathStep(int x, int y) {
+			super(null,x,y,globalSize(),globalSize());
 			directionX = x;
 			directionY = y;
 			texture = "Center";
@@ -333,6 +348,7 @@ public class Path {
 
 	public void doNothingSoIntelliJShutsUpAlready(PathStep shutUpAlready){
 		shutUpAlready.base = globalSize();
+		shutUpAlready.height = globalSize();
 	}
 
 }

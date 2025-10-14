@@ -36,7 +36,6 @@ public class Character extends Actor implements Utils {
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
 	public byte lastDamageCounter;
-
 	Animation walkingAnimation;
 	public static ArrayList<ControllableFriend> controllableCharacters = new ArrayList<>();
 
@@ -70,6 +69,7 @@ public class Character extends Actor implements Utils {
 		path.pathStart();
 		isOnTheGrid();
 		classes.runFinalizedTurn();
+		Camara.smoothZoom(1,30);
 	}
 
 	protected void automatedMovement(){
@@ -98,6 +98,7 @@ public class Character extends Actor implements Utils {
 				if (!c.active && isDecidingWhatToDo(c) && !c.isDead) {
 					c.active = true;
 					Camara.smoothAttachment(c,40);
+					controlOfCamara = false;
 					circle = null;
 					c.circle = null;
 					return;
@@ -105,10 +106,13 @@ public class Character extends Actor implements Utils {
 					return;
 			}
 			Camara.smoothAttachment(this,40);
+			controlOfCamara = true;
 			if(Camara.isCamaraMoving())
 				turnStopTimer(30);
-		} else if (isTurnRunning())
-			Camara.smoothAttachment(this,40);
+		} else if (isTurnRunning()) {
+			controlOfCamara = true;
+			Camara.smoothAttachment(this, 40);
+		}
 	}
 
 	public void massCancel(){
@@ -259,6 +263,7 @@ public class Character extends Actor implements Utils {
 
 
 	public void cancelAttackMode(){
+		Camara.smoothZoom(1,30);
 		attackMode = false;
 		if (circle != null)
 			for (Tile t : circle.circle)
@@ -666,6 +671,9 @@ public class Character extends Actor implements Utils {
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
+			print("is cam moving "+Camara.isCamaraMoving());
+		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
 			fixatedText("Version: B",400,200,100, Fonts.ComicSans,40);
 		}
@@ -678,6 +686,7 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;
 			classes.currentHealth = 1000000;
+			Report 	repo = new Report();
 		}
 
 

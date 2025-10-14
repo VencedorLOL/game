@@ -275,7 +275,7 @@ public class TextureManager {
 		public float scaleX = 1, scaleY = 1;
 		public float r = 1,g = 1,b = 1;
 		public boolean flipX = false, flipY = false;
-
+		public boolean remove = true;
 
 		public DrawableObject(String texture, float x, float y,float z){
 			this.x = x;

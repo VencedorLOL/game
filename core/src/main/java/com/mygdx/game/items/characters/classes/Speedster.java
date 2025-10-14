@@ -10,6 +10,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 public class Speedster extends CharacterClasses {
 
@@ -66,14 +67,15 @@ public class Speedster extends CharacterClasses {
 
 	public void updateOverridable() {
 		abilities.get(0).render();
-		abilities.get(0).touchActivate();
+		if(isDecidingWhatToDo(character))
+			abilities.get(0).touchActivate();
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
 			print("ability recharge is at: "+ abilities.get(0).cooldownCounter);
 			print("attackState is: "+ attackState);
 			print("EvenFaster is: " + abilities.get(0).isItActive);
 		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && !character.didItAct)
+		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && isDecidingWhatToDo(character))
 			abilities.get(0).keybindActivate();
 	}
 

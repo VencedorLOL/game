@@ -5,18 +5,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.GameScreen.initalized;
+import static com.mygdx.game.StartScreen.startAsPathfinding;
 
 public class Camara {
 
-	// ---
-	// if i ever need to instantiaze another camara, remove the static coordinates and figure out a way
-	// of doing the static things other way
-	// ---
-
 	public static OrthographicCamera camara;
 	static float x,y,base,height;
-	static float zoom = (float) 2;
+	public static float zoom = (float) 2;
 	static Entity attached;
 	public void camaraStarter(float zoom){
 		base = Gdx.graphics.getWidth() * zoom;
@@ -25,14 +21,50 @@ public class Camara {
 		camara.setToOrtho(false, base, height);
 	}
 
-	public static void attach(Entity entity){
-		attached = entity;
+	public static void attach(Entity entity) {
+		if(!startAsPathfinding || !initalized){
+			attached = entity;
+		}
+	}
+
+	public static void zoomToPoint(float x, float y,float base, float height){
+		if(!startAsPathfinding || !initalized){
+			if ((x < Camara.x - Camara.base / 2 || y < Camara.y - Camara.height / 2 || x + base > Camara.x + Camara.base / 2 || y + height > Camara.y + Camara.height / 2) && !Float.isNaN(Camara.base) && !Float.isNaN(Camara.height)) {
+				float distanceX = (Camara.x > x ? Camara.x - x : Camara.x < x ? (x + base) - Camara.x : 0);
+				float distanceY = (Camara.y > y ? Camara.y - y : Camara.y < y ? (y + height) - Camara.y : 0);
+				float baseBase = Camara.base / zoom;
+				float baseHeight = Camara.height / zoom;
+				float newBase = distanceX > Camara.base / 2 ? distanceX * 2 : 0;
+				float newHeight = distanceY > Camara.height / 2 ? distanceY * 2 : 0;
+				float zoom1 = newBase / baseBase;
+				float zoom2 = newHeight / baseHeight;
+				float newZoom = Math.max(Math.max(zoom1, zoom2), zoom);
+				smoothZoom(newZoom, 30);
+			}
+		}
+	}
+
+	public static void zoomToPoint(float x, float y,float base, float height,float minZoom){
+		if (!Float.isNaN(Camara.base) && !Float.isNaN(Camara.height)){
+			float distanceX  = (Camara.x > x ? Camara.x - x : Camara.x < x ? (x+base) - Camara.x : 0);
+			float distanceY  = (Camara.y > y ? Camara.y - y : Camara.y < y ? (y+height) - Camara.y : 0);
+			float baseBase = Camara.base / zoom;
+			float baseHeight = Camara.height / zoom;
+			float newBase = distanceX>Camara.base/2 ? distanceX*2 : 0;
+			float newHeight = distanceY>Camara.height/2 ? distanceY*2 : 0;
+			float zoom1 = newBase/baseBase;
+			float zoom2 = newHeight/baseHeight;
+			float newZoom = Math.max(Math.max(zoom1, zoom2), minZoom);
+			smoothZoom(newZoom,zoom > minZoom ? 30 : 160);
+		}
 	}
 
 	public void updater(){
-		if (attached != null && time <= 0){
+		if (attached != null && time <= 0) {
 			x = attached.getX() + attached.getBase() / 2;
 			y = attached.getY() + attached.getHeight() / 2;
+			xPerTick = 0;
+			yPerTick = 0;
 		}
 		else {
 			time--;
@@ -65,11 +97,13 @@ public class Camara {
 	static float xPerTick;
 	static float yPerTick;
 	public static void smoothAttachment(Entity entity,int time){
-		if (attached != entity) {
-			attached = entity;
-			Camara.time = time;
-			xPerTick = (x - (attached.x + attached.getBase() / 2)) / time;
-			yPerTick = (y - (attached.y + attached.getHeight() / 2)) / time;
+		if(!startAsPathfinding || !initalized){
+			if (attached != entity) {
+				attached = entity;
+				Camara.time = time;
+				xPerTick = (x - (attached.x + (attached.height / 2))) / time;
+				yPerTick = (y - (attached.y + (attached.height / 2))) / time;
+			}
 		}
 	}
 

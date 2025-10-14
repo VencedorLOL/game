@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 public class Melee extends CharacterClasses {
 
@@ -95,7 +96,8 @@ public class Melee extends CharacterClasses {
 	public void updateOverridable() {
 		for (Ability a : abilities){
 			a.render();
-			a.touchActivate();
+			if(isDecidingWhatToDo(character))
+				a.touchActivate();
 		}
 		if (!character.attackMode && (abilities.get(0).isItActive || abilities.get(1).isItActive))
 			for (Ability a : abilities)
@@ -106,9 +108,9 @@ public class Melee extends CharacterClasses {
 			print("FoA is: " + abilities.get(0).isItActive);
 			print("OfA is: " + abilities.get(1).isItActive);
 		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && !character.didItAct)
+		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && isDecidingWhatToDo(character))
 			abilities.get(0).keybindActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.O) && !character.didItAct)
+		if (Gdx.input.isKeyJustPressed(Input.Keys.O) && isDecidingWhatToDo(character))
 			abilities.get(1).keybindActivate();
 	}
 

@@ -6,8 +6,6 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
-import static com.badlogic.gdx.math.MathUtils.random;
-import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
@@ -18,14 +16,12 @@ import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static java.lang.Math.*;
 
 public class ControllableFriend extends Friend {
 
 	public boolean active = false;
 	public boolean attackMode;
 	public static OnVariousScenarios oVSc;
-
 	static {
 		oVSc = new OnVariousScenarios(){
 			@Override
@@ -40,7 +36,7 @@ public class ControllableFriend extends Friend {
 		if(Gdx.input.justTouched()){
 			lastClickX = roundedClick().x;
 			lastClickY = roundedClick().y;
-			print("last ckik x " + lastClickX + " y " + lastClickY);
+			print("last ckik x " + lastClickX + " y " + lastClickY); 
 			pathFinding();
 		}
 	}
@@ -64,7 +60,8 @@ public class ControllableFriend extends Friend {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			speed = 5;
+			controlOfCamara = active;
+			statsUpdater();
 			path.getStats(x,y,totalSpeed);
 			onDeath();
 			if (attackMode)
@@ -84,6 +81,8 @@ public class ControllableFriend extends Friend {
 					mouseMoved = true;
 				}
 			}
+			if(Gdx.input.isKeyJustPressed(Input.Keys.C))
+				print("color: " + color[0] + ", " + color[1] + ", " + color[2] );
 			renderBall();
 		}
 	}
@@ -117,7 +116,7 @@ public class ControllableFriend extends Friend {
 
 	public void renderBall(){
 		if(active)
-			addToList("Ball",x ,y  + height/2 + globalSize()/4,1,0,color[0],color[1],color[2]);
+			addToList("Ball",x ,y  + height/2 + globalSize()/4f,1,0,color[0],color[1],color[2]);
 	}
 
 	public void actionDecided(){

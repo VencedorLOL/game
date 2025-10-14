@@ -31,6 +31,7 @@ public class Catapult extends CharacterClasses {
 	public float[] chargeCoords = new float[2];;
 	public boolean isCharged = false;
 	public boolean willShoot = false;
+	public boolean throwingMode = false;
 	OnVariousScenarios oVS;
 	OnVariousScenarios oVS2;
 
@@ -144,6 +145,7 @@ public class Catapult extends CharacterClasses {
 			r.update();
 		if(character.permittedToAct){
 			if(willShoot && isCharged){
+				throwingMode = false;
 				isCharged = false;
 				willShoot = false;
 				rocks.add(new Rock(character.x,character.y,rocksCoords[0],rocksCoords[1],totalDamage*10));
@@ -189,10 +191,15 @@ public class Catapult extends CharacterClasses {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.P))
 			print(rocks.get(0).turnsToFall+"");
 
+		if(character.attackMode && isCharged && isDecidingWhatToDo(character)){
+			character.cancelAttackMode();
+			throwingMode = !throwingMode;
+		}
 
-		if(character.attackMode && isCharged && isDecidingWhatToDo(character)) {
+		if(throwingMode && isDecidingWhatToDo(character)) {
 			rockThrowInput();
 		}
+
 		else if(character.attackMode && isDecidingWhatToDo(character)){
 			cancelRam();
 		}
@@ -270,8 +277,7 @@ public class Catapult extends CharacterClasses {
 				for (Tile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, charges ? chargeRange : throwRange , true,false);
-
+			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, charges ? chargeRange : throwRange , false,false);
 		}
 		circle.renderCircle();
 		Vector3 temporal = roundedClick();
@@ -356,14 +362,15 @@ public class Catapult extends CharacterClasses {
 			this.objectiveX = objectiveX;
 			this.objectiveY = objectiveY;
 			double distance = dC(objectiveX,objectiveY)/globalSize();
-			turnsToFall = distance <= 3 ? 4 : distance <= 6 ? 3 : distance <= 9  ? 2 : 1;
+			print("Distance of rock is of " + distance);
+			turnsToFall = distance <= 2 ? 3 : distance <= 5 ? 2 : distance <= 8  ? 1 : 0;
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);
 			zPerTurn = 3f / turnsToFall;
 		}
 
 		public void advanceRock(){
-			glide(xPerTurn, yPerTurn, turnsToFall > 1 ? zPerTurn : 0,60);
+			glide(xPerTurn, yPerTurn, turnsToFall > 1 ? zPerTurn : -1,60);
 			turnStopTimer(60);
 			if(turnsToFall == 0){
 				if (actorInPos(objectiveX,objectiveY) != null && !finished)

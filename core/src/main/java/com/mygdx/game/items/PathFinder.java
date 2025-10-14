@@ -7,11 +7,14 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.Camara.zoom;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Enemy.enemyGrid;
 import static com.mygdx.game.items.Friend.allaiesGrid;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.Tile.findATile;
 import static java.lang.Math.abs;
 import static java.lang.Float.POSITIVE_INFINITY;
@@ -28,6 +31,7 @@ public class PathFinder {
 	Boolean needsReset = new Boolean(true);
 	public static ArrayList<Boolean> resetList = new ArrayList<>();
 	float minimunDistance = POSITIVE_INFINITY;
+	Report timeReporter;
 
 	static{
 		oVE = new OnVariousScenarios(){
@@ -45,6 +49,9 @@ public class PathFinder {
 	public PathFinder(){
 		generateGrids();
 		resetList.add(needsReset);
+		if(startAsPathfinding){
+			timeReporter = new Report();
+		}
 	}
 
 	public static void generateGrids(){
@@ -121,7 +128,10 @@ public class PathFinder {
 		if (objectiveTile != null) {
 			if (listType == 0) solve(grid);
 			else if (listType == 1) solve(actorGrid);
-//			print("time difference is of: "+ (nanoTime() - time));
+			if(startAsPathfinding) {
+				fixatedText(("time difference is of: " + (nanoTime() - time)), 100, 100, 100, TextureManager.Fonts.ComicSans, (int) (20 * zoom));
+				timeReporter.writeFile(nanoTime() - time);
+			}
 			return !solution.isEmpty();
 		} return false;
 	}
@@ -136,9 +146,10 @@ public class PathFinder {
 
 	ArrayList<Tile> currentAnalizing = new ArrayList<>();
 	ArrayList<Tile> dumpList = new ArrayList<>();
-//	long time;
+	long time;
 	private boolean solve(ArrayList<Tile> currentGrid){
-//		time = nanoTime();
+		if(startAsPathfinding)
+			time = nanoTime();
 		if (!needsReset.bool) {
 			if (currentAnalize(startTile,currentGrid))
 				return true;

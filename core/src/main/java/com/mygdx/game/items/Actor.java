@@ -53,6 +53,7 @@ public class Actor extends Entity{
 	public PathFinder pathFindAlgorithm;
 	public Entity testCollision = new Entity();
 	public boolean permittedToAct;
+	public boolean controlOfCamara;
 
 	boolean isDead;
 
