@@ -393,7 +393,16 @@ public class Conditions {
 			queuedForRemoval = true;
 		}
 	}
+	public static class ComingThrough extends Conditions{
+		public ComingThrough(Actor owner){
+			super(owner); texture = "ComingThrough"; name = "ComingThrough"; turnsActive = 1; tickDownOnTurn = true;
+		}
 
+		float getActingSpeedAdditive(){
+			return 6;
+		}
+
+	}
 	public enum ConditionNames {
 		BURNING("Burning"),
 		BURNING_BRIGHT("BurningBright"),
@@ -415,6 +424,7 @@ public class Conditions {
 		SNOWY("Snowy"),
 		SUNNY("Sunny"),
 		STUNNED("Stunned"),
+		COMING_THROUGH("ComingThrough"),
 		;
 
 

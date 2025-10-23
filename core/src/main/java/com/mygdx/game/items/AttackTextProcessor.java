@@ -88,7 +88,7 @@ public class AttackTextProcessor {
 					t.text.vanishingThreshold = 60;
 					delete = false;
 				}
-				t.text.text = (t.reason == DamageReasons.HEALING ? "+ " : "") + t.damage;
+				t.text.text = (t.reason == DamageReasons.HEALING ? "+" : "") + t.damage;
 				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() + (t.reason == DamageReasons.HEALING ? 1 : -1 ))* 20 + 8) / 2);
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				t.text.font = createFont(TextureManager.Fonts.ComicSans,40);

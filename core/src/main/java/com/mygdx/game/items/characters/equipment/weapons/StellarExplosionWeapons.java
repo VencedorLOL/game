@@ -34,7 +34,6 @@ public class StellarExplosionWeapons extends Weapons{
 
 		public void onAttack() {
 			if (holder.damageReason == AttackTextProcessor.DamageReasons.MAGICAL){
-				print("attack'd");
 				holder.healThis(5);
 				if(holder.tempDefense + 5 > 50) {
 					if(holder.tempDefense < 50)

@@ -11,7 +11,7 @@ public class EvilGuy extends Enemy {
 	public static String enemyTexture = "EvilGuy";
 	Interactable tenna;
 	public EvilGuy(float x, float y) {
-		super(x, y, enemyTexture, 15);
+		super(x, y, enemyTexture, 25);
 		tenna = new Interactable(null,x,y,globalSize(),globalSize()){
 			@Override
 			public void onInteract() {

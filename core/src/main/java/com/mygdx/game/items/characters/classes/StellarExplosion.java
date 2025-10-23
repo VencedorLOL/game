@@ -13,6 +13,7 @@ import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static java.lang.Math.abs;
 
 public class StellarExplosion extends CharacterClasses {
 
@@ -116,7 +117,7 @@ public class StellarExplosion extends CharacterClasses {
 		if(character.permittedToAct && explode && manaPool >= totalManaPerUse){
 			manaPool -= totalManaPerUse;
 			for(Actor a : actors)
-				if(character.dC(a.getX(),a.y)/globalSize() <= explosionRange + 0.25f && a.team != character.team) {
+				if(abs(character.dC(a.getX(),a.y)/globalSize()) <= explosionRange + 0.25f && a.team != character.team) {
 					a.damage(totalMagicDamage, damageReason, character);
 					runAttack();
 				}

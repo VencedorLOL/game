@@ -101,6 +101,7 @@ public class Catapult extends CharacterClasses {
 				character.cancelAttackMode();
 				character.movementLock = true;
 				throwingMode = false;
+				character.conditions.condition(Conditions.ConditionNames.COMING_THROUGH);
 			}
 
 			@Override
@@ -109,6 +110,7 @@ public class Catapult extends CharacterClasses {
 				character.movementLock = false;
 				targetProcessor.reset();
 				chargeCoords = new float[2];
+				character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 			}
 
 			@Override
@@ -116,6 +118,8 @@ public class Catapult extends CharacterClasses {
 				cooldownCounter = 0;
 				isItActive = false;
 				character.movementLock = false;
+
+				character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 			}
 		});
 
@@ -270,6 +274,7 @@ public class Catapult extends CharacterClasses {
 	@Override
 	protected void destroyOverridable() {
 		destroyListener(oVS);
+		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 	}
 
 
@@ -315,11 +320,6 @@ public class Catapult extends CharacterClasses {
 		}
 
 	}
-
-
-
-
-
 
 
 

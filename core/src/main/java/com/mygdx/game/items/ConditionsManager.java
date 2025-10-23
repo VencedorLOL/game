@@ -94,6 +94,8 @@ public class ConditionsManager {
 			case SNOWY: 		 return new Conditions.Snowy		(owner);
 			case SUNNY:			 return new Conditions.Sunny		(owner);
 			case STUNNED:		 return new Conditions.Stunned		(owner);
+			case COMING_THROUGH: return new Conditions.ComingThrough(owner);
+
 		}
 		return null;
 	}

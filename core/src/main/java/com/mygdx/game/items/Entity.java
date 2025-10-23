@@ -160,7 +160,10 @@ public class Entity {
 		}
 	}
 
-	public double dC(float x, float y){return sqrt(pow(abs(x)-abs(this.x),2)+pow(abs(y)-abs(this.y),2));}
+	public double dC(float x, float y){
+		print("this distance is of: " + sqrt(pow((x)-(this.x),2)+pow((y)-(this.y),2))/globalSize());
+		return sqrt(pow((x)-(this.x),2)+pow((y)-(this.y),2));
+	}
 
 	public static class Floatt{
 		float aFloat;

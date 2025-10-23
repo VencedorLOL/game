@@ -125,7 +125,7 @@ public class GameScreen implements Screen, Utils {
 	}
 
 	public void zoomManagement(){
-		if (Gdx.input.isKeyPressed(Input.Keys.C))
+		if (Gdx.input.isKeyPressed(Input.Keys.V))
 			camara.setToOrtho(camaraZoom = 1);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 			Camara.smoothZoom(++camaraZoom,40);
@@ -161,7 +161,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void resize(int width, int height) {
-
+		zoom = 1;
 	}
 
 	@Override
