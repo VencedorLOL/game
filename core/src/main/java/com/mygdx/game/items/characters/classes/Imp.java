@@ -4,25 +4,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
-import com.mygdx.game.items.allaies.Summon;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.Turns.isTurnRunning;
-import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Imp extends CharacterClasses {
+
+	public TargetProcessor targetProcessor;
 
 	public OnVariousScenarios oVSce;
 
@@ -57,7 +54,7 @@ public class Imp extends CharacterClasses {
 				cancelDemonize();
 				isItActive = true;
 				character.actionDecided();
-				deleteTarget();
+				targetProcessor.reset();
 			}
 
 			@Override
@@ -78,14 +75,14 @@ public class Imp extends CharacterClasses {
 				cancelRitual();
 				isItActive = true;
 				chara.cancelAttackMode();
-				deleteTarget();
+				targetProcessor.reset();
 			}
 
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
 				markCoords = null;
-				deleteTarget();
+				targetProcessor.reset();
 			}
 
 			@Override
@@ -107,10 +104,12 @@ public class Imp extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
+		targetProcessor = new TargetProcessor(character,markRange,false,false,"marktarget");
 	}
 
 
 	public void updateOverridable() {
+		targetProcessor.changeRadius(markRange);
 		for (Ability a : abilities) {
 			a.render();
 			if(isDecidingWhatToDo(character))
@@ -191,107 +190,22 @@ public class Imp extends CharacterClasses {
 
 
 	protected void demonizeInput() {
-		targetProcesor();
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				markCoords = new float[]{temporal.x,temporal.y};
 				character.actionDecided();
 			}
 		}
 		if(actionConfirmJustPressed()) {
 			Camara.smoothZoom(1,30);
-			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
-				markCoords = new float[]{targetsTarget.getX(),targetsTarget.getY()};
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				markCoords = new float[]{targetProcessor.getTargetX(),targetProcessor.getTargetY()};
 				character.actionDecided();
 			}
 		}
-	}
-
-	public void deleteTarget(){
-		circle = null;
-		animations.remove(target);
-		target = null;
-		Camara.smoothZoom(1,30);
-	}
-
-
-	Entity targetsTarget = new Entity(null,character.getX(),character.getY(),false);
-	TextureManager.Animation target;
-	Tile.Circle circle;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
-	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(character.getX(),character.getY()) || circle.tileset != stage.tileset || circle.radius != markRange || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, markRange, true,false);
-
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
-		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
-
-			if (!mouseMoved)
-				targetKeyboardMovement();
-
-			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || mouseMoved) {
-				targetsTarget.setX(roundedClick().x);
-				targetsTarget.setY(roundedClick().y);
-			}
-
-			targetRender();
-
-		} else if (!mouseMoved){
-			targetKeyboardMovement();
-			if (!(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY()))
-				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.setX(character.getX());
-			targetsTarget.setY(character.getY());
-		}
-	}
-
-
-	private void targetRender(){
-		if (target == null) {
-			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new TextureManager.Animation("marktarget" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-	}
-
-
-	private void targetKeyboardMovement(){
-		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		byte counter = directionalBuffer();
-		if (counter % 2 != 0)
-			x += globalSize();
-		if(counter - 8 >= 0)
-			x -= globalSize();
-		if((counter & (1<<2)) != 0)
-			y += globalSize();
-		if((counter & (1<<1)) != 0)
-			y -= globalSize();
-		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.setX(x);
-			targetsTarget.setY(y);
-		} else if (circle.isInsideOfCircle(x, targetsTarget.getY()))
-			targetsTarget.setX(x);
-		else if (circle.isInsideOfCircle(targetsTarget.getX(),y))
-			targetsTarget.setY(y);
 	}
 
 

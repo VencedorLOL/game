@@ -19,7 +19,7 @@ public class Ability{
 	public String name;
 	public boolean isItActive;
 	public int cooldown;
-	public int cooldownCounter = 0;
+	public int cooldownCounter;
 	public float x, y;
 	public float radius;
 	Circle circle = new Circle();
@@ -49,7 +49,7 @@ public class Ability{
 			// https://imgur.com/a/bgzC4LK
 			Vector3 vector = authenticClick();
 			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
-			circle.setPosition(coords[0] + globalSize()/2 ,coords[1] + globalSize()/2);
+			circle.setPosition(coords[0] + globalSize()/2f ,coords[1] + globalSize()/2f);
 			return sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius;
 		}
 		return false;
@@ -83,17 +83,17 @@ public class Ability{
 			if (cooldownCounter >= cooldown) {
 				isItActive = true;
 				active();
-				text(name+" activated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4,120, TextureManager.Fonts.ComicSans,32,40,200,40,1,30);
+				text(name+" activated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, TextureManager.Fonts.ComicSans,32,40,200,40,1,30);
 			}
 			else if (cooldown - cooldownCounter > 1)
 				text("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!"
-						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + globalSize() * 3/4 + chara.getHeight(),120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + globalSize() * 3/4f + chara.getHeight(),120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
 			else
 				text("Couldn't activate " + name + "! You still have to wait one more turn!"
-						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + chara.getHeight() + globalSize() * 3/4,120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
 		} else {
 			cancelActivation();
-			text(name+ " deactivated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4 ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
+			text(name+ " deactivated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
 		}
 	}
 

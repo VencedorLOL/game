@@ -15,8 +15,11 @@ public class TargetProcessor {
 	float size;
 	boolean checkWalkable;
 	boolean rayCast;
-	Entity targetsTarget;
+	public Entity targetsTarget;
 	String targetAnimation;
+	public TextureManager.Animation target;
+	boolean mouseMoved;
+	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 
 	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String targetAnimation){
 		this.fixated = fixated;
@@ -58,9 +61,7 @@ public class TargetProcessor {
 	}
 
 
-	TextureManager.Animation target;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
+
 	private void targetProcesor(){
 		if (circle == null || circle.center != stage.findATile(fixated.getX(),fixated.getY()) || circle.tileset != stage.tileset || circle.radius != size || !circle.walkable) {
 			if (circle != null)
@@ -114,23 +115,22 @@ public class TargetProcessor {
 
 
 	private void targetKeyboardMovement(){
-		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		byte counter = directionalBuffer();
-		if (counter % 2 != 0)
-			x += globalSize();
-		if(counter - 8 >= 0)
-			x -= globalSize();
-		if((counter & (1<<2)) != 0)
+		float x = targetsTarget.x; float y = targetsTarget.y;
+		if (upJustPressed())
 			y += globalSize();
-		if((counter & (1<<1)) != 0)
+		if (leftJustPressed())
+			x -= globalSize();
+		if (downJustPressed())
 			y -= globalSize();
+		if (rightJustPressed())
+			x += globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.setX(x);
-			targetsTarget.setY(y);
-		} else if (circle.isInsideOfCircle(x, targetsTarget.getY()))
-			targetsTarget.setX(x);
-		else if (circle.isInsideOfCircle(targetsTarget.getX(),y))
-			targetsTarget.setY(y);
+			targetsTarget.x = x;
+			targetsTarget.y = y;
+		} else if (circle.isInsideOfCircle(x,targetsTarget.y))
+			targetsTarget.x = x;
+		else if (circle.isInsideOfCircle(targetsTarget.x,y))
+			targetsTarget.y = y;
 	}
 
 	public void reset(){
@@ -141,10 +141,14 @@ public class TargetProcessor {
 	}
 
 
-	public float getTargetsTargetX(){return targetsTarget.getX();}
-	public float getTargetsTargetY(){return targetsTarget.getY();}
+	public float getTargetX(){return targetsTarget.getX();}
+	public float getTargetY(){return targetsTarget.getY();}
 	public Tile findATile(float x, float y){return circle.findATile(x,y);}
-
+	public boolean isInsideCircle(float x, float y){return circle.isInsideOfCircle(x,y);}
+	public void changeCheckWalkable(boolean walkable){checkWalkable = walkable;}
+	public void changeRayCast(boolean cast){rayCast = cast;}
+	public void changeRadius(float radius){size = radius;}
+	public void changeAnimation(String animation){targetAnimation = animation;}
 
 
 

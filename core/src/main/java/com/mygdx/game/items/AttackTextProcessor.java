@@ -1,14 +1,10 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
-import java.security.Key;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
+import static com.mygdx.game.items.TextureManager.text;
 
 public class AttackTextProcessor {
 	static ArrayList<AttackText> textList = new ArrayList<>();
@@ -25,7 +21,6 @@ public class AttackTextProcessor {
 			public void onStageChange(){
 				delete();
 			}
-
 		};
 	}
 
@@ -69,7 +64,7 @@ public class AttackTextProcessor {
 				}};
 			aidText.render = false;
 			textDamageAndReason.add(new TextDamageAndReason(aidText,damage,reason));
-			TextureManager.text.add(aidText);
+			text.add(aidText);
 			process();
 		}
 
@@ -77,12 +72,12 @@ public class AttackTextProcessor {
 			TextureManager.Text aidText = new TextureManager.Text();
 			aidText.render = false;
 			textDamageAndReason.add(new TextDamageAndReason(aidText,damage,reason));
-			TextureManager.text.add(aidText);
+			text.add(aidText);
 			process();
 		}
 
 		public void process(){
-			textDamageAndReason.removeIf(t -> t.text.fakeNull);
+			textDamageAndReason.removeIf(t -> !text.contains(t.text));
 			int aid = 0;
 			for (TextDamageAndReason t : textDamageAndReason){
 				t.text.render = true;
@@ -93,8 +88,8 @@ public class AttackTextProcessor {
 					t.text.vanishingThreshold = 60;
 					delete = false;
 				}
-				t.text.text = Float.toString(t.damage);
-				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() - 1) * 20 + 8) / 2);
+				t.text.text = (t.reason == DamageReasons.HEALING ? "+ " : "") + t.damage;
+				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() + (t.reason == DamageReasons.HEALING ? 1 : -1 ))* 20 + 8) / 2);
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				t.text.font = createFont(TextureManager.Fonts.ComicSans,40);
 				t.text.setColor(t.reason.getColor());
@@ -152,7 +147,8 @@ public class AttackTextProcessor {
 		MAGICAL   (0,168,244),
 		LIGHTNING (245,237,0),
 		ICE_BALL  (100,250,250),
-		RANGED(120,59,38),
+		RANGED	  (120,59,38),
+		HEALING	  (50,250,0),
 
 		;
 

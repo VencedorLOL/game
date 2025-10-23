@@ -10,13 +10,11 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
-import static com.mygdx.game.items.InputHandler.directionalBuffer;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
@@ -27,13 +25,14 @@ public class Catapult extends CharacterClasses {
 	public float chargeRange = 3;
 	public float throwRange = 30;
 	public ArrayList<Rock> rocks = new ArrayList<>();
-	public float[] rocksCoords = new float[2];;
-	public float[] chargeCoords = new float[2];;
+	public float[] rocksCoords = new float[2];
+	public float[] chargeCoords = new float[2];
 	public boolean isCharged = false;
 	public boolean willShoot = false;
 	public boolean throwingMode = false;
 	OnVariousScenarios oVS;
 	OnVariousScenarios oVS2;
+	TargetProcessor targetProcessor;
 
 	public Catapult() {
 		super();
@@ -69,7 +68,7 @@ public class Catapult extends CharacterClasses {
 			public void cancelActivation() {
 				isItActive = false;
 				character.cancelDecision();
-				endTarget();
+				targetProcessor.reset();
 				chargeCoords = new float[2];
 			}
 
@@ -100,14 +99,15 @@ public class Catapult extends CharacterClasses {
 			public void active() {
 				isItActive = true;
 				character.cancelAttackMode();
-				character.actions = new Actor.Actions(false);
+				character.movementLock = true;
+				throwingMode = false;
 			}
 
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
-				character.actions = null;
-				endTarget();
+				character.movementLock = false;
+				targetProcessor.reset();
 				chargeCoords = new float[2];
 			}
 
@@ -115,7 +115,7 @@ public class Catapult extends CharacterClasses {
 			public void finished() {
 				cooldownCounter = 0;
 				isItActive = false;
-				character.actions = null;
+				character.movementLock = false;
 			}
 		});
 
@@ -128,6 +128,7 @@ public class Catapult extends CharacterClasses {
 
 		reset();
 		currentHealth = totalHealth;
+		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target");
 	}
 
 	public void onFinalizedTurn() {
@@ -194,14 +195,16 @@ public class Catapult extends CharacterClasses {
 		if(character.attackMode && isCharged && isDecidingWhatToDo(character)){
 			character.cancelAttackMode();
 			throwingMode = !throwingMode;
+			abilities.get(1).cancelActivation();
 		}
 
 		if(throwingMode && isDecidingWhatToDo(character))
 			rockThrowInput();
 		else if(character.attackMode && isDecidingWhatToDo(character))
 			cancelRam();
-		if(abilities.get(1).isItActive && isDecidingWhatToDo(character))
+		if(abilities.get(1).isItActive && isDecidingWhatToDo(character)) {
 			chargeInput();
+		}
 
 
 		
@@ -213,26 +216,23 @@ public class Catapult extends CharacterClasses {
 	}
 
 
-	public void endTarget(){
-		circle = null;
-		animations.remove(target);
-		target = null;
-	}
-
 	void chargeInput(){
-		targetProcesor(true);
+		targetProcessor.changeRadius(chargeRange);
+		targetProcessor.changeCheckWalkable(true);
+		targetProcessor.changeRayCast(true);
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				chargeCoords[0] = temporal.x;
 				chargeCoords[1] = temporal.y;
 				character.actionDecided();
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
-				chargeCoords[0] = targetsTarget.getX();
-				chargeCoords[1] = targetsTarget.getY();
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				chargeCoords[0] = targetProcessor.getTargetX();
+				chargeCoords[1] = targetProcessor.getTargetY();
 				character.actionDecided();
 			}
 		}
@@ -240,102 +240,30 @@ public class Catapult extends CharacterClasses {
 
 
 	protected void rockThrowInput() {
-		targetProcesor(false);
+		character.movementLock = true;
+		targetProcessor.changeRadius(throwRange);
+		targetProcessor.changeCheckWalkable(false);
+		targetProcessor.changeRayCast(false);
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				rocksCoords[0] = temporal.x;
 				rocksCoords[1] = temporal.y;
 				willShoot = true;
 				character.actionDecided();
+				character.movementLock = false;
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
-				rocksCoords[0] = targetsTarget.getX();
-				rocksCoords[1] = targetsTarget.getY();
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				rocksCoords[0] = targetProcessor.getTargetX();
+				rocksCoords[1] = targetProcessor.getTargetY();
 				willShoot = true;
 				character.actionDecided();
+				character.movementLock = false;
 			}
 		}
-	}
-
-
-
-	Entity targetsTarget = new Entity(null,character.getX(),character.getY(),false);
-	Animation target;
-	Tile.Circle circle;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
-	private void targetProcesor(boolean charges){
-		if (circle == null || circle.center != stage.findATile(character.getX(),character.getY()) || circle.tileset != stage.tileset || circle.radius != (charges ? chargeRange : throwRange) || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, charges ? chargeRange : throwRange , false,false);
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
-		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
-
-			if (!mouseMoved)
-				targetKeyboardMovement();
-
-			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || mouseMoved) {
-				targetsTarget.setX(roundedClick().x);
-				targetsTarget.setY(roundedClick().y);
-			}
-
-			targetRender();
-
-		} else if (!mouseMoved){
-			targetKeyboardMovement();
-			if (!(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY()))
-				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.setX(character.getX());
-			targetsTarget.setY(character.getY());
-		}
-	}
-
-
-	private void targetRender(){
-		if (target == null) {
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new Animation("target" , targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-	}
-
-
-	private void targetKeyboardMovement(){
-		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		byte counter = directionalBuffer();
-		if (counter % 2 != 0)
-			x += globalSize();
-		if(counter - 8 >= 0)
-			x -= globalSize();
-		if((counter & (1<<2)) != 0)
-			y += globalSize();
-		if((counter & (1<<1)) != 0)
-			y -= globalSize();
-		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.setX(x);
-			targetsTarget.setY(y);
-		} else if (circle.isInsideOfCircle(x, targetsTarget.getY()))
-			targetsTarget.setX(x);
-		else if (circle.isInsideOfCircle(targetsTarget.getX(),y))
-			targetsTarget.setY(y);
 	}
 
 

@@ -2,16 +2,12 @@ package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-import java.util.ArrayList;
-
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
@@ -102,12 +98,7 @@ public class Melee extends CharacterClasses {
 		if (!character.attackMode && (abilities.get(0).isItActive || abilities.get(1).isItActive))
 			for (Ability a : abilities)
 				a.cancelActivation();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			print("ability recharge is at: "+ abilities.get(0).cooldownCounter);
-			print("attackState is: "+ attackState);
-			print("FoA is: " + abilities.get(0).isItActive);
-			print("OfA is: " + abilities.get(1).isItActive);
-		}
+
 		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && isDecidingWhatToDo(character))
 			abilities.get(0).keybindActivate();
 		if (Gdx.input.isKeyJustPressed(Input.Keys.O) && isDecidingWhatToDo(character))

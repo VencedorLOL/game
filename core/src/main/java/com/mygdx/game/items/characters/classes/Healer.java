@@ -1,20 +1,32 @@
 package com.mygdx.game.items.characters.classes;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.Actor;
+import com.mygdx.game.items.Camara;
+import com.mygdx.game.items.OnVariousScenarios;
+import com.mygdx.game.items.TargetProcessor;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
-import com.mygdx.game.items.Character;
-import com.mygdx.game.items.characters.equipment.Shields;
-import com.mygdx.game.items.characters.equipment.shields.HealerShields;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
+
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 
 public class Healer extends CharacterClasses implements Utils {
 
 	public float healingFromAbility = 1.2f;
 	public Actor healTarget;
-
+	public float healRange;
+	public TargetProcessor targetProcessor;
+	OnVariousScenarios oVS;
 
 	public Healer(){
 		super();
@@ -38,12 +50,86 @@ public class Healer extends CharacterClasses implements Utils {
 		currentHealth = totalHealth;
 		manaPool = mana;
 		healTarget = character;
+
+		abilities.add(new Ability("healDirection", "Heal Target", -1, 60	,80, (float) globalSize() /2){
+			@Override
+			public void active() {
+				isItActive = true;
+				healRange = 40;
+				character.cancelAttackMode();
+				character.movementLock = true;
+			}
+
+			@Override
+			public void cancelActivation() {
+				isItActive = false;
+				character.movementLock = false;
+				Camara.smoothZoom(1,30);
+			}
+
+			public void finished() {
+				cooldownCounter = 0;
+				isItActive = false;
+				character.movementLock = false;
+			}
+		});
+
+		oVS = new OnVariousScenarios(){
+			public void onStageChange() {
+				healTarget = character;
+			}
+		};
+		targetProcessor = new TargetProcessor(character,healRange,true,false,"healtarget");
 	}
 
+	protected void updateOverridable() {
+		if(healTarget == null && healTarget.getIsDead())
+			healTarget = character;
+
+		abilities.get(0).render();
+		if(isDecidingWhatToDo(character))
+			abilities.get(0).touchActivate();
+		if (Gdx.input.isKeyJustPressed(Input.Keys.E) && (isDecidingWhatToDo(character)))
+			abilities.get(0).keybindActivate();
+
+		if(character.attackMode)
+			abilities.get(0).cancelActivation();
+
+		if(abilities.get(0).isItActive && isDecidingWhatToDo(character)){
+			healDirectionInput();
+		}
+
+	}
+
+	void healDirectionInput(){
+		targetProcessor.changeRadius(healRange);
+		targetProcessor.render();
+		if(Gdx.input.justTouched()) {
+			Camara.smoothZoom(1,30);
+			Vector3 temporal = roundedClick();
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
+				for(Actor a : actors){
+					if(a.x == temporal.x && a.y == temporal.y && a.team == character.team)
+						healTarget = a;
+				}
+				abilities.get(0).finished();
+			}
+		}
+		if(actionConfirmJustPressed()) {
+			Camara.smoothZoom(1,30);
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				for(Actor a : actors){
+					if(a.x == targetProcessor.getTargetX() && a.y == targetProcessor.getTargetY() && a.team == character.team)
+						healTarget = a;
+				}
+				abilities.get(0).finished();
+			}
+		}
+	}
 
 	public float outgoingDamageOverridable(){
 		float damage = totalDamage / 2;
-		currentHealth += damage * healingFromAbility * Utils.pickValueAUnlessEqualsZeroThenPickB(weaponHealingAbilityBonus(),1);
+		healTarget.healThis(damage * healingFromAbility * Utils.pickValueAUnlessEqualsZeroThenPickB(weaponHealingAbilityBonus(),1));
 		return damage;
 	}
 
@@ -52,6 +138,12 @@ public class Healer extends CharacterClasses implements Utils {
 		if (weapon instanceof HealerWeapons)
 			return ((HealerWeapons) weapon).weaponHealingAbilityBonus;
 		return 0;
+	}
+
+
+
+	protected void destroyOverridable() {
+		destroyListener(oVS);
 	}
 
 

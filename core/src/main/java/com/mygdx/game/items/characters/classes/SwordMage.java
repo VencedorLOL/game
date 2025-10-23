@@ -12,7 +12,6 @@ import com.mygdx.game.items.characters.equipment.shields.SwordMageShields;
 import com.mygdx.game.items.characters.equipment.weapons.SwordMageWeapons;
 
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
@@ -59,6 +58,7 @@ public class SwordMage extends CharacterClasses {
 				character.conditions.remove(Conditions.ConditionNames.MANA_HIT);
 			}
 		});
+		@SuppressWarnings("all")
 		OnVariousScenarios oVSce = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass() {

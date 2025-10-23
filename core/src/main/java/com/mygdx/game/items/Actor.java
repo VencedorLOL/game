@@ -69,13 +69,14 @@ public class Actor extends Entity{
 
 	public ConditionsManager conditions = new ConditionsManager(this);
 
-	public Actions actions;
+	public boolean movementLock = false;
 
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
 	public boolean lockClassTilAnimationFinishes = false;
 
+	@SuppressWarnings("all")
 	static OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
 		public void onTickStart() {
@@ -134,6 +135,7 @@ public class Actor extends Entity{
 		totalMaxHealth += heal;
 		if(health > totalMaxHealth)
 			health = totalMaxHealth;
+		AttackTextProcessor.addAttackText(heal, AttackTextProcessor.DamageReasons.HEALING,this);
 	}
 
 	public float damageRecieved;
@@ -207,9 +209,11 @@ public class Actor extends Entity{
 					softlockOverridable(false);
 					finalizedTurn();
 					conditions.onMove();
+					if (this instanceof Character)
+						((Character) this).classes.runMove();
 				}
 
-			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && actions == null)
+			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && !movementLock)
 				movementInputTurnMode();
 
 		} else {
@@ -224,6 +228,7 @@ public class Actor extends Entity{
 		}
 	}
 	ArrayList<Tile> dumpList;
+	@SuppressWarnings("all")
 	public void softlockOverridable(boolean type) {
 		if (overlapsWithStageWithException(stage,this,this) && !betweenStages){
 			print("SOFTLOCK SOFTLOCK at " + x  + " " + y);
@@ -465,6 +470,7 @@ public class Actor extends Entity{
 	}
 
 
+	@SuppressWarnings("all")
 	static class ActorAndDistance{
 		private Actor actor;
 		private double distance;
@@ -572,56 +578,12 @@ public class Actor extends Entity{
 
 	public final void onKill(){
 		conditions.onKill();
+		onKillOverridable();
 	}
+
 
 	public void onKillOverridable(){}
 
 	public void onDeathOverridable(){}
-
-
-
-	public static class Actions {
-		boolean controlledByPlayer;
-
-		public Actions(boolean controlledByPlayer){
-			this.controlledByPlayer = controlledByPlayer;
-		}
-
-		public static class AttackAction extends Actions {
-			ArrayList<Attack> attacks;
-
-			public AttackAction(boolean controlledByPlayer, ArrayList<Attack> attacks) {
-				super(controlledByPlayer);
-				this.attacks = attacks;
-			}
-
-		}
-
-		public static class MoveAction extends Actions {
-
-
-			public MoveAction(boolean controlledByPlayer){
-				super(controlledByPlayer);
-			}
-
-
-		}
-
-		public static class SkipTurn extends Actions {
-			public SkipTurn(boolean controlledByPlayer){
-				super(controlledByPlayer);
-			}
-		}
-
-	}
-
-
-
-
-
-
-
-
-
 
 }

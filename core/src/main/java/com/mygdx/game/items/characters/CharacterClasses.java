@@ -11,9 +11,7 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 public class CharacterClasses {
 	public Character character = chara;
@@ -190,6 +188,7 @@ public class CharacterClasses {
 		currentHealth += heal;
 		if(currentHealth > totalHealth)
 			currentHealth = totalHealth;
+		addAttackText(heal, AttackTextProcessor.DamageReasons.HEALING,character);
 	}
 
 
@@ -211,6 +210,7 @@ public class CharacterClasses {
 	//Used in other classes
 	public void damage(float damage, AttackTextProcessor.DamageReasons source){
 		refresh();
+		runHurt(source);
 		float damagedFor = max(overridableDamageTaken(damage, source), 0);
 		tempDefense -= damagedFor;
 		if(tempDefense < 0) {
@@ -220,6 +220,7 @@ public class CharacterClasses {
 		addAttackText(damagedFor,source,character);
 	}
 
+	@SuppressWarnings("all")
 	//Used in CharacterClasses overrides
 	protected float overridableDamageTaken(float damageRecieved, AttackTextProcessor.DamageReasons source){
 		return damageRecieved - totalDefense;
@@ -289,6 +290,7 @@ public class CharacterClasses {
 		character.conditions.onDamaged(source);
 	}
 
+	@SuppressWarnings("all")
 	protected void onHurt(AttackTextProcessor.DamageReasons source){}
 
 	public final void runKill(){

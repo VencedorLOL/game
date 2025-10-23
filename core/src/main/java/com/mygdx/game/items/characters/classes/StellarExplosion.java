@@ -7,18 +7,16 @@ import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
-import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
-import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 
 public class StellarExplosion extends CharacterClasses {
 
+	TargetProcessor targetProcessor;
 	public boolean explode  = false;
 	public float explosionRange = 3;
 	public boolean decidingExplode = false;
@@ -48,6 +46,8 @@ public class StellarExplosion extends CharacterClasses {
 				character.attackMode = false;
 				isItActive = true;
 				character.actionDecided();
+				decidingExplode = false;
+				character.movementLock = false;
 			}
 
 			@Override
@@ -63,11 +63,29 @@ public class StellarExplosion extends CharacterClasses {
 		currentHealth = totalHealth;
 		manaPool = totalMana;
 		damageReason = AttackTextProcessor.DamageReasons.MELEE;
+		targetProcessor = new TargetProcessor(character,explosionRange,false,false){
+			@Override
+			public void circleOverridable(Vector3 click) {
+				if ((Gdx.input.justTouched() && targetProcessor.isInsideCircle(click.x, click.y)) || actionConfirmJustPressed()) {
+					explode = true;
+					character.actionDecided();
+					decidingExplode = false;
+					character.movementLock = false;
+				}
+				else if (actionResetJustPressed()){
+					targetProcessor.reset();
+					explode = false;
+					decidingExplode = false;
+					character.movementLock = false;
+				}
+			}
+		};
 	}
 
 	TextureManager.Text text;
 	public void updateOverridable() {
 		text.text = manaPool+"";
+		targetProcessor.changeRadius(explosionRange);
 		abilities.get(0).render();
 		if(isDecidingWhatToDo(character))
 			abilities.get(0).touchActivate();
@@ -76,14 +94,16 @@ public class StellarExplosion extends CharacterClasses {
 
 		if(isDecidingWhatToDo(character) && (character.attackMode || decidingExplode) && manaPool >= totalManaPerUse) {
 			if(decidingExplode && character.attackMode){
-				circle = null;
+				targetProcessor.reset();
 				explode = false;
 				character.cancelAttackMode();
 				decidingExplode = false;
+				character.movementLock = false;
 			} else {
 				character.cancelAttackMode();
+				character.movementLock = true;
 				decidingExplode = true;
-				circleProcesor();
+				targetProcessor.render();
 			}
 		}
 
@@ -117,29 +137,6 @@ public class StellarExplosion extends CharacterClasses {
 
 	}
 
-	Tile.Circle circle;
-	private void circleProcesor(){
-		if (circle == null || circle.center != stage.findATile(character.getX(),character.getY()) || circle.tileset != stage.tileset || circle.radius != explosionRange || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, explosionRange, true,false);
-
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		if ((Gdx.input.justTouched() && circle.isInsideOfCircle(temporal.x, temporal.y)) || actionConfirmJustPressed()) {
-			explode = true;
-			character.actionDecided();
-			decidingExplode = false;
-		}
-		else if (actionResetJustPressed()){
-			circle = null;
-			explode = false;
-			decidingExplode = false;
-		}
-	}
 
 	public void destroyOverridable(){
 		text.onScreenTime = 1;

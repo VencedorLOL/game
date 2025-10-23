@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.Character.controllableCharacters;
@@ -22,6 +21,7 @@ public class ControllableFriend extends Friend {
 	public boolean active = false;
 	public boolean attackMode;
 	public static OnVariousScenarios oVSc;
+	public TargetProcessor targetProcessor;
 	static {
 		oVSc = new OnVariousScenarios(){
 			@Override
@@ -54,6 +54,7 @@ public class ControllableFriend extends Friend {
 	public ControllableFriend(float x, float y, String texture, float health) {
 		super(x, y,texture,health);
 		controllableCharacters.add(this);
+		targetProcessor = new TargetProcessor(this,totalRange,true,false,"target");
 	}
 
 
@@ -78,7 +79,7 @@ public class ControllableFriend extends Friend {
 					path.pathReset();
 					if (!attackMode)
 						cancelAttackMode();
-					mouseMoved = true;
+					targetProcessor.mouseMoved = true;
 				}
 			}
 			if(Gdx.input.isKeyJustPressed(Input.Keys.C))
@@ -106,7 +107,7 @@ public class ControllableFriend extends Friend {
 					conditions.onMove();
 				}
 
-			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && actions == null && active)
+			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && !movementLock && active)
 				movementInputTurnMode();
 
 		} else {
@@ -137,110 +138,33 @@ public class ControllableFriend extends Friend {
 
 
 	protected void attackInput() {
-		targetProcesor();
+		targetProcessor.changeRadius(totalRange);
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				attacks.add(new Attack(temporal.x, temporal.y,this));
 //				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
-				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
+			if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
+				attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
 //				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
 	}
 
-	Entity targetsTarget = new Entity("default",x,y,false);
-	TextureManager.Animation target;
-	Tile.Circle circle;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
-	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != totalRange || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, totalRange, true,false);
-
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
-		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
-
-			if (!mouseMoved)
-				targetKeyboardMovement();
-
-			if (!circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y) || mouseMoved) {
-				targetsTarget.x = roundedClick().x;
-				targetsTarget.y = roundedClick().y;
-			}
-
-			targetRender();
-
-		} else if (!mouseMoved){
-			targetKeyboardMovement();
-			if (!(targetsTarget.x == x && targetsTarget.y == y))
-				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.x = x;
-			targetsTarget.y = y;
-		}
-	}
-
-	private void targetRender(){
-		if (target == null) {
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new TextureManager.Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-	}
-
-
-	private void targetKeyboardMovement(){
-		float x = targetsTarget.x; float y = targetsTarget.y;
-		byte counter = directionalBuffer();
-		if (counter % 2 != 0)
-			x += globalSize();
-		if(counter - 8 >= 0)
-			x -= globalSize();
-		if((counter & (1<<2)) != 0)
-			y += globalSize();
-		if((counter & (1<<1)) != 0)
-			y -= globalSize();
-		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.x = x;
-			targetsTarget.y = y;
-		} else if (circle.isInsideOfCircle(x,targetsTarget.y))
-			targetsTarget.x = x;
-		else if (circle.isInsideOfCircle(targetsTarget.x,y))
-			targetsTarget.y = y;
-	}
-
 
 	public void cancelAttackMode(){
 		attackMode = false;
-		if (circle != null)
-			for (Tile t : circle.circle)
+		if (targetProcessor.circle != null)
+			for (Tile t : targetProcessor.circle.circle)
 				for (int i = 0; i < 9; i++)
 					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-		circle = null;
-		animations.remove(target);
-		target = null;
+		targetProcessor.reset();
 		attacks.clear();
 	}
 
@@ -271,7 +195,7 @@ public class ControllableFriend extends Friend {
 		}
 	}
 /*	protected void turnSpeedActuator(){
-		if (speedLeft[0] > 0) {
+*		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;
 			if (!overlapsWithStageWithException(stage,testCollision,this))
 				x += thisTurnVSM;

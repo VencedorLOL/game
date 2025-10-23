@@ -38,6 +38,8 @@ public class Character extends Actor implements Utils {
 	Animation walkingAnimation;
 	TextureManager.Text text;
 
+	TargetProcessor targetProcessor;
+
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);
 		testCollision.x = x;
@@ -62,6 +64,7 @@ public class Character extends Actor implements Utils {
 		actorsThatAttack.add(this);
 		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{244,83,23});
+		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target");
 	}
 
 	public void spendTurn(){
@@ -103,8 +106,8 @@ public class Character extends Actor implements Utils {
 					c.active = true;
 					Camara.smoothAttachment(c,40);
 					controlOfCamara = false;
-					circle = null;
-					c.circle = null;
+					targetProcessor.circle = null;
+					c.targetProcessor.circle = null;
 					return;
 				} else if (c.active)
 					return;
@@ -132,7 +135,7 @@ public class Character extends Actor implements Utils {
 			for(ControllableFriend c : controllableCharacters) {
 				c.cancelDecision();
 				c.active = false;
-				c.circle = null;
+				c.targetProcessor.circle = null;
 			}
 			cancelDecision();
 			Camara.smoothAttachment(chara,40);
@@ -196,90 +199,14 @@ public class Character extends Actor implements Utils {
 
 
 
-	Entity targetsTarget = new Entity("default",x,y,false);
-	Animation target;
-	Tile.Circle circle;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
-	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != classes.totalRange || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(x, y), stage.tileset, classes.totalRange, true,classes.attacksIgnoreTerrain);
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
-		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
-
-			if (!mouseMoved)
-				targetKeyboardMovement();
-
-			if (!circle.isInsideOfCircle(targetsTarget.x, targetsTarget.y) || mouseMoved) {
-				targetsTarget.x = roundedClick().x;
-				targetsTarget.y = roundedClick().y;
-			}
-
-			targetRender();
-
-		} else if (!mouseMoved){
-			targetKeyboardMovement();
-			if (!(targetsTarget.x == x && targetsTarget.y == y))
-				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.x = x;
-			targetsTarget.y = y;
-		}
-	}
-
-	private void targetRender(){
-		if (target == null) {
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new Animation("target", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-	}
-
-	private void targetKeyboardMovement(){
-		float x = targetsTarget.x; float y = targetsTarget.y;
-		if (upJustPressed())
-			y += globalSize();
-		if (leftJustPressed())
-			x -= globalSize();
-		if (downJustPressed())
-			y -= globalSize();
-		if (rightJustPressed())
-			x += globalSize();
-		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.x = x;
-			targetsTarget.y = y;
-		} else if (circle.isInsideOfCircle(x,targetsTarget.y))
-			targetsTarget.x = x;
-		else if (circle.isInsideOfCircle(targetsTarget.x,y))
-			targetsTarget.y = y;
-	}
-
-
 	public void cancelAttackMode(){
 		Camara.smoothZoom(1,30);
 		attackMode = false;
-		if (circle != null)
-			for (Tile t : circle.circle)
+		if (targetProcessor.circle != null)
+			for (Tile t : targetProcessor.circle.circle)
 				for (int i = 0; i < 13; i++)
 					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-		circle = null;
-		animations.remove(target);
-		target = null;
+		targetProcessor.reset();
 		attacks.clear();
 	}
 
@@ -326,18 +253,19 @@ public class Character extends Actor implements Utils {
 
 
 	protected void attackInput() {
-		targetProcesor();
+		targetProcessor.changeRadius(totalRange);
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				attacks.add(new Attack(temporal.x, temporal.y,this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
 		}
 		if (actionConfirmJustPressed()) {
-			if (circle.findATile(targetsTarget.x,targetsTarget.y) != null && !(targetsTarget.x == x && targetsTarget.y == y)) {
-				attacks.add(new Attack(targetsTarget.x, targetsTarget.y,this));
+			if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
+				attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
 			}
@@ -445,6 +373,7 @@ public class Character extends Actor implements Utils {
 	// Debug
 
 	public void changeTo(){
+		changeToSwordMage();
 		changeToHealer();
 		changeToMelee();
 		changeToVencedor();
@@ -461,7 +390,7 @@ public class Character extends Actor implements Utils {
 	}
 
 
-	public void changeToHealer(){
+	public void changeToSwordMage(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
 			classes.destroy();
 			classes = new SwordMage();
@@ -515,6 +444,15 @@ public class Character extends Actor implements Utils {
 			classes = new StellarExplosion();
 			classes.equipShield(new StellarExplosionShields.EnergyAccelerator(classes));
 			classes.equipWeapon(new StellarExplosionWeapons.EnergyCondensator(classes));
+		}
+	}
+
+	public void changeToHealer(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F8)){
+			classes.destroy();
+			classes = new Healer();
+			classes.equipShield(new HealerShields.BlessedShield(classes));
+			classes.equipWeapon(new HealerWeapons.BlessedSword(classes));
 		}
 	}
 
@@ -590,7 +528,7 @@ public class Character extends Actor implements Utils {
 				print("ShieldName: " + classes.shield.shieldName);
 				print("Current health: " + classes.currentHealth);
 				print("Texture" + texture);
-				print("mouse moved? " + mouseMoved);
+				print("mouse moved? " + targetProcessor.mouseMoved);
 				print("Real x: " + x + " simplified x: " + x / globalSize());
 				print("Real y: " + y + " simplified y: " + y / globalSize());
 				print("Base is: " + base + " Height is: " + height);
@@ -612,7 +550,7 @@ public class Character extends Actor implements Utils {
 			"ShieldName: " + classes.shield.shieldName+"\n"+
 			"Current health: " + classes.currentHealth+"\n"+
 			"Texture" + texture+"\n"+
-			"mouse moved? " + mouseMoved+"\n"+
+			"mouse moved? " + targetProcessor.mouseMoved+"\n"+
 			"Real x: " + x + " simplified x: " + x / globalSize()+"\n"+
 			"Real y: " + y + " simplified y: " + y / globalSize(),300,100,500,Fonts.ComicSans,40);
 		}
@@ -623,7 +561,7 @@ public class Character extends Actor implements Utils {
 				path.pathReset();
 				if (!attackMode)
 					cancelAttackMode();
-				mouseMoved = true;
+				targetProcessor.mouseMoved = true;
 			}
 		}
 
@@ -640,7 +578,7 @@ public class Character extends Actor implements Utils {
 			}
 		}
 
-		if(Gdx.input.isKeyPressed(Input.Keys.F8)){
+		if(Gdx.input.isKeyPressed(Input.Keys.F10)){
 			particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
 					y+ (float) globalSize() /2,1, 10,true,false);
 		}

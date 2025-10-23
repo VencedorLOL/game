@@ -1,29 +1,25 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
-import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Tile.findATile;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.*;
 
 public class Friend extends Actor {
 	public int[] color;
 
 
+	@SuppressWarnings("all")
 	public static OnVariousScenarios oVSc = new OnVariousScenarios(){
 		@Override
 		public void onStageChange() {
@@ -108,6 +104,7 @@ public class Friend extends Actor {
 			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
 	}
 
+	@SuppressWarnings("all")
 	public Friend(float x, float y) {
 		super("animaWithMustacheAndSurprisedWtfDidIJustDo",x,y,globalSize(),globalSize());
 		aggro = 1;
@@ -149,7 +146,7 @@ public class Friend extends Actor {
 			else
 				movement();
 			glideProcess();
-//			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
+//*			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();
 		}
 	}
@@ -224,7 +221,7 @@ public class Friend extends Actor {
 		}
 	}
 /*	protected void turnSpeedActuator(){
-		if (speedLeft[0] > 0) {
+*		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;
 			if (!overlapsWithStageWithException(stage,testCollision,this))
 				x += thisTurnVSM;

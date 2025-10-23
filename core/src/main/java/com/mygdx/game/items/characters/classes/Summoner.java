@@ -10,14 +10,11 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
-import static com.mygdx.game.items.InputHandler.directionalBuffer;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Float.POSITIVE_INFINITY;
 
@@ -28,6 +25,7 @@ public class Summoner extends CharacterClasses {
 	public static ArrayList<Summon> summons = new ArrayList<>();
 	public boolean summonDecided = false;
 	OnVariousScenarios oVS;
+	TargetProcessor targetProcessor;
 
 	public Summoner() {
 		super();
@@ -54,17 +52,23 @@ public class Summoner extends CharacterClasses {
 				isItActive = true;
 				cancelControl();
 				character.cancelAttackMode();
-				character.actions = new Actor.Actions(false);
 				summonRange = 3;
+				character.movementLock = true;
 			}
 
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
 				character.cancelDecision();
+				character.movementLock = false;
 				endSummonSelector();
 			}
 
+			public void finished() {
+				cooldownCounter = 0;
+				isItActive = false;
+				character.movementLock = false;
+			}
 
 		});
 
@@ -74,15 +78,21 @@ public class Summoner extends CharacterClasses {
 				isItActive = true;
 				summonRange = 40;
 				character.cancelAttackMode();
-				character.actions = new Actor.Actions(false);
 				cancelSummon();
+				character.movementLock = true;
 			}
 
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
-				character.actions = null;
+				character.movementLock = false;
 				Camara.smoothZoom(1,30);
+			}
+
+			public void finished() {
+				cooldownCounter = 0;
+				isItActive = false;
+				character.movementLock = false;
 			}
 		});
 
@@ -95,6 +105,7 @@ public class Summoner extends CharacterClasses {
 
 		reset();
 		currentHealth = totalHealth;
+		targetProcessor = new TargetProcessor(character,summonRange,true,false,"summontarget");
 	}
 
 	public void updateOverridable() {
@@ -165,21 +176,19 @@ public class Summoner extends CharacterClasses {
 
 
 	public void endSummonSelector(){
-		circle = null;
-		animations.remove(target);
-		target = null;
-		character.actions = null;
+		character.movementLock = false;
 		summonLocation = new float[2];
 		summonDecided = false;
-		Camara.smoothZoom(1,30);
 	}
 
 	void controlInput(){
-		targetProcesor();
+		targetProcessor.changeAnimation("summoncontrol");
+		targetProcessor.changeRadius(summonRange);
+		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				for(Summon s : summons){
 					s.cancelDecision();
 					s.setTarget(temporal.x,temporal.y);
@@ -190,10 +199,10 @@ public class Summoner extends CharacterClasses {
 		}
 		if(actionConfirmJustPressed()) {
 			Camara.smoothZoom(1,30);
-			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				for(Summon s : summons){
 					s.cancelDecision();
-					s.setTarget(targetsTarget.getX(), targetsTarget.getY());
+					s.setTarget(targetProcessor.getTargetX(), targetProcessor.getTargetY());
 				}
 				cancelControl();
 				cancelSummon();
@@ -203,7 +212,9 @@ public class Summoner extends CharacterClasses {
 
 
 	protected void summonInput() {
-		targetProcesor();
+		targetProcessor.changeAnimation("summontarget");
+		targetProcessor.changeRadius(summonRange);
+		targetProcessor.render();
 		if(summons.size() >= 5) {
 			float weakest = POSITIVE_INFINITY;
 			Summon weakestSummon = null;
@@ -212,13 +223,13 @@ public class Summoner extends CharacterClasses {
 					weakest = s.health;
 					weakestSummon = s;
 				}
-			addToList("Ball",weakestSummon.getX(),weakestSummon.getY() + globalSize()/4,1,0,240,25,25);
+			addToList("Ball",weakestSummon.getX(),weakestSummon.getY() + globalSize()/4f,1,0,240,25,25);
 		}
 
 		if(Gdx.input.justTouched()) {
 			Camara.smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
-			if (circle.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 					summonLocation[0] = temporal.x;
 					summonLocation[1] = temporal.y;
 					character.actionDecided();
@@ -228,93 +239,14 @@ public class Summoner extends CharacterClasses {
 		}
 		if(actionConfirmJustPressed()) {
 			Camara.smoothZoom(1,30);
-			if (circle.findATile(targetsTarget.getX(), targetsTarget.getY()) != null && !(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY())) {
-				summonLocation[0] = targetsTarget.getX();
-				summonLocation[1] = targetsTarget.getY();
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				summonLocation[0] = targetProcessor.getTargetX();
+				summonLocation[1] = targetProcessor.getTargetX();
 				character.actionDecided();
 				abilities.get(0).finished();
 				summonDecided = true;
 			}
 		}
-	}
-
-
-
-	Entity targetsTarget = new Entity(null,character.getX(),character.getY(),false);
-	TextureManager.Animation target;
-	Tile.Circle circle;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
-	private void targetProcesor(){
-		if (circle == null || circle.center != stage.findATile(character.getX(),character.getY()) || circle.tileset != stage.tileset || circle.radius != summonRange || !circle.walkable) {
-			if (circle != null)
-				for (Tile t : circle.circle)
-					for (int i = 0; i < 13; i++)
-						t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Tile.Circle(stage.findATile(character.getX(), character.getY()), stage.tileset, summonRange, true,false);
-
-		}
-		circle.renderCircle();
-		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
-		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
-
-			if (!mouseMoved)
-				targetKeyboardMovement();
-
-			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || mouseMoved) {
-				targetsTarget.setX(roundedClick().x);
-				targetsTarget.setY(roundedClick().y);
-			}
-
-			targetRender();
-
-		} else if (!mouseMoved){
-			targetKeyboardMovement();
-			if (!(targetsTarget.getX() == character.getX() && targetsTarget.getY() == character.getY()))
-				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.setX(character.getX());
-			targetsTarget.setY(character.getY());
-		}
-	}
-
-
-	private void targetRender(){
-		if (target == null) {
-			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new Animation(abilities.get(0).isItActive ? "summontarget" : "summoncontrol", targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
-			animations.add(target);
-		}
-	}
-
-
-	private void targetKeyboardMovement(){
-		float x = targetsTarget.getX(); float y = targetsTarget.getY();
-		byte counter = directionalBuffer();
-		if (counter % 2 != 0)
-			x += globalSize();
-		if(counter - 8 >= 0)
-			x -= globalSize();
-		if((counter & (1<<2)) != 0)
-			y += globalSize();
-		if((counter & (1<<1)) != 0)
-			y -= globalSize();
-		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.setX(x);
-			targetsTarget.setY(y);
-		} else if (circle.isInsideOfCircle(x, targetsTarget.getY()))
-			targetsTarget.setX(x);
-		else if (circle.isInsideOfCircle(targetsTarget.getX(),y))
-			targetsTarget.setY(y);
 	}
 
 
