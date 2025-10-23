@@ -3,8 +3,6 @@ package com.mygdx.game.items.characters.equipment.weapons;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
-import static com.mygdx.game.Settings.print;
-
 public class MeleeWeapons extends Weapons{
 
 	public MeleeWeapons(CharacterClasses holder) {
@@ -21,7 +19,6 @@ public class MeleeWeapons extends Weapons{
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

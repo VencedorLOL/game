@@ -22,7 +22,6 @@ public class MageShields extends Shields {
 			shieldAttackSpeed = 0;
 			shieldDefense = 0;
 			shieldRange = 0;
-			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 200;
 			shieldMagicDefense = 0;

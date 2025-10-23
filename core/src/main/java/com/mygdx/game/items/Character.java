@@ -8,10 +8,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.*;
-import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
-import com.mygdx.game.items.characters.equipment.weapons.SpeedsterWeapons;
-import com.mygdx.game.items.characters.equipment.weapons.MeleeWeapons;
-import com.mygdx.game.items.characters.equipment.weapons.SwordMageWeapons;
+import com.mygdx.game.items.characters.equipment.weapons.*;
 
 
 import java.util.ArrayList;
@@ -36,8 +33,10 @@ public class Character extends Actor implements Utils {
 	public boolean attackMode = false;
 	public float lastClickX, lastClickY;
 	public byte lastDamageCounter;
-	Animation walkingAnimation;
 	public static ArrayList<ControllableFriend> controllableCharacters = new ArrayList<>();
+
+	Animation walkingAnimation;
+	TextureManager.Text text;
 
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);
@@ -61,6 +60,8 @@ public class Character extends Actor implements Utils {
 		classes.character = this;
 		path = new Path(x,y, classes.totalSpeed,this);
 		actorsThatAttack.add(this);
+		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
+		text.setColor(new int[]{244,83,23});
 	}
 
 	public void spendTurn(){
@@ -82,6 +83,9 @@ public class Character extends Actor implements Utils {
 	}
 
 
+	public void healThis(float heal){
+		classes.healThis(heal);
+	}
 
 	private void pathFinding(){
 		path.pathReset();
@@ -148,6 +152,10 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void update(){
+		if(classes.tempDefense <= 0)
+			text.text = classes.currentHealth+"/"+classes.totalHealth;
+		else
+			text.text = classes.currentHealth+"/"+classes.totalHealth+" + "+classes.tempDefense;
 		classes.update();
 		statsUpdater();
 		onDeath();
@@ -267,7 +275,7 @@ public class Character extends Actor implements Utils {
 		attackMode = false;
 		if (circle != null)
 			for (Tile t : circle.circle)
-				for (int i = 0; i < 9; i++)
+				for (int i = 0; i < 13; i++)
 					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
 		circle = null;
 		animations.remove(target);
@@ -298,8 +306,6 @@ public class Character extends Actor implements Utils {
 
 		}
 	}
-
-
 
 
 	public void attackDetector(){
@@ -420,8 +426,7 @@ public class Character extends Actor implements Utils {
 	public void onDeathOverridable(){
 		if (classes.currentHealth <= 0) {
 			isDead = true;
-			byte[] gitGud = new byte[1];
-			gitGud[1] = 1;
+			throw new Error("gitGud");
 		}
 	}
 
@@ -446,6 +451,7 @@ public class Character extends Actor implements Utils {
 		changeToSummon();
 		changeToImp();
 		changeToCatapult();
+		changeToStellar();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -500,6 +506,15 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F6)){
 			classes.destroy();
 			classes = new Catapult();
+		}
+	}
+
+	public void changeToStellar(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F7)){
+			classes.destroy();
+			classes = new StellarExplosion();
+			classes.equipShield(new StellarExplosionShields.EnergyAccelerator(classes));
+			classes.equipWeapon(new StellarExplosionWeapons.EnergyCondensator(classes));
 		}
 	}
 
@@ -686,7 +701,6 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;
 			classes.currentHealth = 1000000;
-			Report 	repo = new Report();
 		}
 
 

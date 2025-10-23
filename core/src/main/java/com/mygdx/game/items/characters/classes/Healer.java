@@ -1,6 +1,7 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.Utils;
+import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.Character;
@@ -12,6 +13,7 @@ import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 public class Healer extends CharacterClasses implements Utils {
 
 	public float healingFromAbility = 1.2f;
+	public Actor healTarget;
 
 
 	public Healer(){
@@ -35,6 +37,7 @@ public class Healer extends CharacterClasses implements Utils {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
+		healTarget = character;
 	}
 
 

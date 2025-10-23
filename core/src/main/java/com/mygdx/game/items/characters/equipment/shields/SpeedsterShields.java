@@ -22,7 +22,6 @@ public class SpeedsterShields extends Shields {
 			shieldAttackSpeed = 0;
 			shieldDefense = 1;
 			shieldRange = 0;
-			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;
 			shieldMagicDefense = 0;

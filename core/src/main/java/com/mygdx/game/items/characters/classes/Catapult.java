@@ -196,17 +196,13 @@ public class Catapult extends CharacterClasses {
 			throwingMode = !throwingMode;
 		}
 
-		if(throwingMode && isDecidingWhatToDo(character)) {
+		if(throwingMode && isDecidingWhatToDo(character))
 			rockThrowInput();
-		}
-
-		else if(character.attackMode && isDecidingWhatToDo(character)){
+		else if(character.attackMode && isDecidingWhatToDo(character))
 			cancelRam();
-		}
-
-		if(abilities.get(1).isItActive && isDecidingWhatToDo(character)){
+		if(abilities.get(1).isItActive && isDecidingWhatToDo(character))
 			chargeInput();
-		}
+
 
 		
 	}

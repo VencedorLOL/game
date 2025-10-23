@@ -7,7 +7,6 @@ public class Shields {
 
 	public String shieldName;
 	public float shieldHealth;
-	public float shieldTempDefense;
 	public float shieldDamage;
 	public byte shieldSpeed;
 	public byte shieldAttackSpeed;
@@ -56,7 +55,6 @@ public class Shields {
 			shieldAttackSpeed = 0;
 			shieldDefense = 0;
 			shieldRange = 0;
-			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;
 			shieldMagicDefense = 0;

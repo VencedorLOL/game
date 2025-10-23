@@ -20,7 +20,6 @@ public class MageWeapons extends Weapons{
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

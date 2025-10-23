@@ -10,13 +10,6 @@ public class HealerWeapons extends Weapons {
 		super(holder);
 	}
 
-	public HealerWeapons(Weapons weapon,float weaponHealingAbilityBonus){
-		super(weapon);
-		this.weaponHealingAbilityBonus = weaponMagicHealing;
-	}
-
-
-
 	public static class BlessedSword extends HealerWeapons {
 		public BlessedSword(CharacterClasses holder) {
 			super(holder);
@@ -27,7 +20,6 @@ public class HealerWeapons extends Weapons {
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -53,7 +45,6 @@ public class HealerWeapons extends Weapons {
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

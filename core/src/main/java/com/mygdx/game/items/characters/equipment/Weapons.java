@@ -3,14 +3,12 @@ package com.mygdx.game.items.characters.equipment;
 import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-import static com.mygdx.game.Settings.print;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Weapons {
 
 	public String weaponName;
 	public float weaponHealth;
-	public float weaponTempDefense;
 	public float weaponDamage;
 	public byte weaponSpeed;
 	public byte weaponAttackSpeed;
@@ -30,30 +28,6 @@ public class Weapons {
 
 	public Weapons(CharacterClasses holder){
 		this.holder = holder;
-	}
-
-	public Weapons(Weapons weapon){
-		refresh(weapon);
-	}
-
-	public void refresh(Weapons weapon){
-		weaponName = weapon.weaponName;
-		weaponHealth = weapon.weaponHealth;
-		weaponDamage = weapon.weaponDamage;
-		weaponSpeed = weapon.weaponSpeed;
-		weaponAttackSpeed = weapon.weaponAttackSpeed;
-		weaponDefense = weapon.weaponDefense;
-		weaponRange = weapon.weaponRange;
-		weaponTempDefense = weapon.weaponTempDefense;
-		weaponRainbowDefense = weapon.weaponRainbowDefense;
-		weaponMana = weapon.weaponMana;
-		weaponMagicDefense = weapon.weaponMagicDefense;
-		weaponMagicDamage = weapon.weaponMagicDamage;
-		weaponManaPerTurn = weapon.weaponManaPerTurn;
-		weaponManaPerUse = weapon.weaponManaPerUse;
-		weaponMagicHealing = weapon.weaponMagicHealing;
-		equippableBy = weapon.equippableBy;
-		aggro = weapon.aggro;
 	}
 
 	public void update(){
@@ -84,7 +58,6 @@ public class Weapons {
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -106,7 +79,6 @@ public class Weapons {
 			weaponAttackSpeed = 0;
 			weaponDefense = POSITIVE_INFINITY;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = POSITIVE_INFINITY;

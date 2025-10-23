@@ -19,7 +19,6 @@ public class CharacterClasses {
 	public Character character = chara;
 	public String name;
 	public float health;
-	public float tempDefense;
 	public float damage;
 	public byte  speed;
 	public byte  attackSpeed;
@@ -48,13 +47,13 @@ public class CharacterClasses {
 	public float totalMagicDamage;
 	public float totalMagicHealing;
 	public float totalDefense;
-	public float totalTempDefense;
 	public float totalRainbowDefense;
 	public float totalMagicDefense;
 	public int   totalRange;
 	public float totalAggro;
 
 	public float currentHealth;
+	public float tempDefense;
 
 	public boolean attacksIgnoreTerrain = false;
 
@@ -163,7 +162,7 @@ public class CharacterClasses {
 			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8)) * character.conditions.getMultiplier(8);
 			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9)) * character.conditions.getMultiplier(9);
 			totalMagicHealing = (magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing);
-			totalTempDefense = (tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense + character.conditions.getAdditive(12)) * character.conditions.getMultiplier(12);
+			tempDefense = (tempDefense + character.conditions.getAdditive(12)) * character.conditions.getMultiplier(12);
 			totalRainbowDefense = (rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense);
 			totalMagicDefense = (magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense);
 			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11)) * character.conditions.getMultiplier(11);
@@ -180,13 +179,20 @@ public class CharacterClasses {
 			totalManaPerUse = manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse;
 			totalMagicDamage = magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage;
 			totalMagicHealing = magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing;
-			totalTempDefense = tempDefense + weapon.weaponTempDefense + shield.shieldTempDefense;
 			totalRainbowDefense = rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense;
 			totalMagicDefense = magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense;
 			totalAggro = aggro + weapon.aggro + shield.aggro;
 		}
 		totalStatsCalculatorOverridable();
 	}
+
+	public void healThis(float heal){
+		currentHealth += heal;
+		if(currentHealth > totalHealth)
+			currentHealth = totalHealth;
+	}
+
+
 
 	protected void totalStatsCalculatorOverridable(){}
 
@@ -206,7 +212,11 @@ public class CharacterClasses {
 	public void damage(float damage, AttackTextProcessor.DamageReasons source){
 		refresh();
 		float damagedFor = max(overridableDamageTaken(damage, source), 0);
-		currentHealth -= damagedFor;
+		tempDefense -= damagedFor;
+		if(tempDefense < 0) {
+			currentHealth += tempDefense;
+			tempDefense = 0;
+		}
 		addAttackText(damagedFor,source,character);
 	}
 

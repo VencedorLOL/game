@@ -130,6 +130,11 @@ public class Actor extends Entity{
 		totalFollowRange = followRange;
 	}
 
+	public void healThis(float heal){
+		totalMaxHealth += heal;
+		if(health > totalMaxHealth)
+			health = totalMaxHealth;
+	}
 
 	public float damageRecieved;
 	public final void damage(float damage, AttackTextProcessor.DamageReasons damageReason, Entity lastDamager){

@@ -21,7 +21,6 @@ public class SwordMageWeapons extends Weapons{
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
 			weaponRange = 0;
-			weaponTempDefense = 0;
 			weaponRainbowDefense = 0;
 			weaponMana = 10;
 			weaponMagicDefense = 0;

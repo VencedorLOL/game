@@ -22,7 +22,6 @@ public class TankShields extends Shields {
 			shieldAttackSpeed = 0;
 			shieldDefense = 20;
 			shieldRange = 0;
-			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;
 			shieldMagicDefense = 0;

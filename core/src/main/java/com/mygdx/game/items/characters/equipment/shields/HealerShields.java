@@ -7,7 +7,6 @@ public class HealerShields extends Shields{
 	public float shieldHealingPerTurn;
 
 	public HealerShields(CharacterClasses holder) {
-
 		super(holder);
 		this.shieldHealingPerTurn = shieldHealingPerTurn;
 	}
@@ -25,7 +24,6 @@ public class HealerShields extends Shields{
 			shieldAttackSpeed = 0;
 			shieldDefense = 10;
 			shieldRange = 0;
-			shieldTempDefense = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;
 			shieldMagicDefense = 0;
