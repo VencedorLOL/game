@@ -14,6 +14,7 @@ public class Camara {
 	static float x,y,base,height;
 	public static float zoom = (float) 2;
 	static Entity attached;
+	public static float finalZoom = -1;
 	public void camaraStarter(float zoom){
 		base = Gdx.graphics.getWidth() * zoom;
 		height = Gdx.graphics.getHeight() * zoom;
@@ -76,6 +77,11 @@ public class Camara {
 			zoom -= zoomPerTick;
 			base = Gdx.graphics.getWidth() * zoom;
 			height = Gdx.graphics.getHeight() * zoom;
+			if(finalZoom != -1){
+				base = Gdx.graphics.getWidth() * finalZoom;
+				height = Gdx.graphics.getHeight() * finalZoom;
+				finalZoom = -1;
+			}
 			camara.setToOrtho(false, base , height);
 		}
 		camara.position.set(x,y,0);

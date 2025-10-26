@@ -149,6 +149,7 @@ public class AttackTextProcessor {
 		ICE_BALL  (100,250,250),
 		RANGED	  (120,59,38),
 		HEALING	  (50,250,0),
+		EARTHQUAKE(150,100,25),
 
 		;
 

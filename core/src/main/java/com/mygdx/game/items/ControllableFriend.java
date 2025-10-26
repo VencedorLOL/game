@@ -161,9 +161,7 @@ public class ControllableFriend extends Friend {
 	public void cancelAttackMode(){
 		attackMode = false;
 		if (targetProcessor.circle != null)
-			for (Tile t : targetProcessor.circle.circle)
-				for (int i = 0; i < 9; i++)
-					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
+			targetProcessor.deleteTexture();
 		targetProcessor.reset();
 		attacks.clear();
 	}

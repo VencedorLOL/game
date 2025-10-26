@@ -44,6 +44,9 @@ public class Shields {
 
 	public void onKill() {}
 
+	public final void destroy(){destroyOverridable();}
+
+	public void destroyOverridable(){}
 
 	public static class NoShield extends Shields {
 		public NoShield(CharacterClasses holder) {

@@ -68,6 +68,7 @@ public class Summoner extends CharacterClasses {
 				cooldownCounter = 0;
 				isItActive = false;
 				character.movementLock = false;
+				targetProcessor.reset();
 			}
 
 		});
@@ -87,12 +88,14 @@ public class Summoner extends CharacterClasses {
 				isItActive = false;
 				character.movementLock = false;
 				Camara.smoothZoom(1,30);
+				endSummonSelector();
 			}
 
 			public void finished() {
 				cooldownCounter = 0;
 				isItActive = false;
 				character.movementLock = false;
+				endSummonSelector();
 			}
 		});
 
@@ -179,6 +182,7 @@ public class Summoner extends CharacterClasses {
 		character.movementLock = false;
 		summonLocation = new float[2];
 		summonDecided = false;
+		targetProcessor.reset();
 	}
 
 	void controlInput(){

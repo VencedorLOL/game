@@ -40,6 +40,8 @@ public class Character extends Actor implements Utils {
 
 	TargetProcessor targetProcessor;
 
+	public boolean lockClass = false;
+
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);
 		testCollision.x = x;
@@ -164,14 +166,15 @@ public class Character extends Actor implements Utils {
 		onDeath();
 		path.getStats(x,y, classes.totalSpeed);
 
-		if (!attackMode)
-			movement();
-		else
-			attack();
+		if(!lockClass) {
+			if (!attackMode)
+				movement();
+			else
+				attack();
 
-		if (!turnMode)
-			interact();
-
+			if (!turnMode)
+				interact();
+		}
 		glideProcess();
 		updateFriends();
 		controlProcessor();
@@ -203,9 +206,7 @@ public class Character extends Actor implements Utils {
 		Camara.smoothZoom(1,30);
 		attackMode = false;
 		if (targetProcessor.circle != null)
-			for (Tile t : targetProcessor.circle.circle)
-				for (int i = 0; i < 13; i++)
-					t.texture.setSecondaryTexture(null,0.8f,0,false,false,i);
+			targetProcessor.deleteTexture();
 		targetProcessor.reset();
 		attacks.clear();
 	}
@@ -381,6 +382,7 @@ public class Character extends Actor implements Utils {
 		changeToImp();
 		changeToCatapult();
 		changeToStellar();
+		changeToEq();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -453,6 +455,15 @@ public class Character extends Actor implements Utils {
 			classes = new Healer();
 			classes.equipShield(new HealerShields.BlessedShield(classes));
 			classes.equipWeapon(new HealerWeapons.BlessedSword(classes));
+		}
+	}
+
+	public void changeToEq(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
+			classes.destroy();
+			classes = new Earthquaker();
+			classes.equipShield(new EarthquakerShields.StablePlatform(classes));
+			classes.equipWeapon(new EarthquakerWeapons.EnergyCondensator(classes));
 		}
 	}
 
@@ -582,7 +593,7 @@ public class Character extends Actor implements Utils {
 			particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
 					y+ (float) globalSize() /2,1, 10,true,false);
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
 			stage.enemy.add(new Enemy(x+256,y));
 		}
 

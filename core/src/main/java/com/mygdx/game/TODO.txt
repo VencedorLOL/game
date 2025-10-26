@@ -1,5 +1,4 @@
 TODO:
-Enemies: Make enemies follow you, AKA giving them proper AI.
 Motor: Inventory mechanics. Implement GUI. Implement ability interface.
 Character: Code the +80 characters :D. Make a zone to be able to change your character
 Game: The rest of the game.

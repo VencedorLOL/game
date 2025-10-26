@@ -10,7 +10,7 @@ public class Entity {
 
 	public float x, y,z, base, height;
 	String texture;
-	boolean render = true;
+	public boolean render = true;
 	public static ArrayList<Entity> entityList = new ArrayList<>();
 
 	public Entity(String texture, float x, float y, float base, float height){

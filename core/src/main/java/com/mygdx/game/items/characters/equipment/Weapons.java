@@ -46,6 +46,10 @@ public class Weapons {
 
 	public void onKill() {}
 
+	public final void destroy(){destroyOverridable();}
+
+	public void destroyOverridable(){}
+
 	// New weapons can be nested here (note to self: please dont) or on other different classes, if and only if they are children of "Weapons"
 
 	public static class NoWeapon extends Weapons{

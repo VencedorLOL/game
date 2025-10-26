@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.CraterStage;
-import com.mygdx.game.items.stages.StageOne;
 import com.mygdx.game.items.stages.StagePathfinding;
 
 import static com.mygdx.game.Settings.*;

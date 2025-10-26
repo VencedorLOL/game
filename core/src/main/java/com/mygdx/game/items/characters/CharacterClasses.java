@@ -337,6 +337,8 @@ public class CharacterClasses {
 	public final void destroy(){
 		destroyListener(oVE);
 		abilities = null;
+		weapon.destroy();
+		shield.destroy();
 		destroyOverridable();
 	}
 
