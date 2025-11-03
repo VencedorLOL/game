@@ -33,6 +33,9 @@ public class Catapult extends CharacterClasses {
 	OnVariousScenarios oVS;
 	OnVariousScenarios oVS2;
 	TargetProcessor targetProcessor;
+	TargetProcessor circle2;
+	TargetProcessor circle5;
+	TargetProcessor circle8;
 
 	public Catapult() {
 		super();
@@ -69,6 +72,7 @@ public class Catapult extends CharacterClasses {
 				isItActive = false;
 				character.cancelDecision();
 				targetProcessor.reset();
+				resetCircle();
 				chargeCoords = new float[2];
 			}
 
@@ -109,6 +113,7 @@ public class Catapult extends CharacterClasses {
 				isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
+				resetCircle();
 				chargeCoords = new float[2];
 				character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 			}
@@ -133,6 +138,9 @@ public class Catapult extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target");
+		circle2 = new TargetProcessor(character,1.5f,true,false);
+		circle5 = new TargetProcessor(character,4.5f,true,false);
+		circle8 = new TargetProcessor(character,7.5f,true,false);
 	}
 
 	public void onFinalizedTurn() {
@@ -193,8 +201,6 @@ public class Catapult extends CharacterClasses {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.R))
 			abilities.get(1).keybindActivate();
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.P))
-			print(rocks.get(0).turnsToFall+"");
 
 		if(character.attackMode && isCharged && isDecidingWhatToDo(character)){
 			character.cancelAttackMode();
@@ -242,12 +248,25 @@ public class Catapult extends CharacterClasses {
 		}
 	}
 
+	protected void renderCircle(){
+		circle2.render();
+		circle5.render();
+		circle8.render();
+	}
+
+	protected void resetCircle(){
+		circle2.reset();
+		circle5.reset();
+		circle8.reset();
+	}
+
 
 	protected void rockThrowInput() {
 		character.movementLock = true;
 		targetProcessor.changeRadius(throwRange);
 		targetProcessor.changeCheckWalkable(false);
 		targetProcessor.changeRayCast(false);
+		renderCircle();
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
 			Vector3 temporal = roundedClick();
@@ -292,7 +311,7 @@ public class Catapult extends CharacterClasses {
 			this.objectiveY = objectiveY;
 			double distance = dC(objectiveX,objectiveY)/globalSize();
 			print("Distance of rock is of " + distance);
-			turnsToFall = distance <= 2 ? 3 : distance <= 5 ? 2 : distance <= 8  ? 1 : 0;
+			turnsToFall = distance <= 2 ? 3 : distance <= 5 ? 2 : distance <= 8 ? 1 : 0;
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);
 			zPerTurn = 3f / turnsToFall;

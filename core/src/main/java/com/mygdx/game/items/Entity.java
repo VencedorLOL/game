@@ -45,6 +45,10 @@ public class Entity {
 		return x < entity.x + entity.base && x + base > entity.x && y < entity.y + entity.height && y + height > entity.y;
 	}
 
+	public boolean overlaps (float x, float y, float base, float height) {
+		return this.x < x + base && this.x + this.base > x && this.y < y + height && this.y + this.height > y;
+	}
+
 	public boolean overlapsTiles(Entity entity){
 		return x == entity.x && y == entity.y;
 	}

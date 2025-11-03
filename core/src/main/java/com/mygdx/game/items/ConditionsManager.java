@@ -1,7 +1,6 @@
 package com.mygdx.game.items;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 public class ConditionsManager {
 
@@ -40,6 +39,7 @@ public class ConditionsManager {
 	/**
 	 * Adds an effect and sums the effect length asked for to the one currently inflicted.
 	 * **/
+	@SuppressWarnings("all")
 	public void addUp(Conditions.ConditionNames condition){
 		for (Conditions c : conditions){
 			if(c.name.equals(condition.name)){
@@ -95,6 +95,7 @@ public class ConditionsManager {
 			case SUNNY:			 return new Conditions.Sunny		(owner);
 			case STUNNED:		 return new Conditions.Stunned		(owner);
 			case COMING_THROUGH: return new Conditions.ComingThrough(owner);
+			case STELLAR_STORM:	 return new Conditions.StellarStorm	(owner);
 
 		}
 		return null;

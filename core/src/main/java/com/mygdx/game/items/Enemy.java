@@ -185,12 +185,7 @@ public class Enemy extends Actor {
 	}
 
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
-		float damagedFor;
-		if(damageReason != AttackTextProcessor.DamageReasons.LIGHTNING)
-			damagedFor = max(damage - totalDefense,0);
-		else
-			damagedFor = damage;
-
+		float damagedFor = getDamagedFor(damage, damageReason);
 		health -= damagedFor;
 
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
@@ -201,6 +196,7 @@ public class Enemy extends Actor {
 		printErr("damaged for " + damagedFor + " damage");
 
 	}
+
 
 /*	protected void turnSpeedActuator(){
 		if (speedLeft[0] > 0) {

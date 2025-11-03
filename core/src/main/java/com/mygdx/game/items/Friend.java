@@ -163,7 +163,7 @@ public class Friend extends Actor {
 	}
 
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
-		float damagedFor = max(damage - totalDefense,0);
+		float damagedFor = getDamagedFor(damage,damageReason);
 		health -= damagedFor;
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
 			particle.particleEmitter("BLOB",x + (float) globalSize() /2,y + (float) globalSize() /2,10);

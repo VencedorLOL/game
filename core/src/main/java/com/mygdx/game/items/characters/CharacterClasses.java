@@ -223,8 +223,23 @@ public class CharacterClasses {
 	@SuppressWarnings("all")
 	//Used in CharacterClasses overrides
 	protected float overridableDamageTaken(float damageRecieved, AttackTextProcessor.DamageReasons source){
-		return damageRecieved - totalDefense;
+		return getDamagedFor(damageRecieved,source);
 	}
+
+	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
+		float damagedFor;
+		if(damageReason != AttackTextProcessor.DamageReasons.LIGHTNING && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
+				&& damageReason !=  AttackTextProcessor.DamageReasons.EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
+				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE)
+			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
+				damagedFor = max(damage - (totalDefense/2),0);
+			else
+				damagedFor = max(damage - totalDefense,0);
+		else
+			damagedFor = damage;
+		return damagedFor;
+	}
+
 
 	public void equipWeapon(Weapons targetWeapon) {
 		print(targetWeapon.weaponName + " was just equipped");

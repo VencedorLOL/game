@@ -1,43 +1,30 @@
 package com.mygdx.game.items.stages;
 
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Stage;
 
-import java.util.ArrayList;
-
-import static com.mygdx.game.Settings.globalSize;
 
 public class StageTwo extends Stage {
-	public int startX = -globalSize() * 3;
-	public int startY = -globalSize() * 3;
-	public int finalX = globalSize()*8;
-	public int finalY = globalSize()*8;
-	public int spawnX = 0;
-	public int spawnY = 0;
-	public int[] wallX = {1,3,2,3,5};
-	public int[] wallY = {2,3,1,2,7};
-	public int[] wallType = {1,1,1,1,1};
-	public int[] enemyX = {-3,-2,-1,0,1,2,3,4,5};
-	public int[] enemyY = {-3,-2,-1,0,1,2,3,4,5};
-	public int[] enemyType = {2,2,2,2,2,2,2,2,2};
-	public int[] screenWarpX = {-2,-1,2,3,4,5,6,7,8,-3,0,1};
-	public int[] screenWarpY = {8,8,8,8,8,8,8,8,8,8,8,8};
-	public byte[] screenWarpDestinationSpecification = {0,0,0,0,0,0,0,0,0,0,0,0};
-	public String floorTexture = "Sand";
-	public ArrayList<Stage> screenWarpDestination = new ArrayList<>(){};
 	public StageTwo(){
-		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY,wallType, enemyX, enemyY, screenWarpX,
-				screenWarpY,screenWarpDestination,floorTexture,
-				screenWarpDestinationSpecification,enemyType);
-		haveEnemiesBeenRendered = false;
-		haveWallsBeenRendered = false;
-		haveScreenWarpsBeenRendered = false;
+		startX = -3;
+		startY = -3;
+		finalX = 8;
+		finalY = 8;
+		spawnX = 0;
+		spawnY = 0;
+		wallX 		= new int[]{1,3,2,3,5};
+		wallY 		= new int[]{2,3,1,2,7};
+		wallType 	= new int[]{1,1,1,1,1};
+		enemySpawnX 	= new int[]{-3,-2,-1,0,1,2,3,4,5};
+		enemySpawnY 	= new int[]{-3,-2,-1,0,1,2,3,4,5};
+		enemyType 		= new int[]{2,2,2,2,2,2,2,2,2};
+		screenWarpX 						= new int[]{-2,-1,2,3,4,5,6,7,8,-3,0,1};
+		screenWarpY 						= new int[]{8,8,8,8,8,8,8,8,8,8,8,8};
+		screenWarpDestinationSpecification = new byte[]{0,0,0,0,0,0,0,0,0,0,0,0};
+		floorTexture = "Sand";
+		scale();
 	}
 
-
-	@Override
-	public void reStage(){
+	public void reStage() {
 		screenWarpDestination.add(new StageThree());
 	}
 

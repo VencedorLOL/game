@@ -18,6 +18,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
@@ -646,6 +647,12 @@ public class Character extends Actor implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
 			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)){
+			addField(FieldEffects.FieldNames.ALERT_FIRE);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
+			addField(FieldEffects.FieldNames.ALERT_TSUNAMI);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;

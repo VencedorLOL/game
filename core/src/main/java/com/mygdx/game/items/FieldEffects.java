@@ -6,8 +6,10 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.AudioManager.quickPlay;
-import static com.mygdx.game.items.TextureManager.addToList;
-import static com.mygdx.game.items.TextureManager.animations;
+import static com.mygdx.game.items.Conditions.ConditionNames.*;
+import static com.mygdx.game.items.Hazards.getHazard;
+import static com.mygdx.game.items.Hazards.hazards;
+import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.*;
 
@@ -18,6 +20,10 @@ public class FieldEffects {
 	public static void updateFields(){
 		for(FieldEffects f : fieldEffects)
 			f.update();
+		for(FieldEffects f : fieldEffects)
+			if(f.queuedForRemoval)
+				f.destroyField();
+		fieldEffects.removeIf(f -> f.queuedForRemoval);
 	}
 
 	public static void addField(FieldNames field){
@@ -27,24 +33,35 @@ public class FieldEffects {
 
 	public static FieldEffects fieldBuilder(FieldNames field){
 		switch(field){
-			case LIGHTNING: return new Lightning();
-			case HAILSTORM: return new Hailstorm();
-			case CLOWDY:	return new Clowdy();
-			case RAINY:		return new Rainy();
-			case SNOWY:		return new Snowy();
-			case SUNNY:		return new Sunny();
+			case LIGHTNING: 			return new Lightning();
+			case HAILSTORM:				return new Hailstorm();
+			case CLOWDY:				return new Clowdy();
+			case RAINY:					return new Rainy();
+			case SNOWY:					return new Snowy();
+			case SUNNY:					return new Sunny();
+			case ALERT_SNOWSTORM:   	return new AlertSnowstorm();
+			case ALERT_FIRE:			return new AlertFire();
+			case ALERT_STELLAR_STORM:	return new AlertStellarStorm();
+			case ALERT_TSUNAMI:			return new AlertTsunami();
 		}
 		return null;
 	}
 
+	@SuppressWarnings("all")
 	public static void deleteField(FieldNames field){
 		for(FieldEffects f : fieldEffects)
-			if(f.name.equals(field.name))
-				f.destroyField();
-		fieldEffects.removeIf(f -> f.name.equals(field.name));
+			if(f.name.equals(field.name)) {
+				f.queuedForRemoval = true;
+			}
+//		fieldEffects.removeIf(f -> f.name.equals(field.name));
 	}
 
-
+	public static FieldEffects getField(FieldNames field){
+		for(FieldEffects f : fieldEffects)
+			if(f.name.equals(field.name))
+				return f;
+		return null;
+	}
 
 
 	/**
@@ -61,6 +78,7 @@ public class FieldEffects {
 	 * 11: aggro
 	 * 12: temp. defense
 	 **/
+	@SuppressWarnings("all")
 	public static float getMultiplier(int type){
 		float finalMultiplier = 1;
 		for (FieldEffects c : fieldEffects)
@@ -96,6 +114,7 @@ public class FieldEffects {
 	 * 11: aggro
 	 * 12: temp. defense
 	 **/
+	@SuppressWarnings("all")
 	public static float getAdditive(int type){
 		float finalSum = 0;
 		for (FieldEffects c : fieldEffects)
@@ -119,7 +138,7 @@ public class FieldEffects {
 
 	//--------------------------------------------
 
-
+	public boolean queuedForRemoval = false;
 	public boolean didFieldAct;
 	public boolean canFieldAct;
 	public String name = "NullField";
@@ -132,7 +151,11 @@ public class FieldEffects {
 	public void setCondition(Conditions.ConditionNames condition){
 		for(Actor a : actors)
 			a.conditions.status(condition);
+	}
 
+	public void clearCondition(Conditions.ConditionNames condition){
+		for(Actor a : actors)
+			a.conditions.remove(condition);
 	}
 
 	public void finishedActing(){
@@ -165,6 +188,28 @@ public class FieldEffects {
 	float getAggroAdditive(){return 0;}
 	public void destroyField(){}
 
+	protected void playSiren(){
+		fixatedAnimations.add(new Animation("siren",50,45){
+			public int counter = 3;
+
+			public void updateOverridable() {
+				scaleX = 6;
+				scaleY = 6;
+			}
+
+			public void onFinish() {
+				if(counter > 0) {
+					finished = false;
+					line = 0;
+					listOfUsedLoops = new ArrayList<>();
+					framesForCurrentAnimation = 0;
+					counter--;
+				}
+			}
+		});
+	}
+
+
 	//---------------------------------------------------
 
 	public static class Lightning extends FieldEffects{
@@ -173,6 +218,7 @@ public class FieldEffects {
 		int turnsConstant = 2;
 		int cooldownConstant = 1;
 		boolean renderLightningLocation;
+		@SuppressWarnings("all")
 		int numberLightning = -1;
 
 		public Lightning(){
@@ -199,8 +245,8 @@ public class FieldEffects {
 				}
 				else if(locations != null && !dealDamage){
 					blockTheClass = true;
-					for(Tile t : locations)
-						animations.add(new TextureManager.Animation("lightning",t.x,t.y){
+					for(float[] t : locations)
+						animations.add(new TextureManager.Animation("lightning",t[0],t[1]){
 							@Override
 							public void onFinish() {
 								dealDamage = true;
@@ -213,18 +259,18 @@ public class FieldEffects {
 					warningTurnsCounter = 0;
 					renderLightningLocation = false;
 					quickPlay("lightning");
-					for(Tile t : locations)
+					for(float[] t : locations)
 						for(Actor a : actors){
-							if(t.x == a.x && t.y == a.y) {
+							if(t[0] == a.x && t[1] == a.y) {
 								a.damage(a.totalMaxHealth * 0.25f + 10, AttackTextProcessor.DamageReasons.LIGHTNING, null);
 							}
-							if( ( (t.x == a.x + globalSize() || t.x == a.x - globalSize()) && (t.y == a.y + globalSize() || t.y == a.y - globalSize()) ) ||
-									((t.x == a.x + globalSize()*2 || t.x == a.x - globalSize()*2) && t.y == a.y )||
-									((t.y == a.y + globalSize()*2 || t.y == a.y - globalSize()*2) && t.x == a.x ) ) {
+							if( ( (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()) && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize()) ) ||
+									((t[0] == a.x + globalSize()*2 || t[0] == a.x - globalSize()*2) && t[1] == a.y )||
+									((t[1] == a.y + globalSize()*2 || t[1] == a.y - globalSize()*2) && t[0] == a.x ) ) {
 								a.damage(a.totalMaxHealth * 0.075f + 10, AttackTextProcessor.DamageReasons.LIGHTNING, null);
 							}
-							if((t.x == a.x && (t.y == a.y + globalSize() || t.y == a.y - globalSize())) ||
-									(t.y == a.y && (t.x == a.x + globalSize() || t.x == a.x - globalSize()))) {
+							if((t[0] == a.x && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize())) ||
+									(t[1] == a.y && (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()))) {
 								a.damage(a.totalMaxHealth * 0.15f + 10, AttackTextProcessor.DamageReasons.LIGHTNING, null);
 							}
 						}
@@ -241,47 +287,51 @@ public class FieldEffects {
 
 
 		public void renderLightning(){
-			for(Tile t : locations){
+			for(float[] t : locations){
 				if(warningTurnsCounter < turnsConstant) {
-					addToList("LightningWarning", t.x, t.y, 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t.x + globalSize(), t.y, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x - globalSize(), t.y, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x, t.y + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x, t.y - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x + globalSize(), t.y + globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x - globalSize(), t.y - globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x - globalSize(), t.y + globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x + globalSize(), t.y - globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x + globalSize() * 2, t.y, 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x - globalSize() * 2, t.y, 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x, t.y + globalSize() * 2, 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t.x, t.y - globalSize() * 2, 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 50, 0);
+					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0] - globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0] + globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 250, 50);
 				} else{
-					addToList("LightningWarning", t.x, t.y, 0.8f, 0, 250, 0, 0);
-					addToList("LightningWarning", t.x + globalSize(), t.y, 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t.x - globalSize(), t.y, 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t.x, t.y + globalSize(), 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t.x, t.y - globalSize(), 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t.x + globalSize(), t.y + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x - globalSize(), t.y - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x - globalSize(), t.y + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x + globalSize(), t.y - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x + globalSize() * 2, t.y, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x - globalSize() * 2, t.y, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x, t.y + globalSize() * 2, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t.x, t.y - globalSize() * 2, 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 0, 0);
+					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 50, 0);
+					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 50, 0);
+					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 50, 0);
+					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 50, 0);
+					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] - globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] + globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 125, 50);
 				}
 			}
 		}
 
-		ArrayList<Tile> locations;
+		ArrayList<float[]> locations;
 		public void setLightningLocation(){
 			locations = new ArrayList<>();
 			for(int i = 0; i < numberLightning; i++)
-				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))));
+				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))).xAndY());
 			renderLightningLocation = true;
 		}
 
+		@Override
+		public void destroyField() {
+			deleteField(FieldNames.RAINY);
+		}
 	}
 
 	public static class Hailstorm extends FieldEffects{
@@ -316,8 +366,8 @@ public class FieldEffects {
 				}
 				else if(locations != null && !dealDamage){
 					blockTheClass = true;
-					for(Tile t : locations)
-						animations.add(new TextureManager.Animation("icefall",t.x,t.y+globalSize()){
+					for(float[] t : locations)
+						animations.add(new TextureManager.Animation("icefall",t[0],t[1]+globalSize()){
 							@Override
 							public void onFinish() {
 								dealDamage = true;
@@ -328,12 +378,19 @@ public class FieldEffects {
 					dealDamage = false;
 					cooldownTurnsCounter = cooldownConstant;
 					warningTurnsCounter = 0;
-					for(Tile t : locations)
-						for(Actor a : actors){
-							if(t.x == a.x && t.y == a.y) {
+					for(float[] t : locations) {
+						for (Actor a : actors) {
+							if (t[0] == a.x && t[1] == a.y) {
 								a.damage(a.totalMaxHealth * 0.15f + 10, AttackTextProcessor.DamageReasons.ICE_BALL, null);
 							}
 						}
+						for (Hazards h : getHazard(Hazards.HazardNames.FIRE, t[0], t[1])) {
+							if(h instanceof Hazards.FireTile && ((Hazards.FireTile) h).time > 1)
+								((Hazards.FireTile) h).time -= 2;
+							else if (h instanceof Hazards.FireTile && ((Hazards.FireTile) h).time == 1)
+								((Hazards.FireTile) h).time -= 1;
+						}
+					}
 					justFinished = true;
 					setIceBallLocation();
 					finishedActing();
@@ -348,31 +405,38 @@ public class FieldEffects {
 
 
 		public void renderIceLocation(){
-			for(Tile t : locations){
+			for(float[] t : locations){
 				if(warningTurnsCounter < turnsConstant)
-					addToList("IceBallIndicator",t.x,t.y,0.8f,0,100,250,250);
+					addToList("IceBallIndicator",t[0],t[1],0.8f,0,100,250,250);
 				else
-					addToList("IceBallIndicator",t.x,t.y,0.8f,0,100,100,250);
+					addToList("IceBallIndicator",t[0],t[1],0.8f,0,100,100,250);
 			}
 		}
 
-		ArrayList<Tile> locations;
+		ArrayList<float[]> locations;
 		public void setIceBallLocation(){
 			locations = new ArrayList<>();
 			for(int i = 0; i < numberHail; i++)
-				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))));
+				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))).xAndY());
 			renderHailLocation = true;
 		}
 
+		public void destroyField() {
+			deleteField(FieldNames.SNOWY);
+		}
 	}
 
 	public static class Clowdy extends FieldEffects{
 		public Clowdy(){name = "Clowdy";}
 		public void update() {
 			if(canFieldAct) {
-				setCondition(Conditions.ConditionNames.CLOWDY);
+				setCondition(CLOWDY);
 				finishedActing();
 			}
+		}
+
+		public void destroyField() {
+			clearCondition(CLOWDY);
 		}
 	}
 
@@ -380,39 +444,302 @@ public class FieldEffects {
 		public Rainy(){name = "Rainy";}
 		public void update() {
 			if(canFieldAct) {
-				setCondition(Conditions.ConditionNames.RAINY);
+				setCondition(RAINY);
 				finishedActing();
 			}
 		}
+		public void destroyField() {
+			clearCondition(RAINY);
+		}
+
 	}
 	public static class Snowy extends FieldEffects{
 		public Snowy(){name = "Snowy";}
 		public void update() {
 			if(canFieldAct) {
-				setCondition(Conditions.ConditionNames.SNOWY);
+				setCondition(SNOWY);
 				finishedActing();
 			}
+		}
+
+		public void destroyField() {
+			clearCondition(SNOWY);
 		}
 	}
 	public static class Sunny extends FieldEffects{
 		public Sunny(){name = "Sunny";}
 		public void update() {
 			if(canFieldAct) {
-				setCondition(Conditions.ConditionNames.SUNNY);
+				setCondition(SUNNY);
 				finishedActing();
 			}
 		}
+
+		public void destroyField() {
+			clearCondition(SUNNY);
+		}
 	}
 
+	@SuppressWarnings("all")
 	public static class AlertSnowstorm extends FieldEffects{
 		public AlertSnowstorm(){
 			name="Alert Snowstorm";
 			addField(FieldNames.LIGHTNING);
 			addField(FieldNames.HAILSTORM);
+			playSiren();
+		}
+
+		public void destroyField() {
+			deleteField(FieldNames.LIGHTNING);
+			deleteField(FieldNames.HAILSTORM);
+		}
+	}
+	public static class AlertFire extends FieldEffects{
+		int warningTurnsCounter = 0;
+		int cooldownTurnsCounter;
+		int turnsConstant = 1;
+		int cooldownConstant = 0;
+		boolean renderFireLocation;
+		int numberFire;
+
+		public AlertFire(){
+			name = "Alert Fire";
+			numberFire = (int) sqrt((stage.finalX-stage.startX) * (stage.finalY-stage.startY)/pow(globalSize(),2));
+			cooldownTurnsCounter = 1;
+			playSiren();
+		}
+
+		boolean justFinished = false;
+		boolean dealDamage = false;
+		boolean blockTheClass = false;
+		public void update() {
+			if(canFieldAct && !blockTheClass){
+				if(cooldownTurnsCounter > 0 && !dealDamage){
+					cooldownTurnsCounter--;
+					finishedActing();
+				}
+				else if(warningTurnsCounter < turnsConstant && !dealDamage){
+					if(locations == null)
+						setFireLocation();
+					warningTurnsCounter++;
+					finishedActing();
+				}
+				else if(locations != null && !dealDamage){
+/*					blockTheClass = true;
+*					for(Tile t : locations)
+						animations.add(new TextureManager.Animation("icefall",t.x,t.y+globalSize()){
+							@Override
+							public void onFinish() {
+								dealDamage = true;
+								blockTheClass = false;
+							}});*/
+					dealDamage = true;
+				}
+				else if(locations != null){
+					dealDamage = false;
+					cooldownTurnsCounter = cooldownConstant;
+					warningTurnsCounter = 0;
+					for(float[] t : locations) {
+						for (Actor a : actors) {
+							if (t[0] == a.x && t[1] == a.y) {
+								a.damage(a.totalMaxHealth * 0.15f + 20, AttackTextProcessor.DamageReasons.BURNT, null);
+								a.conditions.status(Conditions.ConditionNames.BURNING);
+							}
+						}
+						hazards.add(new Hazards.FireTile(t[0],t[1],4));
+					}
+					justFinished = true;
+					setFireLocation();
+					finishedActing();
+				} else
+					finishedActing();
+			}
+			if(!isTurnRunning())
+				justFinished = false;
+			if(renderFireLocation && locations != null && !justFinished)
+				renderFireLocation();
+		}
+
+
+		public void renderFireLocation(){
+			for(float[] t : locations){
+				if(warningTurnsCounter < turnsConstant)
+					addToList("FireWarning",t[0],t[1],0.8f,0,100,250,250);
+				else
+					addToList("FireWarning",t[0],t[1],0.8f,0,100,100,250);
+			}
+		}
+
+		ArrayList<float[]> locations;
+		public void setFireLocation(){
+			locations = new ArrayList<>();
+			for(int i = 0; i < numberFire; i++){
+				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))).xAndY());
+			}
+			renderFireLocation = true;
+		}
+
+	}
+
+
+	public static class AlertStellarStorm extends FieldEffects{
+		int turnCount = 15;
+		public AlertStellarStorm(){
+			name = "Alert StellarStorm";
+			playSiren();
+		}
+		public void update() {
+			if(canFieldAct) {
+				setCondition(STELLAR_STORM);
+				finishedActing();
+			}
+		}
+
+		public void destroyField() {
+			clearCondition(STELLAR_STORM);
+		}
+
+		public void finishedActing() {
+			super.finishedActing();
+			turnCount--;
+			if(turnCount == 0){
+				queuedForRemoval = true;
+			}
 		}
 	}
 
 
+	public static class AlertTsunami extends FieldEffects{
+		int warningTurnsCounter;
+		int cooldownTurnsCounter;
+		int turnsConstant = 2;
+		int cooldownConstant = 1;
+		boolean renderTsunamiLocation;
+		byte direction;
+
+		public AlertTsunami(){
+			name = "Alert Tsunami";
+			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
+			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
+			playSiren();
+		}
+		boolean justFinished = false;
+		boolean dealDamage = false;
+		boolean blockTheClass = false;
+		public void update() {
+			if(canFieldAct && !blockTheClass){
+				if(cooldownTurnsCounter > 0&& !dealDamage){
+					cooldownTurnsCounter--;
+					finishedActing();
+
+				}
+				else if(warningTurnsCounter < turnsConstant&& !dealDamage){
+					if(warningTurnsCounter == 0){
+						setTsunamiLocation();
+						justFinished = true;}
+					warningTurnsCounter++;
+					finishedActing();
+				}
+/*				else if(locations != null && !dealDamage){
+*					blockTheClass = true;
+					for(Tile t : locations)
+						animations.add(new TextureManager.Animation("lightning",t.x,t.y){
+							@Override
+							public void onFinish() {
+								dealDamage = true;
+								blockTheClass = false;
+							}});
+
+				}*/
+				else if(locations != null){
+					dealDamage = false;
+					cooldownTurnsCounter = cooldownConstant;
+					warningTurnsCounter = 0;
+					renderTsunamiLocation = false;
+//					quickPlay("lightning");
+					for(float[] t : locations) {
+						for (Actor a : actors) {
+							if (t[0] == a.x && t[1] == a.y) {
+								a.damage(a.totalMaxHealth * 0.8f + 50, AttackTextProcessor.DamageReasons.PRESSURE, null);
+								a.conditions.remove(BURNING);
+								a.conditions.remove(BURNING_BRIGHT);
+								a.conditions.remove(MELTING);
+								a.conditions.remove(HYPERTHERMIA);
+								a.conditions.remove(SUBLIMATING);
+							}
+						}
+						for (Hazards h : getHazard(Hazards.HazardNames.FIRE, t[0], t[1])) {
+							if (h instanceof Hazards.FireTile && ((Hazards.FireTile) h).time > 0)
+								((Hazards.FireTile) h).time = 0;
+						}
+					}
+					locations = null;
+					queuedForRemoval = true;
+					finishedActing();
+				} else
+					finishedActing();
+			}
+			if(!isTurnRunning())
+				justFinished = false;
+			if(renderTsunamiLocation && locations != null && !justFinished)
+				renderTsunami();
+		}
+
+
+		public void renderTsunami(){
+			for(float[] t : locations){
+				if(warningTurnsCounter < turnsConstant) {
+					addToList("TsunamiWarning", t[0], t[1], 0.5f, 0, 20, 50, 200);
+				} else{
+					addToList("TsunamiWarning", t[0], t[1], 0.8f, 0, 60, 100, 250);
+				}
+			}
+		}
+
+		//floor() my beloved
+		ArrayList<float[]> locations;
+		public void setTsunamiLocation(){
+			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
+			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
+			locations = new ArrayList<>();
+			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
+				if(direction == 0) {
+					locations.add(new float[]{
+							(float) (stage.startX + globalSize() * floor((double) i / (1+(double) (stage.finalY - stage.startY) / globalSize())))
+						,	(float) (stage.startY + globalSize() * valueCutter(i, 1+(stage.finalY - stage.startY) / globalSize()))});
+				}
+				if(direction == 1) {
+					locations.add(new float[]{
+							(float) (stage.finalX - globalSize() * floor((double) i / (1+(double) (stage.finalY - stage.startY) / globalSize())))
+						,	(float) (stage.finalY - globalSize() * valueCutter(i, 1+(stage.finalY - stage.startY) / globalSize()))});
+				}
+				if(direction == 2) {
+					locations.add(new float[]{
+							(float) (stage.startX + globalSize() * valueCutter(i, 1+(stage.finalX - stage.startX) / globalSize()))
+						,	(float) (stage.startY + globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
+				}
+
+				if(direction == 3) {
+					locations.add(new float[]{
+							(float) (stage.finalX - globalSize() * valueCutter(i, 1+(stage.finalX - stage.startX) / globalSize()))
+						,	(float) (stage.finalY - globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
+
+				}
+			}
+			renderTsunamiLocation = true;
+
+		}
+
+	}
+
+	public int valueCutter(float initial, int delimiter){
+		if(initial >= delimiter)
+			initial -= delimiter;
+		return initial < delimiter ? (int) initial : valueCutter(initial,delimiter);
+	}
+
+
+	@SuppressWarnings("all")
 	public enum FieldNames{
 		LIGHTNING("Lightning"),
 		HAILSTORM("Hailstorm"),
@@ -421,6 +748,10 @@ public class FieldEffects {
 		SNOWY("Snowy"),
 		SUNNY("Sunny"),
 		ALERT_SNOWSTORM("Alert Snowstorm"),
+		ALERT_FIRE("Alert Fire"),
+		ALERT_STELLAR_STORM("Alert StellarStorm"),
+		ALERT_TSUNAMI("Alert Tsunami"),
+
 		;
 
 		public final String name;

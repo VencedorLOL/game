@@ -1,0 +1,197 @@
+package com.mygdx.game.items;
+
+import java.util.ArrayList;
+
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.FieldEffects.getField;
+
+public class Hazards {
+
+	public static ArrayList<Hazards> hazards = new ArrayList<>();
+
+	public static void updateHazards(){
+		for(Hazards h : hazards) {
+			h.update();
+			h.render();
+		}
+		hazards.removeIf(h -> h.queuedForDeletion);
+	}
+
+	/**
+	 *
+	 * @param hazard: A HazardName object.
+	 * @param x: The x coordinate, SIMPLIFIED.
+	 * @param y: The y coordinate, SIMPLIFIED.
+	 */
+	public static void addHazard(HazardNames hazard,float x, float y){
+		hazards.add(hazardsBuilder(hazard,x*globalSize(),y*globalSize()));
+	}
+
+	public static void clearHazards(){hazards.clear();}
+
+	@SuppressWarnings("all")
+	public static Hazards hazardsBuilder(HazardNames hazard, float x, float y){
+		switch(hazard){
+			case SPIKES: 	return new Spikes(x,y);
+			case FIRE:		return new FireTile(x,y);
+
+		}
+		return null;
+	}
+
+	@SuppressWarnings("all")
+	public static void deleteHazard(HazardNames hazards, float x, float y){
+		for(Hazards h : Hazards.hazards)
+			if(h.name.equals(hazards.name) && h.x == x && h.y == y) {
+				h.destroyHazard();
+				h.queuedForDeletion = true;
+			}
+//		Hazards.hazards.removeIf(h -> h.name.equals(hazards.name) && h.x == x && h.y == y);
+	}
+
+	public static ArrayList<Hazards> getHazard(HazardNames name,float x, float y){
+		ArrayList<Hazards> list = new ArrayList<>();
+		for (Hazards h : hazards){
+			if(h.name.equals(name.name) && h.x == x && h.y == y){
+				list.add(h);
+			}
+		}
+		return list;
+	}
+
+
+
+//--------------------------------------------
+
+	public float x,y,base,height;
+	public boolean didHazardAct;
+	public boolean canHazardAct;
+	public String name = "NullField";
+	public String texture;
+	public boolean queuedForDeletion = false;
+
+	public void update(){
+		if(canHazardAct) {
+			finishedActing();
+		}
+	}
+
+	public final Actor stepTrigger(){
+		for(Actor a : actors)
+			if(a.overlaps(x,y,base,height))
+				return a;
+		return null;
+	}
+
+	public void finishedActing(){
+		canHazardAct = false;
+	}
+
+	public Hazards(float x, float y, float base, float height){
+		this.x = x; this.y = y;
+		this.base = base; this.height = height;
+
+	}
+
+	public void render(){
+		TextureManager.addToList(texture,x,y);
+	}
+
+	public void destroyHazard(){}
+
+
+	//---------------------------------------------------
+
+
+	public static class Spikes extends Hazards {
+		public float damage = 10;
+		ArrayList<Actor> triggered = new ArrayList<>();
+
+		public Spikes(float x,float y){
+			super(x,y,globalSize(),globalSize());
+			name = "Spikes";
+			texture = "Spikes";
+		}
+
+		public void update() {
+			Actor victim = stepTrigger();
+			if(canHazardAct){
+				triggered = new ArrayList<>();
+				finishedActing();
+			}
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim)) {
+				victim.damage(damage, AttackTextProcessor.DamageReasons.PIERCING, null);
+				triggered.add(victim);
+			}
+		}
+
+	}
+
+	public static class FireTile extends Hazards{
+		public int time = -1;
+
+		public FireTile(float x,float y){
+			super(x,y,globalSize(),globalSize());
+			name = "FireTile";
+			texture = "FireTile";
+		}
+
+		public FireTile(float x,float y,int time){
+			super(x,y,globalSize(),globalSize());
+			name = "FireTile";
+			texture = "FireTile";
+			this.time = time;
+			if(getField(FieldEffects.FieldNames.RAINY) != null)
+				if(this.time != 0)
+					this.time--;
+			if(getField(FieldEffects.FieldNames.SNOWY) != null)
+				if(this.time != 0)
+					this.time--;
+		}
+
+		public void update() {
+			Actor victim = stepTrigger();
+			if(canHazardAct){
+				if(victim != null) {
+					victim.damage(victim.totalMaxHealth * .05f + 5, AttackTextProcessor.DamageReasons.BURNT, null);
+					victim.conditions.status(Conditions.ConditionNames.BURNING);
+				}
+				if(time == 0)
+					queuedForDeletion = true;
+				time--;
+				finishedActing();
+			}
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0)
+				victim.conditions.status(Conditions.ConditionNames.BURNING);
+		}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+	public enum HazardNames{
+		SPIKES("Spikes"),
+		FIRE("FireTile"),
+		;
+
+		public final String name;
+		HazardNames(String name){
+			this.name = name;
+		}
+	}
+
+
+
+
+
+
+}

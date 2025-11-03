@@ -1,44 +1,29 @@
 package com.mygdx.game.items.stages;
-
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Stage;
 
-import java.util.ArrayList;
-
-import static com.mygdx.game.Settings.globalSize;
-
 public class StageFive extends Stage {
-	public int startX = 0;
-	public int startY = 0;
-	public int finalX = globalSize()*8;
-	public int finalY = globalSize()*8;
-	public int spawnX = globalSize()*2;
-	public int spawnY = globalSize()*2;
-	public int[] wallX = {};
-	public int[] wallY = {};
-	public int[] wallType = {};
-	public int[] enemyX = {};
-	public int[] enemyY = {};
-	public int[] enemyType = {};
-	public int[] screenWarpX = {2,3,4};
-	public int[] screenWarpY = {8,8,8};
-	public byte[] screenWarpDestinationSpecification = {0,0,0,0,0};
-	public ArrayList<Stage> screenWarpDestination = new ArrayList<Stage>(){};
-	public String floorTexture = "Grass";
 	public StageFive(){
-		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY,wallType, enemyX, enemyY, screenWarpX,
-				screenWarpY,screenWarpDestination,floorTexture,
-				screenWarpDestinationSpecification,enemyType);
-		haveEnemiesBeenRendered = false;
-		haveWallsBeenRendered = false;
-		haveScreenWarpsBeenRendered = false;
+		startX = 0;
+		startY = 0;
+		finalX = 8;
+		finalY = 8;
+		spawnX = 2;
+		spawnY = 2;
+		wallX 		= new int[]{};
+		wallY 		= new int[]{};
+		wallType 	= new int[]{};
+		enemySpawnX 	= new int[]{};
+		enemySpawnY 	= new int[]{};
+		enemyType 		= new int[]{};
+		screenWarpX 						= new int[]{2,3,4};
+		screenWarpY 						= new int[]{8,8,8};
+		screenWarpDestinationSpecification = new byte[]{0,1,0};
+		floorTexture = "Grass";
+		scale();
 	}
-
-
-	@Override
-	public void reStage(){
+	public void reStage() {
 		screenWarpDestination.add(new StageSeven());
+		screenWarpDestination.add(new StageEight());
 	}
 
 }

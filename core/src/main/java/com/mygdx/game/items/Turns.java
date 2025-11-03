@@ -7,6 +7,7 @@ import java.util.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.FieldEffects.*;
+import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
 
 public class Turns implements Utils {
@@ -14,6 +15,7 @@ public class Turns implements Utils {
 	private static long turnCount;
 	private static ArrayList<ActorAndBoolean> finalizedToChoose /*and ready to act!*/ = new ArrayList<>();
 	private static boolean canTurnFinish;
+	@SuppressWarnings("all")
 	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
 		public void onStageChange() {
@@ -37,6 +39,7 @@ public class Turns implements Utils {
 	}
 
 
+	@SuppressWarnings("all")
 	public static void turnStop(){
 		willTurnRun = false;
 	}
@@ -47,6 +50,7 @@ public class Turns implements Utils {
 		willTurnRun = false;
 	}
 
+	@SuppressWarnings("all")
 	public static void turnResume(){
 		if(timer == 0)
 			willTurnRun = true;
@@ -54,11 +58,13 @@ public class Turns implements Utils {
 			print("Can't resume turn as there's an active timer!");
 	}
 
+	@SuppressWarnings("all")
 	public static void turnCancel(){
 		willTurnRun = false;
 		reset();
 	}
 
+	@SuppressWarnings("all")
 	public static void turnRestart(){
 		reset();
 		willTurnRun = true;
@@ -132,6 +138,8 @@ public class Turns implements Utils {
 						l.getActor().setDidItAct(false);
 					for(FieldEffects f : fieldEffects)
 						f.didFieldAct = false;
+					for(Hazards h : hazards)
+						h.didHazardAct = false;
 					isTurnApproved = false;
 					triggerOnTurnPass();
 				}
@@ -162,11 +170,22 @@ public class Turns implements Utils {
 				a.letAct();
 				return;
 			}
+		for (Hazards f : hazards)
+			if (f != null && !f.didHazardAct) {
+				f.canHazardAct = true;
+				f.didHazardAct = true;
+				return;
+			}
+		for (Hazards f : hazards)
+			if (f.canHazardAct) {
+				return;
+			}
 		canTurnFinish = true;
 	}
 
 
 
+	@SuppressWarnings("all")
 	public static boolean nullPointerExceptionChecker(List<?> arrayList, int exceptionPossibleProvocator){
 		try{
 			arrayList.get(exceptionPossibleProvocator);
@@ -185,6 +204,7 @@ public class Turns implements Utils {
 		return null;
 	}
 
+	@SuppressWarnings("all")
 	private static int valuePosition(ArrayList<ActorAndBoolean> theListInQuestion, Entity theValueInQuestion){
 		for (int l = 0; l < theListInQuestion.size(); l++){
 			if(theListInQuestion.get(l).actor == theValueInQuestion)
@@ -216,7 +236,7 @@ public class Turns implements Utils {
 		}
 	}
 
-	private static class ActorAndBoolean {
+	public static class ActorAndBoolean {
 		boolean bool;
 		Actor actor;
 

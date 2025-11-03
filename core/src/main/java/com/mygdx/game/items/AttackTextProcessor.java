@@ -150,7 +150,8 @@ public class AttackTextProcessor {
 		RANGED	  (120,59,38),
 		HEALING	  (50,250,0),
 		EARTHQUAKE(150,100,25),
-
+		PIERCING  (145,0,0),
+		PRESSURE  (175,175,175),
 		;
 
 		public final int r,g,b;

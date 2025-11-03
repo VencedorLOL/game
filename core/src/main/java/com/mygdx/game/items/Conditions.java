@@ -8,7 +8,6 @@ import com.mygdx.game.items.characters.classes.SwordMage;
 import java.util.ArrayList;
 
 import static com.badlogic.gdx.math.MathUtils.floor;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 
@@ -46,70 +45,58 @@ public class Conditions {
 	protected void onStageChange(){}
 
 	float getHealthMultiplier(){return 1;}
-
 	float getHealthAdditive(){return 0;}
-
 	float getDamageMultiplier(){return 1;}
-
 	float getDamageAdditive(){return 0;}
-
 	float getTempDefenseMultiplier(){return 1;}
-
 	float getTempDefenseAdditive(){return 0;}
-
 	float getSpeedMultiplier(){return 1;}
-
 	float getSpeedAdditive(){return 0;}
-
 	float getActingSpeedMultiplier(){return 1;}
-
 	float getActingSpeedAdditive(){return 0;}
-
 	float getDefenseMultiplier(){return 1;}
-
 	float getDefenseAdditive(){return 0;}
-
 	float getRangeMultiplier(){return 1;}
-
 	float getRangeAdditive(){return 0;}
-
 	float getManaMultiplier(){return 1;}
-
 	float getManaAdditive(){return 0;}
-
 	float getManaPerTurnMultiplier(){return 1;}
-
 	float getManaPerTurnAdditive(){return 0;}
-
 	float getManaPerUseMultiplier(){return 1;}
-
 	float getManaPerUseAdditive(){return 0;}
-
 	float getMagicDamageMultiplier(){return 1;}
-
 	float getMagicDamageAdditive(){return 0;}
-
 	float getAggroMultiplier(){return 1;}
-
 	float getAggroAdditive(){return 0;}
 
 	public void destroyCondition(){}
 
 	public static class Hyperthermia extends Conditions {
-
+		boolean damaged = false;
 		public Hyperthermia (Actor owner){
 			super(owner);
 			name = "Hyperthermia";
+
 		}
 
 		protected void onAttack() {
-			owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
+			if(!damaged) {
+				owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT, null);
+				damaged = true;
+			}
 		}
 
 		protected void onMove() {
-			owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);
+			if(!damaged) {
+				owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT, null);
+				damaged = true;
+			}
 		}
 
+		@Override
+		protected void onTurn() {
+			damaged = false;
+		}
 	}
 
 	public static class Hypothermia extends Conditions {
@@ -147,25 +134,25 @@ public class Conditions {
 
 	}
 	public static class Burning extends Conditions{
-		public Burning(Actor owner){super(owner); name = "Burning"; texture  = "BurntStatus";}
-		protected void onTurn(){owner.damage(owner.totalMaxHealth * .5f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		public Burning(Actor owner){super(owner); name = "Burning"; texture  = "BurntStatus"; turnsActive = 5; tickDownOnTurn = true;}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .05f + 5, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class BurningBright extends Conditions{
 		public BurningBright(Actor owner){super(owner); name = "BurningBright"; texture = "VeryBurntStatus";}
-		protected void onTurn(){owner.damage(owner.totalMaxHealth * .15f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .15f + 10, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Melting extends Conditions{
 		public Melting(Actor owner){super(owner); name = "Melting"; texture = "MeltingStatus";}
-		protected void onTurn(){owner.damage(owner.totalMaxHealth * .35f, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .35f + 50, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 	public static class Sublimating extends Conditions{
 		public Sublimating(Actor owner){super(owner); name = "Sublimating"; tickDownOnTurn = false; turnsActive = 2;}
-		protected void onTurn(){owner.damage(owner.totalMaxHealth * 2, AttackTextProcessor.DamageReasons.BURNT,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * 2 + 500, AttackTextProcessor.DamageReasons.BURNT,null);}
 	}
 
 	public static class Frostbite extends Conditions{
 		public Frostbite(Actor owner){super(owner); name = "Frostbite"; texture = "FrostbiteStatus";}
-		protected void onTurn(){owner.damage(owner.totalMaxHealth * .5f, AttackTextProcessor.DamageReasons.FROSTBITE,null);}
+		protected void onTurn(){owner.damage(owner.totalMaxHealth * .15f + 10, AttackTextProcessor.DamageReasons.FROSTBITE,null);}
 	}
 	public static class Frozen extends Conditions{
 		public Frozen(Actor owner){super(owner); name = "Frozen"; texture = "FrozenStatus";}
@@ -353,6 +340,19 @@ public class Conditions {
 		float getDamageMultiplier() {return 0.90f;}
 		protected void onStageChange() {
 			queuedForRemoval = true;}
+
+		protected void onTurn() {
+			if(owner.conditions.hasStatus(ConditionNames.BURNING) && owner.conditions.getStatus(ConditionNames.BURNING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.BURNING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.MELTING) && owner.conditions.getStatus(ConditionNames.MELTING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.MELTING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.SUBLIMATING) && owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.BURNING_BRIGHT) && owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.HYPERTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive--;
+		}
 	}
 
 	public static class Snowy extends Conditions{
@@ -362,13 +362,27 @@ public class Conditions {
 			texture = "SnowyStatus"; name = "Snowy"; tickDownOnTurn = false; turnsActive = 2;
 		}
 		float getDamageMultiplier() {return 0.95f;}
-		protected void onTurn() {turnCounter++;}
+		protected void onTurn() {
+			turnCounter++;
+			if(owner.conditions.hasStatus(ConditionNames.BURNING) && owner.conditions.getStatus(ConditionNames.BURNING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.BURNING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.MELTING) && owner.conditions.getStatus(ConditionNames.MELTING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.MELTING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.SUBLIMATING) && owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.BURNING_BRIGHT) && owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.HYPERTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive--;
+		}
 		float getSpeedAdditive() {return -floor(turnCounter/20f);}
 		protected void onStageChange() {
 			queuedForRemoval = true;}
+
 	}
 
 	public static class Sunny extends Conditions{
+		boolean[] extendedDuration = new boolean[]{false,false,false,false,false};
 		public Sunny(Actor owner){
 			super(owner);
 			texture = "SunnyStatus"; name = "Sunny"; tickDownOnTurn = false; turnsActive = 2;
@@ -377,6 +391,32 @@ public class Conditions {
 		protected void onStageChange() {
 			queuedForRemoval = true;
 		}
+
+		protected void onTurn(){
+			if(owner.conditions.hasStatus(ConditionNames.BURNING) && owner.conditions.getStatus(ConditionNames.BURNING).turnsActive > 0 && !extendedDuration[0]) {
+				owner.conditions.getStatus(ConditionNames.BURNING).turnsActive += 2;
+				extendedDuration[0] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.MELTING) && owner.conditions.getStatus(ConditionNames.MELTING).turnsActive > 0 && !extendedDuration[1]) {
+				owner.conditions.getStatus(ConditionNames.MELTING).turnsActive += 2;
+				extendedDuration[1] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.SUBLIMATING) && owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive > 0 && !extendedDuration[2]) {
+				owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive += 2;
+				extendedDuration[2] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.BURNING_BRIGHT) && owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive > 0 && !extendedDuration[3]) {
+				owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive += 2;
+				extendedDuration[3] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.HYPERTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive > 0 && !extendedDuration[4]) {
+				owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive += 2;
+				extendedDuration[4] = true;}
+
+			if(owner.conditions.hasStatus(ConditionNames.HYPOTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.FROZEN) && owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.FROSTBITE) && owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive--;
+		}
+
 	}
 
 	public static class Stunned extends Conditions{
@@ -393,6 +433,8 @@ public class Conditions {
 			queuedForRemoval = true;
 		}
 	}
+
+
 	public static class ComingThrough extends Conditions{
 		public ComingThrough(Actor owner){
 			super(owner); texture = "ComingThrough"; name = "ComingThrough"; turnsActive = 1; tickDownOnTurn = true;
@@ -403,6 +445,68 @@ public class Conditions {
 		}
 
 	}
+
+	public static class StellarStorm extends Conditions{
+		boolean[] extendedDuration = new boolean[]{false,false,false,false,false};
+		int turnCounter;
+		public StellarStorm(Actor owner){
+			super(owner);
+			texture = "StellarStorm"; name = "StellarStorm"; tickDownOnTurn = false; turnsActive = 2;
+		}
+		float getDamageMultiplier() {return 1.15f;}
+		protected void onTurn() {
+			turnCounter++;
+			if(turnCounter > 5){
+				owner.damage(owner.health * (floor((turnCounter-3)/2f))/100f +
+						owner.totalMaxHealth * (floor((turnCounter-5)/2f))/200f, AttackTextProcessor.DamageReasons.BURNT,null);
+			}
+
+			if(owner.conditions.hasStatus(ConditionNames.BURNING) && owner.conditions.getStatus(ConditionNames.BURNING).turnsActive > 0 && !extendedDuration[0]) {
+				owner.conditions.getStatus(ConditionNames.BURNING).turnsActive += 5;
+				extendedDuration[0] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.MELTING) && owner.conditions.getStatus(ConditionNames.MELTING).turnsActive > 0 && !extendedDuration[1]) {
+				owner.conditions.getStatus(ConditionNames.MELTING).turnsActive += 5;
+				extendedDuration[1] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.SUBLIMATING) && owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive > 0 && !extendedDuration[2]) {
+				owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive += 5;
+				extendedDuration[2] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.BURNING_BRIGHT) && owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive > 0 && !extendedDuration[3]) {
+				owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive += 5;
+				extendedDuration[3] = true;}
+			if(owner.conditions.hasStatus(ConditionNames.HYPERTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive > 0 && !extendedDuration[4]) {
+				owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive += 5;
+				extendedDuration[4] = true;}
+
+			if(owner.conditions.hasStatus(ConditionNames.HYPOTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.FROZEN) && owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive--;
+			if(owner.conditions.hasStatus(ConditionNames.FROSTBITE) && owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive--;
+		}
+
+		protected void onStageChange() {
+			queuedForRemoval = true;}
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	public enum ConditionNames {
 		BURNING("Burning"),
 		BURNING_BRIGHT("BurningBright"),
@@ -425,6 +529,7 @@ public class Conditions {
 		SUNNY("Sunny"),
 		STUNNED("Stunned"),
 		COMING_THROUGH("ComingThrough"),
+		STELLAR_STORM("StellarStorm"),
 		;
 
 

@@ -35,6 +35,7 @@ public class TextureManager {
 	static ArrayList<DrawableObject> priorityDrawables;
 	static ArrayList<DrawableObject> fixatedDrawables;
 	public static ArrayList<Animation> animations;
+	public static ArrayList<Animation> fixatedAnimations;
 	static ArrayList<AtlasAndName> atlases;
 	static ArrayList<DrawableTexture> videos;
 	static OnVariousScenarios oVE = new OnVariousScenarios(){
@@ -54,6 +55,7 @@ public class TextureManager {
 		fixatedText = new ArrayList<>();
 		batch = new SpriteBatch();
 		animations = new ArrayList<>();
+		fixatedAnimations = new ArrayList<>();
 		atlases = new ArrayList<>();
 		videos = new ArrayList<>();
 		priorityText = new ArrayList<>();
@@ -76,12 +78,16 @@ public class TextureManager {
 	}
 
 	private void drawer(String texture, float x, float y,float z,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
+		drawer(texture,x,y,z,0,0,opacity,flipX,flipY,rotationDegrees,scaleX,scaleY,r,g,b);
+	}
+
+	private void drawer(String texture, float x, float y,float z,float base,float height,float opacity,boolean flipX,boolean flipY,float rotationDegrees,float scaleX,float scaleY,float r, float g, float b){
 		//	drawer(texture,x,y,opacity,"AtlasOne.atlas");
 		region = atlas.findRegion(texture);
 		try {
 			sprite = new Sprite(region);
 		} catch (NullPointerException ignored){printErr("NPE caught while trying to print " + texture);}
-		sprite.setPosition(x,y);
+		sprite.setPosition(x-base/2,y-height/2);
 		sprite.setFlip(flipX,flipY);
 		sprite.setRotation(rotationDegrees);
 		sprite.setScale(scaleX*(z*0.2f + 1),scaleY*(z*0.2f + 1));
@@ -118,8 +124,17 @@ public class TextureManager {
 		drawer(texture,coords.x, coords.y,z,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b);
 	}
 
+	private void fixatedScreenDrawer(String texture, float x, float y,float z,float base,float height, float opacity,boolean flipX, boolean flipY,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
+		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+		drawer(texture,coords.x, coords.y,z,base,height,opacity,flipX,flipY,rotationDegrees,scaleX,scaleY,r,g,b);
+	}
+
 	public static void animationToList(String file, float x, float y){
 		animations.add(new Animation(file,x,y));
+	}
+
+	public static void fixatedAnimationToList(String file, float x, float y){
+		fixatedAnimations.add(new Animation(file,x,y));
 	}
 
 	public static void addToList(String texture, float x, float y){
@@ -190,9 +205,23 @@ public class TextureManager {
 		for (TextureManager.Animation a : animations){
 			a.update();
 			if (a.texture != null)
-				 drawer(a.texture, a.x, a.y,0, a.opacity,a.flipX,false,0,1,1,1,1,1);
+				 drawer(a.texture, a.x, a.y,0, a.opacity,a.flipX,false,0,a.scaleX,a.scaleY,1,1,1);
 		}
 		animations.removeIf(ani -> ani.finished);
+
+		// Fixated Animations
+
+		for (TextureManager.Animation a : fixatedAnimations){
+			a.update();
+			if (a.texture != null)
+				fixatedScreenDrawer(a.texture, a.x/100 * Gdx.graphics.getWidth()
+						, a.y/100 * Gdx.graphics.getHeight()
+						,0,a.base,a.height, a.opacity,a.flipX,false,0,a.scaleX,a.scaleY,1,1,1);
+		}
+		fixatedAnimations.removeIf(ani -> ani.finished);
+
+
+
 		// Text display
 		coordsUpdater();
 		for (TextureManager.Text t : text){
@@ -460,7 +489,7 @@ public class TextureManager {
 		public int line = 0;
 		public ArrayList<String> code = new ArrayList<>();
 		public int framesForCurrentAnimation = 0;
-		private final ArrayList<Used> listOfUsedLoops = new ArrayList<>();
+		public ArrayList<Used> listOfUsedLoops = new ArrayList<>();
 		public float opacity = 1;
 
 
@@ -469,7 +498,6 @@ public class TextureManager {
 		float glidePixelsPerFrameX, glidePixelsPerFrameY;
 		float glideFinalX, glideFinalY;
 
-		// thanks you java for doing math in radians instead of degrees. Thanks.
 		float radius;
 		float angleR;
 		float angleRSection;
@@ -485,6 +513,8 @@ public class TextureManager {
 
 		public boolean flipX = false;
 		String name;
+
+		float scaleX = 1, scaleY = 1;
 
 		public Animation(String file, float x, float y){
 			name = file;
@@ -620,8 +650,8 @@ public class TextureManager {
 		}
 
 		public void stop(){
-			onFinish();
 			finished = true;
+			onFinish();
 		}
 
 
@@ -719,7 +749,7 @@ public class TextureManager {
 			}
 		}
 
-		private static class Used {
+		public static class Used {
 			boolean bool;
 			int line;
 			private Used(boolean bool, int line){

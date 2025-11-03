@@ -1,42 +1,37 @@
 package com.mygdx.game.items.stages;
 
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.items.Character;
+import com.mygdx.game.items.Hazards;
 import com.mygdx.game.items.Stage;
 
-import java.util.ArrayList;
-
-import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Hazards.addHazard;
 
 public class StageOne extends Stage {
-	public int startX = -3*globalSize();
-	public int startY = 0;
-	public int finalX = globalSize()*6;
-	public int finalY = globalSize()*6;
-	public int spawnX = globalSize() * 3;
-	public int spawnY = 0;
-	public int[] wallX = {0,1,2,4,5,6,0,1,5,6,0,6};
-	public int[] wallY = {0,0,0,0,0,0,1,1,1,1,2,2};
-	public int[] wallType = {1,1,1,1,1,1,1,1,1,1,1,1};
-	public int[] enemyX = {3};
-	public int[] enemyY = {6};
-	public int[] enemyType = {1};
-	public int[] screenWarpX = {3};
-	public int[] screenWarpY = {4};
-	public byte[] screenWarpDestinationSpecification = {0};
-	public String floorTexture = "Grass";
-	public ArrayList<Stage> screenWarpDestination = new ArrayList<>(){};
 	public StageOne(){
-		super.refresh(startX, startY, finalX, finalY, spawnX, spawnY, wallX, wallY, wallType, enemyX, enemyY, screenWarpX,
-				screenWarpY,screenWarpDestination,floorTexture,
-				screenWarpDestinationSpecification,enemyType);
-		betweenStages = true;
-		haveEnemiesBeenRendered = false;
-		haveWallsBeenRendered = false;
-		haveScreenWarpsBeenRendered = false;
+		startX = -3;
+		startY = 0;
+		finalX = 6;
+		finalY = 6;
+		spawnX = 3;
+		spawnY = 0;
+		wallX 		= new int[]{0,1,2,4,5,6,0,1,5,6,0,6};
+		wallY 		= new int[]{0,0,0,0,0,0,1,1,1,1,2,2};
+		wallType 	= new int[]{1,1,1,1,1,1,1,1,1,1,1,1};
+		enemySpawnX 	= new int[]{3};
+		enemySpawnY 	= new int[]{6};
+		enemyType 		= new int[]{1};
+		screenWarpX 						= new int[]{3};
+		screenWarpY 						= new int[]{4};
+		screenWarpDestinationSpecification = new byte[]{0};
+		floorTexture = "Grass";
+		scale();
+	}
+
+	public void reStage() {
 		screenWarpDestination.add(new StageTwo());
 	}
 
-
+	public void hazardSetter(){
+		addHazard(Hazards.HazardNames.SPIKES, -2,0);
+	}
 
 }

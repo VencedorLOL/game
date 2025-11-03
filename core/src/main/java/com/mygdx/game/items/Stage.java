@@ -1,7 +1,6 @@
 package com.mygdx.game.items;
 
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
@@ -16,8 +15,9 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.FieldEffects.*;
+import static com.mygdx.game.items.Hazards.clearHazards;
+import static com.mygdx.game.items.Hazards.updateHazards;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
@@ -59,7 +59,15 @@ public class Stage implements Utils {
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX,wallY,wallType,enemySpawnX,enemySpawnY,screenWarpX,screenWarpY,screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 	}
 
-	public Stage(){	}
+	public Stage(){
+		this.screenWarpDestination = new ArrayList<>();
+		betweenStages = true;
+		haveEnemiesBeenRendered = false;
+		haveWallsBeenRendered = false;
+		haveScreenWarpsBeenRendered = false;
+		hasFloorBeenRendered = false;
+		IDState = 0;
+	}
 
 	public void emptyStageInitializer() {
 		refresh(0,0,0,0,0,0,new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new int[0],new ArrayList<>(),"Grass",new byte[0],new int[0]);
@@ -69,6 +77,15 @@ public class Stage implements Utils {
 	public Stage(Character character){
 		character.x = spawnX;
 		character.y = spawnY;
+	}
+
+	public void scale(){
+		startX *= globalSize();
+		startY *= globalSize();
+		finalX *= globalSize();
+		finalY *= globalSize();
+		spawnX *= globalSize();
+		spawnY *= globalSize();
 	}
 
 	public void refresh(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
@@ -92,6 +109,7 @@ public class Stage implements Utils {
 		this.floorTexture = floorTexture;
 		this.screenWarpDestinationSpecification = screenWarpDestinationSpecification;
 		this.enemyType = enemyType;
+		betweenStages = true;
 		haveEnemiesBeenRendered = false;
 		haveWallsBeenRendered = false;
 		haveScreenWarpsBeenRendered = false;
@@ -137,9 +155,9 @@ public class Stage implements Utils {
 	}
 
 
-	public void tilesetSetter(Stage stage){
-		for (int y = stage.startY; y <= stage.finalY ; y += globalSize()) {
-			for (int x = stage.startX ; x <= stage.finalX ; x += globalSize()) {
+	public void tilesetSetter(){
+		for (int y = startY; y <= finalY ; y += globalSize()) {
+			for (int x = startX ; x <= finalX ; x += globalSize()) {
 				tileset.add(new Tile(x, y,new Floor(floorTexture)));
 			}
 		}
@@ -148,7 +166,7 @@ public class Stage implements Utils {
 
 	public void tilesetRenderer(){
 		if(!hasFloorBeenRendered) {
-			tilesetSetter(this);
+			tilesetSetter();
 			hasFloorBeenRendered = true;
 		}
 		for (Tile g : tileset){
@@ -187,6 +205,10 @@ public class Stage implements Utils {
 		//addField(FieldEffects.FieldNames.LIGTHNING);
 	}
 
+	public void hazardSetter(){
+
+	}
+
 
 	public void stageRenderer(){
 		if (betweenStages){
@@ -196,10 +218,11 @@ public class Stage implements Utils {
 			tileset.clear();
 			screenWarp.clear();
 			wallSetter();
-			tilesetSetter(this);
+			tilesetSetter();
 			enemySetter();
 			screenWarpSetter();
 			fieldSetter();
+			hazardSetter();
 			betweenStages = false;
 
 		}
@@ -213,6 +236,7 @@ public class Stage implements Utils {
 			wallRenderer();
 			screenWarpRenderer();
 			updateFields();
+			updateHazards();
 			border.border(chara, this);
 			border.border(this);
 			screenWarpTrigger();
@@ -223,7 +247,7 @@ public class Stage implements Utils {
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			wallSetter();
-			tilesetSetter(this);
+			tilesetSetter();
 			enemySetter();
 			screenWarpSetter();
 			betweenStages = false;
@@ -271,11 +295,15 @@ public class Stage implements Utils {
 		floor = new ArrayList<>();
 		screenWarp = new ArrayList<>();
 		clearFields();
+		clearHazards();
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,wallType, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
 		triggerOnStageChange();
 	}
 
+	/**
+	 * NOTE TO SELF: THIS METHOD IS NEEDED IN ORDER TO PREVENT A STACK OVERFLOW ERROR
+	 */
 	public void reStage(){}
 
 	public Stage getScreenWarpStage(int pos){
