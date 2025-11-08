@@ -31,7 +31,7 @@ public class Imp extends CharacterClasses {
 
 	public Imp() {
 		super();
-		name = "Ritual";
+		name = "Imp";
 		health = 30;
 		damage = 40;
 		speed = 3;
@@ -110,6 +110,9 @@ public class Imp extends CharacterClasses {
 
 	public void updateOverridable() {
 		targetProcessor.changeRadius(markRange);
+		if(abilities.get(1).isItActive && isDecidingWhatToDo(character))
+			demonizeInput();
+
 		for (Ability a : abilities) {
 			a.render();
 			if(isDecidingWhatToDo(character))
@@ -128,15 +131,13 @@ public class Imp extends CharacterClasses {
 			diedMark = false;
 		}
 
-		if(abilities.get(1).isItActive && isDecidingWhatToDo(character)){
-			demonizeInput();
-		}
 
 		if(abilities.get(0).isItActive && character.isPermittedToAct()){
 			character.conditions.status(Conditions.ConditionNames.RITUAL);
 			character.conditions.getStatus(Conditions.ConditionNames.RITUAL).setTurns(turnsRitual);
 			((Conditions.Ritual) character.conditions.getStatus(Conditions.ConditionNames.RITUAL)).setExtraTurnsLimit(6);
 			for(Friend f : friend){
+				abilities.get(0).finished();
 				f.conditions.status(Conditions.ConditionNames.RITUAL);
 				f.conditions.getStatus(Conditions.ConditionNames.RITUAL).setTurns(turnsRitual);
 				((Conditions.Ritual) f.conditions.getStatus(Conditions.ConditionNames.RITUAL)).setExtraTurnsLimit(6);
@@ -147,6 +148,7 @@ public class Imp extends CharacterClasses {
 		if(abilities.get(1).isItActive && character.isPermittedToAct() && markCoords != null){
 			for(Actor a : actors){
 				if(a.getX() == markCoords[0] && a.getY() == markCoords[1]) {
+					abilities.get(1).finished();
 					a.conditions.status(Conditions.ConditionNames.DEMONIZED);
 					a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(turnsMark);
 					((Conditions.Demonized) a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(this);

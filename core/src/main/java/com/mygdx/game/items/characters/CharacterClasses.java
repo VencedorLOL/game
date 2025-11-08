@@ -9,7 +9,11 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
+import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
+import static com.mygdx.game.items.FieldEffects.getAdditive;
+import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static java.lang.Math.max;
 
@@ -149,21 +153,20 @@ public class CharacterClasses {
 
 	public final void totalStatsCalculator(){
 		if (character != null) {
-			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0)) * character.conditions.getMultiplier(0);
-			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1)) * character.conditions.getMultiplier(1);
-			totalSpeed = (byte) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2)) * character.conditions.getMultiplier(2));
-			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3)) * character.conditions.getMultiplier(3));
-			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4)) * character.conditions.getMultiplier(4);
-			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5)) * character.conditions.getMultiplier(5));
-			totalMana = (mana + weapon.weaponMana + shield.shieldMana + character.conditions.getAdditive(6)) * character.conditions.getMultiplier(6);
-			totalManaPerTurn = (manaPerTurn + weapon.weaponManaPerTurn + shield.shieldManaPerTurn + character.conditions.getAdditive(7)) * character.conditions.getMultiplier(7);
-			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8)) * character.conditions.getMultiplier(8);
-			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9)) * character.conditions.getMultiplier(9);
+			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0) + getAdditive(0)) * character.conditions.getMultiplier(0) *getMultiplier(0);
+			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1) + getAdditive(1)) * character.conditions.getMultiplier(1) *getMultiplier(1);
+			totalSpeed = (byte) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2) + getAdditive(2))  * character.conditions.getMultiplier(2)*getMultiplier(2));
+			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3) + getAdditive(3)) * character.conditions.getMultiplier(3)*getMultiplier(3));
+			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4) + getAdditive(4)) * character.conditions.getMultiplier(4)*getMultiplier(4);
+			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5) + getAdditive(5)) * character.conditions.getMultiplier(5)*getMultiplier(5));
+			totalMana = (mana + weapon.weaponMana + shield.shieldMana + character.conditions.getAdditive(6) + getAdditive(6)) * character.conditions.getMultiplier(6)*getMultiplier(6);
+			totalManaPerTurn = (manaPerTurn + weapon.weaponManaPerTurn + shield.shieldManaPerTurn + character.conditions.getAdditive(7) + getAdditive(7)) * character.conditions.getMultiplier(7)*getMultiplier(7);
+			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8) + getAdditive(8)) * character.conditions.getMultiplier(8)*getMultiplier(8);
+			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9) + getAdditive(9)) * character.conditions.getMultiplier(9)*getMultiplier(9);
 			totalMagicHealing = (magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing);
-			tempDefense = (tempDefense + character.conditions.getAdditive(12)) * character.conditions.getMultiplier(12);
 			totalRainbowDefense = (rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense);
 			totalMagicDefense = (magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense);
-			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11)) * character.conditions.getMultiplier(11);
+			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11) + getAdditive(11)) * character.conditions.getMultiplier(11) *getMultiplier(11);
 		}
 		else {
 			totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
@@ -228,7 +231,7 @@ public class CharacterClasses {
 
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
-		if(damageReason != AttackTextProcessor.DamageReasons.LIGHTNING && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
+		if(damageReason != AttackTextProcessor.DamageReasons.ELECTRIC && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
 				&& damageReason !=  AttackTextProcessor.DamageReasons.EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
 				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE)
 			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
@@ -237,6 +240,8 @@ public class CharacterClasses {
 				damagedFor = max(damage - totalDefense,0);
 		else
 			damagedFor = damage;
+		if((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && character.airborn)
+			damagedFor = 0;
 		return damagedFor;
 	}
 
@@ -245,6 +250,7 @@ public class CharacterClasses {
 		print(targetWeapon.weaponName + " was just equipped");
 		if (name.equals(targetWeapon.equippableBy) || targetWeapon.equippableBy == null) {
 			print(targetWeapon.equippableBy);
+			weapon.destroy();
 			weapon = targetWeapon;
 			reset();
 		}
@@ -253,6 +259,7 @@ public class CharacterClasses {
 	public void equipShield(Shields targetShield) {
 		print(targetShield.shieldName + " was just equipped");
 		if (name.equals(targetShield.equippableBy) || targetShield.equippableBy == null) {
+			shield.destroy();
 			shield = targetShield;
 			reset();
 		}
@@ -276,6 +283,8 @@ public class CharacterClasses {
 
 	public final void update(){
 		refresh();
+		weapon.update();
+		shield.update();
 		updateOverridable();
 		refresh();
 	}
@@ -351,10 +360,10 @@ public class CharacterClasses {
 
 	public final void destroy(){
 		destroyListener(oVE);
-		abilities = null;
 		weapon.destroy();
 		shield.destroy();
 		destroyOverridable();
+		abilities = null;
 	}
 
 	// please destroy all listeners this way

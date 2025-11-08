@@ -8,8 +8,10 @@ import com.mygdx.game.items.characters.classes.SwordMage;
 import java.util.ArrayList;
 
 import static com.badlogic.gdx.math.MathUtils.floor;
+import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
+import static com.mygdx.game.items.Conditions.ConditionNames.*;
 
 public class Conditions {
 
@@ -48,8 +50,6 @@ public class Conditions {
 	float getHealthAdditive(){return 0;}
 	float getDamageMultiplier(){return 1;}
 	float getDamageAdditive(){return 0;}
-	float getTempDefenseMultiplier(){return 1;}
-	float getTempDefenseAdditive(){return 0;}
 	float getSpeedMultiplier(){return 1;}
 	float getSpeedAdditive(){return 0;}
 	float getActingSpeedMultiplier(){return 1;}
@@ -271,6 +271,7 @@ public class Conditions {
 		OnVariousScenarios deathListener;
 		int extraTurnsGiven;
 		int extraTurnsLimit;
+		public boolean wingedRitual;
 		public Ritual(Actor owner) {
 			super(owner);
 			texture = "RitualEffect"; name = "Ritual"; tickDownOnTurn = true;
@@ -286,12 +287,16 @@ public class Conditions {
 		}
 
 		float getDamageMultiplier() {return 1.33f;}
-		float getSpeedAdditive() {return 2;}
-		float getActingSpeedAdditive() {return 2;}
+		public float speed = 2;
+		float getSpeedAdditive() {return speed;}
+		public float actingSpeed = 2;
+		float getActingSpeedAdditive() {return actingSpeed;}
 		float getRangeAdditive() {return 2;}
 		public void setExtraTurnsLimit(int extraTurnsLimit){this.extraTurnsLimit = extraTurnsLimit;}
+		public void update(){if(wingedRitual) owner.airborn = true;}
 		public void destroyCondition(){
 			destroyListener(deathListener);
+			if(wingedRitual) owner.airborn = false;
 		}
 	}
 
@@ -486,18 +491,175 @@ public class Conditions {
 		}
 
 		protected void onStageChange() {
-			queuedForRemoval = true;}
+			queuedForRemoval = true;
+		}
 
 	}
 
+	public static class ElectricGround extends Conditions{
+
+		public ElectricGround(Actor owner) {
+			super(owner);
+			name = "ElectricGround";
+			texture = "ElectricGround";
+			turnsActive = -1;
+		}
+
+		float getSpeedMultiplier() {
+			return owner.airborn ? 1 : 0.5f;
+		}
+
+		public void update(){
+			if(owner.airborn)
+				texture = "ElectricGroundAirborn";
+			else
+				texture = "ElectricGround";
+		}
+
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
 
 
+	public static class AugmentedGravity extends Conditions{
+
+		public AugmentedGravity(Actor owner) {
+			super(owner);
+			name = "AumentedGravity";
+			texture = "GravityCataclysm";
+			turnsActive = -1;
+		}
+
+		float getSpeedMultiplier() {return .25f;}
+		float getActingSpeedMultiplier() {return .25f;}
+		float getRangeMultiplier() {return .60f;}
+
+		protected void onMove() {
+			if(random() > .85f){
+				if(!owner.conditions.hasStatus(STUNNED)) {
+					owner.conditions.condition(STUNNED);
+					owner.conditions.getStatus(STUNNED).setTurns(2);
+				} else if (owner.conditions.getStatus(STUNNED).turnsActive < 2)
+					owner.conditions.getStatus(STUNNED).setTurns(2);
+				owner.damage(owner.health*.2f, AttackTextProcessor.DamageReasons.PRESSURE,owner);
+			}
+		}
+
+		public void update(){
+			if(owner.airborn)
+				owner.airborn = false;
+		}
+
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
+
+	public static class NuclearEvent extends Conditions{
+
+		public NuclearEvent(Actor owner) {
+			super(owner);
+			name = "NuclearEvent";
+			texture = "NuclearCataclysm";
+			turnsActive = -1;
+		}
+
+		float getSpeedMultiplier() {return .90f;}
+		float getActingSpeedMultiplier() {return .90f;}
+		float getDamageMultiplier() {return .90f;}
+		float getMagicDamageMultiplier() {return .90f;}
+		float getDefenseMultiplier() {return .90f;}
+		float getHealthMultiplier() {return .90f;}
+		float getAggroMultiplier() {return .9f;}
+		float getRangeMultiplier() {return .9f;}
+		float getManaMultiplier() {return 0.9f;}
+		float getManaPerTurnMultiplier() {return 0.9f;}
 
 
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
+
+	public static class Glaciation extends Conditions{
+
+		public Glaciation(Actor owner) {
+			super(owner);
+			name = "Glaciation";
+			texture = "GlacialCataclysm";
+			turnsActive = -1;
+		}
+
+		float getSpeedMultiplier() {return .25f;}
+		float getActingSpeedMultiplier() {return .25f;}
+		float getDamageMultiplier() {return .75f;}
+		float getMagicDamageMultiplier() {return .75f;}
+		float getDefenseMultiplier() {return .15f;}
+		float getHealthMultiplier() {return .75f;}
 
 
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+	}
 
+	public static class StellarExplosion extends Conditions {
+		boolean[] extendedDuration = new boolean[]{false, false, false, false, false};
+		int turnCounter;
 
+		public StellarExplosion(Actor owner) {
+			super(owner);
+			texture = "StellarExplosion";
+			name = "StellarExplosionCataclysm";
+			tickDownOnTurn = false;
+			turnsActive = -1;
+		}
+
+		float getDamageMultiplier() {return 2f;}
+		float getMagicDamageMultiplier() {return 2f;}
+
+		protected void onTurn() {
+			turnCounter++;
+			if (turnCounter > 5) {
+				owner.damage(owner.health * (floor((turnCounter - 3) / 2f)) / 100f +
+						owner.totalMaxHealth * (floor((turnCounter - 5) / 2f)) / 200f, AttackTextProcessor.DamageReasons.BURNT, null);
+			}
+
+			if (owner.conditions.hasStatus(ConditionNames.BURNING) && owner.conditions.getStatus(ConditionNames.BURNING).turnsActive > 0 && !extendedDuration[0]) {
+				owner.conditions.getStatus(ConditionNames.BURNING).turnsActive += 55;
+				extendedDuration[0] = true;
+			}
+			if (owner.conditions.hasStatus(ConditionNames.MELTING) && owner.conditions.getStatus(ConditionNames.MELTING).turnsActive > 0 && !extendedDuration[1]) {
+				owner.conditions.getStatus(ConditionNames.MELTING).turnsActive += 55;
+				extendedDuration[1] = true;
+			}
+			if (owner.conditions.hasStatus(ConditionNames.SUBLIMATING) && owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive > 0 && !extendedDuration[2]) {
+				owner.conditions.getStatus(ConditionNames.SUBLIMATING).turnsActive += 55;
+				extendedDuration[2] = true;
+			}
+			if (owner.conditions.hasStatus(ConditionNames.BURNING_BRIGHT) && owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive > 0 && !extendedDuration[3]) {
+				owner.conditions.getStatus(ConditionNames.BURNING_BRIGHT).turnsActive += 55;
+				extendedDuration[3] = true;
+			}
+			if (owner.conditions.hasStatus(ConditionNames.HYPERTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive > 0 && !extendedDuration[4]) {
+				owner.conditions.getStatus(ConditionNames.HYPERTHERMIA).turnsActive += 55;
+				extendedDuration[4] = true;
+			}
+
+			if (owner.conditions.hasStatus(ConditionNames.HYPOTHERMIA) && owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.HYPOTHERMIA).turnsActive -= 10;
+			if (owner.conditions.hasStatus(ConditionNames.FROZEN) && owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROZEN).turnsActive -= 10;
+			if (owner.conditions.hasStatus(ConditionNames.FROSTBITE) && owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive > 1)
+				owner.conditions.getStatus(ConditionNames.FROSTBITE).turnsActive -= 10;
+		}
+
+		protected void onStageChange() {
+			queuedForRemoval = true;
+		}
+
+	}
 
 
 
@@ -530,6 +692,11 @@ public class Conditions {
 		STUNNED("Stunned"),
 		COMING_THROUGH("ComingThrough"),
 		STELLAR_STORM("StellarStorm"),
+		ELECTRIC_GROUND("ElectricGround"),
+		AUGMENTED_GRAVITY("AumentedGravity"),
+		NUCLEAR_EVENT("NuclearEvent"),
+		GLACIATION("Glaciation"),
+		STELLAR_EXPLOSION("StellarExplosion"),
 		;
 
 

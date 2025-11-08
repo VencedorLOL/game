@@ -20,6 +20,8 @@ import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.Hazards.addHazard;
+import static com.mygdx.game.items.Hazards.getHazard;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
@@ -471,7 +473,8 @@ public class Character extends Actor implements Utils {
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			classes.equipWeapon(new HealerWeapons.BlessedSword(classes));
+			classes.equipWeapon(new ImpWeapons.MassDemonizeDagger(classes));
+			classes.equipShield(new ImpShields.Daredevil(classes));
 		}
 	}
 
@@ -649,7 +652,7 @@ public class Character extends Actor implements Utils {
 			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)){
-			addField(FieldEffects.FieldNames.ALERT_FIRE);
+			addHazard(Hazards.HazardNames.EARTH_CRACK,x/globalSize(),y/globalSize()+1);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
 			addField(FieldEffects.FieldNames.ALERT_TSUNAMI);

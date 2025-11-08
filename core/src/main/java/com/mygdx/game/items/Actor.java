@@ -6,8 +6,12 @@ import java.util.Collections;
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
+import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Enemy.enemies;
+import static com.mygdx.game.items.FieldEffects.getAdditive;
+import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnActorDeath;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
@@ -39,6 +43,7 @@ public class Actor extends Entity{
 	public float totalSightRange = 10;
 	public float totalFollowRange = 40;
 
+	public boolean airborn = false;
 
 	public float movedThisTurn;
 	public Entity lastDamager;
@@ -120,13 +125,13 @@ public class Actor extends Entity{
 	}
 
 	public void statsUpdater(){
-		totalMaxHealth = (maxHealth + conditions.getAdditive(0)) * conditions.getMultiplier(0);
-		totalDamage = (damage + conditions.getAdditive(1)) * conditions.getMultiplier(1);
-		totalSpeed = (int) ((speed + conditions.getAdditive(2)) * conditions.getMultiplier(2));
-		totalActingSpeed = (int) ((actingSpeed + conditions.getAdditive(3)) * conditions.getMultiplier(3));
-		totalDefense = (defense + conditions.getAdditive(4)) * conditions.getMultiplier(4);
-		totalRange = (int) ((range + conditions.getAdditive(5)) * conditions.getMultiplier(5));
-		totalAggro = (aggro + conditions.getAdditive(11)) * conditions.getMultiplier(11);
+		totalMaxHealth = (maxHealth + conditions.getAdditive(0)+ getAdditive(0)) * conditions.getMultiplier(0) * getMultiplier(0);
+		totalDamage = (damage + conditions.getAdditive(1)+ getAdditive(1)) * conditions.getMultiplier(1) * getMultiplier(1);
+		totalSpeed = (int) ((speed + conditions.getAdditive(2)+ getAdditive(2)) * conditions.getMultiplier(2) * getMultiplier(2));
+		totalActingSpeed = (int) ((actingSpeed + conditions.getAdditive(3)+ getAdditive(3)) * conditions.getMultiplier(3) * getMultiplier(3));
+		totalDefense = (defense + conditions.getAdditive(4)+ getAdditive(4)) * conditions.getMultiplier(4) * getMultiplier(4);
+		totalRange = (int) ((range + conditions.getAdditive(5)+ getAdditive(5)) * conditions.getMultiplier(5) * getMultiplier(5));
+		totalAggro = (aggro + conditions.getAdditive(11)+ getAdditive(11)) * conditions.getMultiplier(11) * getMultiplier(11);
 		totalSightRange = sightRange;
 		totalFollowRange = followRange;
 	}
@@ -149,8 +154,8 @@ public class Actor extends Entity{
 
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
-		if(damageReason != AttackTextProcessor.DamageReasons.LIGHTNING && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
-				&& damageReason !=  AttackTextProcessor.DamageReasons.EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
+		if(damageReason != ELECTRIC && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
+				&& damageReason !=  EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
 				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE)
 			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
 				damagedFor = max(damage - (totalDefense/2),0);
@@ -158,6 +163,8 @@ public class Actor extends Entity{
 				damagedFor = max(damage - totalDefense,0);
 		else
 			damagedFor = damage;
+		if((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && airborn)
+			damagedFor = 0;
 		return damagedFor;
 	}
 
@@ -222,9 +229,10 @@ public class Actor extends Entity{
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
 					softlockOverridable(false);
 					finalizedTurn();
-					conditions.onMove();
 					if (this instanceof Character)
 						((Character) this).classes.runMove();
+					else
+						conditions.onMove();
 				}
 
 			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && !movementLock)

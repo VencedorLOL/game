@@ -153,6 +153,10 @@ public class TextureManager {
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,flipX,flipY));
 	}
 
+	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,float r,float g,float b,float scaleX,float scaleY){
+		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b,scaleX,scaleY));
+	}
+
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,float r,float g,float b){
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b));
 	}
@@ -195,6 +199,7 @@ public class TextureManager {
 		getCamara(camara);
 		// Least priority drawable objects
 
+		coordsUpdater();
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
 				 drawer(d.texture,d.x,d.y,d.z,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b);
@@ -223,7 +228,6 @@ public class TextureManager {
 
 
 		// Text display
-		coordsUpdater();
 		for (TextureManager.Text t : text){
 			if (!t.fakeNull && t.render)
 				t.draw(batch);
@@ -350,6 +354,20 @@ public class TextureManager {
 				this.opacity = opacity;
 		}
 
+		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float r, float g, float b,float scaleX,float scaleY){
+			this.x = x;
+			this.y = y;
+			this.texture = texture;
+			this.r = r / 255; this.g = g / 255; this.b = b / 255;
+			this.rotationDegrees = rotationDegrees;
+			if (opacity > 1)
+				this.opacity = opacity / 100;
+			else
+				this.opacity = opacity;
+			this.scaleX = scaleX;
+			this.scaleY = scaleY;
+		}
+
 		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float scaleX,float scaleY){
 			this.x = x;
 			this.y = y;
@@ -424,7 +442,7 @@ public class TextureManager {
 
 		public void draw(Batch batch){
 			if (r != -1)
-				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
+				font.setColor(cC(r), cC(g), cC(b), vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity);
 			if(entityToFollow!=null)
 				font.draw(batch, text,x + entityToFollow.x,y + entityToFollow.y);
 			else
@@ -701,21 +719,18 @@ public class TextureManager {
 
 		public void orbit(){
 			orbitCounter++;
-			if (!clockwise){
-				x -= (float) (radius * cos(angleRSection*(orbitCounter-1) + angleRStart)
-						- radius * cos(angleRSection*orbitCounter + angleRStart));
+			x -= (float) (radius * (cos(angleRSection*(orbitCounter-1) + angleRStart)
+					- cos(angleRSection*orbitCounter + angleRStart)));
 
-				y -= (float) (radius * sin(angleRSection*(orbitCounter-1) + angleRStart)
-						- radius * sin(angleRSection*orbitCounter + angleRStart));
+			if (!clockwise)
+				y -= (float) (radius * (sin(angleRSection*(orbitCounter-1) + angleRStart)
+						- sin(angleRSection*orbitCounter + angleRStart)));
 
-			} else {
-				x -= (float) (radius * cos(angleRSection*(orbitCounter-1) + angleRStart)
-						- radius * cos(angleRSection*orbitCounter + angleRStart));
+			else
+				y += (float) (radius * (sin(angleRSection*(orbitCounter-1) + angleRStart)
+						- sin(angleRSection*orbitCounter + angleRStart)));
 
-				y += (float) (radius * sin(angleRSection*(orbitCounter-1) + angleRStart)
-						- radius * sin(angleRSection*orbitCounter	 + angleRStart));
-
-			} if(orbitCounter >= orbitFrames)
+			if(orbitCounter >= orbitFrames)
 				isOrbiting = false;
 		}
 
