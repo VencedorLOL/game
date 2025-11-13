@@ -610,8 +610,8 @@ public class Conditions {
 
 		public StellarExplosion(Actor owner) {
 			super(owner);
-			texture = "StellarExplosion";
-			name = "StellarExplosionCataclysm";
+			texture = "StellarExplosionCataclysm";
+			name = "StellarExplosion";
 			tickDownOnTurn = false;
 			turnsActive = -1;
 		}

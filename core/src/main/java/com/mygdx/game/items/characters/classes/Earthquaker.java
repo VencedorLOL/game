@@ -107,7 +107,7 @@ public class Earthquaker extends CharacterClasses {
 				public void onFinish() {
 					manaPool -= totalManaPerUse;
 					for(Actor a : actors)
-						if(abs(targetProcessor.targetsTarget.dC(a.getX(),a.y)/globalSize()) <= earthquakeRadius + 0.25f && a != character) {
+						if(abs(targetProcessor.targetsTarget.dC(a.getX(),a.y)/globalSize()) <= earthquakeRadius + 0.5f && a != character) {
 							a.damage(totalMagicDamage + a.totalDefense, AttackTextProcessor.DamageReasons.EARTHQUAKE, character);
 						}
 					earthquake = false;

@@ -1,6 +1,7 @@
 package com.mygdx.game.items;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
@@ -226,6 +227,7 @@ public class FieldEffects {
 		boolean renderLightningLocation;
 		@SuppressWarnings("all")
 		int numberLightning = -1;
+		TargetProcessor warning;
 
 		public Lightning(){
 			name = "Lightning";
@@ -281,6 +283,7 @@ public class FieldEffects {
 							}
 						}
 					locations = null;
+					warning = new TargetProcessor();
 					finishedActing();
 				} else
 					finishedActing();
@@ -293,12 +296,16 @@ public class FieldEffects {
 
 
 		public void renderLightning(){
+			if(warningTurnsCounter >= turnsConstant) {
+				warning.changeColor((byte) 200,(byte)0,(byte)0);
+			}
+			warning.render();
 			for(float[] t : locations){
 				if(warningTurnsCounter < turnsConstant) {
 					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 125, 50);
+			/*		addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
+			*		addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 250, 50);
 					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 250, 50);
@@ -307,12 +314,12 @@ public class FieldEffects {
 					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
 					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
 					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 250, 50);
+					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 250, 50); */
 				} else{
 					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 0, 0);
-					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 50, 0);
+			/*		addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 50, 0);
 					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 50, 0);
+			*		addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 50, 0);
 					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 50, 0);
 					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
@@ -321,7 +328,7 @@ public class FieldEffects {
 					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
 					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 125, 50);
+					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 125, 50); */
 				}
 			}
 		}
@@ -329,8 +336,27 @@ public class FieldEffects {
 		ArrayList<float[]> locations;
 		public void setLightningLocation(){
 			locations = new ArrayList<>();
-			for(int i = 0; i < numberLightning; i++)
-				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))).xAndY());
+			warning = new TargetProcessor();
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false);
+			warning.circle.circle.clear();
+			for(int i = 0; i < numberLightning; i++) {
+				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());
+				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize() * 2, locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize() * 2, locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] + globalSize() * 2);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] - globalSize() * 2);
+			}
+			warning.circle.circle.removeIf(Objects::isNull);
+			warning.circle.detectCornersOfCircle(warning.circle.circle);
 			renderLightningLocation = true;
 		}
 
@@ -622,6 +648,7 @@ public class FieldEffects {
 		int cooldownConstant = 1;
 		boolean renderTsunamiLocation;
 		byte direction;
+		TargetProcessor warning;
 
 		public AlertTsunami(){
 			name = "Alert Tsunami";
@@ -680,6 +707,7 @@ public class FieldEffects {
 						}
 					}
 					locations = null;
+					warning = new TargetProcessor();
 					queuedForRemoval = true;
 					finishedActing();
 				} else
@@ -693,13 +721,16 @@ public class FieldEffects {
 
 
 		public void renderTsunami(){
-			for(float[] t : locations){
-				if(warningTurnsCounter < turnsConstant) {
-					addToList("TsunamiWarning", t[0], t[1], 0.5f, 0, 20, 50, 200);
-				} else{
-					addToList("TsunamiWarning", t[0], t[1], 0.8f, 0, 60, 100, 250);
-				}
-			}
+			if(warningTurnsCounter >= turnsConstant)
+				warning.changeColor((byte) 0,(byte)0,(byte)250);
+			warning.render();
+//			for(float[] t : locations){
+//*				if(warningTurnsCounter < turnsConstant) {
+//					addToList("TsunamiWarning", t[0], t[1], 0.5f, 0, 20, 50, 200);
+//				} else{
+//					addToList("TsunamiWarning", t[0], t[1], 0.8f, 0, 60, 100, 250);
+//				}
+//			}
 		}
 
 		//floor() my beloved
@@ -708,6 +739,9 @@ public class FieldEffects {
 			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
+			warning = new TargetProcessor();
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false);
+			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
 					locations.add(new float[]{
@@ -730,8 +764,12 @@ public class FieldEffects {
 							(float) (stage.finalX - globalSize() * valueCutter(i, 1+(stage.finalX - stage.startX) / globalSize()))
 						,	(float) (stage.finalY - globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
 
+
 				}
+				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
 			}
+			warning.circle.circle.removeIf(Objects::isNull);
+			warning.circle.detectCornersOfCircle(warning.circle.circle);
 			renderTsunamiLocation = true;
 
 		}
@@ -752,6 +790,7 @@ public class FieldEffects {
 		int cooldownConstant = 1;
 		boolean renderTsunamiLocation;
 		byte direction;
+		TargetProcessor warning;
 
 		public AlertEarthquake(){
 			name = "Alert Earthquake";
@@ -810,6 +849,7 @@ public class FieldEffects {
 						}
 					}
 					locations = null;
+					warning = new TargetProcessor();
 					queuedForRemoval = true;
 					finishedActing();
 				} else
@@ -823,13 +863,16 @@ public class FieldEffects {
 
 
 		public void renderTsunami(){
-			for(float[] t : locations){
-				if(warningTurnsCounter < turnsConstant) {
-					addToList("TsunamiWarning", t[0], t[1], 0.5f, 0, 20, 50, 200);
-				} else{
-					addToList("TsunamiWarning", t[0], t[1], 0.8f, 0, 60, 100, 250);
-				}
-			}
+			if(warningTurnsCounter >= turnsConstant)
+				warning.changeColor((byte) 60,(byte)100,(byte)250);
+			warning.render();
+//			for(float[] t : locations){
+//				if(warningTurnsCounter < turnsConstant) {
+//					addToList("TsunamiWarning", t[0], t[1], 0.5f, 0, 20, 50, 200);
+//				} else{
+//					addToList("TsunamiWarning", t[0], t[1], 0.8f, 0, 60, 100, 250);
+//				}
+//			}
 		}
 
 		//floor() my beloved
@@ -838,6 +881,9 @@ public class FieldEffects {
 			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
+			warning = new TargetProcessor();
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false);
+			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
 					locations.add(new float[]{
@@ -861,7 +907,10 @@ public class FieldEffects {
 							,	(float) (stage.finalY - globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
 
 				}
+				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
 			}
+			warning.circle.circle.removeIf(Objects::isNull);
+			warning.circle.detectCornersOfCircle(warning.circle.circle);
 			renderTsunamiLocation = true;
 
 		}
@@ -884,13 +933,13 @@ public class FieldEffects {
 		public void update() {
 			if(canFieldAct){
 				for(Actor a : actors){
-					a.damage(a.totalMaxHealth*0.05f, ELECTRIC,null);
-					if (random() >= 0.75)
+					a.damage(max(a.totalMaxHealth * 0.05f, 0.1f), ELECTRIC,null);
+					if (random() >= 0.85)
 						if(!a.conditions.hasStatus(STUNNED)) {
 							a.conditions.condition(STUNNED);
 							a.conditions.getStatus(STUNNED).setTurns(1);
 						}
-					if (random() >= 0.05)
+					if (random() >= 0.95)
 						a.conditions.status(BURNING);
 				}
 				finishedActing();
@@ -942,6 +991,10 @@ public class FieldEffects {
 							a.conditions.status(BURNING);
 						if(turnCount > 49)
 							a.conditions.status(BURNING_BRIGHT);
+						if(turnCount > 74)
+							a.conditions.status(MELTING);
+						if(turnCount > 99)
+							a.conditions.status(SUBLIMATING);
 					}
 				finishedActing();
 			}
@@ -958,30 +1011,36 @@ public class FieldEffects {
 		boolean renderLightningLocation;
 		int numberLightning;
 		boolean killElectricGround = true;
+		TargetProcessor warning;
+		boolean killLightning = true;
+		boolean killRainy = true;
+
 		public CataclysmElectric(){
 			name = "Cataclysm Electric";
 
 			if (getField(FieldNames.ALERT_ELECTRIC_GROUND) != null)
 				killElectricGround = false;
+			if (getField(FieldNames.LIGHTNING) != null) {
+				killLightning = false;
+				if (getField(FieldNames.RAINY) != null)
+					killRainy = false;
+				deleteField(FieldNames.LIGHTNING);
+				if(!killRainy)
+					addField(FieldNames.RAINY);
+			}
 			addField(FieldNames.ALERT_ELECTRIC_GROUND);
 		}
 
 		public void destroyField() {
 			if(killElectricGround)
 				deleteField(FieldNames.ALERT_ELECTRIC_GROUND);
+			if(!killLightning)
+				addField(FieldNames.LIGHTNING);
+			if(!killRainy)
+				addField(FieldNames.RAINY);
 		}
 
 		public void finishedActing(){
-			for(Actor a : actors) {
-				a.damage((float) max(a.totalMaxHealth * 0.05, 0.1), ELECTRIC, null);
-				if (random() >= 0.75 && !a.airborn)
-					if(!a.conditions.hasStatus(STUNNED)) {
-						a.conditions.condition(STUNNED);
-						a.conditions.getStatus(STUNNED).setTurns(1);
-					}
-				if (random() >= 0.05 && !a.airborn)
-					a.conditions.status(BURNING);
-			}
 			turnCounter++;
 			canFieldAct = false;
 		}
@@ -1037,6 +1096,7 @@ public class FieldEffects {
 							}
 						}
 					locations = null;
+					warning = new TargetProcessor(0,0,1,false,false);
 					finishedActing();
 				} else
 					finishedActing();
@@ -1049,45 +1109,42 @@ public class FieldEffects {
 
 
 		public void renderLightning(){
-			for(float[] t : locations){
-				if(warningTurnsCounter < turnsConstant) {
+			if(warningTurnsCounter >= turnsConstant)
+				warning.changeColor((byte) 200,(byte)0,(byte)0);
+			warning.render();
+			for(float[] t : locations)
+				if(warningTurnsCounter < turnsConstant)
 					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0] - globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0] + globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 250, 50);
-					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 250, 50);
-				} else{
+				else
 					addToList("LightningWarning", t[0], t[1], 0.8f, 0, 250, 0, 0);
-					addToList("LightningWarning", t[0] + globalSize(), t[1], 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0] - globalSize(), t[1], 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0], t[1] + globalSize(), 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0], t[1] - globalSize(), 0.8f, 0, 250, 50, 0);
-					addToList("LightningWarning", t[0] + globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] - globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] - globalSize(), t[1] + globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] + globalSize(), t[1] - globalSize(), 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] + globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0] - globalSize() * 2, t[1], 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] + globalSize() * 2, 0.8f, 0, 250, 125, 50);
-					addToList("LightningWarning", t[0], t[1] - globalSize() * 2, 0.8f, 0, 250, 125, 50);
-				}
-			}
+
 		}
 
 		ArrayList<float[]> locations;
 		public void setLightningLocation(){
 			locations = new ArrayList<>();
-			numberLightning = (int) ((sqrt((stage.finalX-stage.startX) * (stage.finalY-stage.startY)/pow(globalSize(),2)))/2 * floor(turnCounter/2f));
-			for(int i = 0; i < numberLightning; i++)
-				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0,(stage.tileset.size()-1))).xAndY());
+			numberLightning = (int) ((sqrt((stage.finalX-stage.startX) * (stage.finalY-stage.startY)/pow(globalSize(),2)))/2 * max(floor(turnCounter/2f),1));
+			warning = new TargetProcessor();
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false);
+			warning.circle.circle.clear();
+			for(int i = 0; i < numberLightning; i++) {
+				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());
+				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize(), locations.get(i)[1] + globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize(), locations.get(i)[1] - globalSize());
+				warning.circle.addToCircle(locations.get(i)[0] + globalSize() * 2, locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0] - globalSize() * 2, locations.get(i)[1]);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] + globalSize() * 2);
+				warning.circle.addToCircle(locations.get(i)[0], locations.get(i)[1] - globalSize() * 2);
+			}
+			warning.circle.circle.removeIf(Objects::isNull);
+			warning.circle.detectCornersOfCircle(warning.circle.circle);
 			renderLightningLocation = true;
 		}
 
@@ -1108,7 +1165,7 @@ public class FieldEffects {
 		public void update() {
 			if(canFieldAct){
 					for(Actor a : actors)
-						a.damage(a.totalMaxHealth * .05f, RADIATION, null);
+						a.damage(max(a.totalMaxHealth * .05f,0.1f), PRESSURE, null);
 				finishedActing();
 			}
 		}
@@ -1132,7 +1189,7 @@ public class FieldEffects {
 					for(Actor a : actors) {
 						a.conditions.status(BURNING);
 						if(++turnCount > 4) {
-							a.damage(max(a.health * .2f, 0.5f), BURNT, null);
+							a.damage(max(a.health * .2f, 0.1f), BURNT, null);
 							a.conditions.status(BURNING_BRIGHT);
 						}
 					}

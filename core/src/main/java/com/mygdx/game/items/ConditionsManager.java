@@ -6,10 +6,19 @@ public class ConditionsManager {
 
 	Actor owner;
 	public ArrayList<Conditions> conditions = new ArrayList<>();
+	public ArrayList<Conditions> queue = new ArrayList<>();
+
 
 	public ConditionsManager(Actor owner){
 		this.owner = owner;
 	}
+
+	public void queue(Conditions condition){
+		queue.add(condition);
+	}
+
+
+
 
 
 	/**
@@ -20,7 +29,10 @@ public class ConditionsManager {
 			if(c.name.equals(condition.name))
 				return;
 		}
-		conditions.add(conditionBuilder(condition));
+		if(queue == null)
+			queue(conditionBuilder(condition));
+		else
+			conditions.add(conditionBuilder(condition));
 	}
 
 	/**
@@ -58,6 +70,13 @@ public class ConditionsManager {
 		return false;
 	}
 
+	public boolean hasStatus(Conditions condition){
+		for (Conditions c : conditions)
+			if(c.name.equals(condition.name))
+				return true;
+		return false;
+	}
+
 	public Conditions getStatus(Conditions.ConditionNames condition){
 		for(Conditions c : conditions)
 			if(c.name.equals(condition.name))
@@ -70,40 +89,6 @@ public class ConditionsManager {
 		for (Conditions c : conditions)
 			c.destroyCondition();
 		conditions.removeIf(c -> c.name.equals(condition.name));
-	}
-
-	public Conditions conditionBuilder(Conditions.ConditionNames conditionName){
-		switch (conditionName){
-			case BURNING: 		 	return new Conditions.Burning			(owner);
-			case BURNING_BRIGHT: 	return new Conditions.BurningBright		(owner);
-			case MELTING:  		 	return new Conditions.Melting			(owner);
-			case SUBLIMATING: 	 	return new Conditions.Sublimating		(owner);
-			case FROZEN: 		 	return new Conditions.Frozen			(owner);
-			case HYPERTHERMIA:   	return new Conditions.Hyperthermia		(owner);
-			case HYPOTHERMIA:    	return new Conditions.Hypothermia		(owner);
-			case ONE_FOR_ALL: 	 	return new Conditions.OneForAll			(owner);
-			case FROSTBITE: 	 	return new Conditions.Frostbite			(owner);
-			case MANA_HIT:		 	return new Conditions.ManaHit			(owner);
-			case EVEN_FASTER:    	return new Conditions.EvenFaster		(owner);
-			case PROTECTING:	 	return new Conditions.Protected			(owner);
-			case PROTECTED:    	 	return new Conditions.Protecting		(owner);
-			case RITUAL:		 	return new Conditions.Ritual    		(owner);
-			case DEMONIZED:		 	return new Conditions.Demonized 		(owner);
-			case CLOWDY: 		 	return new Conditions.Clowdy			(owner);
-			case RAINY:   		 	return new Conditions.Rainy				(owner);
-			case SNOWY: 		 	return new Conditions.Snowy				(owner);
-			case SUNNY:			 	return new Conditions.Sunny				(owner);
-			case STUNNED:		 	return new Conditions.Stunned			(owner);
-			case COMING_THROUGH: 	return new Conditions.ComingThrough		(owner);
-			case STELLAR_STORM:	 	return new Conditions.StellarStorm		(owner);
-			case ELECTRIC_GROUND:	return new Conditions.ElectricGround	(owner);
-			case AUGMENTED_GRAVITY:	return new Conditions.AugmentedGravity	(owner);
-			case NUCLEAR_EVENT:		return new Conditions.NuclearEvent		(owner);
-			case GLACIATION:		return new Conditions.Glaciation		(owner);
-			case STELLAR_EXPLOSION:	return new Conditions.StellarExplosion	(owner);
-
-		}
-		return null;
 	}
 
 	public void render(){
@@ -160,10 +145,13 @@ public class ConditionsManager {
 		return returnTrue;
 	}
 
+	@SuppressWarnings("all")
 	public void onMove(){
-		for (Conditions c : conditions)
-			c.onMove();
+		for (int i = 0; i < conditions.size(); i++)
+			conditions.get(i).onMove();
+
 	}
+
 
 	public void onStageChange(){
 		for (Conditions c : conditions)
@@ -241,6 +229,38 @@ public class ConditionsManager {
 		return finalSum;
 	}
 
+	public Conditions conditionBuilder(Conditions.ConditionNames conditionName){
+		switch (conditionName){
+			case BURNING: 		 	return new Conditions.Burning			(owner);
+			case BURNING_BRIGHT: 	return new Conditions.BurningBright		(owner);
+			case MELTING:  		 	return new Conditions.Melting			(owner);
+			case SUBLIMATING: 	 	return new Conditions.Sublimating		(owner);
+			case FROZEN: 		 	return new Conditions.Frozen			(owner);
+			case HYPERTHERMIA:   	return new Conditions.Hyperthermia		(owner);
+			case HYPOTHERMIA:    	return new Conditions.Hypothermia		(owner);
+			case ONE_FOR_ALL: 	 	return new Conditions.OneForAll			(owner);
+			case FROSTBITE: 	 	return new Conditions.Frostbite			(owner);
+			case MANA_HIT:		 	return new Conditions.ManaHit			(owner);
+			case EVEN_FASTER:    	return new Conditions.EvenFaster		(owner);
+			case PROTECTING:	 	return new Conditions.Protected			(owner);
+			case PROTECTED:    	 	return new Conditions.Protecting		(owner);
+			case RITUAL:		 	return new Conditions.Ritual    		(owner);
+			case DEMONIZED:		 	return new Conditions.Demonized 		(owner);
+			case CLOWDY: 		 	return new Conditions.Clowdy			(owner);
+			case RAINY:   		 	return new Conditions.Rainy				(owner);
+			case SNOWY: 		 	return new Conditions.Snowy				(owner);
+			case SUNNY:			 	return new Conditions.Sunny				(owner);
+			case STUNNED:		 	return new Conditions.Stunned			(owner);
+			case COMING_THROUGH: 	return new Conditions.ComingThrough		(owner);
+			case STELLAR_STORM:	 	return new Conditions.StellarStorm		(owner);
+			case ELECTRIC_GROUND:	return new Conditions.ElectricGround	(owner);
+			case AUGMENTED_GRAVITY:	return new Conditions.AugmentedGravity	(owner);
+			case NUCLEAR_EVENT:		return new Conditions.NuclearEvent		(owner);
+			case GLACIATION:		return new Conditions.Glaciation		(owner);
+			case STELLAR_EXPLOSION:	return new Conditions.StellarExplosion	(owner);
 
+		}
+		return null;
+	}
 
 }

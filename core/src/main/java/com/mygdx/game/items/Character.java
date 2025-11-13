@@ -358,7 +358,7 @@ public class Character extends Actor implements Utils {
 	public void onDeathOverridable(){
 		if (classes.currentHealth <= 0) {
 			isDead = true;
-			throw new Error("gitGud");
+			throw new Error("you died with " + classes.currentHealth + " health");
 		}
 	}
 
@@ -652,10 +652,10 @@ public class Character extends Actor implements Utils {
 			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)){
-			addHazard(Hazards.HazardNames.EARTH_CRACK,x/globalSize(),y/globalSize()+1);
+			addField(FieldEffects.FieldNames.CATACLYSM_GLATIATION);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
-			addField(FieldEffects.FieldNames.ALERT_TSUNAMI);
+			addField(FieldEffects.FieldNames.CATACLYSM_NUCLEAR);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;

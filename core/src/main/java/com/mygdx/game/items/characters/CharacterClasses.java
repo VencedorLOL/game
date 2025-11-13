@@ -233,7 +233,8 @@ public class CharacterClasses {
 		float damagedFor;
 		if(damageReason != AttackTextProcessor.DamageReasons.ELECTRIC && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
 				&& damageReason !=  AttackTextProcessor.DamageReasons.EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
-				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE)
+				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE && damageReason !=  AttackTextProcessor.DamageReasons.PRESSURE
+				&& damageReason !=  AttackTextProcessor.DamageReasons.RADIATION)
 			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
 				damagedFor = max(damage - (totalDefense/2),0);
 			else

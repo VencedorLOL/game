@@ -7,12 +7,12 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.ClickDetector.wallRayCasting;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.animations;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 public class TargetProcessor {
 	public Circle circle;
@@ -25,6 +25,8 @@ public class TargetProcessor {
 	public TextureManager.Animation target;
 	boolean mouseMoved;
 	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
+	byte r = (byte) 200,g = (byte) 200,b = (byte) 200;
+	float x,y;
 
 	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String targetAnimation){
 		this.fixated = fixated;
@@ -43,12 +45,34 @@ public class TargetProcessor {
 		targetsTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
 	}
 
+	public TargetProcessor(float x, float y,float size,boolean checkWalkable, boolean rayCast){
+		fixated = null;
+		this.size = size;
+		this.checkWalkable = checkWalkable;
+		this.rayCast = rayCast;
+		this.x = x; this.y = y;
+		targetsTarget = new Entity(null,x,y,false);
+	}
+
+	public TargetProcessor(){}
+
 
 	public void render(){
 		if(targetAnimation != null)
 			targetProcesor();
-		else
+		else if(fixated != null)
 			circleProcesor();
+		else if (targetsTarget != null)
+			noFixatedProcesor();
+		else
+			customCircleProcessor();
+	}
+
+	public void changeColor(byte r, byte g, byte b){
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		circle.changeColor(r &0xFF,g&0xFF,b&0xFF);
 	}
 
 	private void circleProcesor(){
@@ -57,7 +81,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast,r,g,b,true);
 
 		}
 		circle.renderCircle();
@@ -65,6 +89,28 @@ public class TargetProcessor {
 		circleOverridable(temporal);
 	}
 
+	private void noFixatedProcesor(){
+		if (circle == null || circle.center != stage.findATile(x,y) || circle.tileset != stage.tileset || circle.radius != size || !circle.walkable) {
+			if (circle != null)
+				for (Circle.CircleTile t : circle.circle)
+					for (int i = 0; i < 13; i++)
+						t.setSecondaryTexture(null,0.8f,0,false,false,i);
+			circle = new Circle(stage.findATile(x, y), stage.tileset, size, checkWalkable,rayCast,r,g,b,false);
+
+		}
+		circle.renderCircle();
+		Vector3 temporal = roundedClick();
+		circleOverridable(temporal);
+	}
+
+	private void customCircleProcessor(){
+		if(circle != null)
+			circle.renderCircle();
+		else
+			print("Tried to render circle, but it was null");
+		Vector3 temporal = roundedClick();
+		circleOverridable(temporal);
+	}
 
 
 	private void targetProcesor(){
@@ -73,7 +119,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false,r,g,b,true);
 
 		}
 		circle.renderCircle();
@@ -187,19 +233,39 @@ public class TargetProcessor {
 		public Tile center;
 		public boolean walkable;
 		boolean rayCast;
+		int r,g,b;
+		float furthestX, furthestY;
+		boolean zoom;
 
-		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast){
+		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast,int r,int g, int b,boolean zoom){
 			this.center = center;
 			this.radius = radius;
 			this.tileset = tileset;
 			circleTileset = castTileset(tileset);
 			this.walkable = checkWalkable;
 			this.rayCast = rayCast;
+			this.r = r;
+			this.g = g;
+			this.b = b;
 			if (checkWalkable)
 				checkWalkable();
 			circle = circle();
 			detectCornersOfCircle(circle);
+			this.zoom = zoom;
+			if(zoom)
+				Camara.zoomToPoint(furthestX + center.x,furthestY + center.y,globalSize(),globalSize());
 
+		}
+
+		private void changeColor(int r, int g, int b){
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			for(CircleTile t : circle){
+				t.texture[8].r = r;
+				t.texture[8].g = g;
+				t.texture[8].b = b;
+			}
 		}
 
 		public ArrayList<CircleTile> castTileset(ArrayList<Tile> tileset){
@@ -213,18 +279,33 @@ public class TargetProcessor {
 		public void renderCircle(){
 			for (CircleTile t : circle){
 				t.renderCircle(t.x,t.y);
-				Camara.zoomToPoint(t.x,t.y,globalSize(),globalSize());
+//				Camara.zoomToPoint(t.x,t.y,globalSize(),globalSize());
 			}
 		}
 
 		public CircleTile findATile(float x, float y){
-			for (CircleTile t : circle){
+			for (CircleTile t : circle)
 				if (t.x == x && t.y == y)
 					return t;
-			}
 			return null;
 		}
 
+		public CircleTile findATsTile(float x, float y){
+			for (CircleTile t : circleTileset)
+				if (t.x == x && t.y == y)
+					return t;
+			return null;
+		}
+
+		public void addToCircle(float x, float y){
+			CircleTile temp = findATsTile(x,y);
+			if(temp == null)
+				return;
+			for (CircleTile c : circle)
+				if (c == temp)
+					return;
+			circle.add(temp);
+		}
 
 		public void checkWalkable(){
 			for (Tile t : tileset)
@@ -268,6 +349,10 @@ public class TargetProcessor {
 
 		public void detectCornersOfCircle(ArrayList<CircleTile> circle) {
 			for (CircleTile t : circle){
+				if(abs(t.x-center.x) > furthestX)
+					furthestX = t.x-center.x < 0 ? abs(t.x-center.x) : abs(t.x-center.x+globalSize());
+				if(abs(t.y-center.y) > furthestY)
+					furthestY = t.y-center.y < 0 ? abs(t.y-center.y) : abs(t.y-center.y+globalSize());
 				boolean lu = false, u = false, ru = false,r= false, rd = false,d= false, dl = false,l = false;
 				for (CircleTile tt : t.orthogonalTiles(circle)){
 					if(tt.x == t.x && tt.y == t.y+globalSize())
@@ -342,7 +427,12 @@ public class TargetProcessor {
 				}
 
 				t.setSecondaryTexture("selectionIndicator",0f,0,false,false,8);
-
+				t.texture[8].r = (this.r & 0xFF)/255f;
+				t.texture[8].g = (this.g & 0xFF)/255f;
+				t.texture[8].b = (this.b & 0xFF)/255f;
+				if(!zoom){
+					t.texture[8].opacity = .2f;
+				}
 			}
 		}
 
