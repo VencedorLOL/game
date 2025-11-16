@@ -357,6 +357,7 @@ public class CharacterClasses {
 
 	public void onFinalizedTurn(){}
 
+	public void resetClassesState(){}
 
 
 	public final void destroy(){

@@ -26,8 +26,6 @@ public class StageCreatorScreen implements Screen, Utils {
 		if (zoom <= 0)
 			zoom = 2;
 		camara.camaraStarter(zoom);
-		testUi = new GUI();
-		testUi.testButton();
 		particle = new ParticleManager(textureManager);
 		sc = new StageCreator(testUi,textureManager,camara,chara);
 	}
@@ -48,7 +46,6 @@ public class StageCreatorScreen implements Screen, Utils {
 			sc.update();
 			if (!betweenStages)
 				textureManager.addToList(chara.getTexture(), chara.getX(), chara.getY());
-			testUi.renderGUI();
 			textureManager.render(camara);
 			// Hotkeys
 			if (Gdx.input.isKeyPressed(Input.Keys.C))
@@ -144,7 +141,7 @@ public class StageCreatorScreen implements Screen, Utils {
 
 	@Override
 	public void resize(int width, int height) {
-		testUi.stage.getViewport().update(width, height, true);
+
 	}
 
 	@Override

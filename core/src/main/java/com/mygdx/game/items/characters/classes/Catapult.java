@@ -70,7 +70,6 @@ public class Catapult extends CharacterClasses {
 
 			public void cancelActivation() {
 				isItActive = false;
-				character.cancelDecision();
 				targetProcessor.reset();
 				resetCircle();
 				chargeCoords = new float[2];

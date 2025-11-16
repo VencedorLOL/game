@@ -57,11 +57,6 @@ public class Imp extends CharacterClasses {
 				targetProcessor.reset();
 			}
 
-			@Override
-			public void cancelActivation() {
-				isItActive = false;
-				character.cancelDecision();
-			}
 
 			@Override
 			public void finished() {
@@ -76,6 +71,7 @@ public class Imp extends CharacterClasses {
 				isItActive = true;
 				chara.cancelAttackMode();
 				targetProcessor.reset();
+				character.movementLock = true;
 			}
 
 			@Override
@@ -83,6 +79,7 @@ public class Imp extends CharacterClasses {
 				isItActive = false;
 				markCoords = null;
 				targetProcessor.reset();
+				character.movementLock = false;
 			}
 
 			@Override
@@ -96,15 +93,22 @@ public class Imp extends CharacterClasses {
 			@Override
 			public void onTurnPass() {
 				if (abilities.get(0).isItActive)
-					abilities.get(0).finished();
+					abilities.get(0).cancelActivation();
 				if (abilities.get(1).isItActive)
-					abilities.get(1).finished();
+					abilities.get(1).cancelActivation();
 			}
 		};
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
 		targetProcessor = new TargetProcessor(character,markRange,false,false,"marktarget");
+	}
+
+	public void resetClassesState() {
+		targetProcessor.reset();
+		abilities.get(0).cancelActivation();
+		abilities.get(1).cancelActivation();
+		markCoords = null;
 	}
 
 
@@ -133,11 +137,11 @@ public class Imp extends CharacterClasses {
 
 
 		if(abilities.get(0).isItActive && character.isPermittedToAct()){
+			abilities.get(0).finished();
 			character.conditions.status(Conditions.ConditionNames.RITUAL);
 			character.conditions.getStatus(Conditions.ConditionNames.RITUAL).setTurns(turnsRitual);
 			((Conditions.Ritual) character.conditions.getStatus(Conditions.ConditionNames.RITUAL)).setExtraTurnsLimit(6);
 			for(Friend f : friend){
-				abilities.get(0).finished();
 				f.conditions.status(Conditions.ConditionNames.RITUAL);
 				f.conditions.getStatus(Conditions.ConditionNames.RITUAL).setTurns(turnsRitual);
 				((Conditions.Ritual) f.conditions.getStatus(Conditions.ConditionNames.RITUAL)).setExtraTurnsLimit(6);
@@ -146,9 +150,9 @@ public class Imp extends CharacterClasses {
 		}
 
 		if(abilities.get(1).isItActive && character.isPermittedToAct() && markCoords != null){
+			abilities.get(1).finished();
 			for(Actor a : actors){
 				if(a.getX() == markCoords[0] && a.getY() == markCoords[1]) {
-					abilities.get(1).finished();
 					a.conditions.status(Conditions.ConditionNames.DEMONIZED);
 					a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(turnsMark);
 					((Conditions.Demonized) a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(this);
@@ -172,6 +176,7 @@ public class Imp extends CharacterClasses {
 		for (Ability a : abilities) {
 			a.cooldownCounter = 0;
 			a.isItActive = false;
+			character.movementLock = false;
 		}
 	}
 

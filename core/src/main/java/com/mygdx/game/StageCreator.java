@@ -63,12 +63,12 @@ public class StageCreator {
 		this.tm = tm;
 		this.camara = camara;
 		this.chara = chara;
-		gui.textBox();
+
 	}
 
 	public void update() {
-		sizeX = gui.textBoxDetector()[0];
-		sizeY = gui.textBoxDetector()[1];
+//		sizeX = gui.textBoxDetector()[0];
+//		sizeY = gui.textBoxDetector()[1];
 		if (sizeX > 0 && sizeY > 0 && !hasStageBeenCreated) {
 			stage = new Stage();
 			stage.emptyStageInitializer();

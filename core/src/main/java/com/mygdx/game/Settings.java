@@ -6,8 +6,8 @@ import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnVolume;
 import static com.mygdx.game.items.TextureManager.fixatedText;
-import static com.mygdx.game.items.TextureManager.text;
 
+@SuppressWarnings("all")
 public class Settings {
 	static int animationSpeed = 1;
 	static int visualSpeedMultiplier = 8;
@@ -45,6 +45,9 @@ public class Settings {
 
 	static final boolean releaseVersion = true;
 
+	static float desiredGUISize;
+	static float minimumGUISize;
+
 	private static final OnVariousScenarios oVS = new OnVariousScenarios(){
 		@Override
 		public void onTickStart() {
@@ -52,6 +55,10 @@ public class Settings {
 		}
 	};
 
+	public static float getDesiredGUISize(){return desiredGUISize;}
+	public static float getMinimumGUISize(){return minimumGUISize;}
+	public static void setDesiredGUISize(float size){desiredGUISize = size;}
+	public static void setMinimumGUISize(float size){minimumGUISize = size;}
 	public static boolean getReleaseVersion() {return releaseVersion;}
 	public static boolean getFastMode() {return fastMode;}
 	public static void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
@@ -60,9 +67,7 @@ public class Settings {
 	public static int animationSpeedGetter(){
 		return animationSpeed;
 	}
-	public static int getVisualSpeedMultiplier(){
-		return visualSpeedMultiplier;
-	}
+	public static int getVisualSpeedMultiplier(){return visualSpeedMultiplier;}
 	public static boolean isDevMode(){
 		return DEV_MODE;
 	}

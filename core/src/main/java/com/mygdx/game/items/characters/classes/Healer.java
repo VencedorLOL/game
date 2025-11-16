@@ -82,6 +82,12 @@ public class Healer extends CharacterClasses implements Utils {
 		targetProcessor = new TargetProcessor(character,healRange,true,false,"healtarget");
 	}
 
+	@Override
+	public void resetClassesState() {
+		targetProcessor.reset();
+		abilities.get(0).cancelActivation();
+	}
+
 	protected void updateOverridable() {
 		if(healTarget == null && healTarget.getIsDead())
 			healTarget = character;

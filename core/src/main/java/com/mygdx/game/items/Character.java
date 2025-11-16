@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
+import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
+import com.mygdx.game.items.guielements.Background;
 
 
 import java.util.ArrayList;
@@ -20,8 +22,6 @@ import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
-import static com.mygdx.game.items.Hazards.addHazard;
-import static com.mygdx.game.items.Hazards.getHazard;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.TextureManager.*;
@@ -44,6 +44,11 @@ public class Character extends Actor implements Utils {
 	TargetProcessor targetProcessor;
 
 	public boolean lockClass = false;
+
+	public ClassChanger cC;
+
+	public boolean classChanging = false;
+	public int changePos = -1;
 
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);
@@ -70,6 +75,7 @@ public class Character extends Actor implements Utils {
 		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{244,83,23});
 		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target");
+		cC = new ClassChanger(this);
 	}
 
 	public void spendTurn(){
@@ -143,6 +149,8 @@ public class Character extends Actor implements Utils {
 				c.targetProcessor.circle = null;
 			}
 			cancelDecision();
+			for(Ability a : classes.abilities)
+				a.cancelActivation();
 			Camara.smoothAttachment(chara,40);
 		}
 	}
@@ -170,10 +178,13 @@ public class Character extends Actor implements Utils {
 		path.getStats(x,y, classes.totalSpeed);
 
 		if(!lockClass) {
-			if (!attackMode)
-				movement();
-			else
-				attack();
+			if(!classChanging && changePos == -1) {
+				if (!attackMode)
+					movement();
+				else
+					attack();
+			}
+			classChangeManager();
 
 			if (!turnMode)
 				interact();
@@ -188,6 +199,29 @@ public class Character extends Actor implements Utils {
 		textureUpdater();
 		render();
 	}
+
+	public void classChangeManager(){
+		if (classChanging && changePos == -1 && isDecidingWhatToDo(this))
+			cC.render();
+		else if (changePos != -1 && isPermittedToAct()){
+			float healthPercentage = classes.currentHealth / classes.totalHealth;
+			float tempDf = classes.tempDefense;
+			cC.activate(changePos);
+			classes.currentHealth = classes.totalHealth * healthPercentage;
+			classes.tempDefense += tempDf;
+			classes.totalStatsCalculator();
+			changePos = -1;
+			spendTurn();
+		}
+	}
+
+	public void onCharacterChange(int pos){
+		changePos = pos;
+		classChanging = false;
+		actionDecided();
+		path.pathReset();
+	}
+
 
 	@SuppressWarnings("all")
 	public void updateFriends(){
@@ -216,6 +250,7 @@ public class Character extends Actor implements Utils {
 
 	public void attackActuator(){
 		if(!attacks.isEmpty() && !lockClassTilAnimationFinishes) {
+			targetProcessor.reset();
 			lockClassTilAnimationFinishes = true;
 			attacks.get(elementOfAttack).isBeingExecuted = true;
 			elementOfAttack++;
@@ -365,10 +400,12 @@ public class Character extends Actor implements Utils {
 
 	public void interact(){
 		if(actionConfirmJustPressed()){
-			testCollision.x = x; testCollision.y = y + globalSize();
+			testCollision.x = x - globalSize(); testCollision.y = y - globalSize();
+			testCollision.base = globalSize()*3; testCollision.height = globalSize() * 3;
 			for(Interactable i : interactables)
 				if (testCollision.overlaps(i))
-					i.onInteract();
+					i.onInteract(this);
+			testCollision.base = globalSize(); testCollision.height = globalSize();
 		}
 	}
 
@@ -377,15 +414,6 @@ public class Character extends Actor implements Utils {
 	// Debug
 
 	public void changeTo(){
-		changeToSwordMage();
-		changeToHealer();
-		changeToMelee();
-		changeToVencedor();
-		changeToSummon();
-		changeToImp();
-		changeToCatapult();
-		changeToStellar();
-		changeToEq();
 		equipBestSword();
 		equipBlessedShield();
 		equipBlessedSword();
@@ -393,83 +421,6 @@ public class Character extends Actor implements Utils {
 		equipMeleeSword();
 		equipVencedorSword();
 	}
-
-
-	public void changeToSwordMage(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-			classes.destroy();
-			classes = new SwordMage();
-			classes.equipWeapon(new SwordMageWeapons.SwordWand(classes));
-			classes.equipShield(new SwordMageShields.CrystalizedShield(classes));
-		}
-	}
-
-	public void changeToMelee(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-			classes.destroy();
-			classes = new Melee();
-			classes.equipWeapon(new MeleeWeapons.ABat(classes));
-			classes.equipShield(new MeleeShields.MeleeShield(classes));
-		}
-	}
-
-	public void changeToVencedor(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
-			classes.destroy();
-			classes = new Speedster();
-			classes.equipShield(new SpeedsterShields.SpeedsterShield(classes));
-			classes.equipWeapon(new SpeedsterWeapons.SpeedsterDagger(classes));
-		}
-	}
-
-	public void changeToSummon(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F4)){
-			classes.destroy();
-			classes = new Summoner();
-		}
-	}
-
-	public void changeToImp(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F5)){
-			classes.destroy();
-			classes = new Imp();
-		}
-	}
-
-	public void changeToCatapult(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F6)){
-			classes.destroy();
-			classes = new Catapult();
-		}
-	}
-
-	public void changeToStellar(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F7)){
-			classes.destroy();
-			classes = new StellarExplosion();
-			classes.equipShield(new StellarExplosionShields.EnergyAccelerator(classes));
-			classes.equipWeapon(new StellarExplosionWeapons.EnergyCondensator(classes));
-		}
-	}
-
-	public void changeToHealer(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F8)){
-			classes.destroy();
-			classes = new Healer();
-			classes.equipShield(new HealerShields.BlessedShield(classes));
-			classes.equipWeapon(new HealerWeapons.BlessedSword(classes));
-		}
-	}
-
-	public void changeToEq(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F9)){
-			classes.destroy();
-			classes = new Earthquaker();
-			classes.equipShield(new EarthquakerShields.StablePlatform(classes));
-			classes.equipWeapon(new EarthquakerWeapons.EnergyCondensator(classes));
-		}
-	}
-
 
 	public void equipBlessedSword(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
@@ -592,6 +543,16 @@ public class Character extends Actor implements Utils {
 				}
 			}
 		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+			if(turnMode && isDecidingWhatToDo(this)) {
+				path.pathReset();
+				attacks.clear();
+				targetProcessor.reset();
+				classes.resetClassesState();
+				classChanging = !classChanging;
+			}
+		}
+
 
 		if(Gdx.input.isKeyPressed(Input.Keys.F10)){
 			particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
@@ -632,9 +593,6 @@ public class Character extends Actor implements Utils {
 			fixatedText("Healed to max hp",400,400,200,Fonts.ComicSans,40);
 		}
 		changeTo();
-		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
-			damage(20, AttackTextProcessor.DamageReasons.SELF,null);
-		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
@@ -660,6 +618,7 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;
 			classes.currentHealth = 1000000;
+			new Background();
 		}
 
 

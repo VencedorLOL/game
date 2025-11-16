@@ -88,6 +88,11 @@ public class Melee extends CharacterClasses {
 		manaPool = mana;
 	}
 
+	public void resetClassesState() {
+		abilities.get(0).cancelActivation();
+		abilities.get(1).cancelActivation();
+		attackState = 0;
+	}
 
 	public void updateOverridable() {
 		for (Ability a : abilities){

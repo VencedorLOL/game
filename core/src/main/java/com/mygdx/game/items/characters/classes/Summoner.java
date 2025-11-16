@@ -59,7 +59,6 @@ public class Summoner extends CharacterClasses {
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
-				character.cancelDecision();
 				character.movementLock = false;
 				endSummonSelector();
 			}
@@ -109,6 +108,12 @@ public class Summoner extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,summonRange,true,false,"summontarget");
+	}
+
+	public void resetClassesState() {
+		targetProcessor.reset();
+		abilities.get(0).cancelActivation();
+		abilities.get(1).cancelActivation();
 	}
 
 	public void updateOverridable() {

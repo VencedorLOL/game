@@ -117,12 +117,6 @@ public class ImpWeapons extends Weapons{
 				}
 
 				@Override
-				public void cancelActivation() {
-					isItActive = false;
-					holder.character.cancelDecision();
-				}
-
-				@Override
 				public void finished() {
 					((Imp) holder).resetAbilities();
 				}
@@ -181,12 +175,6 @@ public class ImpWeapons extends Weapons{
 						isItActive = true;
 						holder.character.actionDecided();
 						((Imp) holder).targetProcessor.reset();
-					}
-
-					@Override
-					public void cancelActivation() {
-						isItActive = false;
-						holder.character.cancelDecision();
 					}
 
 					@Override

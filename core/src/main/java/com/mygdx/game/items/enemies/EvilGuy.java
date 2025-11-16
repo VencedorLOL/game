@@ -1,6 +1,7 @@
 package com.mygdx.game.items.enemies;
 
 
+import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Enemy;
 import com.mygdx.game.items.Interactable;
 
@@ -14,7 +15,7 @@ public class EvilGuy extends Enemy {
 		super(x, y, enemyTexture, 25);
 		tenna = new Interactable(null,x,y,globalSize(),globalSize()){
 			@Override
-			public void onInteract() {
+			public void onInteract(Character character) {
 				createVideo(x,y);
 			}
 		};

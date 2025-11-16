@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.equipment.weapons;
 
-import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Earthquaker;
 import com.mygdx.game.items.characters.equipment.Weapons;
@@ -10,8 +9,8 @@ public class EarthquakerWeapons extends Weapons{
 		super(holder);
 	}
 
-	public static class EnergyCondensator extends EarthquakerWeapons {
-		public EnergyCondensator (CharacterClasses holder) {
+	public static class GroundStomper extends EarthquakerWeapons {
+		public GroundStomper(CharacterClasses holder) {
 			super(holder);
 			weaponName = "GroundStomper";
 			weaponHealth = 0;

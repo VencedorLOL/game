@@ -64,6 +64,10 @@ public class Speedster extends CharacterClasses {
 		manaPool = mana;
 	}
 
+	public void resetClassesState() {
+		abilities.get(0).cancelActivation();
+		attackState = 0;
+	}
 
 	public void updateOverridable() {
 		abilities.get(0).render();

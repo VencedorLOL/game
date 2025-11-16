@@ -190,7 +190,6 @@ public class ImpShields extends Shields {
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
-						holder.character.cancelDecision();
 					}
 
 					@Override

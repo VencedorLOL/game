@@ -1,5 +1,6 @@
 package com.mygdx.game.items.enemies;
 
+import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Enemy;
 import com.mygdx.game.items.Interactable;
 import com.mygdx.game.items.TextureManager;
@@ -18,8 +19,7 @@ public class Dummy extends Enemy {
 		team = 1;
 		defense = 0;
 		test = new Interactable(null,x,y,globalSize(),globalSize()){
-			@Override
-			public void onInteract() {
+			public void onInteract(Character character) {
 				text("Hi, I am a dummy!", x,y+globalSize()*2,200, TextureManager.Fonts.ComicSans, 40, 255,255,255,1,150);
 			}
 		};

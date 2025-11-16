@@ -49,12 +49,7 @@ public class StellarExplosion extends CharacterClasses {
 				character.actionDecided();
 				decidingExplode = false;
 				character.movementLock = false;
-			}
-
-			@Override
-			public void cancelActivation() {
-				isItActive = false;
-				character.cancelDecision();
+				character.path.pathReset();
 			}
 		});
 
@@ -81,6 +76,13 @@ public class StellarExplosion extends CharacterClasses {
 				}
 			}
 		};
+	}
+
+	public void resetClassesState() {
+		targetProcessor.reset();
+		abilities.get(0).cancelActivation();
+		explode = false;
+		decidingExplode = false;
 	}
 
 	TextureManager.Text text;

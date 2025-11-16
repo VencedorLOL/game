@@ -1,13 +1,10 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.TextureManager;
-import com.mygdx.game.items.characters.Ability;
+import com.mygdx.game.items.TextureManager.*;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.TextureManager.fixatedText;
+import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
 
 public class Mage extends CharacterClasses {
@@ -32,8 +29,15 @@ public class Mage extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
+		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
+		text.setColor(new int[]{157,216,242});
 	}
 
+	Text text;
+	protected void updateOverridable() {
+		text.text = manaPool+"";
+
+	}
 
 	@Override
 	public boolean onAttackDecided() {
@@ -46,5 +50,10 @@ public class Mage extends CharacterClasses {
 		text("Out Of Mana!",0,150,200, TextureManager.Fonts.ComicSans,40,character);
 		return false;
 	}
+
+	public void destroyOverridable(){
+		text.onScreenTime = 1;
+	}
+
 }
 

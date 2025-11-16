@@ -33,7 +33,7 @@ public class TextureManager {
 	static ArrayList<Text> fixatedText;
 	static ArrayList<DrawableObject> drawables;
 	static ArrayList<DrawableObject> priorityDrawables;
-	static ArrayList<DrawableObject> fixatedDrawables;
+	public static ArrayList<DrawableObject> fixatedDrawables;
 	public static ArrayList<Animation> animations;
 	public static ArrayList<Animation> fixatedAnimations;
 	static ArrayList<AtlasAndName> atlases;
@@ -532,7 +532,7 @@ public class TextureManager {
 		public boolean flipX = false;
 		String name;
 
-		float scaleX = 1, scaleY = 1;
+		public float scaleX = 1, scaleY = 1;
 
 		public Animation(String file, float x, float y){
 			name = file;

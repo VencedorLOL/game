@@ -25,7 +25,6 @@ public class Earthquaker extends CharacterClasses {
 	public float earthquakeRadius = 7;
 	public boolean decidingEarthquake = false;
 	public boolean playingAnimation = false;
-	public float maxZoom;
 
 	public Earthquaker() {
 		super();
@@ -70,6 +69,12 @@ public class Earthquaker extends CharacterClasses {
 				}
 			}
 		};
+	}
+
+	public void resetClassesState() {
+		targetProcessor.reset();
+		decidingEarthquake = false;
+		earthquake = false;
 	}
 
 	Text text;
