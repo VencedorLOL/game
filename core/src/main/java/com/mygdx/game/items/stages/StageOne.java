@@ -13,9 +13,9 @@ public class StageOne extends Stage {
 		finalY = 6;
 		spawnX = 3;
 		spawnY = 0;
-		wallX 		= new int[]{0,1,2,4,5,6,0,1,5,6,0,6};
-		wallY 		= new int[]{0,0,0,0,0,0,1,1,1,1,2,2};
-		wallType 	= new int[]{1,1,1,1,1,1,1,1,1,1,1,1};
+		wallX 		= new int[]{0,1,2,4,5,6,0,1,5,6,0,6,-4};
+		wallY 		= new int[]{0,0,0,0,0,0,1,1,1,1,2,2, 5};
+		wallType 	= new int[]{1,1,1,1,1,1,1,1,1,1,1,1, 5};
 		enemySpawnX 	= new int[]{3};
 		enemySpawnY 	= new int[]{6};
 		enemyType 		= new int[]{1};

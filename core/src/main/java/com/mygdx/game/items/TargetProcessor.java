@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
@@ -188,7 +189,7 @@ public class TargetProcessor {
 		circle = null;
 		animations.remove(target);
 		target = null;
-		Camara.smoothZoom(1,30);
+		getCamara().smoothZoom(1,30);
 	}
 
 
@@ -253,7 +254,7 @@ public class TargetProcessor {
 			detectCornersOfCircle(circle);
 			this.zoom = zoom;
 			if(zoom)
-				Camara.zoomToPoint(furthestX + center.x,furthestY + center.y,globalSize(),globalSize());
+				getCamara().zoomToPoint(furthestX + center.x,furthestY + center.y,globalSize(),globalSize());
 
 		}
 

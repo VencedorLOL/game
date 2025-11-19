@@ -6,6 +6,7 @@ import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
 import com.mygdx.game.items.enemies.GoalDummy;
 import com.mygdx.game.items.enemies.LoopingHat;
+import com.mygdx.game.items.solids.ClassChangeStation;
 import com.mygdx.game.items.solids.Crater;
 import com.mygdx.game.items.solids.LargeBarricade;
 import com.mygdx.game.items.solids.Tree;
@@ -327,6 +328,7 @@ public class Stage implements Utils {
 			case 2 : return new LargeBarricade(globalSize() * x, globalSize() * y);
 			case 3 : return new Crater(globalSize() * x, globalSize() * y);
 			case 4 : return new Tree(globalSize() * x, globalSize() * y);
+			case 5 : return new ClassChangeStation(globalSize() * x, globalSize() * y);
 		}
 		return new Wall(globalSize() * x, globalSize() * y);
 

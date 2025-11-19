@@ -9,8 +9,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.Camara;
 
 import static com.badlogic.gdx.math.MathUtils.random;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.Camara.zoom;
 
 public class StartScreen implements Screen, Utils {
 	public int screenSizeX = Gdx.graphics.getWidth();
@@ -89,7 +89,7 @@ public class StartScreen implements Screen, Utils {
 			screenSizeX = Gdx.graphics.getWidth();
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-			mainClass.camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), zoom);
+			mainClass.camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), getCamara().zoom);
 			if (!fullscreen){
 				latestNonFullScreenX = screenSizeX;
 				latestNonFullScreenY = screenSizeY;

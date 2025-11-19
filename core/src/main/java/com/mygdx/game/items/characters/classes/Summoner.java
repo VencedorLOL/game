@@ -10,6 +10,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
@@ -86,7 +87,7 @@ public class Summoner extends CharacterClasses {
 			public void cancelActivation() {
 				isItActive = false;
 				character.movementLock = false;
-				Camara.smoothZoom(1,30);
+				getCamara().smoothZoom(1,30);
 				endSummonSelector();
 			}
 
@@ -195,7 +196,7 @@ public class Summoner extends CharacterClasses {
 		targetProcessor.changeRadius(summonRange);
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				for(Summon s : summons){
@@ -207,7 +208,7 @@ public class Summoner extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				for(Summon s : summons){
 					s.cancelDecision();
@@ -236,7 +237,7 @@ public class Summoner extends CharacterClasses {
 		}
 
 		if(Gdx.input.justTouched()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 					summonLocation[0] = temporal.x;
@@ -247,7 +248,7 @@ public class Summoner extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				summonLocation[0] = targetProcessor.getTargetX();
 				summonLocation[1] = targetProcessor.getTargetX();

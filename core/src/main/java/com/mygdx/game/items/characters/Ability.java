@@ -7,6 +7,7 @@ import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
@@ -40,15 +41,15 @@ public class Ability{
 		text.font = createFont(TextureManager.Fonts.ComicSans,50);
 		text.setColor(new int[]{255,255,255});
 		text.opacity = 1;
-		circle.set(Gdx.graphics.getWidth() * this.x + Camara.getX(),
-				Gdx.graphics.getHeight() * this.y + Camara.getY(),radius);
+		circle.set(Gdx.graphics.getWidth() * this.x + getCamara().getX(),
+				Gdx.graphics.getHeight() * this.y + getCamara().getY(),radius);
 	}
 
 	public boolean isBeingPressed(){
 		if (Gdx.input.justTouched()){
 			// https://imgur.com/a/bgzC4LK
 			Vector3 vector = authenticClick();
-			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+			float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
 			circle.setPosition(coords[0] + globalSize()/2f ,coords[1] + globalSize()/2f);
 			return sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius;
 		}
@@ -61,7 +62,7 @@ public class Ability{
 			TextureManager.addToFixatedList(textureIcon,Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100,1,0);
 		else {
 			TextureManager.addToFixatedList(textureIcon, Gdx.graphics.getWidth() * x / 100, Gdx.graphics.getHeight() * y / 100, 1, 0, 175, 175, 175);
-			float[] coords = Camara.unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+			float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
 			TextureManager.priorityText.add(text);
 			text.onScreenTime = 1;
 			text.fakeNull = false;

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.game.GameScreen;
 import com.mygdx.game.Utils;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.cC;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
@@ -31,7 +33,7 @@ public class TextureManager {
 	public static ArrayList<Text> text;
 	public static ArrayList<Text> priorityText;
 	static ArrayList<Text> fixatedText;
-	static ArrayList<DrawableObject> drawables;
+	public static ArrayList<DrawableObject> drawables;
 	static ArrayList<DrawableObject> priorityDrawables;
 	public static ArrayList<DrawableObject> fixatedDrawables;
 	public static ArrayList<Animation> animations;
@@ -120,12 +122,12 @@ public class TextureManager {
 
 
 	private void fixatedScreenDrawer(String texture, float x, float y,float z, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
-		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+		Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
 		drawer(texture,coords.x, coords.y,z,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b);
 	}
 
 	private void fixatedScreenDrawer(String texture, float x, float y,float z,float base,float height, float opacity,boolean flipX, boolean flipY,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b){
-		Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+		Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
 		drawer(texture,coords.x, coords.y,z,base,height,opacity,flipX,flipY,rotationDegrees,scaleX,scaleY,r,g,b);
 	}
 
@@ -456,7 +458,7 @@ public class TextureManager {
 		}
 
 		public void drawStatic(Batch batch){
-			Vector3 coords = Camara.camara.unproject(new Vector3(x,y,0f));
+			Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
 			if (r != -1 && vanishingThreshold > 0)
 				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
 			else if (r != -1)

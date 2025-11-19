@@ -12,7 +12,6 @@ import com.mygdx.game.items.stages.StagePathfinding;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
-import static com.mygdx.game.items.Camara.zoom;
 import static com.mygdx.game.items.GUI.renderGUI;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
@@ -26,7 +25,7 @@ public class GameScreen implements Screen, Utils {
 	public static ParticleManager particle;
 	public TextureManager textureManager = new TextureManager();
 	public static Character chara;
-	public Camara camara = new Camara();
+	public static Camara camara = new Camara();
 	public static Stage stage = new Stage();
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
@@ -41,7 +40,7 @@ public class GameScreen implements Screen, Utils {
 
 	public void create () {
 		camaraZoom = 1;
-		zoom = 1;
+		camara.zoom = 1;
 		camara.camaraStarter(camaraZoom);
 		stage = startAsPathfinding ? new StagePathfinding() : new CraterStage();
 		print("start as path is " + startAsPathfinding);
@@ -50,7 +49,7 @@ public class GameScreen implements Screen, Utils {
 		particle = new ParticleManager(textureManager);
 		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
-		Camara.attach(startAsPathfinding ? attacher : chara);
+		camara.attach(startAsPathfinding ? attacher : chara);
 		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);
@@ -61,6 +60,11 @@ public class GameScreen implements Screen, Utils {
 	public GameScreen(){
 		create();
 	}
+
+	public static Camara getCamara(){
+		return camara;
+	}
+
 
 	public void start(){
 		//Gdx.graphics.setForegroundFPS(120);
@@ -123,19 +127,19 @@ public class GameScreen implements Screen, Utils {
 		if (Gdx.input.isKeyPressed(Input.Keys.V))
 			camara.setToOrtho(camaraZoom = 1);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
-			Camara.smoothZoom(++camaraZoom,40);
+			getCamara().smoothZoom(++camaraZoom,40);
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
-			Camara.smoothZoom(camaraZoom += .5f,40);
+			getCamara().smoothZoom(camaraZoom += .5f,40);
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4)
-			Camara.smoothZoom(camaraZoom += .125f,40);
+			getCamara().smoothZoom(camaraZoom += .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 4)
-			Camara.smoothZoom(--camaraZoom,40);
+			getCamara().smoothZoom(--camaraZoom,40);
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 1 && camaraZoom <= 4)
-			Camara.smoothZoom(camaraZoom -= .5f,40);
+			getCamara().smoothZoom(camaraZoom -= .5f,40);
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
-			Camara.smoothZoom(camaraZoom -= .125f,40);
+			getCamara().smoothZoom(camaraZoom -= .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			fixatedText("Zoom level is of: "+zoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * zoom));
+			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * getCamara().zoom));
 
 	}
 
@@ -156,7 +160,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void resize(int width, int height) {
-		zoom = 1;
+		getCamara().zoom = 1;
 	}
 
 	@Override

@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 
-import static com.mygdx.game.items.Camara.zoom;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.items.Stage.betweenStages;
 
 public class StageCreatorScreen implements Screen, Utils {
@@ -23,9 +23,9 @@ public class StageCreatorScreen implements Screen, Utils {
 	StageCreator sc;
 
 	StageCreatorScreen() {
-		if (zoom <= 0)
-			zoom = 2;
-		camara.camaraStarter(zoom);
+		if (getCamara().zoom <= 0)
+			getCamara().zoom = 2;
+		camara.camaraStarter(getCamara().zoom);
 		particle = new ParticleManager(textureManager);
 		sc = new StageCreator(testUi,textureManager,camara,chara);
 	}
@@ -58,37 +58,37 @@ public class StageCreatorScreen implements Screen, Utils {
 			if (Gdx.input.isKeyPressed(Input.Keys.Y))
 				System.out.println(chara.getY());
 			// Zoom management
-			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 7 && zoom >= 4)
-				camara.setToOrtho(++zoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 4 && zoom >= 1)
-				camara.setToOrtho(zoom += .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 4)
-				camara.setToOrtho(zoom += .125f);
-			if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > 4)
-				camara.setToOrtho(--zoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > 1 && zoom <= 4)
-				camara.setToOrtho(zoom -= .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > .25f && zoom <= 1)
-				camara.setToOrtho(zoom -= .125f);
+			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) &&getCamara(). zoom < 7 && getCamara().zoom >= 4)
+				camara.setToOrtho(++getCamara().zoom);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4 && getCamara().zoom >= 1)
+				camara.setToOrtho(getCamara().zoom += .5f);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4)
+				camara.setToOrtho(getCamara().zoom += .125f);
+			if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 4)
+				camara.setToOrtho(--getCamara().zoom);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 1 && getCamara().zoom <= 4)
+				camara.setToOrtho(getCamara().zoom -= .5f);
+			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > .25f && getCamara().zoom <= 1)
+				camara.setToOrtho(getCamara().zoom -= .125f);
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-				System.out.println(zoom);
+				System.out.println(getCamara().zoom);
 		}
 
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 7 && zoom >= 4)
-			camara.setToOrtho(++zoom);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 4 && zoom >= 1)
-			camara.setToOrtho(zoom += .5f);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && zoom < 4)
-			camara.setToOrtho(zoom += .125f);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > 4)
-			camara.setToOrtho(--zoom);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > 1 && zoom <= 4)
-			camara.setToOrtho(zoom -= .5f);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && zoom > .25f && zoom <= 1)
-			camara.setToOrtho(zoom -= .125f);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) &&getCamara(). zoom < 7 && getCamara().zoom >= 4)
+			camara.setToOrtho(++getCamara().zoom);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4 && getCamara().zoom >= 1)
+			camara.setToOrtho(getCamara().zoom += .5f);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4)
+			camara.setToOrtho(getCamara().zoom += .125f);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 4)
+			camara.setToOrtho(--getCamara().zoom);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 1 && getCamara().zoom <= 4)
+			camara.setToOrtho(getCamara().zoom -= .5f);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > .25f && getCamara().zoom <= 1)
+			camara.setToOrtho(getCamara().zoom -= .125f);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			System.out.println(zoom);
+			System.out.println(getCamara().zoom);
 
 
 
@@ -127,7 +127,7 @@ public class StageCreatorScreen implements Screen, Utils {
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 			isScreenChanging = true;
-			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), zoom);
+			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), getCamara().zoom);
 		}
 		else
 			isScreenChanging = false;

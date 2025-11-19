@@ -38,7 +38,7 @@ public class Character extends Actor implements Utils {
 	public byte lastDamageCounter;
 	public static ArrayList<ControllableFriend> controllableCharacters = new ArrayList<>();
 
-	Animation walkingAnimation;
+	public Animation walkingAnimation;
 	TextureManager.Text text;
 
 	TargetProcessor targetProcessor;
@@ -84,7 +84,7 @@ public class Character extends Actor implements Utils {
 		path.pathStart();
 		isOnTheGrid();
 		classes.runFinalizedTurn();
-		Camara.smoothZoom(1,30);
+		getCamara().smoothZoom(1,30);
 	}
 
 	protected void automatedMovement(){
@@ -115,7 +115,7 @@ public class Character extends Actor implements Utils {
 			for (ControllableFriend c : controllableCharacters) {
 				if (!c.active && isDecidingWhatToDo(c) && !c.isDead) {
 					c.active = true;
-					Camara.smoothAttachment(c,40);
+					getCamara().smoothAttachment(c,40);
 					controlOfCamara = false;
 					targetProcessor.circle = null;
 					c.targetProcessor.circle = null;
@@ -123,13 +123,13 @@ public class Character extends Actor implements Utils {
 				} else if (c.active)
 					return;
 			}
-			Camara.smoothAttachment(this,40);
+			getCamara().smoothAttachment(this,40);
 			controlOfCamara = true;
-			if(Camara.isCamaraMoving())
+			if(getCamara().isCamaraMoving())
 				turnStopTimer(30);
 		} else if (isTurnRunning()) {
 			controlOfCamara = true;
-			Camara.smoothAttachment(this, 40);
+			getCamara().smoothAttachment(this, 40);
 		}
 	}
 
@@ -151,7 +151,7 @@ public class Character extends Actor implements Utils {
 			cancelDecision();
 			for(Ability a : classes.abilities)
 				a.cancelActivation();
-			Camara.smoothAttachment(chara,40);
+			getCamara().smoothAttachment(chara,40);
 		}
 	}
 
@@ -240,7 +240,7 @@ public class Character extends Actor implements Utils {
 
 
 	public void cancelAttackMode(){
-		Camara.smoothZoom(1,30);
+		getCamara().smoothZoom(1,30);
 		attackMode = false;
 		if (targetProcessor.circle != null)
 			targetProcessor.deleteTexture();
@@ -598,7 +598,7 @@ public class Character extends Actor implements Utils {
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
-			print("is cam moving "+Camara.isCamaraMoving());
+			print("is cam moving "+getCamara().isCamaraMoving());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
 			fixatedText("Version: B",400,200,100, Fonts.ComicSans,40);
@@ -618,7 +618,6 @@ public class Character extends Actor implements Utils {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;
 			classes.currentHealth = 1000000;
-			new Background();
 		}
 
 

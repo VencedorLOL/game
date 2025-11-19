@@ -12,6 +12,7 @@ import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
@@ -64,7 +65,7 @@ public class Healer extends CharacterClasses implements Utils {
 			public void cancelActivation() {
 				isItActive = false;
 				character.movementLock = false;
-				Camara.smoothZoom(1,30);
+				getCamara().smoothZoom(1,30);
 			}
 
 			public void finished() {
@@ -111,7 +112,7 @@ public class Healer extends CharacterClasses implements Utils {
 		targetProcessor.changeRadius(healRange);
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				for(Actor a : actors){
@@ -122,7 +123,7 @@ public class Healer extends CharacterClasses implements Utils {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				for(Actor a : actors){
 					if(a.x == targetProcessor.getTargetX() && a.y == targetProcessor.getTargetY() && a.team == character.team)

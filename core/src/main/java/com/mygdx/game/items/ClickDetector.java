@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import java.util.ArrayList;
+
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.Wall.walls;
@@ -18,13 +20,13 @@ public class ClickDetector implements Utils {
 
 	public static Vector3 authenticClick(){
 		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
-		Camara.camara.unproject(touchedPosition);
+		getCamara().camara.unproject(touchedPosition);
 		return touchedPosition;
 	}
 
 	public static Vector3 roundedClick(){
 		Vector3 touchedPosition = (new Vector3(Gdx.input.getX(),Gdx.input.getY(), 0));
-		Camara.camara.unproject(touchedPosition);
+		getCamara().camara.unproject(touchedPosition);
 		touchedPosition.x = (float) (globalSize() * floor((touchedPosition.x) / globalSize()));
 		touchedPosition.y = (float) (globalSize() * floor((touchedPosition.y) / globalSize()));
 		return touchedPosition;

@@ -8,6 +8,7 @@ import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
@@ -168,7 +169,7 @@ public class Imp extends CharacterClasses {
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.M) && isDecidingWhatToDo(character)) {
 			abilities.get(1).keybindActivate();
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 		}
 	}
 
@@ -182,7 +183,7 @@ public class Imp extends CharacterClasses {
 
 	public void cancelDemonize(){
 		abilities.get(1).cancelActivation();
-		Camara.smoothZoom(1,30);
+		getCamara().smoothZoom(1,30);
 
 	}
 
@@ -199,7 +200,7 @@ public class Imp extends CharacterClasses {
 	protected void demonizeInput() {
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				markCoords = new float[]{temporal.x,temporal.y};
@@ -207,7 +208,7 @@ public class Imp extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			Camara.smoothZoom(1,30);
+			getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				markCoords = new float[]{targetProcessor.getTargetX(),targetProcessor.getTargetY()};
 				character.actionDecided();

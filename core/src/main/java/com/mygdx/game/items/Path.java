@@ -5,8 +5,7 @@ import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.betweenStages;
@@ -135,9 +134,9 @@ public class Path {
 			p.glideProcess();
 		}
 		if(!renderList.isEmpty() && currentNumberOfPaths > 0 && (!renderBlue || currentNumberOfPaths >= steps) && !pathEnded) {
-			Camara.smoothAttachment(renderList.get(renderList.size() - 1), 30);
+			getCamara().smoothAttachment(renderList.get(renderList.size() - 1), 30);
 		} else if (owner.controlOfCamara)
-			Camara.smoothAttachment(owner,11);
+			getCamara().smoothAttachment(owner,11);
 	}
 
 	public void pathStart(){
@@ -208,7 +207,7 @@ public class Path {
 							temporalY = -globalSize();
 
 						if (getPreviousPathCoords()[0] == temporalX && getPreviousPathCoords()[1] == temporalY) {
-							Camara.smoothAttachment(chara,12);
+							getCamara().smoothAttachment(chara,12);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
 							return true;
@@ -216,13 +215,13 @@ public class Path {
 					}
 					if (getDecidedPathFlexibility() == 2)
 						if (directionalBuffer() != 0) {
-							Camara.smoothAttachment(chara,13);
+							getCamara().smoothAttachment(chara,13);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
 							return true;
 						}
 					if (getDecidedPathFlexibility() == 3) {
-						Camara.smoothAttachment(chara,14);
+						getCamara().smoothAttachment(chara,14);
 						turnStopTimer(10);
 						currentNumberOfPaths = 0;
 						return true;
@@ -246,7 +245,7 @@ public class Path {
 			}
 
 			if (actionConfirmJustPressed()) {
-				Camara.smoothAttachment(chara,30);
+				getCamara().smoothAttachment(chara,30);
 				turnStopTimer(10);
 				currentNumberOfPaths = 0;
 				renderBlue = true;
@@ -254,7 +253,7 @@ public class Path {
 			}
 
 			if (actionResetJustPressed()) {
-				Camara.smoothAttachment(chara,10);
+				getCamara().smoothAttachment(chara,10);
 				pathReset();
 			}
 
