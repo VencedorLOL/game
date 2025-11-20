@@ -14,13 +14,17 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.GUI;
+import com.mygdx.game.items.InputHandler;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.*;
+import static java.lang.Math.min;
 
 public class Background extends GUI {
 
@@ -34,6 +38,12 @@ public class Background extends GUI {
 
 	CloseButton close;
 	boolean delete = false;
+
+	float selGapX, selGapWallX, selGapY;
+	SelectionButton[] selButtons;
+	byte selectedOne = -1;
+	byte elementHovered = -2;
+	byte persevereHover = -1;
 
 	public Background(){
 		super();
@@ -55,12 +65,10 @@ public class Background extends GUI {
 		spaceY = Gdx.graphics.getHeight() - 8*sizeY;
 		endSX = Gdx.graphics.getWidth() - 8*sizeX;
 		endSY = 8*sizeY;
-		close =  new CloseButton(endSX,endSY){
+		close =  new CloseButton(){
 			public void onTouchOverridable() {
-				sizeX = Gdx.graphics.getWidth() /(globalSize()*1f);
+					sizeX = Gdx.graphics.getWidth() /(globalSize()*1f);
 				sizeY = Gdx.graphics.getHeight() /(globalSize()*.5625f);
-				Vector3 realCoords = (new Vector3(Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f,Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f, 0));
-				realCoords = getCamara().camara.unproject(realCoords);
 				Animation animation = new Animation("guibackgroundclosing",chara);
 				animation.scaleY = sizeY;
 				animation.scaleX = sizeX;
@@ -74,19 +82,121 @@ public class Background extends GUI {
 
 		//*render
 		//atlas = new TextureAtlas(Gdx.files.internal("Atlas/AtlasOne.atlas"));
+		selGapX = (endSX-spaceX)/(classSlots.length + 2);
+		selGapWallX = (endSX-spaceX) - selGapX * (classSlots.length-1) - classSlots.length * min(endSX,endSY);
+		selButtons = new SelectionButton[classSlots.length];
+		for(int i = 0; i < selButtons.length; i++) {
+			byte finalI = (byte) i;
+			selButtons[i] = new SelectionButton(){
+				public void onTouchOverridable() {
+					deselect();
+					selected = true;
+					hovered = false;
+					if(elementHovered == finalI)
+						elementHovered = -2;
+					selectedOne = finalI;
+				}
+			};
+			selButtons[i].secTexture = classSlots[i].texture;
+		}
 
+	}
+
+	private void deselect(){
+		for (SelectionButton s : selButtons)
+			if (s != null)
+				s.selected = false;
 	}
 
 	public void render(){
 		if(renderr) {
-			sizeX = Gdx.graphics.getWidth() /(globalSize()*1f);
-			sizeY = Gdx.graphics.getHeight() /(globalSize()*.5625f);
+			calculateMath();
 			fixatedDrawables.add(new DrawableObject(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 0.5f, 0, sizeX, sizeY));
-			close.render(endSX,endSY);
+			hoverCheck();
+			close.render(endSY/globalSize(),endSX,endSY);
+			for(int i = 0; i < selButtons.length; i++) {
+				selButtons[i].secTexture = classSlots[i].texture;
+				selButtons[i].render(sizeY*.25f,selGapWallX + i*(selGapX + sizeY*.25f*32),selGapY);
+			}
+
+
+
 			if(delete)
 				delete(this);
 		}
 	}
+
+	private void dehover(){
+		close.hovered = false;
+		for(SelectionButton s : selButtons){
+			s.hovered = false;
+		}
+	}
+
+	private void hoverCheck(){
+		if(elementHovered != -2){
+			if(upJustPressed()) {
+				elementHovered = elementHovered > -1 && elementHovered < classSlots.length ? -1 : elementHovered;
+				persevereHover = 1;
+			}
+			if(downJustPressed()) {
+				elementHovered = elementHovered == -1 ? 0 : elementHovered;
+				persevereHover = 1;
+			}
+			if(leftJustPressed()) {
+				elementHovered = elementHovered > 0 && elementHovered < classSlots.length ? --elementHovered : elementHovered;
+				persevereHover = 1;
+			}
+			if(rightJustPressed()) {
+				elementHovered = elementHovered > -1 && elementHovered < classSlots.length - 1 ? ++elementHovered : elementHovered;
+				persevereHover = 1;
+			}
+		}
+		if(persevereHover != 1) {
+			dehover();
+		}
+		if(Gdx.input.getX() >= endSX && Gdx.input.getX() <= endSX + endSY &&
+				Gdx.input.getY() >= 0 && Gdx.input.getY() <= endSY) {
+			elementHovered = -1;
+			persevereHover = -1;
+		}
+		for(int i = 0; i < selButtons.length; i++)
+			if(Gdx.input.getX() >= selGapWallX + i*(selGapX + sizeY*.25f*32) && Gdx.input.getX() <= selGapWallX + i*(selGapX + sizeY*.25f*32) + sizeY*8 &&
+					Gdx.input.getY() >= selGapY - sizeY*8 && Gdx.input.getY() <= selGapY) {
+				elementHovered = (byte) i;
+				persevereHover = -1;
+			}
+		if(persevereHover != 0) {
+			if (elementHovered == -1) {
+				dehover();
+				close.hovered = true;
+				persevereHover = persevereHover == 1 ? persevereHover : 0;
+			} else if (elementHovered != -2) {
+				dehover();
+				for (int i = 0; i < selButtons.length; i++)
+					if (i == elementHovered) {
+						selButtons[i].hovered = true;
+						persevereHover = persevereHover == 1 ? persevereHover : 0;
+					}
+			}
+		}
+
+	}
+
+	private void calculateMath(){
+		sizeX = Gdx.graphics.getWidth() /(globalSize()*1f);
+		sizeY = Gdx.graphics.getHeight() /(globalSize()*.5625f);
+		spaceX = 8*sizeX;
+		spaceY = Gdx.graphics.getHeight() - 8*sizeY;
+		endSX = Gdx.graphics.getWidth() - 8*sizeX;
+		endSY = 8*sizeY;
+		selGapX = (endSX-spaceX)/(classSlots.length + 4);
+		selGapWallX = ((endSX-spaceX) - (selGapX * (classSlots.length-1) + classSlots.length * sizeY*.25f * globalSize()*.25f))/2f + spaceX;
+		selGapY = endSY + Gdx.graphics.getHeight()*.12f;
+	}
+
+
+
 
 //*	public void drawer(){
 //		b.begin();

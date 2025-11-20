@@ -21,6 +21,7 @@ public class Settings {
 	static long errorId = 1;
 	static boolean touchedGate;
 	static boolean shouldOverrideEsc;
+	static boolean render;
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
 	// 2: take enemies in consideration if path is the same lenght or longer by some amount
@@ -55,6 +56,8 @@ public class Settings {
 		}
 	};
 
+	public static void setRender(boolean renderr){render = renderr;}
+	public static boolean getRender(){return render;}
 	public static float getDesiredGUISize(){return desiredGUISize;}
 	public static float getMinimumGUISize(){return minimumGUISize;}
 	public static void setDesiredGUISize(float size){desiredGUISize = size;}

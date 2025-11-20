@@ -1,14 +1,10 @@
 package com.mygdx.game.items.guielements;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.GUI;
 
-import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.ClickDetector.authenticClick;
+import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.escapeJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
 import static java.lang.Math.min;
@@ -16,27 +12,25 @@ import static java.lang.Math.min;
 public class CloseButton extends GUI {
 
 
-	float size, x,y;
+	float size;
+	boolean hovered = false;
 	String texture = "CloseButton";
 
-	public CloseButton(float endX, float endY){
+	public CloseButton(){
 		super();
-
-		size = min(endX,endY)/globalSize();
-
-		Vector3 realCoords = (new Vector3(Gdx.graphics.getWidth() - endX,endY, 0));
-		realCoords = getCamara().camara.unproject(realCoords);
-		x = realCoords.x; y = realCoords.y;
 	}
 
-	public void render(float endX, float endY){
-		size = min(endX,endY)/globalSize();
-		fixatedDrawables.add(new DrawableObject(texture, endX - (size/2), endY - (size/2), 1, 0, size, size));
-		onTouchDetect(endX - (size/2),endY - (size/2));
+	public void render(float size, float x, float y){
+		this.size = size;
+		fixatedDrawables.add(new DrawableObject(texture, x, y, 1, 0, size, size,true));
+		if(hovered)
+			fixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size*4, size*4,true));
+		onTouchDetect(x ,y);
 	}
 
 	public void onTouchDetect(float x, float y){
-		if ((Gdx.input.justTouched() && Gdx.input.getX() >= x && Gdx.input.getX() <= x + size*globalSize() && Gdx.input.getY() >= y - size*globalSize() && Gdx.input.getY() <= y) || escapeJustPressed())
+		if ((Gdx.input.justTouched() && Gdx.input.getX() >= x && Gdx.input.getX() <= x + size*globalSize() &&
+				Gdx.input.getY() >= y - size*globalSize() && Gdx.input.getY() <= y) || escapeJustPressed() || (actionConfirmJustPressed() && hovered))
 			onTouchOverridable();
 
 	}

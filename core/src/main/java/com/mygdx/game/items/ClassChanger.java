@@ -6,8 +6,11 @@ import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.ClickDetector.authenticClick;
 import static com.mygdx.game.items.TextureManager.addToList;
 
@@ -19,17 +22,19 @@ public class ClassChanger {
 
 	public ClassChanger(Character character){
 		this.character = character;
-		objects.add(new Melee());
-		objects.add(new Speedster());
-		objects.add(new Healer());
-		objects.add(new Tank());
-		objects.add(new Mage());
-		objects.add(new SwordMage());
-		objects.add(new Summoner());
-		objects.add(new Imp());
-		objects.add(new Catapult());
-		objects.add(new StellarExplosion());
-		objects.add(new Earthquaker());
+//*		objects.add(new Melee());
+//		objects.add(new Speedster());
+//		objects.add(new Healer());
+//		objects.add(new Tank());
+//		objects.add(new Mage());
+//		objects.add(new SwordMage());
+//		objects.add(new Summoner());
+//		objects.add(new Imp());
+//		objects.add(new Catapult());
+//		objects.add(new StellarExplosion());
+//		objects.add(new Earthquaker());
+		objects.addAll(Arrays.asList(classSlots));
+		print("osize"  + objects.size());
 		this.x = character.x + globalSize()/2f - globalSize()/4f * objects.size();
 		this.y = character.y + globalSize()*3/2f;
 	}
@@ -60,7 +65,7 @@ public class ClassChanger {
 
 	public static class ClassObject{
 		String name;
-		String texture;
+		public String texture;
 
 
 

@@ -9,19 +9,18 @@ import com.badlogic.gdx.utils.Array;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.delta;
+import static com.mygdx.game.items.TextureManager.atlas;
 
 public class ParticleGenerator {
 	String particleName;
-	TextureManager tm;
 	ParticleEffect particle;
 	ParticleEffectPool pool;
 	Array<ParticleEffectPool.PooledEffect> effects;
 
-	public ParticleGenerator(TextureManager tm, String particleName){
-		this.tm = tm;
+	public ParticleGenerator(String particleName){
 		this.particleName = particleName;
 		particle = new ParticleEffect();
-		particle.load(Gdx.files.internal(getPath()), tm.atlas);
+		particle.load(Gdx.files.internal(getPath()), atlas);
 		pool = new ParticleEffectPool(particle, 0, 2048);
 		effects = new Array<>();
 	}
@@ -29,7 +28,7 @@ public class ParticleGenerator {
 	public void rendering(){
 		for (ParticleEffectPool.PooledEffect effect : new Array.ArrayIterator<>(effects)){
 			effect.update(delta);
-			effect.draw(tm.batch, delta);
+			effect.draw(TextureManager.batch, delta);
 			if (effect.isComplete()) {
 				effects.removeValue(effect, true);
 				effect.reset();

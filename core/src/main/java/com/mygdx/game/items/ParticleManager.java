@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class ParticleManager {
 	ArrayList<ParticleGenerator> particles = new ArrayList<>();
-	TextureManager textureManager;
 
 	public void particleEmitter(String particleName, float x, float y){
 		particleEmitter(particleName,x,y,1,1,true,false);
@@ -39,14 +38,11 @@ public class ParticleManager {
 				return;
 			}
 		}
-		ParticleGenerator newParticle = new ParticleGenerator(textureManager, particleName);
+		ParticleGenerator newParticle = new ParticleGenerator(particleName);
 		particles.add(newParticle);
 		particleEmitter(particleName, x, y);
 	}
 
-	public ParticleManager(TextureManager tm){
-		textureManager = tm;
-	}
 
 	public void particleRenderer(){
 		for (ParticleGenerator p : particles){

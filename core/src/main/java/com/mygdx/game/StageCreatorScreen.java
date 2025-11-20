@@ -26,7 +26,7 @@ public class StageCreatorScreen implements Screen, Utils {
 		if (getCamara().zoom <= 0)
 			getCamara().zoom = 2;
 		camara.camaraStarter(getCamara().zoom);
-		particle = new ParticleManager(textureManager);
+		particle = new ParticleManager();
 		sc = new StageCreator(testUi,textureManager,camara,chara);
 	}
 

@@ -23,7 +23,6 @@ import static com.mygdx.game.Settings.camaraZoom;
 public class GameScreen implements Screen, Utils {
 	public static float delta;
 	public static ParticleManager particle;
-	public TextureManager textureManager = new TextureManager();
 	public static Character chara;
 	public static Camara camara = new Camara();
 	public static Stage stage = new Stage();
@@ -46,7 +45,7 @@ public class GameScreen implements Screen, Utils {
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();
-		particle = new ParticleManager(textureManager);
+		particle = new ParticleManager();
 		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
 		camara.attach(startAsPathfinding ? attacher : chara);
@@ -67,6 +66,7 @@ public class GameScreen implements Screen, Utils {
 
 
 	public void start(){
+		setRender(true);
 		//Gdx.graphics.setForegroundFPS(120);
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
@@ -78,29 +78,30 @@ public class GameScreen implements Screen, Utils {
 		turnLogic();
 		fullscreenDetector();
 		screenSizeChangeDetector();
-		textureManager.batch.begin();
+		TextureManager.batch.begin();
 		screenSizeChangeDetector();
 		stage.screenWarpTrigger();
 		stage.stageRenderer();
 		chara.update();
 		attackRenderer();
 		renderGUI();
-		textureManager.render(camara);
 		zoomManagement();
+		TextureManager.render(camara);
 	}
 
 
 	public void finish(){
 		camara.updater();
 		particle.particleRenderer();
-		camara.finalizer(textureManager.batch);
-		textureManager.batch.end();
+		camara.finalizer(TextureManager.batch);
+		TextureManager.batch.end();
 		InputHandler.resetter();
 	}
 
 
 	public void fullscreenDetector(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+			setRender(false);
 			fullscreen = !fullscreen;
 			if (fullscreen)
 				Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
@@ -112,6 +113,7 @@ public class GameScreen implements Screen, Utils {
 
 	public void screenSizeChangeDetector(){
 		if(screenSizeX != Gdx.graphics.getWidth() || screenSizeY != Gdx.graphics.getHeight()){
+			setRender(false);
 			screenSizeX = Gdx.graphics.getWidth();
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
