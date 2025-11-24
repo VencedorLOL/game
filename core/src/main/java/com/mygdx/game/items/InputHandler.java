@@ -18,9 +18,16 @@ public class InputHandler implements InputProcessor {
 	static Input escape 		= new Input();
 	static Input abilityKey1 	= new Input();
 	static Input abilityKey2 	= new Input();
+	static Cursor leftClick		= new Cursor();
+	static Cursor rightClick	= new Cursor();
+
+	static float x,y;
+	static boolean dragged = false;
+	static boolean moved = false;
 
 
 	static ArrayList<Input> keys = new ArrayList<>();
+	static ArrayList<Cursor> cursor = new ArrayList<>();
 
 	static {
 		keys.add(up);
@@ -33,9 +40,14 @@ public class InputHandler implements InputProcessor {
 		keys.add(escape);
 		keys.add(abilityKey1);
 		keys.add(abilityKey2);
+
+		cursor.add(leftClick);
+		cursor.add(rightClick);
 	}
 
 	public static void resetter(){
+		dragged = false;
+		moved = false;
 		for(Input i : keys){
 			if(i.released)
 				i.resetRelease();
@@ -44,7 +56,16 @@ public class InputHandler implements InputProcessor {
 			if(i.buffer > 0 && i.wasUsed())
 				i.buffer--;
 			}
+		for(Cursor c : cursor){
+			if(c.released)
+				c.resetRelease();
+			if(c.wasUsed() && !c.getGettingUsed())
+				c.gettingUsed();
+			if(c.buffer > 0 && c.wasUsed())
+				c.buffer--;
+		}
 		thisTickCounter = -1;
+
 	}
 
 
@@ -84,7 +105,8 @@ public class InputHandler implements InputProcessor {
 	public static boolean actionConfirmPressed() {return actionConfirm.wasUsed();}
 	public static boolean actionResetPressed() {return actionReset.wasUsed();}
 	public static boolean escapePressed() {return escape.wasUsed();}
-
+	public static boolean leftClickPressed(){return leftClick.wasUsed();}
+	public static boolean rightClickPressed(){return rightClick.wasUsed();}
 
 	public static boolean upJustPressed() {return up.wasUsed() && !up.getGettingUsed();}
 	public static boolean downJustPressed() {return down.wasUsed() && !down.getGettingUsed(); }
@@ -96,6 +118,8 @@ public class InputHandler implements InputProcessor {
 	public static boolean escapeJustPressed() {return escape.wasUsed() && !escape.getGettingUsed();}
 	public static boolean ability1JustPressed() {return abilityKey1.wasUsed() && !abilityKey1.getGettingUsed();}
 	public static boolean ability2JustPressed() {return abilityKey2.wasUsed() && !abilityKey2.getGettingUsed();}
+	public static boolean leftClickJustPressed() {return leftClick.wasUsed() && !leftClick.getGettingUsed();}
+	public static boolean rightClickJustPressed() {return rightClick.wasUsed() && !rightClick.getGettingUsed();}
 
 	public static boolean upReleased() {return up.wasReleased();}
 	public static boolean downReleased() {return down.wasReleased();}
@@ -105,6 +129,14 @@ public class InputHandler implements InputProcessor {
 	public static boolean actionConfirmReleased() {return actionConfirm.wasReleased();}
 	public static boolean actionResetReleased() {return actionReset.wasReleased();}
 	public static boolean escapeReleased() {return escape.wasReleased();}
+	public static boolean leftClickReleased() {return leftClick.wasReleased();}
+	public static boolean rightClickReleased() {return rightClick.wasReleased();}
+
+	public static float[] cursorCoordinates(){return new float[] {x, y};}
+	public static float cursorX(){return x;}
+	public static float cursorY(){return y;}
+	public static boolean cursorDragged(){return dragged;}
+	public static boolean cursorMoved(){return moved;}
 
 	static byte thisTickCounter = -1;
 	public static byte directionalBuffer(){
@@ -167,6 +199,9 @@ public class InputHandler implements InputProcessor {
 		escape.setKey(111);
 		abilityKey1.setKey(30);
 		abilityKey2.setKey(36);
+
+		leftClick.setKey(0);
+		rightClick.setKey(1);
 	}
 
 	@Override
@@ -195,26 +230,44 @@ public class InputHandler implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		for (Cursor c : cursor)
+			if (c.getKey() == button)
+				c.press();
+		x = screenX;
+		y = screenY;
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		for (Cursor c : cursor)
+			if (c.getKey() == button)
+				c.release();
+		x = screenX;
+		y = screenY;
 		return false;
 	}
 
 	@Override
 	public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+		x = screenX;
+		y = screenY;
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		x = screenX;
+		y = screenY;
+		dragged = true;
 		return false;
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+		x = screenX;
+		y = screenY;
+		moved = true;
 		return false;
 	}
 
@@ -243,6 +296,29 @@ public class InputHandler implements InputProcessor {
 
 		public boolean getGettingUsed(){return gettingUsed;}
 		private void gettingUsed(){gettingUsed = true;}
+	}
+
+	public static class Cursor{
+		boolean used;
+		boolean released;
+		boolean gettingUsed;
+		int buffer = 10;
+		private int keyChar;
+
+
+		private void setKey(int key){keyChar = key;}
+		private int getKey(){return keyChar;}
+
+		private void press(){used = true;}
+		private boolean wasUsed(){return used;}
+
+		private void release(){released = true; used = false; gettingUsed = false; }
+		private boolean wasReleased(){return released;}
+		private void resetRelease(){released = false;buffer = 10;}
+
+		public boolean getGettingUsed(){return gettingUsed;}
+		private void gettingUsed(){gettingUsed = true;}
+
 	}
 
 

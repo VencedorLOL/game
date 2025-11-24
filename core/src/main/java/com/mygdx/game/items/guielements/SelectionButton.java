@@ -1,17 +1,11 @@
 package com.mygdx.game.items.guielements;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.GUI;
 
-import static com.mygdx.game.GameScreen.getCamara;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
-import static com.mygdx.game.items.InputHandler.escapeJustPressed;
+import static com.mygdx.game.items.InputHandler.*;
+import static com.mygdx.game.items.InputHandler.cursorY;
 import static com.mygdx.game.items.TextureManager.DrawableObject;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
-import static java.lang.Math.min;
 
 public class SelectionButton extends GUI {
 
@@ -38,8 +32,8 @@ public class SelectionButton extends GUI {
 	}
 
 	public void onTouchDetect(float x, float y){
-		if ((Gdx.input.justTouched() && Gdx.input.getX() >= x && Gdx.input.getX() <= x + size*32 &&
-				Gdx.input.getY() >= y - size*32 && Gdx.input.getY() <= y)  || (actionConfirmJustPressed() && hovered))
+		if ((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*32 &&
+				cursorY() >= y - size*32 && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
 			onTouchOverridable();
 
 	}

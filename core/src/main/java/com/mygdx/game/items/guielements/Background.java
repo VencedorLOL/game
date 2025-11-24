@@ -45,6 +45,9 @@ public class Background extends GUI {
 	byte elementHovered = -2;
 	byte persevereHover = -1;
 
+	Slider slider;
+	float sliGapX, sliGapY, sliThickness, sliWidth, sliHeight;
+
 	public Background(){
 		super();
 		// change all of this math so there can be like a 10% of space of screen not covered by the gui on each axis
@@ -99,7 +102,12 @@ public class Background extends GUI {
 			};
 			selButtons[i].secTexture = classSlots[i].texture;
 		}
-
+		sliWidth = (sizeX-spaceX*2)*globalSize()*.7f;
+		sliGapX = ((sizeX-spaceX*2)*globalSize()  - sliWidth)/2f + spaceX;
+		sliHeight = (sizeY-endSY*2)*globalSize()*.2f;
+		sliGapY = ((sizeY-endSY*2)*globalSize() * .2f) + endSY;
+		sliThickness = min(sizeX,sizeY);
+		slider = new Slider();
 	}
 
 	private void deselect(){
@@ -112,14 +120,14 @@ public class Background extends GUI {
 		if(renderr) {
 			calculateMath();
 			fixatedDrawables.add(new DrawableObject(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 0.5f, 0, sizeX, sizeY));
+//			fixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
 			hoverCheck();
 			close.render(endSY/globalSize(),endSX,endSY);
 			for(int i = 0; i < selButtons.length; i++) {
 				selButtons[i].secTexture = classSlots[i].texture;
 				selButtons[i].render(sizeY*.25f,selGapWallX + i*(selGapX + sizeY*.25f*32),selGapY);
 			}
-
-
+			slider.render(sliGapX,sliGapY,sliWidth,sliHeight,sliThickness);
 
 			if(delete)
 				delete(this);
@@ -134,6 +142,8 @@ public class Background extends GUI {
 	}
 
 	private void hoverCheck(){
+		float tX = Gdx.input.getX();
+		float tY = Gdx.input.getY();
 		if(elementHovered != -2){
 			if(upJustPressed()) {
 				elementHovered = elementHovered > -1 && elementHovered < classSlots.length ? -1 : elementHovered;
@@ -155,14 +165,14 @@ public class Background extends GUI {
 		if(persevereHover != 1) {
 			dehover();
 		}
-		if(Gdx.input.getX() >= endSX && Gdx.input.getX() <= endSX + endSY &&
-				Gdx.input.getY() >= 0 && Gdx.input.getY() <= endSY) {
+		if(tX >= endSX && tX <= endSX + endSY &&
+				tY >= 0 && tY <= endSY) {
 			elementHovered = -1;
 			persevereHover = -1;
 		}
 		for(int i = 0; i < selButtons.length; i++)
-			if(Gdx.input.getX() >= selGapWallX + i*(selGapX + sizeY*.25f*32) && Gdx.input.getX() <= selGapWallX + i*(selGapX + sizeY*.25f*32) + sizeY*8 &&
-					Gdx.input.getY() >= selGapY - sizeY*8 && Gdx.input.getY() <= selGapY) {
+			if(tX >= selGapWallX + i*(selGapX + sizeY*.25f*32) && tX <= selGapWallX + i*(selGapX + sizeY*.25f*32) + sizeY*8 &&
+					tY >= selGapY - sizeY*8 && tY <= selGapY) {
 				elementHovered = (byte) i;
 				persevereHover = -1;
 			}
@@ -193,6 +203,12 @@ public class Background extends GUI {
 		selGapX = (endSX-spaceX)/(classSlots.length + 4);
 		selGapWallX = ((endSX-spaceX) - (selGapX * (classSlots.length-1) + classSlots.length * sizeY*.25f * globalSize()*.25f))/2f + spaceX;
 		selGapY = endSY + Gdx.graphics.getHeight()*.12f;
+
+		sliWidth = (sizeX*globalSize()-spaceX*2)*.7f;
+		sliGapX = ((sizeX*globalSize()-spaceX*2)  - sliWidth)/2f + spaceX;
+		sliHeight = (sizeY*globalSize()-endSY*2)*.1f;
+		sliGapY = ((sizeY*globalSize()-endSY*2) * .5f) + endSY;
+		sliThickness = min(sizeX,sizeY);
 	}
 
 

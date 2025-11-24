@@ -1,13 +1,10 @@
 package com.mygdx.game.items.guielements;
 
-import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.GUI;
 
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
-import static com.mygdx.game.items.InputHandler.escapeJustPressed;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
-import static java.lang.Math.min;
 
 public class CloseButton extends GUI {
 
@@ -29,12 +26,29 @@ public class CloseButton extends GUI {
 	}
 
 	public void onTouchDetect(float x, float y){
-		if ((Gdx.input.justTouched() && Gdx.input.getX() >= x && Gdx.input.getX() <= x + size*globalSize() &&
-				Gdx.input.getY() >= y - size*globalSize() && Gdx.input.getY() <= y) || escapeJustPressed() || (actionConfirmJustPressed() && hovered))
+		if (touchActionCursorDetector(x,y) || escapeJustPressed() || (actionConfirmJustPressed() && hovered))
 			onTouchOverridable();
 
 	}
 
 	public void onTouchOverridable(){}
+
+	boolean touchedIn;
+	boolean touchedOut;
+	private boolean touchActionCursorDetector(float x, float y){
+		if(leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*globalSize() &&
+				cursorY() >= y - size*globalSize() && cursorY() <= y)
+			touchedIn = true;
+		else if (leftClickJustPressed())
+			touchedIn = false;
+		if(leftClickReleased() && cursorX() >= x && cursorX() <= x + size*globalSize() &&
+				cursorY() >= y - size*globalSize() && cursorY() <= y)
+			touchedOut = true;
+		else if (leftClickReleased())
+			touchedOut = false;
+
+		return touchedIn && touchedOut;
+	}
+
 
 }
