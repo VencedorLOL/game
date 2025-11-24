@@ -8,8 +8,6 @@ import static com.mygdx.game.items.TextureManager.DrawableObject;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 
 public class SelectionButton extends GUI {
-
-
 	float size;
 	boolean selected = false;
 	boolean hovered = false;

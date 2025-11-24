@@ -48,6 +48,11 @@ public class Background extends GUI {
 	Slider slider;
 	float sliGapX, sliGapY, sliThickness, sliWidth, sliHeight;
 
+	float xPosition, totalXSpace;
+
+	ClassesCards[] classesCards;
+	float cardsSize, cardsY, cardsIniGapX, cardsGapX;
+
 	public Background(){
 		super();
 		// change all of this math so there can be like a 10% of space of screen not covered by the gui on each axis
@@ -108,6 +113,16 @@ public class Background extends GUI {
 		sliGapY = ((sizeY-endSY*2)*globalSize() * .2f) + endSY;
 		sliThickness = min(sizeX,sizeY);
 		slider = new Slider();
+
+		classesCards = new ClassesCards[]{
+				new ClassesCards(ClassesCards.ClsCardObj.MELEE),
+				new ClassesCards(ClassesCards.ClsCardObj.SPEEDSTER),
+				new ClassesCards(ClassesCards.ClsCardObj.HEALER),
+				new ClassesCards(ClassesCards.ClsCardObj.TANK),
+
+		};
+
+
 	}
 
 	private void deselect(){
@@ -127,7 +142,11 @@ public class Background extends GUI {
 				selButtons[i].secTexture = classSlots[i].texture;
 				selButtons[i].render(sizeY*.25f,selGapWallX + i*(selGapX + sizeY*.25f*32),selGapY);
 			}
-			slider.render(sliGapX,sliGapY,sliWidth,sliHeight,sliThickness);
+			slider.render(sliGapX,sliGapY,sliWidth,sliHeight,sliThickness,totalXSpace);
+			xPosition = slider.xCursor;
+			for(int i = 0; i < classesCards.length; i++) {
+				classesCards[i].render(cardsSize/32,cardsIniGapX + i*(cardsGapX + cardsSize) - xPosition*totalXSpace/slider.realWidth,cardsY);
+			}
 
 			if(delete)
 				delete(this);
@@ -142,8 +161,6 @@ public class Background extends GUI {
 	}
 
 	private void hoverCheck(){
-		float tX = Gdx.input.getX();
-		float tY = Gdx.input.getY();
 		if(elementHovered != -2){
 			if(upJustPressed()) {
 				elementHovered = elementHovered > -1 && elementHovered < classSlots.length ? -1 : elementHovered;
@@ -165,14 +182,14 @@ public class Background extends GUI {
 		if(persevereHover != 1) {
 			dehover();
 		}
-		if(tX >= endSX && tX <= endSX + endSY &&
-				tY >= 0 && tY <= endSY) {
+		if(cursorX() >= endSX && cursorX() <= endSX + endSY &&
+				cursorY() >= 0 && cursorY() <= endSY) {
 			elementHovered = -1;
 			persevereHover = -1;
 		}
 		for(int i = 0; i < selButtons.length; i++)
-			if(tX >= selGapWallX + i*(selGapX + sizeY*.25f*32) && tX <= selGapWallX + i*(selGapX + sizeY*.25f*32) + sizeY*8 &&
-					tY >= selGapY - sizeY*8 && tY <= selGapY) {
+			if(cursorX() >= selGapWallX + i*(selGapX + sizeY*.25f*32) && cursorX() <= selGapWallX + i*(selGapX + sizeY*.25f*32) + sizeY*8 &&
+					cursorY() >= selGapY - sizeY*8 && cursorY() <= selGapY) {
 				elementHovered = (byte) i;
 				persevereHover = -1;
 			}
@@ -203,12 +220,20 @@ public class Background extends GUI {
 		selGapX = (endSX-spaceX)/(classSlots.length + 4);
 		selGapWallX = ((endSX-spaceX) - (selGapX * (classSlots.length-1) + classSlots.length * sizeY*.25f * globalSize()*.25f))/2f + spaceX;
 		selGapY = endSY + Gdx.graphics.getHeight()*.12f;
-
 		sliWidth = (sizeX*globalSize()-spaceX*2)*.7f;
 		sliGapX = ((sizeX*globalSize()-spaceX*2)  - sliWidth)/2f + spaceX;
 		sliHeight = (sizeY*globalSize()-endSY*2)*.1f;
 		sliGapY = ((sizeY*globalSize()-endSY*2) * .5f) + endSY;
 		sliThickness = min(sizeX,sizeY);
+
+		cardsSize = (sliGapY - sliHeight - selGapY - sizeY*.25f)*.9f;
+		cardsY = sliGapY - sliHeight - cardsSize *.05f;
+		cardsIniGapX = spaceX + sizeX* .12f;
+		cardsGapX = cardsSize * .2f;
+
+		totalXSpace = cardsGapX*(classesCards.length-1) + cardsIniGapX*2 + cardsSize*classesCards.length;
+
+
 	}
 
 
