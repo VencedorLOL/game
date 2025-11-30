@@ -13,6 +13,7 @@ public class Slider extends GUI {
 
 	float size;
 	boolean touched;
+	boolean selected;
 	float xCursor;
 	float realWidth;
 	float barWidth;
@@ -41,7 +42,7 @@ public class Slider extends GUI {
 		onTouchDetect(x+size*8+ xCursor,y-size*8,barWidth,(height/128-size/8)*globalSize());
 
 		TextureManager.DrawableObject grabber = new TextureManager.DrawableObject("selectionIndicator",x+size*8+ xCursor,y-size*8,1,0,barWidth/128,(height/128-size/8),true);
-		grabber.r = touched ? 1 : .8f; grabber.g = touched ? 1 : .8f; grabber.b = touched ? 1 : .8f;
+		grabber.r = touched || selected ? 1 : .8f; grabber.g = touched || selected ? 1 : .8f; grabber.b = touched || selected ? 1 : .8f;
 		fixatedDrawables.add(grabber);
 	}
 
@@ -55,7 +56,20 @@ public class Slider extends GUI {
 				cursorLastX = cursorX();
 				onTouchOverridable();
 			}
-
+		if(selected){
+			if(leftPressed()){
+				if(xCursor - 2*Gdx.graphics.getWidth()/640f >= 0)
+					xCursor -= 2*Gdx.graphics.getWidth()/640f;
+				else
+					xCursor = 0;
+			}
+			if(rightPressed()){
+				if(xCursor + 2*Gdx.graphics.getWidth()/640f + w <= realWidth)
+					xCursor += 2*Gdx.graphics.getWidth()/640f;
+				else
+					xCursor = realWidth - w;
+			}
+		}
 	}
 
 	boolean wasTouched = false;

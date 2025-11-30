@@ -4,47 +4,28 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.ClickDetector.authenticClick;
 import static com.mygdx.game.items.TextureManager.addToList;
 
 public class ClassChanger {
 
-	ArrayList<ClassObject> objects = new ArrayList<>();
 	Character character;
 	float x,y;
 
 	public ClassChanger(Character character){
 		this.character = character;
-		objects.add(new Melee());
-		objects.add(new Speedster());
-		objects.add(new Healer());
-		objects.add(new Tank());
-		objects.add(new Mage());
-		objects.add(new SwordMage());
-		objects.add(new Summoner());
-		objects.add(new Imp());
-		objects.add(new Catapult());
-		objects.add(new StellarExplosion());
-		objects.add(new Earthquaker());
-		objects.addAll(Arrays.asList(classSlots));
-		print("osize"  + objects.size());
-		this.x = character.x + globalSize()/2f - globalSize()/4f * objects.size();
+		this.x = character.x + globalSize()/2f - globalSize()/4f * classSlots.length;
 		this.y = character.y + globalSize()*3/2f;
 	}
 
 	public void render(){
-		this.x = character.x + globalSize()/2f - globalSize()/4f * objects.size();
+		this.x = character.x + globalSize()/2f - globalSize()/4f * classSlots.length;
 		this.y = character.y + globalSize()*3/2f;
-		for (int i = 0; i < objects.size(); i++){
+		for (int i = 0; i < classSlots.length; i++){
 			addToList("SelectionBox",x+globalSize()/2f*i + globalSize()/8f,y,1,0,255,255,255,2,2);
-			addToList(objects.get(i).texture,x+globalSize()/2f*i + globalSize()/8f,y,1,0,255,255,255,2,2);
+			addToList(classSlots[i].texture,x+globalSize()/2f*i + globalSize()/8f,y,1,0,255,255,255,2,2);
 			if(isBeingPressed(x+globalSize()/2f*i + globalSize()/8f,y,globalSize()/2f,globalSize()/2f))
 				character.onCharacterChange(i);
 
@@ -60,7 +41,7 @@ public class ClassChanger {
 	}
 
 	public void activate(int pos){
-		objects.get(pos).activate(character);
+		classSlots[pos].activate(character);
 	}
 
 	public static class ClassObject{

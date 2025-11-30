@@ -8,7 +8,7 @@ import static com.mygdx.game.items.TextureManager.DrawableObject;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 
 public class SelectionButton extends GUI {
-	float size;
+	float size,x,y;
 	boolean selected = false;
 	boolean hovered = false;
 	String texture = "SelectionBox";
@@ -19,7 +19,9 @@ public class SelectionButton extends GUI {
 	}
 
 	public void render(float size,float x, float y){
-		this.size = size;
+		this.size = size*32;
+		this.x = x;
+		this.y = y;
 		fixatedDrawables.add(new DrawableObject(texture, x , y, 1, 0, size, size,true));
 		fixatedDrawables.add(new DrawableObject(secTexture, x , y, 1, 0, size, size,true));
 		if(selected)
@@ -30,8 +32,8 @@ public class SelectionButton extends GUI {
 	}
 
 	public void onTouchDetect(float x, float y){
-		if ((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*32 &&
-				cursorY() >= y - size*32 && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
+		if ((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size &&
+				cursorY() >= y - size && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
 			onTouchOverridable();
 
 	}
