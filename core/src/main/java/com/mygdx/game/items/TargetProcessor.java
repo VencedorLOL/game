@@ -1,6 +1,5 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ public class TargetProcessor {
 	public Entity targetsTarget;
 	String targetAnimation;
 	public TextureManager.Animation target;
-	boolean mouseMoved;
-	float[] lastRecordedMousePos = new float[]{.1f,0.264f};
 	byte r = (byte) 200,g = (byte) 200,b = (byte) 200;
 	float x,y;
 
@@ -125,23 +122,19 @@ public class TargetProcessor {
 		}
 		circle.renderCircle();
 		Vector3 temporal = roundedClick();
-		mouseMoved = !(temporal.x == lastRecordedMousePos[0] && temporal.y == lastRecordedMousePos[1]);
-		if (Gdx.input.justTouched())
-			mouseMoved = true;
-		lastRecordedMousePos[0] = temporal.x; lastRecordedMousePos[1] = temporal.y;
 		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
 
-			if (!mouseMoved)
+			if (!cursorMoved() || leftClickJustPressed())
 				targetKeyboardMovement();
 
-			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || mouseMoved) {
+			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || (cursorMoved() || leftClickJustPressed())) {
 				targetsTarget.setX(roundedClick().x);
 				targetsTarget.setY(roundedClick().y);
 			}
 
 			targetRender();
 
-		} else if (!mouseMoved){
+		} else if (!cursorMoved() || leftClickJustPressed()){
 			targetKeyboardMovement();
 			if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()))
 				targetRender();
@@ -156,25 +149,45 @@ public class TargetProcessor {
 
 	public void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
+			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(Gdx.input.justTouched() || actionConfirmJustPressed()) this.stop();}};
+			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();}};
 			animations.add(target);
 		}
 	}
 
 
+	int[] counter = new int[]{0,0,0,0};
+	final int[] times = new int[]{40, 30, 20, 10,9,8,5};
+	int[] counterState = new int[]{-1,-1,-1,-1};
+	private boolean allowedKey(int key){
+		if((key == 0 && upJustPressed()) || (key == 1 && rightJustPressed()) || (key == 2 && downJustPressed()) || (key == 3 && leftJustPressed())){
+			counterState[key] = 0;
+			return true;
+		} else if ((key == 0 && upPressed()) || (key == 1 && rightPressed()) || (key == 2 && downPressed()) || (key == 3 && leftPressed())){
+			if (counter[key]++ > times[counterState[key]]){
+				counterState[key] += counterState[key] < times.length -1 ? 1 : 0;
+				counter[key] = 0;
+				return true;
+			}
+		} else {
+			counter[key] = 0;
+			counterState[key] = -1;
+		}
+		return false;
+	}
+
 	private void targetKeyboardMovement(){
 		float x = targetsTarget.x; float y = targetsTarget.y;
-		if (upJustPressed())
+		if (allowedKey(0))
 			y += globalSize();
-		if (leftJustPressed())
+		if (allowedKey(3))
 			x -= globalSize();
-		if (downJustPressed())
+		if (allowedKey(2))
 			y -= globalSize();
-		if (rightJustPressed())
+		if (allowedKey(1))
 			x += globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
 			targetsTarget.x = x;

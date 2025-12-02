@@ -70,17 +70,8 @@ public class Speedster extends CharacterClasses {
 	}
 
 	public void updateOverridable() {
-		abilities.get(0).render();
-		if(isDecidingWhatToDo(character))
-			abilities.get(0).touchActivate();
+		abilitiesProcessor();
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			print("ability recharge is at: "+ abilities.get(0).cooldownCounter);
-			print("attackState is: "+ attackState);
-			print("EvenFaster is: " + abilities.get(0).isItActive);
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && isDecidingWhatToDo(character))
-			abilities.get(0).keybindActivate();
 	}
 
 

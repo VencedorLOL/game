@@ -119,16 +119,7 @@ public class Summoner extends CharacterClasses {
 
 	public void updateOverridable() {
 		summons.removeIf(Actor::getIsDead);
-		for (Ability a : abilities) {
-			a.render();
-			if(isDecidingWhatToDo(character))
-				a.touchActivate();
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.U) && (isDecidingWhatToDo(character)))
-			abilities.get(0).keybindActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.C) && (isDecidingWhatToDo(character)))
-			abilities.get(1).keybindActivate();
+		abilitiesProcessor();
 		if(character.attackMode){
 			cancelSummon();
 			cancelControl();

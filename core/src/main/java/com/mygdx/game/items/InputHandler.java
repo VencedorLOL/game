@@ -129,6 +129,8 @@ public class InputHandler implements InputProcessor {
 	public static boolean actionConfirmReleased() {return actionConfirm.wasReleased();}
 	public static boolean actionResetReleased() {return actionReset.wasReleased();}
 	public static boolean escapeReleased() {return escape.wasReleased();}
+	public static boolean ability1Released() {return abilityKey1.wasReleased();}
+	public static boolean ability2Released() {return abilityKey2.wasReleased();}
 	public static boolean leftClickReleased() {return leftClick.wasReleased();}
 	public static boolean rightClickReleased() {return rightClick.wasReleased();}
 
@@ -193,7 +195,7 @@ public class InputHandler implements InputProcessor {
 		down.setKey(47);
 		left.setKey(29);
 		right.setKey(32);
-		attackMode.setKey(48);
+		attackMode.setKey(59);
 		actionConfirm.setKey(62);
 		actionReset.setKey(46);
 		escape.setKey(111);

@@ -15,6 +15,7 @@ import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
 import static com.mygdx.game.items.FieldEffects.getAdditive;
 import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
@@ -288,6 +289,26 @@ public class CharacterClasses {
 		shield.update();
 		updateOverridable();
 		refresh();
+	}
+
+	public void abilitiesProcessor(){
+		for(int i = 0; i < abilities.size(); i++){
+			abilities.get(i).render();
+			if(i == 0)
+				abilities.get(i).renderKey("B");
+			if(i == 1)
+				abilities.get(i).renderKey("H");
+
+			if(isDecidingWhatToDo(character)) {
+				if(i == 0 && InputHandler.ability1JustPressed())
+					abilities.get(i).keybindActivate();
+				else if (i == 1 && InputHandler.ability2JustPressed())
+					abilities.get(i).keybindActivate();
+				else
+					abilities.get(i).touchActivate();
+			}
+
+		}
 	}
 
 

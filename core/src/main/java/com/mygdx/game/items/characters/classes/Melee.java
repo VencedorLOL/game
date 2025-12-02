@@ -95,19 +95,12 @@ public class Melee extends CharacterClasses {
 	}
 
 	public void updateOverridable() {
-		for (Ability a : abilities){
-			a.render();
-			if(isDecidingWhatToDo(character))
-				a.touchActivate();
-		}
+		abilitiesProcessor();
+
 		if (!character.attackMode && (abilities.get(0).isItActive || abilities.get(1).isItActive))
 			for (Ability a : abilities)
 				a.cancelActivation();
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.F) && isDecidingWhatToDo(character))
-			abilities.get(0).keybindActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.O) && isDecidingWhatToDo(character))
-			abilities.get(1).keybindActivate();
 	}
 
 	public void cancelFoA(){

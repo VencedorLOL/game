@@ -16,8 +16,7 @@ import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.InputHandler.upJustPressed;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.*;
-import static java.lang.Math.floor;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 public class Background extends GUI {
 
@@ -116,7 +115,11 @@ public class Background extends GUI {
 		sliHeight = (sizeY-endSY*2)*globalSize()*.2f;
 		sliGapY = ((sizeY-endSY*2)*globalSize() * .2f) + endSY;
 		sliThickness = min(sizeX,sizeY);
-		slider = new Slider();
+		slider = new Slider(){
+			public void onTouchOverridable() {
+				elementHovered = -3;
+			}
+		};
 
 		classesCards = new ClassesCards[]{
 				new ClassesCards(ClassesCards.ClsCardObj.MELEE){
@@ -318,6 +321,11 @@ public class Background extends GUI {
 			c.hovered = false;
 	}
 
+	int counterR = 0, counterL = 0;
+	final int[] times = new int[]{80, 60, 50, 40,30};
+	int counterStateR = -1, counterStateL = -1;
+
+	@SuppressWarnings("all")
 	private void hoverCheck(){
 		if(elementHovered != -2){
 			if(upJustPressed()) {
@@ -326,10 +334,23 @@ public class Background extends GUI {
 					elementHovered = -1;
 				} else if (elementHovered >= classSlots.length) {
 					lastCard = elementHovered;
-					elementHovered = lastBox != -1 ? lastBox : 0;
+					elementHovered = lastBox != -1 ? lastBox : 1;
 				} else if (elementHovered == -3){
 					slider.selected = false;
-					elementHovered = -1;
+					float closestToCenter = 1f/0f;
+					int element = -1;
+					for (int i = 0; i < classesCards.length; i++){
+						if(closestToCenter > abs(classesCards[i].x-Gdx.graphics.getWidth()/2f)) {
+							closestToCenter = abs(classesCards[i].x - Gdx.graphics.getWidth() / 2f);
+							element = i;
+						}
+						else if (closestToCenter > abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth()/2f)) {
+							closestToCenter = abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth() / 2f);
+							element = i;
+						}
+					}
+					elementHovered = (byte) (element + selButtons.length);
+					print(element+"");
 				}
 				persevereHover = 1;
 			}
@@ -348,16 +369,38 @@ public class Background extends GUI {
 			if(leftJustPressed()) {
 				if(elementHovered > 0 && elementHovered < classSlots.length){
 					lastBox = --elementHovered;
-				} else if (elementHovered > classSlots.length)
+				} else if (elementHovered > classSlots.length) {
 					lastCard = --elementHovered;
+					counterStateL = 0;
+				}
 				persevereHover = 1;
+			} else if (leftPressed() && elementHovered > classSlots.length && counterStateL != -1){
+				if (counterL++ > times[counterStateL]){
+					lastCard = --elementHovered;
+					counterStateL += counterStateL < times.length -1 ? 1 : 0;
+					counterL = 0;
+				}
+			} else {
+				counterL = 0;
+				counterStateL = -1;
 			}
 			if(rightJustPressed()) {
 				if(elementHovered > -1 && elementHovered < classSlots.length - 1)
 					lastBox = ++elementHovered;
-				else if (elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1))
+				else if (elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1)) {
 					lastCard = ++elementHovered;
+					counterStateR = 0;
+				}
 				persevereHover = 1;
+			} else if (rightPressed() && elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1) && counterStateR != -1){
+				if (counterR++ > times[counterStateR]){
+					lastCard = ++elementHovered;
+					counterStateR += counterStateR < times.length -1 ? 1 : 0;
+					counterR = 0;
+				}
+			} else {
+				counterR = 0;
+				counterStateR = -1;
 			}
 		}
 		else {
@@ -398,13 +441,10 @@ public class Background extends GUI {
 				if (cursorX() >= classesCards[i].x && cursorX()
 					<= classesCards[i].x + cardsSize &&
 					cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
-
+					dehover();
 					elementHovered = (byte) (i + selButtons.length);
 					persevereHover = 1;
 					break;
-				}
-				else if (elementHovered == (byte) (i + selButtons.length) && cursorMoved() && persevereHover != 0){
-					persevereHover = -1;
 				}
 			}
 		if(persevereHover != 0) {

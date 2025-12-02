@@ -55,6 +55,7 @@ public class SwordMage extends CharacterClasses {
 			@Override
 			public void cancelActivation() {
 				isItActive = false;
+				character.targetProcessor.reset();
 				character.conditions.remove(Conditions.ConditionNames.MANA_HIT);
 			}
 		});
@@ -80,11 +81,7 @@ public class SwordMage extends CharacterClasses {
 	public void updateOverridable() {
 		costAndDamage();
 		text.text = manaPool+"";
-		abilities.get(0).render();
-		if(isDecidingWhatToDo(character))
-			abilities.get(0).touchActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.M) && isDecidingWhatToDo(character))
-			abilities.get(0).keybindActivate();
+		abilitiesProcessor();
 
 		if(totalDamage * finalDamageMultiplier * finalManaCost <= manaPool && abilities.get(0).isItActive) {
 			if (damageReason != AttackTextProcessor.DamageReasons.MAGICAL)

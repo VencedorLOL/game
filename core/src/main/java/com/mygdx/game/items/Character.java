@@ -10,7 +10,6 @@ import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
-import com.mygdx.game.items.guielements.Background;
 
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public class Character extends Actor implements Utils {
 	public Animation walkingAnimation;
 	TextureManager.Text text;
 
-	TargetProcessor targetProcessor;
+	public TargetProcessor targetProcessor;
 
 	public boolean lockClass = false;
 
@@ -88,7 +87,7 @@ public class Character extends Actor implements Utils {
 	}
 
 	protected void automatedMovement(){
-		if(Gdx.input.justTouched()){
+		if(leftClickJustPressed()){
 			lastClickX = roundedClick().x;
 			lastClickY = roundedClick().y;
 			print("last ckik x " + lastClickX + " y " + lastClickY);
@@ -294,7 +293,7 @@ public class Character extends Actor implements Utils {
 	protected void attackInput() {
 		targetProcessor.changeRadius(totalRange);
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
+		if(leftClickJustPressed()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				attacks.add(new Attack(temporal.x, temporal.y,this));
@@ -474,7 +473,7 @@ public class Character extends Actor implements Utils {
 				fixatedText("Chara real y pos is: " + y + " and on-the-grid y is: " + y/globalSize(),300,300,100,Fonts.ComicSans,40);
 
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.B)){
+		if (Gdx.input.isKeyJustPressed(Input.Keys.U)){
 			Turns.reset();
 		}
 
@@ -494,7 +493,6 @@ public class Character extends Actor implements Utils {
 				print("ShieldName: " + classes.shield.shieldName);
 				print("Current health: " + classes.currentHealth);
 				print("Texture" + texture);
-				print("mouse moved? " + targetProcessor.mouseMoved);
 				print("Real x: " + x + " simplified x: " + x / globalSize());
 				print("Real y: " + y + " simplified y: " + y / globalSize());
 				print("Base is: " + base + " Height is: " + height);
@@ -516,7 +514,6 @@ public class Character extends Actor implements Utils {
 			"ShieldName: " + classes.shield.shieldName+"\n"+
 			"Current health: " + classes.currentHealth+"\n"+
 			"Texture" + texture+"\n"+
-			"mouse moved? " + targetProcessor.mouseMoved+"\n"+
 			"Real x: " + x + " simplified x: " + x / globalSize()+"\n"+
 			"Real y: " + y + " simplified y: " + y / globalSize(),300,100,500,Fonts.ComicSans,40);
 		}
@@ -527,7 +524,7 @@ public class Character extends Actor implements Utils {
 				path.pathReset();
 				if (!attackMode)
 					cancelAttackMode();
-				targetProcessor.mouseMoved = true;
+			//	targetProcessor.mouseMoved = true;
 			}
 		}
 
@@ -567,10 +564,10 @@ public class Character extends Actor implements Utils {
 			animations.add(new Animation("beneath the mask",x,y));
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
-			setVolume(getRealVolume() > 0 ? getRealVolume()-10 : 100);
+			setVolume(getRealVolume()-10 >= 0 ? getRealVolume()-10 : 0);
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-			setVolume(getRealVolume() <= 100 ? getRealVolume()+10 : 100);
+			setVolume(getRealVolume()+10 <= 100 ? getRealVolume()+10 : 100);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
 			setMute(!getMute());

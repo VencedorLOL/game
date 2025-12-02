@@ -79,7 +79,6 @@ public class ControllableFriend extends Friend {
 					path.pathReset();
 					if (!attackMode)
 						cancelAttackMode();
-					targetProcessor.mouseMoved = true;
 				}
 			}
 			if(Gdx.input.isKeyJustPressed(Input.Keys.C))

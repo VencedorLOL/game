@@ -1,8 +1,5 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;

@@ -1,15 +1,15 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.getCamara;
+//import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Friend.friend;
@@ -56,6 +56,7 @@ public class Imp extends CharacterClasses {
 				isItActive = true;
 				character.actionDecided();
 				targetProcessor.reset();
+				print("activated rutial");
 			}
 
 
@@ -118,13 +119,9 @@ public class Imp extends CharacterClasses {
 		if(abilities.get(1).isItActive && isDecidingWhatToDo(character))
 			demonizeInput();
 
-		for (Ability a : abilities) {
-			a.render();
-			if(isDecidingWhatToDo(character))
-				a.touchActivate();
-		}
+		abilitiesProcessor();
 		if(character.attackMode){
-			cancelDemonize();
+			softCancelDemonize();
 			cancelRitual();
 		}
 
@@ -163,14 +160,7 @@ public class Imp extends CharacterClasses {
 			character.spendTurn();
 		}
 
-		if (actionResetJustPressed() && isDecidingWhatToDo(character)) {
-			abilities.get(0).keybindActivate();
-		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.M) && isDecidingWhatToDo(character)) {
-			abilities.get(1).keybindActivate();
-			getCamara().smoothZoom(1,30);
-		}
 	}
 
 	public void resetAbilities(){
@@ -181,9 +171,15 @@ public class Imp extends CharacterClasses {
 		}
 	}
 
+	public void softCancelDemonize(){
+		abilities.get(1).isItActive = false;
+		markCoords = null;
+		character.movementLock = false;
+	}
+
 	public void cancelDemonize(){
 		abilities.get(1).cancelActivation();
-		getCamara().smoothZoom(1,30);
+//		getCamara().smoothZoom(1,30);
 
 	}
 
@@ -200,7 +196,7 @@ public class Imp extends CharacterClasses {
 	protected void demonizeInput() {
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
-			getCamara().smoothZoom(1,30);
+	//		getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				markCoords = new float[]{temporal.x,temporal.y};
@@ -208,7 +204,7 @@ public class Imp extends CharacterClasses {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			getCamara().smoothZoom(1,30);
+	//		getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				markCoords = new float[]{targetProcessor.getTargetX(),targetProcessor.getTargetY()};
 				character.actionDecided();

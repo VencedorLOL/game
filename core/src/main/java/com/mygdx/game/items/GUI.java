@@ -1,11 +1,6 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 import java.util.ArrayList;
-
-import static com.mygdx.game.Settings.print;
 
 public class GUI {
 
@@ -15,8 +10,6 @@ public class GUI {
 		for(GUI g : elements)
 			g.render();
 		elements.removeIf(e -> e.queuedForRemoval);
-		if(Gdx.input.isKeyJustPressed(Input.Keys.Q))
-			print("size: " + elements.size());
 	}
 
 	public static void delete(GUI trash){

@@ -1,5 +1,6 @@
 package com.mygdx.game.items.characters.classes;
 
+import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.TextureManager;
 import com.mygdx.game.items.TextureManager.*;
 import com.mygdx.game.items.characters.CharacterClasses;
@@ -31,6 +32,7 @@ public class Mage extends CharacterClasses {
 		manaPool = mana;
 		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
+		damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
 	}
 
 	Text text;

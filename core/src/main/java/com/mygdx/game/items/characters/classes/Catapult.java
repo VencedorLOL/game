@@ -1,7 +1,6 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
@@ -15,6 +14,7 @@ import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.InputHandler.leftClickJustPressed;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
@@ -60,6 +60,7 @@ public class Catapult extends CharacterClasses {
 			@Override
 			public void active() {
 				if(!isCharged) {
+					print("activated cata 2");
 					isItActive = true;
 					cancelRam();
 					character.cancelAttackMode();
@@ -81,6 +82,7 @@ public class Catapult extends CharacterClasses {
 						if (cooldownCounter >= cooldown) {
 							isItActive = true;
 							active();
+							print("activated cata");
 							text(name + " activated!", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3/4f, 120, TextureManager.Fonts.ComicSans, 32, 40, 200, 40, 1, 30);
 						} else if (cooldown - cooldownCounter > 1)
 							text("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!"
@@ -109,7 +111,7 @@ public class Catapult extends CharacterClasses {
 
 			@Override
 			public void cancelActivation() {
-				isItActive = false;
+		//		isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
 				resetCircle();
@@ -148,10 +150,7 @@ public class Catapult extends CharacterClasses {
 	}
 
 	public void updateOverridable() {
-		for (Ability a : abilities) {
-			a.render();
-			a.touchActivate();
-		}
+		abilitiesProcessor();
 		rocks.removeIf(r -> r.finished && !r.isGliding);
 		for(Rock r : rocks)
 			r.update();
@@ -195,12 +194,6 @@ public class Catapult extends CharacterClasses {
 
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.C))
-			abilities.get(0).keybindActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.R))
-			abilities.get(1).keybindActivate();
-
-
 		if(character.attackMode && isCharged && isDecidingWhatToDo(character)){
 			character.cancelAttackMode();
 			throwingMode = !throwingMode;
@@ -210,7 +203,7 @@ public class Catapult extends CharacterClasses {
 		if(throwingMode && isDecidingWhatToDo(character))
 			rockThrowInput();
 		else if(character.attackMode && isDecidingWhatToDo(character))
-			cancelRam();
+			softCancelRam();
 		if(abilities.get(1).isItActive && isDecidingWhatToDo(character)) {
 			chargeInput();
 		}
@@ -219,6 +212,12 @@ public class Catapult extends CharacterClasses {
 		
 	}
 
+	public void softCancelRam(){
+		abilities.get(1).isItActive = false;
+		character.movementLock = false;
+		chargeCoords = new float[2];
+		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
+	}
 
 	public void cancelRam(){
 		abilities.get(1).cancelActivation();
@@ -230,7 +229,7 @@ public class Catapult extends CharacterClasses {
 		targetProcessor.changeCheckWalkable(true);
 		targetProcessor.changeRayCast(true);
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
+		if(leftClickJustPressed()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				chargeCoords[0] = temporal.x;
@@ -267,7 +266,7 @@ public class Catapult extends CharacterClasses {
 		targetProcessor.changeRayCast(false);
 		renderCircle();
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
+		if(leftClickJustPressed()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				rocksCoords[0] = temporal.x;

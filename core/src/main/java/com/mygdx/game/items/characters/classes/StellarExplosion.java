@@ -89,11 +89,7 @@ public class StellarExplosion extends CharacterClasses {
 	public void updateOverridable() {
 		text.text = manaPool+"";
 		targetProcessor.changeRadius(explosionRange);
-		abilities.get(0).render();
-		if(isDecidingWhatToDo(character))
-			abilities.get(0).touchActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.I) && isDecidingWhatToDo(character))
-			abilities.get(0).keybindActivate();
+		abilitiesProcessor();
 
 		if(isDecidingWhatToDo(character) && (character.attackMode || decidingExplode) && manaPool >= totalManaPerUse) {
 			if(decidingExplode && character.attackMode){

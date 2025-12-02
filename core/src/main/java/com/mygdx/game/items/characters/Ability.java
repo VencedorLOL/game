@@ -10,7 +10,9 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
+import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -45,22 +47,46 @@ public class Ability{
 				Gdx.graphics.getHeight() * this.y + getCamara().getY(),radius);
 	}
 
+	boolean touchedIn, touchedOut;
 	public boolean isBeingPressed(){
-		if (Gdx.input.justTouched()){
-			// https://imgur.com/a/bgzC4LK
-			Vector3 vector = authenticClick();
-			float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
-			circle.setPosition(coords[0] + globalSize()/2f ,coords[1] + globalSize()/2f);
-			return sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius;
+		// https://imgur.com/a/bgzC4LK
+		Vector3 vector = authenticClick();
+		float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+		circle.setPosition(coords[0] + globalSize()/2f ,coords[1] + globalSize()/2f);
+		if(leftClickJustPressed() && sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius)
+			touchedIn = true;
+		else if (leftClickJustPressed())
+			touchedIn = false;
+		if(leftClickReleased() && sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius)
+			touchedOut = true;
+		else if (leftClickReleased())
+			touchedOut = false;
+		if(touchedIn && touchedOut){
+			touchedIn = false; touchedOut = false; return true;
 		}
 		return false;
+
+	}
+
+	public boolean isBeingHovered(){
+		Vector3 vector = authenticClick();
+		float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
+		circle.setPosition(coords[0] + globalSize()/2f ,coords[1] + globalSize()/2f);
+		return sqrt(pow(circle.x - vector.x, 2) + pow(circle.y - vector.y, 2)) <= circle.radius;
 	}
 
 
-	public void render(){
-		if(cooldownCounter >= cooldown)
-			TextureManager.addToFixatedList(textureIcon,Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100,1,0);
-		else {
+	public void renderKey(String key){
+		fixatedDrawables.add(new TextureManager.DrawableObject(key.equals("H") ? "KeyH" : "KeyB",Gdx.graphics.getWidth() * x / 100 + globalSize()/2f - 32,Gdx.graphics.getHeight() * y / 100 + 24,1,0,2,2,true));
+	}
+
+
+	public void render() {
+		if (cooldownCounter >= cooldown){
+			TextureManager.addToFixatedList(textureIcon, Gdx.graphics.getWidth() * x / 100, Gdx.graphics.getHeight() * y / 100, 1, 0);
+			if (isBeingHovered())
+				TextureManager.addToFixatedList("SelectedAbility", Gdx.graphics.getWidth() * x / 100, Gdx.graphics.getHeight() * y / 100, .8f, 0, 175, 175, 175);
+		} else {
 			TextureManager.addToFixatedList(textureIcon, Gdx.graphics.getWidth() * x / 100, Gdx.graphics.getHeight() * y / 100, 1, 0, 175, 175, 175);
 			float[] coords = getCamara().unproject(Gdx.graphics.getWidth() * x / 100,Gdx.graphics.getHeight() * y  / 100);
 			TextureManager.priorityText.add(text);

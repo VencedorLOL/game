@@ -1,44 +1,93 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
+
 import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.ClickDetector.authenticClick;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.addToList;
 
 public class ClassChanger {
 
 	Character character;
 	float x,y;
+	int selectedSlot = -1;
+	boolean renderSelected = false;
 
 	public ClassChanger(Character character){
 		this.character = character;
-		this.x = character.x + globalSize()/2f - globalSize()/4f * classSlots.length;
+		this.x = character.x + globalSize()/2f - globalSize()/4f * (classSlots.length+1);
 		this.y = character.y + globalSize()*3/2f;
+		for(int i = 0; i < classSlots.length; i++){
+			touchedIn[i] = false;
+			touchedOut[i] = false;
+		}
 	}
 
 	public void render(){
-		this.x = character.x + globalSize()/2f - globalSize()/4f * classSlots.length;
+		this.x = character.x + globalSize()/2f - globalSize()/4f * (classSlots.length+1);
 		this.y = character.y + globalSize()*3/2f;
+		addToList("SelectionZero",x+ globalSize()/8f,y,1,0,255,255,255,2,2);
+		if(selectedSlot == -1)
+			addToList("HoveringSelection", x + globalSize() / 8f, y, 1, 0, 255, 255, 255, 2, 2);
 		for (int i = 0; i < classSlots.length; i++){
-			addToList("SelectionBox",x+globalSize()/2f*i + globalSize()/8f,y,1,0,255,255,255,2,2);
-			addToList(classSlots[i].texture,x+globalSize()/2f*i + globalSize()/8f,y,1,0,255,255,255,2,2);
-			if(isBeingPressed(x+globalSize()/2f*i + globalSize()/8f,y,globalSize()/2f,globalSize()/2f))
+			addToList("SelectionBox",x+globalSize()/2f*(i+1) + globalSize()/8f,y,1,0,255,255,255,2,2);
+			addToList(classSlots[i].texture,x+globalSize()/2f*(i+1) + globalSize()/8f,y,1,0,255,255,255,2,2);
+			if(isBeingHovered(x+globalSize()/2f*(i+1) + globalSize()/8f,y,globalSize()/2f,globalSize()/2f) || (selectedSlot == i && renderSelected)) {
+				addToList("HoveringSelection", x + globalSize() / 2f * (i + 1) + globalSize() / 8f, y, 1, 0, 255, 255, 255, 2, 2);
+				selectedSlot = i;
+			}
+			if(isBeingPressed(x+globalSize()/2f*(i+1) + globalSize()/8f,y,globalSize()/2f,globalSize()/2f,i) || (actionConfirmJustPressed() && selectedSlot == i)) {
 				character.onCharacterChange(i);
+				selectedSlot = -1;
+			}
 
 		}
 	}
 
-	public boolean isBeingPressed(float x, float y, float base, float height){
-		if (Gdx.input.justTouched()){
-			Vector3 vector = authenticClick();
-			return vector.x >= x && vector.x <=  x + base && vector.y >= y && vector.y <=  y + height;
+	boolean[] touchedIn = new boolean[classSlots.length], touchedOut = new boolean[classSlots.length];
+	public boolean isBeingPressed(float x, float y, float base, float height,int i){
+		Vector3 vector = authenticClick();
+		boolean hit = vector.x >= x && vector.x <=  x + base && vector.y >= y && vector.y <=  y + height;
+		if(leftClickJustPressed()) {
+			touchedIn[i] = hit;
+		}if(leftClickReleased()) {
+			touchedOut[i] = hit;
+			print("touchedOut is now  " + hit);
+		}
+		if(touchedIn[i] && touchedOut[i]){
+			touchedIn[i] = false; touchedOut[i] = false; return true;
 		}
 		return false;
+
 	}
+
+	public boolean isBeingHovered(float x, float y, float base, float height){
+		Vector3 vector = authenticClick();
+		if(cursorMoved() && vector.x >= x && vector.x <= x + base && vector.y >= y && vector.y <= y + height)
+			renderSelected = false;
+		keyboardHover();
+		return vector.x >= x && vector.x <= x + base && vector.y >= y && vector.y <= y + height;
+	}
+
+	int cooldown;
+	public void keyboardHover(){
+		if((upJustPressed() || rightJustPressed()) && selectedSlot + 1 < classSlots.length && cooldown <= 0){
+			selectedSlot++;
+			renderSelected = true;
+			cooldown = 20;
+		} if ((leftJustPressed() || downJustPressed()) && selectedSlot > 0 && cooldown <= 0){
+			selectedSlot--;
+			renderSelected = true;
+			cooldown = 20;
+		}
+		cooldown -= cooldown > 0 ? 1 : 0;
+	}
+
 
 	public void activate(int pos){
 		classSlots[pos].activate(character);

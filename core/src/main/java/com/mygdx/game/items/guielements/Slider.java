@@ -51,6 +51,7 @@ public class Slider extends GUI {
 			if ((cursorX() >= x && cursorX() <= x + w &&
 					cursorY() >= y - h && cursorY() <= y) || wasTouched){
 				touched = true;
+				selected = true;
 					if (wasTouched && xCursor + cursorX() - cursorLastX >= 0 && xCursor + cursorX() - cursorLastX + w <= realWidth)
 						xCursor += (cursorX() - cursorLastX);
 				cursorLastX = cursorX();

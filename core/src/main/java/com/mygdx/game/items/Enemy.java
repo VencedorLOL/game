@@ -157,19 +157,6 @@ public class Enemy extends Actor {
 			else
 				movement();
 			glideProcess();
-			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-				print("");
-				print("Myself: " + this);
-				print("Target: x" + tileToReach[0] + " y" + tileToReach[1]);
-				print("Coords: x" + x + " y" + y);
-				print("ASpeed: " + totalActingSpeed);
-				print("Damage: " + totalDamage);
-				print("Defense: " + totalDefense);
-				print("am i dead? " + isDead);
-				print("health " + health);
-				print("total health " + totalMaxHealth);
-				print("");
-			}
 		}
 	}
 

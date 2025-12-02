@@ -58,6 +58,7 @@ public class Healer extends CharacterClasses implements Utils {
 				isItActive = true;
 				healRange = 40;
 				character.cancelAttackMode();
+				targetProcessor.reset();
 				character.movementLock = true;
 			}
 
@@ -65,13 +66,14 @@ public class Healer extends CharacterClasses implements Utils {
 			public void cancelActivation() {
 				isItActive = false;
 				character.movementLock = false;
-				getCamara().smoothZoom(1,30);
+				targetProcessor.reset();
 			}
 
 			public void finished() {
 				cooldownCounter = 0;
 				isItActive = false;
 				character.movementLock = false;
+				targetProcessor.reset();
 			}
 		});
 
@@ -93,11 +95,7 @@ public class Healer extends CharacterClasses implements Utils {
 		if(healTarget == null && healTarget.getIsDead())
 			healTarget = character;
 
-		abilities.get(0).render();
-		if(isDecidingWhatToDo(character))
-			abilities.get(0).touchActivate();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.E) && (isDecidingWhatToDo(character)))
-			abilities.get(0).keybindActivate();
+		abilitiesProcessor();
 
 		if(character.attackMode)
 			abilities.get(0).cancelActivation();
@@ -112,7 +110,7 @@ public class Healer extends CharacterClasses implements Utils {
 		targetProcessor.changeRadius(healRange);
 		targetProcessor.render();
 		if(Gdx.input.justTouched()) {
-			getCamara().smoothZoom(1,30);
+		//	getCamara().smoothZoom(1,30);
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				for(Actor a : actors){
@@ -123,7 +121,7 @@ public class Healer extends CharacterClasses implements Utils {
 			}
 		}
 		if(actionConfirmJustPressed()) {
-			getCamara().smoothZoom(1,30);
+		//	getCamara().smoothZoom(1,30);
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				for(Actor a : actors){
 					if(a.x == targetProcessor.getTargetX() && a.y == targetProcessor.getTargetY() && a.team == character.team)
