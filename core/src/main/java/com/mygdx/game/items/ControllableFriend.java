@@ -84,6 +84,7 @@ public class ControllableFriend extends Friend {
 			if(Gdx.input.isKeyJustPressed(Input.Keys.C))
 				print("color: " + color[0] + ", " + color[1] + ", " + color[2] );
 			renderBall();
+			conditions.render();
 		}
 	}
 

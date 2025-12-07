@@ -61,7 +61,7 @@ public class StartScreen implements Screen, Utils {
 		screenSizeChangeDetector();
 		menuScreenBatch.begin();
 		font.draw(menuScreenBatch, "Java version: " + System.getProperty("java.version"), 100, 175);
-		font.draw(menuScreenBatch, "Game Version: vB", 100, 150);
+		font.draw(menuScreenBatch, "Game Version: vB.3", 100, 150);
 		font.draw(menuScreenBatch, "Click to Start", 100, 125);
 		font.draw(menuScreenBatch, "Tip: " + tips[tipSelected], 100, 100);
 		menuScreenBatch.end();

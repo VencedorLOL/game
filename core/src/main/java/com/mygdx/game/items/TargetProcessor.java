@@ -25,6 +25,7 @@ public class TargetProcessor {
 	public TextureManager.Animation target;
 	byte r = (byte) 200,g = (byte) 200,b = (byte) 200;
 	float x,y;
+	public float opacity = 0f;
 
 	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String targetAnimation){
 		this.fixated = fixated;
@@ -50,6 +51,7 @@ public class TargetProcessor {
 		this.rayCast = rayCast;
 		this.x = x; this.y = y;
 		targetsTarget = new Entity(null,x,y,false);
+		opacity = .2f;
 	}
 
 	public TargetProcessor(){}
@@ -79,7 +81,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast,r,g,b,true);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast,r,g,b,true,opacity);
 
 		}
 		circle.renderCircle();
@@ -93,7 +95,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(x, y), stage.tileset, size, checkWalkable,rayCast,r,g,b,false);
+			circle = new Circle(stage.findATile(x, y), stage.tileset, size, checkWalkable,rayCast,r,g,b,false,opacity);
 
 		}
 		circle.renderCircle();
@@ -117,7 +119,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false,r,g,b,true);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false,r,g,b,true,opacity);
 
 		}
 		circle.renderCircle();
@@ -250,8 +252,10 @@ public class TargetProcessor {
 		int r,g,b;
 		float furthestX, furthestY;
 		boolean zoom;
+		public float opacity;
 
-		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast,int r,int g, int b,boolean zoom){
+		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast,int r,int g, int b,boolean zoom,float opacity){
+			this.opacity = opacity;
 			this.center = center;
 			this.radius = radius;
 			this.tileset = tileset;
@@ -440,13 +444,10 @@ public class TargetProcessor {
 						t.setSecondaryTexture("selectionIndicatorSMinus", 0.6f, 270, true, false, 7);
 				}
 
-				t.setSecondaryTexture("selectionIndicator",0f,0,false,false,8);
+				t.setSecondaryTexture("selectionIndicator",opacity,0,false,false,8);
 				t.texture[8].r = (this.r & 0xFF)/255f;
 				t.texture[8].g = (this.g & 0xFF)/255f;
 				t.texture[8].b = (this.b & 0xFF)/255f;
-				if(!zoom){
-					t.texture[8].opacity = .2f;
-				}
 			}
 		}
 

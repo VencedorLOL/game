@@ -2,6 +2,7 @@ package com.mygdx.game.items.guielements;
 
 import com.mygdx.game.items.GUI;
 
+import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
@@ -12,6 +13,7 @@ public class CloseButton extends GUI {
 	float size;
 	boolean hovered = false;
 	String texture = "CloseButton";
+	int counter = 10;
 
 	public CloseButton(){
 		super();
@@ -36,19 +38,31 @@ public class CloseButton extends GUI {
 	boolean touchedIn;
 	boolean touchedOut;
 	private boolean touchActionCursorDetector(float x, float y){
-		if(leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*globalSize() &&
-				cursorY() >= y - size*globalSize() && cursorY() <= y)
-			touchedIn = true;
-		else if (leftClickJustPressed())
-			touchedIn = false;
-		if(leftClickReleased() && cursorX() >= x && cursorX() <= x + size*globalSize() &&
-				cursorY() >= y - size*globalSize() && cursorY() <= y)
-			touchedOut = true;
-		else if (leftClickReleased())
-			touchedOut = false;
+		boolean bool = false;
+		if(counter <= 0) {
+			if (leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size * globalSize() &&
+					cursorY() >= y - size * globalSize() && cursorY() <= y)
+				touchedIn = true;
+			else if (leftClickJustPressed())
+				touchedIn = false;
+			if (leftClickReleased() && cursorX() >= x && cursorX() <= x + size * globalSize() &&
+					cursorY() >= y - size * globalSize() && cursorY() <= y)
+				touchedOut = true;
+			else if (leftClickReleased())
+				touchedOut = false;
 
-		return touchedIn && touchedOut;
+			if(touchedIn && touchedOut){
+				counter = 20;
+				touchedIn = false;
+				touchedOut = false;
+				bool = true;
+			}
+		}
+
+		counter -= counter > 0 ? 1 : 0;
+		return bool;
 	}
+
 
 
 }

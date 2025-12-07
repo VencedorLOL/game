@@ -9,7 +9,9 @@ import java.util.ArrayList;
 
 import static com.badlogic.gdx.math.MathUtils.floor;
 import static com.badlogic.gdx.math.MathUtils.random;
+import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Conditions.ConditionNames.*;
 
@@ -21,6 +23,11 @@ public class Conditions {
 	Actor owner;
 	String texture;
 	boolean queuedForRemoval = false;
+
+	public void render(float x, float y){
+		if(owner instanceof Character)
+			TextureManager.addToFixatedList(texture,x,y,1,0,3,3);
+	}
 
 	public Conditions(Actor owner){
 		this.owner = owner;
@@ -318,12 +325,21 @@ public class Conditions {
 
 		public void getBeneficiary(CharacterClasses chara){beneficiary = chara;}
 
-		@Override
 		protected void onDeath() {
 			if (beneficiary instanceof Imp){
 				((Imp) beneficiary).diedMark = true;
 			}
 		}
+
+		int timer = 5;
+		public void render(float x, float y){
+			if(timer-- <= 0) {
+				particleEmitter("DEMONIZE", globalSize() / 2f,
+						globalSize() / 2f, 1, 1, true, false, 1, owner);
+				timer = 5;
+			}
+		}
+
 	}
 
 	public static class Clowdy extends Conditions{

@@ -337,7 +337,7 @@ public class FieldEffects {
 		public void setLightningLocation(){
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < numberLightning; i++) {
 				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());
@@ -740,7 +740,7 @@ public class FieldEffects {
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
@@ -882,7 +882,7 @@ public class FieldEffects {
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
@@ -919,10 +919,19 @@ public class FieldEffects {
 
 
 	public static class AlertElectricGround extends FieldEffects{
+		float x,y;
 		public AlertElectricGround(){
 			name = "Alert ElectricGround";
 			setCondition(ELECTRIC_GROUND);
 			playSiren();
+			if(random()<.5)
+				x = (float) ceil((stage.finalX + (stage.finalX - stage.startX)/2f)/globalSize());
+			else
+				x = (float) floor((stage.finalX + (stage.finalX - stage.startX)/2f)/globalSize());
+			if(random()>.5)
+				y = (float) ceil((stage.finalY + (stage.finalY - stage.startY)/2f)/globalSize());
+			else
+				y = (float) floor((stage.finalY + (stage.finalY - stage.startY)/2f)/globalSize());
 		}
 
 		@Override
@@ -1125,7 +1134,7 @@ public class FieldEffects {
 			locations = new ArrayList<>();
 			numberLightning = (int) ((sqrt((stage.finalX-stage.startX) * (stage.finalY-stage.startY)/pow(globalSize(),2)))/2 * max(floor(turnCounter/2f),1));
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < numberLightning; i++) {
 				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());

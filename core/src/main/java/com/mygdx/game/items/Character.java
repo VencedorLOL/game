@@ -23,6 +23,7 @@ import static com.mygdx.game.items.FieldEffects.addField;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
+import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.*;
 
@@ -74,6 +75,7 @@ public class Character extends Actor implements Utils {
 		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{244,83,23});
 		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target");
+		targetProcessor.opacity = .2f;
 		cC = new ClassChanger(this);
 	}
 
@@ -552,8 +554,8 @@ public class Character extends Actor implements Utils {
 
 
 		if(Gdx.input.isKeyPressed(Input.Keys.F10)){
-			particle.particleEmitter("BLOB",x+ (float) globalSize() /2,
-					y+ (float) globalSize() /2,1, 10,true,false);
+			particleEmitter("BLOB",(float) globalSize() /2,
+					(float) globalSize() /2,1, 50,true,false,10,this);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
 			stage.enemy.add(new Enemy(x+256,y));

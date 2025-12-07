@@ -92,17 +92,15 @@ public class ConditionsManager {
 	}
 
 	public void render(){
-		if(owner instanceof Character){
-			int aid = 0; int aidY = 0;
-			for(Conditions c : conditions)
-				if (c.texture != null) {
-				TextureManager.addToFixatedList(c.texture,150 + 150f*aid, 100 + 40f*aidY,1,0,3,3);
+		int aid = 0; int aidY = 0;
+		for(Conditions c : conditions)
+			if (c.texture != null) {
+				c.render(150 + 150f*aid, 100 + 40f*aidY);
 					if(++aid > 5) {
 						aid = 0;
 						aidY++;
 					}
 				}
-		}
 	}
 
 	public void onKill(){

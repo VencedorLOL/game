@@ -77,7 +77,7 @@ public class Ability{
 
 
 	public void renderKey(String key){
-		fixatedDrawables.add(new TextureManager.DrawableObject(key.equals("H") ? "KeyH" : "KeyB",Gdx.graphics.getWidth() * x / 100 + globalSize()/2f - 32,Gdx.graphics.getHeight() * y / 100 + 24,1,0,2,2,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject(key.equals("H") ? "HKey" : "BKey",Gdx.graphics.getWidth() * x / 100 + globalSize()/2f - 28,Gdx.graphics.getHeight() * y / 100 + 24,1,0,1,1,true));
 	}
 
 

@@ -1,8 +1,12 @@
 package com.mygdx.game.lwjgl3;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.mygdx.game.MainClass;
+
+import java.util.Locale;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -31,6 +35,30 @@ public class Lwjgl3Launcher {
         configuration.setWindowedMode(640, 480);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         configuration.setWindowIcon("anima.png", "anima2.png", "anima4.png", "anima8.png");
+        //ty evan
+        String basePath = "";
+        Files.FileType baseFileType = null;
+        if (SharedLibraryLoader.isWindows) {
+            if (System.getProperties().getProperty("os.name").equals("Windows XP")) {
+                basePath = "Application Data/." + "vencedor"  + "/";
+            } else {
+                basePath = "AppData/Roaming/." + "vencedor" + "/";
+            }
+            baseFileType = Files.FileType.External;
+        } else if (SharedLibraryLoader.isMac) {
+            basePath = "Library/Application Support/" + "vencedor" + "/";
+            baseFileType = Files.FileType.External;
+        } else if (SharedLibraryLoader.isLinux) {
+            String XDGHome = System.getenv("XDG_DATA_HOME");
+            if (XDGHome == null) XDGHome = System.getProperty("user.home") + "/.local/share";
+
+            String titleLinux = "vencedor".toLowerCase(Locale.ROOT).replace(" ", "-");
+            basePath = XDGHome + "/." + "vencedor" + "/" + titleLinux + "/";
+
+            baseFileType = Files.FileType.Absolute;
+        }
+
+        configuration.setPreferencesConfig( basePath, baseFileType );
         return configuration;
     }
 }

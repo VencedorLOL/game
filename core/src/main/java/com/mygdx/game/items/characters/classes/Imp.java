@@ -8,6 +8,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
 //import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.GameScreen.particle;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
@@ -15,6 +16,7 @@ import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.Turns.isTurnRunning;
 
@@ -149,13 +151,21 @@ public class Imp extends CharacterClasses {
 
 		if(abilities.get(1).isItActive && character.isPermittedToAct() && markCoords != null){
 			abilities.get(1).finished();
+			boolean gotActor = false;
 			for(Actor a : actors){
 				if(a.getX() == markCoords[0] && a.getY() == markCoords[1]) {
+					gotActor = true;
 					a.conditions.status(Conditions.ConditionNames.DEMONIZED);
 					a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(turnsMark);
+					particleEmitter("DEMONIZE",(float) globalSize() /2,
+							(float) globalSize() /2,1, 1,true,false,60,a);
 					((Conditions.Demonized) a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(this);
 					break;
 				}
+			}
+			if(!gotActor){
+				particleEmitter("DEMONIZE",markCoords[0] + (float) globalSize() /2,
+						markCoords[1] + (float) globalSize() /2,1, 1,true,false,60,null);
 			}
 			character.spendTurn();
 		}

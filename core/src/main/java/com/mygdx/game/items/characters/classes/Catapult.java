@@ -138,10 +138,10 @@ public class Catapult extends CharacterClasses {
 
 		reset();
 		currentHealth = totalHealth;
-		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target");
-		circle2 = new TargetProcessor(character,1.5f,true,false);
-		circle5 = new TargetProcessor(character,4.5f,true,false);
-		circle8 = new TargetProcessor(character,7.5f,true,false);
+		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target"); targetProcessor.opacity = .2f;
+		circle2 = new TargetProcessor(character,1.5f,true,false);circle2.opacity = 0f;
+		circle5 = new TargetProcessor(character,4.5f,true,false);circle5.opacity = 0f;
+		circle8 = new TargetProcessor(character,7.5f,true,false);circle8.opacity = 0f;
 	}
 
 	public void onFinalizedTurn() {
@@ -322,10 +322,27 @@ public class Catapult extends CharacterClasses {
 				if (actorInPos(objectiveX,objectiveY) != null && !finished)
 					ove = new OnVariousScenarios.CounterObject(60){
 					public void onCounterFinish(){
+						animations.add(new Animation("boulderbreaking",x,y){
+							public void onFinish() {
+								print("finished");
+							}
+						});
 						actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
 						destroyListener(ove);
 					}
 				};
+				else if (!finished){
+					ove = new OnVariousScenarios.CounterObject(60){
+						public void onCounterFinish(){
+							animations.add(new Animation("boulderbreaking",x,y){
+								public void onFinish() {
+									print("finished");
+								}
+							});
+							destroyListener(ove);
+						}
+					};
+				}
 				finished = true;
 			}
 			turnsToFall--;

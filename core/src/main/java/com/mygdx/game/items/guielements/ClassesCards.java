@@ -21,18 +21,19 @@ public class ClassesCards extends GUI {
 		secTexture = clsCardObj.texture;
 	}
 
-	public void render(float size,float x, float y){
+	public void render(float size,float x, float y,boolean touch){
 		this.size = size;
 		this.x = x;
 		this.y = y;
 		texture = selected ? "CardSelected" : hovered ? "CardHovered" : "CardBlank";
+		fixatedDrawables.add(new TextureManager.DrawableObject("CardShadow", x , y, .7f, 0, size, size,true));
 		fixatedDrawables.add(new TextureManager.DrawableObject(texture, x , y, 1, 0, size, size,true));
 		fixatedDrawables.add(new TextureManager.DrawableObject(secTexture, x , y, 1, 0, size, size,true));
-		onTouchDetect(x,y);
+		onTouchDetect(x,y,touch);
 	}
 
-	public void onTouchDetect(float x, float y){
-		if ((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*32 &&
+	public void onTouchDetect(float x, float y, boolean touch){
+		if ((touch && leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*32 &&
 				cursorY() >= y - size*32 && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
 			onTouchOverridable();
 
