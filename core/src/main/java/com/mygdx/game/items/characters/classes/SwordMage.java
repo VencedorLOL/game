@@ -44,6 +44,11 @@ public class SwordMage extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.SwordMage.getWeapon() != null)
+			weapon = ClassStoredInformation.SwordMage.getWeapon();
+		if(ClassStoredInformation.SwordMage.getShield() != null)
+			shield = ClassStoredInformation.SwordMage.getShield();
+
 		abilities.add(new Ability("manahit", "Magically Enhanced Attack", -1, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -109,6 +114,8 @@ public class SwordMage extends CharacterClasses {
 
 
 	public void destroyOverridable(){
+		ClassStoredInformation.SwordMage.setShield(shield);
+		ClassStoredInformation.SwordMage.setWeapon(weapon);
 		destroyListener(oVSce);
 		text.onScreenTime = 1;
 		character.conditions.remove(Conditions.ConditionNames.MANA_HIT);

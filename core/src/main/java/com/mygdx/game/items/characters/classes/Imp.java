@@ -51,6 +51,11 @@ public class Imp extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Imp.getWeapon() != null)
+			weapon = ClassStoredInformation.Imp.getWeapon();
+		if(ClassStoredInformation.Imp.getShield() != null)
+			shield = ClassStoredInformation.Imp.getShield();
+
 		abilities.add(new Ability("Ritual", "Ritual", 12, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -102,6 +107,10 @@ public class Imp extends CharacterClasses {
 					abilities.get(1).cancelActivation();
 			}
 		};
+		if(ClassStoredInformation.Imp.getCooldown().length >= abilities.size())
+			for(int i = 0; i < abilities.size(); i++)
+				abilities.get(i).cooldown = ClassStoredInformation.Imp.getCooldown()[i];
+
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -199,6 +208,9 @@ public class Imp extends CharacterClasses {
 
 
 	public void destroyOverridable(){
+		ClassStoredInformation.Imp.setShield(shield);
+		ClassStoredInformation.Imp.setWeapon(weapon);
+		ClassStoredInformation.Imp.setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

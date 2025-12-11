@@ -27,6 +27,10 @@ public class Mage extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 0;
+		if(ClassStoredInformation.Mage.getWeapon() != null)
+			weapon = ClassStoredInformation.Mage.getWeapon();
+		if(ClassStoredInformation.Mage.getShield() != null)
+			shield = ClassStoredInformation.Mage.getShield();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -54,6 +58,8 @@ public class Mage extends CharacterClasses {
 	}
 
 	public void destroyOverridable(){
+		ClassStoredInformation.Mage.setShield(shield);
+		ClassStoredInformation.Mage.setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 

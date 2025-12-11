@@ -37,6 +37,11 @@ public class Speedster extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Speedster.getWeapon() != null)
+			weapon = ClassStoredInformation.Speedster.getWeapon();
+		if(ClassStoredInformation.Speedster.getShield() != null)
+			shield = ClassStoredInformation.Speedster.getShield();
+
 		abilities.add(new Ability("evenFaster", "Even Faster", 2, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -59,6 +64,10 @@ public class Speedster extends CharacterClasses {
 					abilities.get(0).finished();
 			}
 		};
+
+		if(ClassStoredInformation.Speedster.getCooldown().length >= abilities.size())
+			for(int i = 0; i < abilities.size(); i++)
+				abilities.get(i).cooldown = ClassStoredInformation.Speedster.getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -103,6 +112,9 @@ public class Speedster extends CharacterClasses {
 	}
 */
 	public void destroyOverridable(){
+		ClassStoredInformation.Speedster.setShield(shield);
+		ClassStoredInformation.Speedster.setWeapon(weapon);
+		ClassStoredInformation.Speedster.setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

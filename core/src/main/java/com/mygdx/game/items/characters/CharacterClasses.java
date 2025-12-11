@@ -311,6 +311,14 @@ public class CharacterClasses {
 		}
 	}
 
+	public int[] getAbilitiesCd(){
+		int[] cds = new int[abilities.size()];
+		for(int i = 0; i < abilities.size(); i++){
+			cds[i] = abilities.get(i).cooldownCounter;
+		}
+		return cds;
+	}
+
 
 	protected void updateOverridable() {}
 

@@ -56,6 +56,11 @@ public class Catapult extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Catapult.getWeapon() != null)
+			weapon = ClassStoredInformation.Catapult.getWeapon();
+		if(ClassStoredInformation.Catapult.getShield() != null)
+			shield = ClassStoredInformation.Catapult.getShield();
+
 		abilities.add(new Ability("ChargeCatapult", "Charge the Catapult", 0, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -135,7 +140,9 @@ public class Catapult extends CharacterClasses {
 				rocks.clear();
 			}
 		};
-
+		if(ClassStoredInformation.Catapult.getCooldown().length >= abilities.size())
+			for(int i = 0; i < abilities.size(); i++)
+				abilities.get(i).cooldown = ClassStoredInformation.Catapult.getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target"); targetProcessor.opacity = .2f;
@@ -290,6 +297,9 @@ public class Catapult extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
+		ClassStoredInformation.Catapult.setShield(shield);
+		ClassStoredInformation.Catapult.setWeapon(weapon);
+		ClassStoredInformation.Catapult.setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 	}

@@ -47,6 +47,11 @@ public class Summoner extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Summoner.getWeapon() != null)
+			weapon = ClassStoredInformation.Summoner.getWeapon();
+		if(ClassStoredInformation.Summoner.getShield() != null)
+			shield = ClassStoredInformation.Summoner.getShield();
+
 		abilities.add(new Ability("Summon", "Summon", 5, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -105,6 +110,10 @@ public class Summoner extends CharacterClasses {
 				summons.clear();
 			}
 		};
+
+		if(ClassStoredInformation.Summoner.getCooldown().length >= abilities.size())
+			for(int i = 0; i < abilities.size(); i++)
+				abilities.get(i).cooldown = ClassStoredInformation.Summoner.getCooldown()[i];
 
 		reset();
 		currentHealth = totalHealth;
@@ -253,6 +262,9 @@ public class Summoner extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
+		ClassStoredInformation.Summoner.setShield(shield);
+		ClassStoredInformation.Summoner.setWeapon(weapon);
+		ClassStoredInformation.Summoner.setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 	}
 }

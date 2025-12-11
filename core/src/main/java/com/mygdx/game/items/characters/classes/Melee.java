@@ -37,6 +37,11 @@ public class Melee extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Melee.getWeapon() != null)
+			weapon = ClassStoredInformation.Melee.getWeapon();
+		if(ClassStoredInformation.Melee.getShield() != null)
+			shield = ClassStoredInformation.Melee.getShield();
+
 		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -84,6 +89,11 @@ public class Melee extends CharacterClasses {
 			}
 		};
 		reset();
+
+		if(ClassStoredInformation.Melee.getCooldown().length >= abilities.size())
+			for(int i = 0; i < abilities.size(); i++)
+				abilities.get(i).cooldown = ClassStoredInformation.Melee.getCooldown()[i];
+
 		currentHealth = totalHealth;
 		manaPool = mana;
 	}
@@ -138,6 +148,9 @@ public class Melee extends CharacterClasses {
 
 
 	public void destroyOverridable(){
+		ClassStoredInformation.Melee.setShield(shield);
+		ClassStoredInformation.Melee.setWeapon(weapon);
+		ClassStoredInformation.Melee.setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

@@ -28,6 +28,11 @@ public class Tank extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
+		if(ClassStoredInformation.Tank.getWeapon() != null)
+			weapon = ClassStoredInformation.Tank.getWeapon();
+		if(ClassStoredInformation.Tank.getShield() != null)
+			shield = ClassStoredInformation.Tank.getShield();
+
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -44,6 +49,8 @@ public class Tank extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
+		ClassStoredInformation.Tank.setShield(shield);
+		ClassStoredInformation.Tank.setWeapon(weapon);
 		destroyListener(oVE);
 	}
 }

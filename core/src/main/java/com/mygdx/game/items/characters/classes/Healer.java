@@ -47,6 +47,10 @@ public class Healer extends CharacterClasses implements Utils {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
+		if(ClassStoredInformation.Healer.getWeapon() != null)
+			weapon = ClassStoredInformation.Healer.getWeapon();
+		if(ClassStoredInformation.Healer.getShield() != null)
+			shield = ClassStoredInformation.Healer.getShield();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -148,6 +152,8 @@ public class Healer extends CharacterClasses implements Utils {
 
 
 	protected void destroyOverridable() {
+		ClassStoredInformation.Healer.setShield(shield);
+		ClassStoredInformation.Healer.setWeapon(weapon);
 		destroyListener(oVS);
 	}
 

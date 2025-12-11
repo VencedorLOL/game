@@ -45,6 +45,11 @@ public class Earthquaker extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
+		if(ClassStoredInformation.Earthquaker.getWeapon() != null)
+			weapon = ClassStoredInformation.Earthquaker.getWeapon();
+		if(ClassStoredInformation.Earthquaker.getShield() != null)
+			shield = ClassStoredInformation.Earthquaker.getShield();
+
 		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
 		reset();
@@ -136,6 +141,8 @@ public class Earthquaker extends CharacterClasses {
 
 
 	public void destroyOverridable(){
+		ClassStoredInformation.Earthquaker.setShield(shield);
+		ClassStoredInformation.Earthquaker.setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 
