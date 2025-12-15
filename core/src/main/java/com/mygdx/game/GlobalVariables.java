@@ -1,60 +1,60 @@
 package com.mygdx.game;
 
-import com.mygdx.game.items.ClassChanger;
+import com.mygdx.game.items.ClassAndEquipmentChanger;
 
 public class GlobalVariables {
-	public static ClassChanger.ClassObject[] classSlots;
+	public static ClassAndEquipmentChanger.ClassObject[] classSlots;
 
 	static{
-		classSlots  = new ClassChanger.ClassObject[3];
+		classSlots  = new ClassAndEquipmentChanger.ClassObject[3];
 		for(int i = 0; i < classSlots.length; i++){
 			if(classSlots[i] == null){
 				if(!hasMelee())
-					classSlots[i] = new ClassChanger.Melee();
+					classSlots[i] = new ClassAndEquipmentChanger.Melee();
 				else if(!hasSpeedster())
-					classSlots[i] = new ClassChanger.Speedster();
+					classSlots[i] = new ClassAndEquipmentChanger.Speedster();
 				else if(!hasHealer())
-					classSlots[i] = new ClassChanger.Healer();
+					classSlots[i] = new ClassAndEquipmentChanger.Healer();
 				else if(!hasTank())
-					classSlots[i] = new ClassChanger.Tank();
+					classSlots[i] = new ClassAndEquipmentChanger.Tank();
 				else if(!hasMage())
-					classSlots[i] = new ClassChanger.Mage();
+					classSlots[i] = new ClassAndEquipmentChanger.Mage();
 			}
 		}
 	}
 
 	private static boolean hasMelee(){
-		for(ClassChanger.ClassObject o : classSlots)
-			if(o instanceof ClassChanger.Melee)
+		for(ClassAndEquipmentChanger.ClassObject o : classSlots)
+			if(o instanceof ClassAndEquipmentChanger.Melee)
 				return true;
 		return false;
 	}
 
 	private static boolean hasSpeedster(){
-		for(ClassChanger.ClassObject o : classSlots)
-			if(o instanceof ClassChanger.Speedster)
+		for(ClassAndEquipmentChanger.ClassObject o : classSlots)
+			if(o instanceof ClassAndEquipmentChanger.Speedster)
 				return true;
 		return false;
 	}
 
 	private static boolean hasHealer(){
-		for(ClassChanger.ClassObject o : classSlots)
-			if(o instanceof ClassChanger.Healer)
+		for(ClassAndEquipmentChanger.ClassObject o : classSlots)
+			if(o instanceof ClassAndEquipmentChanger.Healer)
 				return true;
 		return false;
 	}
 
 	private static boolean hasTank(){
-		for(ClassChanger.ClassObject o : classSlots)
-			if(o instanceof ClassChanger.Tank)
+		for(ClassAndEquipmentChanger.ClassObject o : classSlots)
+			if(o instanceof ClassAndEquipmentChanger.Tank)
 				return true;
 		return false;
 	}
 
 
 	private static boolean hasMage(){
-		for(ClassChanger.ClassObject o : classSlots)
-			if(o instanceof ClassChanger.Mage)
+		for(ClassAndEquipmentChanger.ClassObject o : classSlots)
+			if(o instanceof ClassAndEquipmentChanger.Mage)
 				return true;
 		return false;
 	}

@@ -5,8 +5,8 @@ import com.mygdx.game.items.characters.equipment.Shields;
 
 public class SwordMageShields extends Shields {
 
-	public SwordMageShields(CharacterClasses holder) {
-		super(holder);
+	public SwordMageShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public float damageMultiplier;
@@ -14,8 +14,8 @@ public class SwordMageShields extends Shields {
 
 	public static class CrystalizedShield extends SwordMageShields {
 
-		public CrystalizedShield(CharacterClasses holder) {
-			super(holder);
+		public CrystalizedShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "CrystalizedShield";
 			shieldHealth = 30;
 			shieldDamage = 0;

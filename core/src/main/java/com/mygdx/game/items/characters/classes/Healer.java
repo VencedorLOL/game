@@ -1,24 +1,22 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.TargetProcessor;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 
-import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 
 public class Healer extends CharacterClasses implements Utils {
@@ -47,10 +45,10 @@ public class Healer extends CharacterClasses implements Utils {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-		if(ClassStoredInformation.Healer.getWeapon() != null)
-			weapon = ClassStoredInformation.Healer.getWeapon();
-		if(ClassStoredInformation.Healer.getShield() != null)
-			shield = ClassStoredInformation.Healer.getShield();
+		if(getClIns("Healer").getWeapon(this) != null)
+			equipWeapon(getClIns("Healer").getWeapon(this));
+		if(getClIns("Healer").getShield(this) != null)
+			equipShield(getClIns("Healer").getShield(this));
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -152,8 +150,8 @@ public class Healer extends CharacterClasses implements Utils {
 
 
 	protected void destroyOverridable() {
-		ClassStoredInformation.Healer.setShield(shield);
-		ClassStoredInformation.Healer.setWeapon(weapon);
+		getClIns("Healer").setShield(shield);
+		getClIns("Healer").setWeapon(weapon);
 		destroyListener(oVS);
 	}
 

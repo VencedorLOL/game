@@ -8,7 +8,6 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
 //import static com.mygdx.game.GameScreen.getCamara;
-import static com.mygdx.game.GameScreen.particle;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
@@ -19,6 +18,7 @@ import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.Turns.isTurnRunning;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Imp extends CharacterClasses {
 
@@ -51,10 +51,10 @@ public class Imp extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Imp.getWeapon() != null)
-			weapon = ClassStoredInformation.Imp.getWeapon();
-		if(ClassStoredInformation.Imp.getShield() != null)
-			shield = ClassStoredInformation.Imp.getShield();
+		if(getClIns("Imp").getWeapon(this) != null)
+			equipWeapon(getClIns("Imp").getWeapon(this));
+		if(getClIns("Imp").getShield(this) != null)
+			equipShield(getClIns("Imp").getShield(this));
 
 		abilities.add(new Ability("Ritual", "Ritual", 12, 75	,76, (float) globalSize() /2){
 			@Override
@@ -107,9 +107,9 @@ public class Imp extends CharacterClasses {
 					abilities.get(1).cancelActivation();
 			}
 		};
-		if(ClassStoredInformation.Imp.getCooldown().length >= abilities.size())
+		if(getClIns("Imp").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.Imp.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("Imp").getCooldown()[i];
 
 		reset();
 		currentHealth = totalHealth;
@@ -208,9 +208,9 @@ public class Imp extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		ClassStoredInformation.Imp.setShield(shield);
-		ClassStoredInformation.Imp.setWeapon(weapon);
-		ClassStoredInformation.Imp.setCooldown(getAbilitiesCd());
+		getClIns("Imp").setShield(shield);
+		getClIns("Imp").setWeapon(weapon);
+		getClIns("Imp").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

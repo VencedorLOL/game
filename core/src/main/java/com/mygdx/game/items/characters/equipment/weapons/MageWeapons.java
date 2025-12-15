@@ -6,13 +6,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 public class MageWeapons extends Weapons{
 
 
-	public MageWeapons(CharacterClasses holder) {
-		super(holder);
+	public MageWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class BasicWand extends MageWeapons {
-		public BasicWand(CharacterClasses holder) {
-			super(holder);
+		public BasicWand(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "BasicWand";
 			weaponHealth = 0;
 			weaponDamage = 5;

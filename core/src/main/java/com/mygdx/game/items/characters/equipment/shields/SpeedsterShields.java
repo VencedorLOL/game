@@ -6,15 +6,15 @@ import com.mygdx.game.items.characters.equipment.Shields;
 public class SpeedsterShields extends Shields {
 
 
-	public SpeedsterShields(CharacterClasses holder) {
-		super(holder);
+	public SpeedsterShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 
 	public static class SpeedsterShield extends SpeedsterShields {
 
-		public SpeedsterShield(CharacterClasses holder) {
-			super(holder);
+		public SpeedsterShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "SpeedsterShield";
 			shieldHealth = 10;
 			shieldDamage = 0;

@@ -6,16 +6,15 @@ import com.mygdx.game.items.characters.equipment.Shields;
 public class MeleeShields extends Shields {
 
 
-	public MeleeShields(CharacterClasses holder) {
-
-		super(holder);
+	public MeleeShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 
 	public static class MeleeShield extends MeleeShields {
 
-		public MeleeShield(CharacterClasses holder) {
-			super(holder);
+		public MeleeShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "MeleeShield";
 			shieldHealth = 20;
 			shieldDamage = 0;

@@ -5,14 +5,14 @@ import com.mygdx.game.items.characters.equipment.Shields;
 
 public class StellarExplosionShields extends Shields {
 
-	public StellarExplosionShields(CharacterClasses holder) {
-		super(holder);
+	public StellarExplosionShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class EnergyAccelerator extends StellarExplosionShields {
 
-		public EnergyAccelerator(CharacterClasses holder) {
-			super(holder);
+		public EnergyAccelerator(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "EnergyAccelerator";
 			shieldHealth = 0;
 			shieldDamage = 0;

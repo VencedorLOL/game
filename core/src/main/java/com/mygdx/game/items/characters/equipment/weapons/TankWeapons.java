@@ -6,13 +6,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 public class TankWeapons extends Weapons{
 
 
-	public TankWeapons(CharacterClasses holder) {
-		super(holder);
+	public TankWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class TankSword extends TankWeapons{
-		public TankSword(CharacterClasses holder) {
-			super(holder);
+		public TankSword(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "TankSword";
 			weaponHealth = 10;
 			weaponDamage = 15;

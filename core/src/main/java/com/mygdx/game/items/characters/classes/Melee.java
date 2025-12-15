@@ -1,7 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.Ability;
@@ -9,7 +7,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Melee extends CharacterClasses {
 
@@ -37,10 +35,10 @@ public class Melee extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Melee.getWeapon() != null)
-			weapon = ClassStoredInformation.Melee.getWeapon();
-		if(ClassStoredInformation.Melee.getShield() != null)
-			shield = ClassStoredInformation.Melee.getShield();
+		if(getClIns("Melee").getWeapon(this) != null)
+			equipWeapon(getClIns("Melee").getWeapon(this));
+		if(getClIns("Melee").getShield(this) != null)
+			equipShield(getClIns("Melee").getShield(this));
 
 		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4, 75	,76, (float) globalSize() /2){
 			@Override
@@ -90,9 +88,9 @@ public class Melee extends CharacterClasses {
 		};
 		reset();
 
-		if(ClassStoredInformation.Melee.getCooldown().length >= abilities.size())
+		if(getClIns("Melee").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.Melee.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("Melee").getCooldown()[i];
 
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -148,9 +146,9 @@ public class Melee extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		ClassStoredInformation.Melee.setShield(shield);
-		ClassStoredInformation.Melee.setWeapon(weapon);
-		ClassStoredInformation.Melee.setCooldown(getAbilitiesCd());
+		getClIns("Melee").setShield(shield);
+		getClIns("Melee").setWeapon(weapon);
+		getClIns("Melee").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

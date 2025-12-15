@@ -256,14 +256,6 @@ public class TextureManager {
 				t.draw(batch);
 		}
 		text.removeIf(tex -> tex.fakeNull);
-		// Static text display
-
-		for (TextureManager.Text t : fixatedText){
-			if (!t.fakeNull && t.render) {
-				t.drawStatic(batch);
-			}
-		}
-		fixatedText.removeIf(tex -> tex.fakeNull);
 		// Most priority drawables
 
 		for (TextureManager.DrawableObject d : priorityDrawables){
@@ -286,6 +278,14 @@ public class TextureManager {
 		}
 		priorityText.removeIf(tex -> tex.fakeNull);
 
+		// Static text display
+
+		for (TextureManager.Text t : fixatedText){
+			if (!t.fakeNull && t.render) {
+				t.drawStatic(batch);
+			}
+		}
+		fixatedText.removeIf(tex -> tex.fakeNull);
 
 		//Video reserved
 

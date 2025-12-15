@@ -1,7 +1,6 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.allaies.Summon;
@@ -16,7 +15,7 @@ import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Summoner extends CharacterClasses {
@@ -47,10 +46,10 @@ public class Summoner extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Summoner.getWeapon() != null)
-			weapon = ClassStoredInformation.Summoner.getWeapon();
-		if(ClassStoredInformation.Summoner.getShield() != null)
-			shield = ClassStoredInformation.Summoner.getShield();
+		if(getClIns("Summoner").getWeapon(this) != null)
+			equipWeapon(getClIns("Summoner").getWeapon(this));
+		if(getClIns("Summoner").getShield(this) != null)
+			equipShield(getClIns("Summoner").getShield(this));
 
 		abilities.add(new Ability("Summon", "Summon", 5, 75	,76, (float) globalSize() /2){
 			@Override
@@ -111,9 +110,9 @@ public class Summoner extends CharacterClasses {
 			}
 		};
 
-		if(ClassStoredInformation.Summoner.getCooldown().length >= abilities.size())
+		if(getClIns("Summoner").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.Summoner.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("Summoner").getCooldown()[i];
 
 		reset();
 		currentHealth = totalHealth;
@@ -262,9 +261,9 @@ public class Summoner extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		ClassStoredInformation.Summoner.setShield(shield);
-		ClassStoredInformation.Summoner.setWeapon(weapon);
-		ClassStoredInformation.Summoner.setCooldown(getAbilitiesCd());
+		getClIns("Summoner").setShield(shield);
+		getClIns("Summoner").setWeapon(weapon);
+		getClIns("Summoner").setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 	}
 }

@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
@@ -19,6 +18,7 @@ import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.Turns.turnStopTimer;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Catapult extends CharacterClasses {
 
@@ -56,10 +56,10 @@ public class Catapult extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Catapult.getWeapon() != null)
-			weapon = ClassStoredInformation.Catapult.getWeapon();
-		if(ClassStoredInformation.Catapult.getShield() != null)
-			shield = ClassStoredInformation.Catapult.getShield();
+		if(getClIns("Catapult").getWeapon(this) != null)
+			equipWeapon(weapon = getClIns("Catapult").getWeapon(this));
+		if(getClIns("Catapult").getShield(this) != null)
+			equipShield(getClIns("Catapult").getShield(this));
 
 		abilities.add(new Ability("ChargeCatapult", "Charge the Catapult", 0, 75	,76, (float) globalSize() /2){
 			@Override
@@ -140,9 +140,9 @@ public class Catapult extends CharacterClasses {
 				rocks.clear();
 			}
 		};
-		if(ClassStoredInformation.Catapult.getCooldown().length >= abilities.size())
+		if(getClIns("Catapult").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.Catapult.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("Catapult").getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target"); targetProcessor.opacity = .2f;
@@ -297,9 +297,9 @@ public class Catapult extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		ClassStoredInformation.Catapult.setShield(shield);
-		ClassStoredInformation.Catapult.setWeapon(weapon);
-		ClassStoredInformation.Catapult.setCooldown(getAbilitiesCd());
+		getClIns("Catapult").setShield(shield);
+		getClIns("Catapult").setWeapon(weapon);
+		getClIns("Catapult").setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 	}

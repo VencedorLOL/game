@@ -26,7 +26,7 @@ public class Weapons {
 
 	public CharacterClasses holder;
 
-	public Weapons(CharacterClasses holder){
+	public Weapons(CharacterClasses holder, boolean effectiveInstantiation){
 		this.holder = holder;
 	}
 
@@ -53,8 +53,8 @@ public class Weapons {
 	// New weapons can be nested here (note to self: please dont) or on other different classes, if and only if they are children of "Weapons"
 
 	public static class NoWeapon extends Weapons{
-		public NoWeapon(CharacterClasses holder) {
-			super(holder);
+		public NoWeapon(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "NoWeapon";
 			weaponHealth = 0;
 			weaponDamage = 0;
@@ -74,8 +74,8 @@ public class Weapons {
 
 	// VENCEDOR
 	public static class VencedorSword extends Weapons {
-		public VencedorSword(CharacterClasses holder) {
-			super(holder);
+		public VencedorSword(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "Vencedor's Sword";
 			weaponHealth = 0;
 			weaponDamage = 295;

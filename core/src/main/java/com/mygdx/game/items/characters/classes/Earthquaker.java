@@ -9,11 +9,11 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
-import static com.mygdx.game.items.Camara.*;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Math.abs;
 
 public class Earthquaker extends CharacterClasses {
@@ -45,10 +45,10 @@ public class Earthquaker extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Earthquaker.getWeapon() != null)
-			weapon = ClassStoredInformation.Earthquaker.getWeapon();
-		if(ClassStoredInformation.Earthquaker.getShield() != null)
-			shield = ClassStoredInformation.Earthquaker.getShield();
+		if(getClIns("Earthquaker").getWeapon(this) != null)
+			equipWeapon(getClIns("Earthquaker").getWeapon(this));
+		if(getClIns("Earthquaker").getShield(this) != null)
+			equipShield(getClIns("Earthquaker").getShield(this));
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
@@ -141,8 +141,8 @@ public class Earthquaker extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		ClassStoredInformation.Earthquaker.setShield(shield);
-		ClassStoredInformation.Earthquaker.setWeapon(weapon);
+		getClIns("Earthquaker").setShield(shield);
+		getClIns("Earthquaker").setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 

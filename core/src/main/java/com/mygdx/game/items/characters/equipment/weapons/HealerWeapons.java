@@ -6,13 +6,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 public class HealerWeapons extends Weapons {
 	public float weaponHealingAbilityBonus;
 
-	public HealerWeapons(CharacterClasses holder) {
-		super(holder);
+	public HealerWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class BlessedSword extends HealerWeapons {
-		public BlessedSword(CharacterClasses holder) {
-			super(holder);
+		public BlessedSword(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "BlessedSword";
 			weaponHealth = 0;
 			weaponDamage = 10;
@@ -36,8 +36,8 @@ public class HealerWeapons extends Weapons {
 	}
 
 	public static class BestHealerSword extends HealerWeapons {
-		public BestHealerSword(CharacterClasses holder) {
-			super(holder);
+		public BestHealerSword(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "BestSword";
 			weaponHealth = 0;
 			weaponDamage = 100;

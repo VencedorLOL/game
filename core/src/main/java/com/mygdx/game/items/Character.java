@@ -15,6 +15,7 @@ import com.mygdx.game.items.characters.equipment.weapons.*;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
+import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
@@ -45,7 +46,7 @@ public class Character extends Actor implements Utils {
 
 	public boolean lockClass = false;
 
-	public ClassChanger cC;
+	public ClassAndEquipmentChanger cC;
 
 	public boolean classChanging = false;
 	public int changePos = -1;
@@ -76,7 +77,7 @@ public class Character extends Actor implements Utils {
 		text.setColor(new int[]{244,83,23});
 		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target");
 		targetProcessor.opacity = .2f;
-		cC = new ClassChanger(this);
+		cC = new ClassAndEquipmentChanger(this);
 	}
 
 	public void spendTurn(){
@@ -414,53 +415,6 @@ public class Character extends Actor implements Utils {
 
 	// Debug
 
-	public void changeTo(){
-		equipBestSword();
-		equipBlessedShield();
-		equipBlessedSword();
-		equipMeleeShield();
-		equipMeleeSword();
-		equipVencedorSword();
-	}
-
-	public void equipBlessedSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			classes.equipWeapon(new ImpWeapons.MassDemonizeDagger(classes));
-			classes.equipShield(new ImpShields.Daredevil(classes));
-		}
-	}
-
-	public void equipBestSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
-			classes.equipWeapon(new HealerWeapons.BestHealerSword(classes));
-		}
-	}
-
-	public void equipBlessedShield(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
-			classes.equipShield(new HealerShields.BlessedShield(classes));
-		}
-	}
-
-	public void equipMeleeSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			classes.equipWeapon(new MeleeWeapons.ABat(classes));
-		}
-	}
-
-	public void equipMeleeShield(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)){
-			classes.equipShield(new MeleeShields.MeleeShield(classes));
-		}
-	}
-
-	public void equipVencedorSword(){
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_6)){
-			classes.equipWeapon(new Weapons.VencedorSword(classes));
-		}
-	}
-
-
 	private void debug(){
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.X))
@@ -591,7 +545,6 @@ public class Character extends Actor implements Utils {
 			classes.currentHealth = classes.totalHealth;
 			fixatedText("Healed to max hp",400,400,200,Fonts.ComicSans,40);
 		}
-		changeTo();
 		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
 		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
@@ -607,6 +560,7 @@ public class Character extends Actor implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
 			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
+			print("Name of shield or whatever of thing just done: "+classSlots[0].getShieldName(0,this));
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)){
 			addField(FieldEffects.FieldNames.CATACLYSM_GLATIATION);

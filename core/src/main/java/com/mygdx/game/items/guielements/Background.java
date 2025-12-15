@@ -2,16 +2,15 @@ package com.mygdx.game.items.guielements;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.items.ClassChanger;
+import com.mygdx.game.items.Character;
+import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.GUI;
 
 import java.util.Objects;
 
-import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.InputHandler.upJustPressed;
 import static com.mygdx.game.items.TextureManager.animations;
@@ -19,6 +18,7 @@ import static com.mygdx.game.items.TextureManager.*;
 import static java.lang.Math.*;
 
 public class Background extends GUI {
+	Character character;
 
 	boolean renderr = false;
 	float sizeX, sizeY;
@@ -53,11 +53,21 @@ public class Background extends GUI {
 	float modeGapX, modeIniGapX, modeGapY, modeSize;
 	byte modes = 0;
 
+	SelectionButton meleeHolder, shieldHolder;
+	float meleeGapX, shieldGapX, holderGapY, holderSize;
+
+	ItemsList items;
+	float itemsIniGapX, itemsGapX, itemsY, itemsSize;
+
+	Slider[] vertSliders;
+	float vSliGapX, vSliIniGapX, vSliGapY, vSliThickness, vSliWidth, vSliHeight;
+	float[] totalYSpace;
 
 	int counter;
 
-	public Background(){
+	public Background(Character chara){
 		super();
+		character = chara;
 		sizeX = Gdx.graphics.getWidth() /(globalSize()*1f);
 		sizeY = Gdx.graphics.getHeight() /(globalSize()*.5625f);
 		Vector3 realCoords = (new Vector3(Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f,Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f, 0));
@@ -85,16 +95,21 @@ public class Background extends GUI {
 						renderr = false;
 						delete(close);
 						delete = true;
-
 				}
 				else if(modes > 0 ){
 					if (!existsSelCard()) {
 						modes = 0;
+						selectedOne = -1;
 					} else
 						cardDeselect();
 				}
 			}
 		};
+
+		meleeHolder = new SelectionButton();
+		meleeHolder.secTexture = "WeaponSlot";
+		shieldHolder = new SelectionButton();
+		shieldHolder.secTexture = "ShieldSlot";
 
 		modeSelector = new SelectionButton[]{new SelectionButton(){
 			public void onTouchOverridable() {
@@ -229,7 +244,6 @@ public class Background extends GUI {
 
 		};
 
-
 	}
 
 	private int getSelCard(){
@@ -272,7 +286,7 @@ public class Background extends GUI {
 			int aid = -1;
 			String aid2 = null;
 			String target = null;
-			ClassChanger.ClassObject cls = null;
+			ClassAndEquipmentChanger.ClassObject cls = null;
 			for (int i = 0; i < selButtons.length; i++)
 				if (selButtons[i] != null && selButtons[i].selected) {
 					aid2 = selButtons[i].secTexture;
@@ -337,6 +351,16 @@ public class Background extends GUI {
 					for (int i = 0; i < classesCards.length; i++)
 						classesCards[i].render(cardsSize / 32, cardsIniGapX + i * (cardsGapX + cardsSize) - slider.xCursor * totalXSpace / slider.realWidth, cardsY, counter <= 0);
 
+				if(existsSelCard()){
+					if(items == null){
+						items = new ItemsList(classesCards[getSelCard()].classs,character);
+					}
+					meleeHolder.render(holderSize/32,meleeGapX,holderGapY);
+					shieldHolder.render(holderSize/32,shieldGapX,holderGapY);
+					items.render(itemsSize/32,itemsIniGapX,itemsGapX,itemsY,true);
+				} else if(items != null)
+					items = null;
+
 				if (existsSelCard() && existsSelBox()) {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
@@ -361,24 +385,28 @@ public class Background extends GUI {
 	final int[] times = new int[]{80, 60, 50, 40,30};
 	int counterStateR = -1, counterStateL = -1;
 
-	@SuppressWarnings("all")
 	private void hoverCheck(){
 		if(modes == 0){
 			if(elementHovered == -1){
 				if(downJustPressed()){
 					elementHovered = lastMode != -1 ? lastMode : 0;
-					modeSelector[1].hovered = elementHovered == 0 ? true : false;
+					modeSelector[0].hovered = elementHovered == 0;
+					modeSelector[1].hovered = elementHovered != 0;
+
+					close.hovered = false;
 				}
 			}
 			else {
 				if (rightJustPressed()) {
 					elementHovered = 1;
 					lastMode = 1;
+					close.hovered = false;
 					modeSelector[1].hovered = true;
 					modeSelector[0].hovered = false;
 				} else if (leftJustPressed()) {
 					elementHovered = 0;
 					lastMode = 1;
+					close.hovered = false;
 					modeSelector[0].hovered = true;
 					modeSelector[1].hovered = false;
 				}
@@ -387,6 +415,7 @@ public class Background extends GUI {
 					elementHovered = -1;
 					modeSelector[1].hovered = false;
 					modeSelector[0].hovered = false;
+					close.hovered = true;
 				}
 			}
 
@@ -402,19 +431,7 @@ public class Background extends GUI {
 						elementHovered = lastBox != -1 ? lastBox : 1;
 					} else if (elementHovered == -3) {
 						slider.selected = false;
-						float closestToCenter = 1f / 0f;
-						int element = -1;
-						for (int i = 0; i < classesCards.length; i++) {
-							if (closestToCenter > abs(classesCards[i].x - Gdx.graphics.getWidth() / 2f)) {
-								closestToCenter = abs(classesCards[i].x - Gdx.graphics.getWidth() / 2f);
-								element = i;
-							} else if (closestToCenter > abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth() / 2f)) {
-								closestToCenter = abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth() / 2f);
-								element = i;
-							}
-						}
-						elementHovered = (byte) (element + selButtons.length);
-						print(element + "");
+						elementHovered = (byte) (getElement() + selButtons.length);
 					}
 					persevereHover = 1;
 				}
@@ -537,8 +554,136 @@ public class Background extends GUI {
 					slider.selected = true;
 				}
 			}
+		} else if (modes == 2){
+			if (elementHovered != -2) {
+				if (upJustPressed()) {
+					if (elementHovered > -1 && elementHovered < classesCards.length) {
+						lastCard = elementHovered;
+						elementHovered = -1;
+					} else if (elementHovered == -3) {
+						slider.selected = false;
+						elementHovered = (byte) (getElement());
+					}
+					persevereHover = 1;
+				}
+				if (downJustPressed()) {
+					if (elementHovered == -1) {
+						elementHovered = (byte) getElement();
+					} else if (!existsSelCard() && elementHovered != -3) {
+						lastCard = elementHovered;
+						elementHovered = -3;
+					}
+					persevereHover = 1;
+				}
+				if (leftJustPressed()) {
+					if (elementHovered > 0) {
+						lastCard = --elementHovered;
+						counterStateL = 0;
+					}
+					persevereHover = 1;
+				} else if (leftPressed() && elementHovered > 0 && counterStateL != -1) {
+					if (counterL++ > times[counterStateL]) {
+						lastCard = --elementHovered;
+						counterStateL += counterStateL < times.length - 1 ? 1 : 0;
+						counterL = 0;
+					}
+				} else {
+					counterL = 0;
+					counterStateL = -1;
+				}
+				if (rightJustPressed()) {
+					if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
+						lastCard = ++elementHovered;
+						counterStateR = 0;
+					}
+					persevereHover = 1;
+				} else if (rightPressed() && elementHovered >= 0 && elementHovered < classesCards.length - 1 && counterStateR != -1) {
+					if (counterR++ > times[counterStateR]) {
+						lastCard = ++elementHovered;
+						counterStateR += counterStateR < times.length - 1 ? 1 : 0;
+						counterR = 0;
+					}
+				} else {
+					counterR = 0;
+					counterStateR = -1;
+				}
+			} else {
+				if (upJustPressed()) {
+					elementHovered = -1;
+					persevereHover = 1;
+				}
+				if (downJustPressed()) {
+					elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
+					persevereHover = 1;
+				}
+				if (leftJustPressed()) {
+					elementHovered = (byte) max((getElement() - 1),0);
+					persevereHover = 1;
+				}
+				if (rightJustPressed()) {
+					elementHovered = (byte) (getElement() + 1);
+					persevereHover = 1;
+				}
+			}
+			if (persevereHover != 1) {
+				dehover();
+			}
+			if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+					cursorY() >= 0 && cursorY() <= endSY) {
+				elementHovered = -1;
+				persevereHover = -1;
+			}
+			if (!existsSelCard())
+				for (int i = 0; i < classesCards.length; i++) {
+					if (cursorX() >= classesCards[i].x && cursorX()
+							<= classesCards[i].x + cardsSize &&
+							cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
+						dehover();
+						elementHovered = (byte) i;
+						persevereHover = 1;
+						break;
+					}
+				}
+			if (persevereHover != 0) {
+				if (elementHovered == -1) {
+					dehover();
+					close.hovered = true;
+					persevereHover = persevereHover == 1 ? persevereHover : 0;
+				} else if (elementHovered != -2 && elementHovered != -3) {
+					dehover();
+					for (int i = 0; i < classesCards.length; i++)
+						if (i == elementHovered) {
+							classesCards[i].hovered = true;
+							persevereHover = persevereHover == 1 ? persevereHover : 0;
+							if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
+								slider.xCursor += Gdx.graphics.getWidth() / 640f;
+
+							} else if (classesCards[i].x - cardsIniGapX < 0)
+								slider.xCursor -= Gdx.graphics.getWidth() / 640f;
+						}
+				} else if (elementHovered == -3) {
+					dehover();
+					slider.selected = true;
+				}
+			}
 		}
 
+	}
+
+	@SuppressWarnings("all")
+	private int getElement() {
+		float closestToCenter = 1f / 0f;
+		int element = -1;
+		for (int i = 0; i < classesCards.length; i++) {
+			if (closestToCenter > abs(classesCards[i].x - Gdx.graphics.getWidth() / 2f)) {
+				closestToCenter = abs(classesCards[i].x - Gdx.graphics.getWidth() / 2f);
+				element = i;
+			} else if (closestToCenter > abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth() / 2f)) {
+				closestToCenter = abs(classesCards[i].x + classesCards[i].size - Gdx.graphics.getWidth() / 2f);
+				element = i;
+			}
+		}
+		return element;
 	}
 
 	private void calculateMath(){
@@ -601,7 +746,18 @@ public class Background extends GUI {
 			cardYB = endSY + Gdx.graphics.getHeight() * .50f;
 			cardIniGapXB = spaceX + Gdx.graphics.getWidth()*.01f;
 
+			holderSize = cardSizeB *.35f;
+			meleeGapX =  Gdx.graphics.getWidth() * .50f;
+			shieldGapX = Gdx.graphics.getWidth() * .76f;
+			holderGapY = cardYB - (holderSize)/(2*.3f);
+
 			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2 + cardsSize * classesCards.length;
+
+			itemsGapX = shieldGapX;
+			itemsIniGapX = meleeGapX;
+			itemsY = Gdx.graphics.getHeight() * .6f;
+			itemsSize = holderSize * 1.3f;
+
 		}
 
 	}

@@ -1,7 +1,6 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
@@ -13,6 +12,7 @@ import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Math.abs;
 
 public class StellarExplosion extends CharacterClasses {
@@ -41,10 +41,10 @@ public class StellarExplosion extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.StellarExplosion.getWeapon() != null)
-			weapon = ClassStoredInformation.StellarExplosion.getWeapon();
-		if(ClassStoredInformation.StellarExplosion.getShield() != null)
-			shield = ClassStoredInformation.StellarExplosion.getShield();
+		if(getClIns("StellarExplosion").getWeapon(this) != null)
+			equipWeapon(getClIns("StellarExplosion").getWeapon(this));
+		if(getClIns("StellarExplosion").getShield(this) != null)
+			equipShield(getClIns("StellarExplosion").getShield(this));
 
 		abilities.add(new Ability("Implosion", "Implosion", 10, 75	,76, (float) globalSize() /2){
 			@Override
@@ -60,9 +60,9 @@ public class StellarExplosion extends CharacterClasses {
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
-		if(ClassStoredInformation.StellarExplosion.getCooldown().length >= abilities.size())
+		if(getClIns("StellarExplosion").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.StellarExplosion.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("StellarExplosion").getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;
@@ -146,9 +146,9 @@ public class StellarExplosion extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		ClassStoredInformation.StellarExplosion.setShield(shield);
-		ClassStoredInformation.StellarExplosion.setWeapon(weapon);
-		ClassStoredInformation.StellarExplosion.setCooldown(getAbilitiesCd());
+		getClIns("StellarExplosion").setShield(shield);
+		getClIns("StellarExplosion").setWeapon(weapon);
+		getClIns("StellarExplosion").setCooldown(getAbilitiesCd());
 		text.onScreenTime = 1;
 	}
 

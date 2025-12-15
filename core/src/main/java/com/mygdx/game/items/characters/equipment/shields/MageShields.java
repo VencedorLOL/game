@@ -5,16 +5,16 @@ import com.mygdx.game.items.characters.equipment.Shields;
 
 public class MageShields extends Shields {
 
-	public MageShields(CharacterClasses holder) {
-		super(holder);
+	public MageShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 
 
 	public static class RoughCrystal extends MageShields {
 
-		public RoughCrystal(CharacterClasses holder) {
-			super(holder);
+		public RoughCrystal(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "RoughCrystal";
 			shieldHealth = 0;
 			shieldDamage = 0;

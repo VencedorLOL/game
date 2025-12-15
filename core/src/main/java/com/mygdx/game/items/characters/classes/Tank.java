@@ -6,6 +6,7 @@ import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Tank extends CharacterClasses {
 
@@ -28,10 +29,10 @@ public class Tank extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-		if(ClassStoredInformation.Tank.getWeapon() != null)
-			weapon = ClassStoredInformation.Tank.getWeapon();
-		if(ClassStoredInformation.Tank.getShield() != null)
-			shield = ClassStoredInformation.Tank.getShield();
+		if(getClIns("Tank").getWeapon(this) != null)
+			equipWeapon(getClIns("Tank").getWeapon(this));
+		if(getClIns("Tank").getShield(this) != null)
+			equipShield(getClIns("Tank").getShield(this));
 
 		reset();
 		currentHealth = totalHealth;
@@ -49,8 +50,8 @@ public class Tank extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		ClassStoredInformation.Tank.setShield(shield);
-		ClassStoredInformation.Tank.setWeapon(weapon);
+		getClIns("Tank").setShield(shield);
+		getClIns("Tank").setWeapon(weapon);
 		destroyListener(oVE);
 	}
 }

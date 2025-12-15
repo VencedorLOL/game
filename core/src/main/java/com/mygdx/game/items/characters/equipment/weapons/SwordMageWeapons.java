@@ -7,13 +7,13 @@ public class SwordMageWeapons extends Weapons{
 
 	public float damageMultiplier;
 	public float manaCost;
-	public SwordMageWeapons(CharacterClasses holder) {
-		super(holder);
+	public SwordMageWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class SwordWand extends SwordMageWeapons {
-		public SwordWand(CharacterClasses holder) {
-			super(holder);
+		public SwordWand(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "SwordWand";
 			weaponHealth = 0;
 			weaponDamage = 30;

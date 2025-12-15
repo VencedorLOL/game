@@ -1,7 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.OnVariousScenarios;
@@ -15,7 +13,7 @@ import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class SwordMage extends CharacterClasses {
 
@@ -44,10 +42,10 @@ public class SwordMage extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.SwordMage.getWeapon() != null)
-			weapon = ClassStoredInformation.SwordMage.getWeapon();
-		if(ClassStoredInformation.SwordMage.getShield() != null)
-			shield = ClassStoredInformation.SwordMage.getShield();
+		if(getClIns("SwordMage").getWeapon(this) != null)
+			equipWeapon(getClIns("SwordMage").getWeapon(this));
+		if(getClIns("SwordMage").getShield(this) != null)
+			equipShield(getClIns("SwordMage").getShield(this));
 
 		abilities.add(new Ability("manahit", "Magically Enhanced Attack", -1, 75	,76, (float) globalSize() /2){
 			@Override
@@ -114,8 +112,8 @@ public class SwordMage extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		ClassStoredInformation.SwordMage.setShield(shield);
-		ClassStoredInformation.SwordMage.setWeapon(weapon);
+		getClIns("SwordMage").setShield(shield);
+		getClIns("SwordMage").setWeapon(weapon);
 		destroyListener(oVSce);
 		text.onScreenTime = 1;
 		character.conditions.remove(Conditions.ConditionNames.MANA_HIT);

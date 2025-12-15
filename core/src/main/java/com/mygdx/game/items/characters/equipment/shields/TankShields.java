@@ -6,15 +6,15 @@ import com.mygdx.game.items.characters.equipment.Shields;
 
 public class TankShields extends Shields {
 
-	public TankShields(CharacterClasses holder) {
-		super(holder);
+	public TankShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 
 
 	public static class TankShield extends TankShields {
-		public TankShield(CharacterClasses holder) {
-			super(holder);
+		public TankShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "TankShield";
 			shieldHealth = 100;
 			shieldDamage = 0;

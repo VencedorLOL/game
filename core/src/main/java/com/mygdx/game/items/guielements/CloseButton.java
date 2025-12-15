@@ -15,9 +15,7 @@ public class CloseButton extends GUI {
 	String texture = "CloseButton";
 	int counter = 10;
 
-	public CloseButton(){
-		super();
-	}
+	public CloseButton(){}
 
 	public void render(float size, float x, float y){
 		this.size = size;

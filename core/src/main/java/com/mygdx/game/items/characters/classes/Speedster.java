@@ -1,7 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.Ability;
@@ -10,7 +8,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Speedster extends CharacterClasses {
 
@@ -37,10 +35,10 @@ public class Speedster extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(ClassStoredInformation.Speedster.getWeapon() != null)
-			weapon = ClassStoredInformation.Speedster.getWeapon();
-		if(ClassStoredInformation.Speedster.getShield() != null)
-			shield = ClassStoredInformation.Speedster.getShield();
+		if(getClIns("Speedster").getWeapon(this) != null)
+			equipWeapon(getClIns("Speedster").getWeapon(this));
+		if(getClIns("Speedster").getShield(this) != null)
+			equipShield(getClIns("Speedster").getShield(this));
 
 		abilities.add(new Ability("evenFaster", "Even Faster", 2, 75	,76, (float) globalSize() /2){
 			@Override
@@ -65,9 +63,9 @@ public class Speedster extends CharacterClasses {
 			}
 		};
 
-		if(ClassStoredInformation.Speedster.getCooldown().length >= abilities.size())
+		if(getClIns("Speedster").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = ClassStoredInformation.Speedster.getCooldown()[i];
+				abilities.get(i).cooldown = getClIns("Speedster").getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -112,9 +110,9 @@ public class Speedster extends CharacterClasses {
 	}
 */
 	public void destroyOverridable(){
-		ClassStoredInformation.Speedster.setShield(shield);
-		ClassStoredInformation.Speedster.setWeapon(weapon);
-		ClassStoredInformation.Speedster.setCooldown(getAbilitiesCd());
+		getClIns("Speedster").setShield(shield);
+		getClIns("Speedster").setWeapon(weapon);
+		getClIns("Speedster").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

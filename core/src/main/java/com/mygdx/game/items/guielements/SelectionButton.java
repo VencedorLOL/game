@@ -14,9 +14,7 @@ public class SelectionButton extends GUI {
 	String texture = "SelectionBox";
 	String secTexture = null;
 
-	public SelectionButton(){
-		super();
-	}
+	public SelectionButton(){}
 
 	public void render(float size,float x, float y){
 		this.size = size*32;

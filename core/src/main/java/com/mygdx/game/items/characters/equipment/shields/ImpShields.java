@@ -18,15 +18,15 @@ import static com.mygdx.game.items.Conditions.ConditionNames.RITUAL;
 
 public class ImpShields extends Shields {
 
-	public ImpShields(CharacterClasses holder) {
-		super(holder);
+	public ImpShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 
 
 	public static class ImpDemonizeShield extends ImpShields {
-		public ImpDemonizeShield(CharacterClasses holder) {
-			super(holder);
+		public ImpDemonizeShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "ImpDemonizeShield";
 			shieldHealth = 40;
 			shieldDamage = 0;
@@ -58,8 +58,8 @@ public class ImpShields extends Shields {
 	}
 
 	public static class ImpRitualShield extends ImpShields {
-		public ImpRitualShield(CharacterClasses holder) {
-			super(holder);
+		public ImpRitualShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "ImpRitualShield";
 			shieldHealth = 22;
 			shieldDamage = 0;
@@ -87,8 +87,8 @@ public class ImpShields extends Shields {
 	}
 
 	public static class DarkWings extends ImpShields {
-		public DarkWings(CharacterClasses holder) {
-			super(holder);
+		public DarkWings(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "DarkWings";
 			shieldHealth = 66;
 			shieldDamage = 0;
@@ -105,7 +105,8 @@ public class ImpShields extends Shields {
 			shieldMagicHealing = 0;
 			equippableBy = "Imp";
 			aggro = 0;
-			holder.character.airborn = true;
+			if (effectiveInstantiation)
+				holder.character.airborn = true;
 		}
 
 		public void update() {
@@ -121,8 +122,8 @@ public class ImpShields extends Shields {
 
 	public static class Daredevil extends ImpShields {
 		boolean daredevilToggled = false;
-		public Daredevil(CharacterClasses holder) {
-			super(holder);
+		public Daredevil(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "Daredevil";
 			shieldHealth = 333;
 			shieldDamage = 0;
@@ -139,30 +140,31 @@ public class ImpShields extends Shields {
 			shieldMagicHealing = 0;
 			equippableBy = "Imp";
 			aggro = 0;
+			if(effectiveInstantiation) {
+				holder.abilities.add(new Ability("Daredevil", "Daredevil", 0, 83, 60, (float) globalSize() / 2) {
+					@Override
+					public void active() {
+						isItActive = true;
+						chara.cancelAttackMode();
+						((Imp) holder).targetProcessor.reset();
+						holder.character.actionDecided();
+					}
 
-			holder.abilities.add(new Ability("Daredevil", "Daredevil", 0, 83	,60, (float) globalSize() /2){
-				@Override
-				public void active() {
-					isItActive = true;
-					chara.cancelAttackMode();
-					((Imp) holder).targetProcessor.reset();
-					holder.character.actionDecided();
-				}
+					@Override
+					public void cancelActivation() {
+						isItActive = false;
+						((Imp) holder).markCoords = null;
+						((Imp) holder).targetProcessor.reset();
+					}
 
-				@Override
-				public void cancelActivation() {
-					isItActive = false;
-					((Imp) holder).markCoords = null;
-					((Imp) holder).targetProcessor.reset();
-				}
-
-				@Override
-				public void finished() {
-					isItActive = false;
-					((Imp) holder).markCoords = null;
-					((Imp) holder).targetProcessor.reset();
-				}
-			});
+					@Override
+					public void finished() {
+						isItActive = false;
+						((Imp) holder).markCoords = null;
+						((Imp) holder).targetProcessor.reset();
+					}
+				});
+			}
 
 		}
 

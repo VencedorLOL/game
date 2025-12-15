@@ -6,8 +6,8 @@ import com.mygdx.game.items.characters.equipment.Shields;
 public class HealerShields extends Shields{
 	public float shieldHealingPerTurn;
 
-	public HealerShields(CharacterClasses holder) {
-		super(holder);
+	public HealerShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 		this.shieldHealingPerTurn = shieldHealingPerTurn;
 	}
 
@@ -15,8 +15,8 @@ public class HealerShields extends Shields{
 	public static class BlessedShield extends HealerShields {
 
 
-		public BlessedShield(CharacterClasses holder) {
-			super(holder);
+		public BlessedShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "BlessedShield";
 			shieldHealth = 30;
 			shieldDamage = 0;

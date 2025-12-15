@@ -5,8 +5,6 @@ import com.mygdx.game.items.Interactable;
 import com.mygdx.game.items.Wall;
 import com.mygdx.game.items.guielements.Background;
 
-import static com.mygdx.game.GameScreen.chara;
-
 public class ClassChangeStation extends Wall {
 
 	public Interactable guiOpen;
@@ -16,14 +14,14 @@ public class ClassChangeStation extends Wall {
 		setTexture("ClassChangeSpot");
 		guiOpen = new Interactable(this){
 			public void onInteract(Character character) {
-				chara.lockClass = true;
-				if(chara.walkingAnimation != null)
-					chara.walkingAnimation.stop();
-				chara.walkingAnimation = null;
-				chara.speedLeft[0] = 0; chara.speedLeft[1] = 0;
-				new Background(){
+				character.lockClass = true;
+				if(character.walkingAnimation != null)
+					character.walkingAnimation.stop();
+				character.walkingAnimation = null;
+				character.speedLeft[0] = 0; character.speedLeft[1] = 0;
+				new Background(character){
 					public void onRemoval() {
-						chara.lockClass = false;
+						character.lockClass = false;
 					}
 				};
 			}

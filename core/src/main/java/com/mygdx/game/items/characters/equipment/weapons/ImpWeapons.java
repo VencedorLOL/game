@@ -20,13 +20,14 @@ import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 public class ImpWeapons extends Weapons{
 
 
-	public ImpWeapons(CharacterClasses holder) {
-		super(holder);
+	public ImpWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class ImpDagger extends ImpWeapons {
-		public ImpDagger(CharacterClasses holder) {
-			super(holder);
+		OnVariousScenarios oVE;
+		public ImpDagger(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "ImpDagger";
 			weaponHealth = 0;
 			weaponDamage = 12;
@@ -43,16 +44,16 @@ public class ImpWeapons extends Weapons{
 			weaponMagicHealing = 0;
 			equippableBy = "Imp";
 			aggro = 0;
+			if(effectiveInstantiation)
+				oVE = new OnVariousScenarios() {
+					public void onDamagedActor(Actor damagedActor) {
+						if (damagedActor.lastDamager == holder.character && damagedActor.conditions.hasStatus(Conditions.ConditionNames.DEMONIZED)) {
+							damagedActor.damageRecieved += Math.max(damagedActor.totalDefense * 0.25f,damagedActor.totalDefense > 4 ? 5 : damagedActor.totalDefense);
+
+						}
+					}
+				};
 		}
-
-		OnVariousScenarios oVE = new OnVariousScenarios() {
-			public void onDamagedActor(Actor damagedActor) {
-				if (damagedActor.lastDamager == holder.character && damagedActor.conditions.hasStatus(Conditions.ConditionNames.DEMONIZED)) {
-					damagedActor.damageRecieved += Math.max(damagedActor.totalDefense * 0.25f,damagedActor.totalDefense > 4 ? 5 : damagedActor.totalDefense);
-
-				}
-			}
-		};
 
 		public void destroyOverridable() {
 			destroyListener(oVE);
@@ -60,8 +61,8 @@ public class ImpWeapons extends Weapons{
 	}
 
 	public static class ImpHastyDagger extends ImpWeapons {
-		public ImpHastyDagger(CharacterClasses holder) {
-			super(holder);
+		public ImpHastyDagger(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "ImpHastyDagger";
 			weaponHealth = 0;
 			weaponDamage = 12;
@@ -91,8 +92,8 @@ public class ImpWeapons extends Weapons{
 	}
 
 	public static class MassDemonizeDagger extends ImpWeapons {
-		public MassDemonizeDagger(CharacterClasses holder) {
-			super(holder);
+		public MassDemonizeDagger(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "MassDemonizeDagger";
 			weaponHealth = 0;
 			weaponDamage = 60;
@@ -109,39 +110,41 @@ public class ImpWeapons extends Weapons{
 			weaponMagicHealing = 0;
 			equippableBy = "Imp";
 			aggro = 0;
-			holder.abilities.clear();
-			holder.abilities.add((new Ability("RitualCancelled", "RitualCancelled", 0, 75	,76, (float) globalSize() /2){
-				@Override
-				public void keybindActivate() {
-					text("But it was blocked.",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f ,120, TextureManager.Fonts.ComicSans,32,240,20,40,1,30);
-				}
+			if(effectiveInstantiation) {
+				holder.abilities.clear();
+				holder.abilities.add((new Ability("RitualCancelled", "RitualCancelled", 0, 75, 76, (float) globalSize() / 2) {
+					@Override
+					public void keybindActivate() {
+						text("But it was blocked.", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3 / 4f, 120, TextureManager.Fonts.ComicSans, 32, 240, 20, 40, 1, 30);
+					}
 
-				@Override
-				public void finished() {
-					((Imp) holder).resetAbilities();
-				}
-			}));
+					@Override
+					public void finished() {
+						((Imp) holder).resetAbilities();
+					}
+				}));
 
-			holder.abilities.add(new Ability("MassDemon", "Mass Demonize", 12, 87	,30, (float) globalSize() /2){
-				@Override
-				public void active() {
-					isItActive = true;
-					chara.cancelAttackMode();
-					((Imp) holder).targetProcessor.reset();
-				}
+				holder.abilities.add(new Ability("MassDemon", "Mass Demonize", 12, 87, 30, (float) globalSize() / 2) {
+					@Override
+					public void active() {
+						isItActive = true;
+						chara.cancelAttackMode();
+						((Imp) holder).targetProcessor.reset();
+					}
 
-				@Override
-				public void cancelActivation() {
-					isItActive = false;
-					((Imp) holder).markCoords = null;
-					((Imp) holder).targetProcessor.reset();
-				}
+					@Override
+					public void cancelActivation() {
+						isItActive = false;
+						((Imp) holder).markCoords = null;
+						((Imp) holder).targetProcessor.reset();
+					}
 
-				@Override
-				public void finished() {
-					((Imp) holder).resetAbilities();
-				}
-			});
+					@Override
+					public void finished() {
+						((Imp) holder).resetAbilities();
+					}
+				});
+			}
 
 		}
 

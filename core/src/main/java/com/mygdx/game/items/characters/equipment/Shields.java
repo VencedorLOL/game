@@ -24,7 +24,7 @@ public class Shields {
 
 	public CharacterClasses holder;
 
-	public Shields(CharacterClasses holder) {
+	public Shields(CharacterClasses holder, boolean effectiveInstantiation) {
 		this.holder = holder;
 	}
 
@@ -49,8 +49,8 @@ public class Shields {
 	public void destroyOverridable(){}
 
 	public static class NoShield extends Shields {
-		public NoShield(CharacterClasses holder) {
-			super(holder);
+		public NoShield(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "NoShield";
 			shieldHealth = 0;
 			shieldDamage = 0;

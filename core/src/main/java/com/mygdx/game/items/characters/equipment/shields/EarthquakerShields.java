@@ -11,16 +11,16 @@ import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 
 public class EarthquakerShields extends Shields {
 
-	public EarthquakerShields(CharacterClasses holder) {
-		super(holder);
+	public EarthquakerShields(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class StablePlatform extends EarthquakerShields {
 
 		OnVariousScenarios oVE;
 
-		public StablePlatform(CharacterClasses holder) {
-			super(holder);
+		public StablePlatform(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			shieldName = "StablePlatform";
 			shieldHealth = 20;
 			shieldDamage = 0;

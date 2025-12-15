@@ -18,9 +18,7 @@ public class Slider extends GUI {
 	float realWidth;
 	float barWidth;
 
-	public Slider(){
-		super();
-	}
+	public Slider(){}
 
 	public void render(float x, float y,float width, float height,float widthness,float totalXSpace){
 		this.size = widthness/6;

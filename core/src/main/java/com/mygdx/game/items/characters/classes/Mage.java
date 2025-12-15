@@ -7,6 +7,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Mage extends CharacterClasses {
 	public Mage(){
@@ -27,10 +28,10 @@ public class Mage extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 0;
-		if(ClassStoredInformation.Mage.getWeapon() != null)
-			weapon = ClassStoredInformation.Mage.getWeapon();
-		if(ClassStoredInformation.Mage.getShield() != null)
-			shield = ClassStoredInformation.Mage.getShield();
+		if(getClIns("Mage").getWeapon(this) != null)
+			equipWeapon(getClIns("Mage").getWeapon(this));
+		if(getClIns("Mage").getShield(this) != null)
+			equipShield(getClIns("Mage").getShield(this));
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -58,8 +59,8 @@ public class Mage extends CharacterClasses {
 	}
 
 	public void destroyOverridable(){
-		ClassStoredInformation.Mage.setShield(shield);
-		ClassStoredInformation.Mage.setWeapon(weapon);
+		getClIns("Mage").setShield(shield);
+		getClIns("Mage").setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 

@@ -7,13 +7,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 import static com.mygdx.game.Settings.print;
 
 public class StellarExplosionWeapons extends Weapons{
-	public StellarExplosionWeapons(CharacterClasses holder) {
-		super(holder);
+	public StellarExplosionWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class EnergyCondensator extends StellarExplosionWeapons {
-		public EnergyCondensator (CharacterClasses holder) {
-			super(holder);
+		public EnergyCondensator (CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "EnergyCondensator";
 			weaponHealth = 0;
 			weaponDamage = 0;

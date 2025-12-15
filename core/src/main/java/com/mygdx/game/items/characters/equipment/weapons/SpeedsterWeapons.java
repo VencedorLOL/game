@@ -5,13 +5,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 
 public class SpeedsterWeapons extends Weapons{
 
-	public SpeedsterWeapons(CharacterClasses holder) {
-		super(holder);
+	public SpeedsterWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class SpeedsterDagger extends SpeedsterWeapons {
-		public SpeedsterDagger(CharacterClasses holder) {
-			super(holder);
+		public SpeedsterDagger(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "SpeedsterDagger";
 			weaponHealth = 0;
 			weaponDamage = 10;

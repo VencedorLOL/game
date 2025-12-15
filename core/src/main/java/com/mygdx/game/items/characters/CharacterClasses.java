@@ -269,9 +269,9 @@ public class CharacterClasses {
 
 	protected void reset(){
 		if (shield == null)
-			shield = new Shields.NoShield(this);
+			shield = new Shields.NoShield(this, true);
 		if (weapon == null)
-			weapon = new Weapons.NoWeapon(this);
+			weapon = new Weapons.NoWeapon(this,true);
 		refresh();
 	}
 

@@ -5,13 +5,13 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 
 public class MeleeWeapons extends Weapons{
 
-	public MeleeWeapons(CharacterClasses holder) {
-		super(holder);
+	public MeleeWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class ABat extends MeleeWeapons{
-		public ABat(CharacterClasses holder) {
-			super(holder);
+		public ABat(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "MeleeSword";
 			weaponHealth = 0;
 			weaponDamage = 40;

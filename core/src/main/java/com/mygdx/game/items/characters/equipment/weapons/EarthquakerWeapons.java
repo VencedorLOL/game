@@ -5,13 +5,13 @@ import com.mygdx.game.items.characters.classes.Earthquaker;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
 public class EarthquakerWeapons extends Weapons{
-	public EarthquakerWeapons(CharacterClasses holder) {
-		super(holder);
+	public EarthquakerWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
+		super(holder, effectiveInstantiation);
 	}
 
 	public static class GroundStomper extends EarthquakerWeapons {
-		public GroundStomper(CharacterClasses holder) {
-			super(holder);
+		public GroundStomper(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
 			weaponName = "GroundStomper";
 			weaponHealth = 0;
 			weaponDamage = 5;

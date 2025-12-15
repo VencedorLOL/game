@@ -1,6 +1,6 @@
 package com.mygdx.game.items.guielements;
 
-import com.mygdx.game.items.ClassChanger;
+import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
@@ -13,10 +13,9 @@ public class ClassesCards extends GUI {
 	boolean hovered = false;
 	String texture;
 	String secTexture;
-	ClassChanger.ClassObject classs;
+	ClassAndEquipmentChanger.ClassObject classs;
 
 	public ClassesCards(ClsCardObj clsCardObj){
-		super();
 		classs = clsCardObj.clsObj;
 		secTexture = clsCardObj.texture;
 	}
@@ -47,25 +46,22 @@ public class ClassesCards extends GUI {
 
 
 	public enum ClsCardObj{
-
-		MELEE("MeleeCard",new ClassChanger.Melee()),
-		SPEEDSTER("SpeedsterCard",new ClassChanger.Speedster()),
-		HEALER("HealerCard", new ClassChanger.Healer()),
-		TANK("TankCard",new ClassChanger.Tank()),
-		SUMMONER("SummonerCard",new ClassChanger.Summoner()),
-
-		IMP("ImpCard",new ClassChanger.Imp()),
-		CATAPULT("CatapultCard",new ClassChanger.Catapult()),
-		MAGE("MageCard", new ClassChanger.Mage()),
-		SWORD_MAGE("SwordMageCard",new ClassChanger.SwordMage()),
-		STELLAR_EXPLOSION("StellarExplosionCard",new ClassChanger.StellarExplosion()),
-
-		EARTHQUAKER("EarthquakerCard",new ClassChanger.Earthquaker())
+		MELEE("MeleeCard",new ClassAndEquipmentChanger.Melee()),
+		SPEEDSTER("SpeedsterCard",new ClassAndEquipmentChanger.Speedster()),
+		HEALER("HealerCard", new ClassAndEquipmentChanger.Healer()),
+		TANK("TankCard",new ClassAndEquipmentChanger.Tank()),
+		SUMMONER("SummonerCard",new ClassAndEquipmentChanger.Summoner()),
+		IMP("ImpCard",new ClassAndEquipmentChanger.Imp()),
+		CATAPULT("CatapultCard",new ClassAndEquipmentChanger.Catapult()),
+		MAGE("MageCard", new ClassAndEquipmentChanger.Mage()),
+		SWORD_MAGE("SwordMageCard",new ClassAndEquipmentChanger.SwordMage()),
+		STELLAR_EXPLOSION("StellarExplosionCard",new ClassAndEquipmentChanger.StellarExplosion()),
+		EARTHQUAKER("EarthquakerCard",new ClassAndEquipmentChanger.Earthquaker()),
 		;
 
 		final String texture;
-		final ClassChanger.ClassObject clsObj;
-		ClsCardObj(String texture, ClassChanger.ClassObject obj){
+		final ClassAndEquipmentChanger.ClassObject clsObj;
+		ClsCardObj(String texture, ClassAndEquipmentChanger.ClassObject obj){
 			this.texture = texture;
 			clsObj = obj;
 		}
