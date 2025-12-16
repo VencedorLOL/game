@@ -41,10 +41,6 @@ public class StellarExplosion extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("StellarExplosion").getWeapon(this) != null)
-			equipWeapon(getClIns("StellarExplosion").getWeapon(this));
-		if(getClIns("StellarExplosion").getShield(this) != null)
-			equipShield(getClIns("StellarExplosion").getShield(this));
 
 		abilities.add(new Ability("Implosion", "Implosion", 10, 75	,76, (float) globalSize() /2){
 			@Override
@@ -63,6 +59,12 @@ public class StellarExplosion extends CharacterClasses {
 		if(getClIns("StellarExplosion").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
 				abilities.get(i).cooldown = getClIns("StellarExplosion").getCooldown()[i];
+
+		if(getClIns("StellarExplosion").getWeapon() != null)
+			equipWeapon(getClIns("StellarExplosion").getWeapon());
+		if(getClIns("StellarExplosion").getShield() != null)
+			equipShield(getClIns("StellarExplosion").getShield());
+
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;

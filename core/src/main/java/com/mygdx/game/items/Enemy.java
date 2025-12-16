@@ -1,21 +1,12 @@
 package com.mygdx.game.items;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.mygdx.game.Settings;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
 
 import static com.badlogic.gdx.math.MathUtils.random;
-import static com.mygdx.game.GameScreen.particle;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.animationToList;
-import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.Tile.findATile;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static java.lang.Math.*;
@@ -107,7 +98,7 @@ public class Enemy extends Actor {
 	}
 	// Movement
 
-
+	@SuppressWarnings("all")
 	public boolean amIRendered(){
 		return x - globalSize()*2 <= stage.camaraX + stage.camaraBase / 2 &&
 				x + globalSize()*2 >= stage.camaraX - stage.camaraBase / 2 &&
@@ -117,7 +108,7 @@ public class Enemy extends Actor {
 	}
 
 
-
+	@SuppressWarnings("all")
 	protected void overlappingCheck() {
 		for (Enemy e : stage.enemy)
 			for (Enemy n : stage.enemy){
@@ -177,7 +168,7 @@ public class Enemy extends Actor {
 		health -= damagedFor;
 
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
-			particle.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,10,true,false,10,this);
+			ParticleManager.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,10,true,false,10,this);
 		}
 		AttackTextProcessor.addAttackText(damagedFor,damageReason,this);
 		print("remaining health is: " + health);
@@ -188,7 +179,7 @@ public class Enemy extends Actor {
 
 /*	protected void turnSpeedActuator(){
 		if (speedLeft[0] > 0) {
-			testCollision.x += thisTurnVSM;
+*			testCollision.x += thisTurnVSM;
 			if (!overlapsWithStageWithException(stage,testCollision,this))
 				x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;

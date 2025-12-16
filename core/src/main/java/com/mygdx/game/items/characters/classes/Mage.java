@@ -28,10 +28,10 @@ public class Mage extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 0;
-		if(getClIns("Mage").getWeapon(this) != null)
-			equipWeapon(getClIns("Mage").getWeapon(this));
-		if(getClIns("Mage").getShield(this) != null)
-			equipShield(getClIns("Mage").getShield(this));
+		if(getClIns("Mage").getWeapon() != null)
+			equipWeapon(getClIns("Mage").getWeapon());
+		if(getClIns("Mage").getShield() != null)
+			equipShield(getClIns("Mage").getShield());
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;

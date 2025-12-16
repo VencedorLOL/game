@@ -19,6 +19,7 @@ import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
 import static com.mygdx.game.items.Turns.turnStopTimer;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static java.lang.Math.max;
 
 public class Catapult extends CharacterClasses {
 
@@ -56,10 +57,10 @@ public class Catapult extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Catapult").getWeapon(this) != null)
-			equipWeapon(weapon = getClIns("Catapult").getWeapon(this));
-		if(getClIns("Catapult").getShield(this) != null)
-			equipShield(getClIns("Catapult").getShield(this));
+		if(getClIns("Catapult").getWeapon() != null)
+			equipWeapon(getClIns("Catapult").getWeapon());
+		if(getClIns("Catapult").getShield() != null)
+			equipShield(getClIns("Catapult").getShield());
 
 		abilities.add(new Ability("ChargeCatapult", "Charge the Catapult", 0, 75	,76, (float) globalSize() /2){
 			@Override
@@ -70,6 +71,8 @@ public class Catapult extends CharacterClasses {
 					cancelRam();
 					character.cancelAttackMode();
 					character.actionDecided();
+					character.movementLock = true;
+					character.path.pathReset();
 				}
 
 			}
@@ -79,6 +82,15 @@ public class Catapult extends CharacterClasses {
 				targetProcessor.reset();
 				resetCircle();
 				chargeCoords = new float[2];
+				character.movementLock = false;
+				character.path.pathReset();
+			}
+
+			public void finished(){
+				cooldownCounter = 0;
+				isItActive = false;
+				character.movementLock = false;
+				character.path.pathReset();
 			}
 
 			public void keybindActivate(){
@@ -112,16 +124,18 @@ public class Catapult extends CharacterClasses {
 				character.movementLock = true;
 				throwingMode = false;
 				character.conditions.condition(Conditions.ConditionNames.COMING_THROUGH);
+				character.path.pathReset();
 			}
 
 			@Override
 			public void cancelActivation() {
-		//		isItActive = false;
+				isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
 				resetCircle();
 				chargeCoords = new float[2];
 				character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
+				character.path.pathReset();
 			}
 
 			@Override
@@ -129,8 +143,8 @@ public class Catapult extends CharacterClasses {
 				cooldownCounter = 0;
 				isItActive = false;
 				character.movementLock = false;
-
 				character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
+				character.path.pathReset();
 			}
 		});
 
@@ -199,32 +213,26 @@ public class Catapult extends CharacterClasses {
 				character.spendTurn();
 			}
 
-		}
+		} else if (isDecidingWhatToDo(character)) {
 
-		if(character.attackMode && isCharged && isDecidingWhatToDo(character)){
-			character.cancelAttackMode();
-			throwingMode = !throwingMode;
-			abilities.get(1).cancelActivation();
-		}
+			if (character.attackMode && isCharged) {
+				character.cancelAttackMode();
+				throwingMode = !throwingMode;
+				abilities.get(1).cancelActivation();
+			}
 
-		if(throwingMode && isDecidingWhatToDo(character))
-			rockThrowInput();
-		else if(character.attackMode && isDecidingWhatToDo(character))
-			softCancelRam();
-		if(abilities.get(1).isItActive && isDecidingWhatToDo(character)) {
-			chargeInput();
+			if (throwingMode)
+				rockThrowInput();
+			else if (character.attackMode)
+				abilities.get(1).cancelActivation();
+			if (abilities.get(1).isItActive) {
+				chargeInput();
+			}
 		}
-
 
 		
 	}
 
-	public void softCancelRam(){
-		abilities.get(1).isItActive = false;
-		character.movementLock = false;
-		chargeCoords = new float[2];
-		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
-	}
 
 	public void cancelRam(){
 		abilities.get(1).cancelActivation();
@@ -311,22 +319,23 @@ public class Catapult extends CharacterClasses {
 		float damage;
 		boolean finished;
 		OnVariousScenarios ove;
+		float initialDistance;
 
 		public Rock(float x,float y,float objectiveX, float objectiveY,float damage){
 			super("Boulder",x,y);
 			this.damage = damage;
 			this.objectiveX = objectiveX;
 			this.objectiveY = objectiveY;
-			double distance = dC(objectiveX,objectiveY)/globalSize();
-			print("Distance of rock is of " + distance);
-			turnsToFall = distance <= 2 ? 3 : distance <= 5 ? 2 : distance <= 8 ? 1 : 0;
+			initialDistance = (float) dC(objectiveX,objectiveY)/globalSize();
+			print("Distance of rock is of " + initialDistance);
+			turnsToFall = initialDistance <= 2 ? 3 : initialDistance <= 5 ? 2 : initialDistance <= 8 ? 1 : 0;
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);
-			zPerTurn = 3f / turnsToFall;
+			zPerTurn = max(5 / (initialDistance + 2),1.5f);
 		}
 
 		public void advanceRock(){
-			glide(xPerTurn, yPerTurn, turnsToFall > 1 ? zPerTurn : -1,60);
+			glide(xPerTurn, yPerTurn, dC(objectiveX,objectiveY)/globalSize()*1.5 > initialDistance ? zPerTurn : -zPerTurn,60);
 			turnStopTimer(60);
 			if(turnsToFall == 0){
 				if (actorInPos(objectiveX,objectiveY) != null && !finished)

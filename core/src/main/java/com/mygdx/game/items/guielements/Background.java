@@ -49,6 +49,7 @@ public class Background extends GUI {
 	byte elementHovered = -2;
 	byte persevereHover = -1;
 
+
 	SelectionButton[] modeSelector;
 	float modeGapX, modeIniGapX, modeGapY, modeSize;
 	byte modes = 0;
@@ -59,9 +60,6 @@ public class Background extends GUI {
 	ItemsList items;
 	float itemsIniGapX, itemsGapX, itemsY, itemsSize;
 
-	Slider[] vertSliders;
-	float vSliGapX, vSliIniGapX, vSliGapY, vSliThickness, vSliWidth, vSliHeight;
-	float[] totalYSpace;
 
 	int counter;
 
@@ -100,8 +98,11 @@ public class Background extends GUI {
 					if (!existsSelCard()) {
 						modes = 0;
 						selectedOne = -1;
-					} else
+					} else {
 						cardDeselect();
+						if(modes == 2)
+							elementHovered = lastCard;
+					}
 				}
 			}
 		};
@@ -153,97 +154,29 @@ public class Background extends GUI {
 		};
 
 		classesCards = new ClassesCards[]{
-				new ClassesCards(ClassesCards.ClsCardObj.MELEE){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.SPEEDSTER){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.HEALER){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.TANK){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.MAGE){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.SWORD_MAGE){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.SUMMONER){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.IMP){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.CATAPULT){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.STELLAR_EXPLOSION){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
-				new ClassesCards(ClassesCards.ClsCardObj.EARTHQUAKER){
-					public void onTouchOverridable() {
-						cardDeselect();
-						selected = true;
-						hovered = false;
-						cardFunctionality(this);
-					}
-				},
+				new ClassesCards(ClassesCards.ClsCardObj.MELEE)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.SPEEDSTER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.HEALER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.TANK)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.MAGE)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.SWORD_MAGE)		{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.SUMMONER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.IMP)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.CATAPULT)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.STELLAR_EXPLOSION)	{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
+				new ClassesCards(ClassesCards.ClsCardObj.EARTHQUAKER)		{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
 
 		};
 
+	}
+
+	public void cardFunctionalitySquared(ClassesCards card){
+		cardDeselect();
+		card.selected = true;
+		card.hovered = false;
+		if(modes == 2)
+			elementHovered = -1;
+		cardFunctionality(card);
 	}
 
 	private int getSelCard(){
@@ -374,16 +307,16 @@ public class Background extends GUI {
 	private void dehover(){
 		slider.selected = false;
 		close.hovered = false;
-		for(SelectionButton s : selButtons){
+		for(SelectionButton s : selButtons)
 			s.hovered = false;
-		}
 		for(ClassesCards c : classesCards)
 			c.hovered = false;
+		if (items != null) items.canHover = false;
 	}
 
-	int counterR = 0, counterL = 0;
+	int counterR = 0, counterL = 0, counterU, counterD;
 	final int[] times = new int[]{80, 60, 50, 40,30};
-	int counterStateR = -1, counterStateL = -1;
+	int counterStateR = -1, counterStateL = -1, counterStateU, counterStateD;
 
 	private void hoverCheck(){
 		if(modes == 0){
@@ -555,116 +488,218 @@ public class Background extends GUI {
 				}
 			}
 		} else if (modes == 2){
-			if (elementHovered != -2) {
-				if (upJustPressed()) {
-					if (elementHovered > -1 && elementHovered < classesCards.length) {
-						lastCard = elementHovered;
-						elementHovered = -1;
-					} else if (elementHovered == -3) {
-						slider.selected = false;
-						elementHovered = (byte) (getElement());
+			if(!existsSelCard()) {
+				if (elementHovered != -2) {
+					if (upJustPressed()) {
+						if (elementHovered > -1 && elementHovered < classesCards.length) {
+							lastCard = elementHovered;
+							elementHovered = -1;
+						} else if (elementHovered == -3) {
+							slider.selected = false;
+							elementHovered = (byte) (getElement());
+							lastCard = elementHovered;
+						}
+						persevereHover = 1;
 					}
-					persevereHover = 1;
-				}
-				if (downJustPressed()) {
-					if (elementHovered == -1) {
-						elementHovered = (byte) getElement();
-					} else if (!existsSelCard() && elementHovered != -3) {
-						lastCard = elementHovered;
-						elementHovered = -3;
+					if (downJustPressed()) {
+						if (elementHovered == -1) {
+							elementHovered = (byte) getElement();
+							lastCard = elementHovered;
+						} else if (!existsSelCard() && elementHovered != -3) {
+							lastCard = elementHovered;
+							elementHovered = -3;
+						}
+						persevereHover = 1;
 					}
-					persevereHover = 1;
-				}
-				if (leftJustPressed()) {
-					if (elementHovered > 0) {
-						lastCard = --elementHovered;
-						counterStateL = 0;
-					}
-					persevereHover = 1;
-				} else if (leftPressed() && elementHovered > 0 && counterStateL != -1) {
-					if (counterL++ > times[counterStateL]) {
-						lastCard = --elementHovered;
-						counterStateL += counterStateL < times.length - 1 ? 1 : 0;
+					if (leftJustPressed()) {
+						if (elementHovered > 0) {
+							lastCard = --elementHovered;
+							counterStateL = 0;
+						}
+						persevereHover = 1;
+					} else if (leftPressed() && elementHovered > 0 && counterStateL != -1) {
+						if (counterL++ > times[counterStateL]) {
+							lastCard = --elementHovered;
+							counterStateL += counterStateL < times.length - 1 ? 1 : 0;
+							counterL = 0;
+						}
+					} else {
 						counterL = 0;
+						counterStateL = -1;
 					}
-				} else {
-					counterL = 0;
-					counterStateL = -1;
-				}
-				if (rightJustPressed()) {
-					if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
-						lastCard = ++elementHovered;
-						counterStateR = 0;
-					}
-					persevereHover = 1;
-				} else if (rightPressed() && elementHovered >= 0 && elementHovered < classesCards.length - 1 && counterStateR != -1) {
-					if (counterR++ > times[counterStateR]) {
-						lastCard = ++elementHovered;
-						counterStateR += counterStateR < times.length - 1 ? 1 : 0;
+					if (rightJustPressed()) {
+						if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
+							lastCard = ++elementHovered;
+							counterStateR = 0;
+						}
+						persevereHover = 1;
+					} else if (rightPressed() && elementHovered >= 0 && elementHovered < classesCards.length - 1 && counterStateR != -1) {
+						if (counterR++ > times[counterStateR]) {
+							lastCard = ++elementHovered;
+							counterStateR += counterStateR < times.length - 1 ? 1 : 0;
+							counterR = 0;
+						}
+					} else {
 						counterR = 0;
+						counterStateR = -1;
 					}
 				} else {
-					counterR = 0;
-					counterStateR = -1;
+					if (upJustPressed()) {
+						elementHovered = -1;
+						persevereHover = 1;
+					}
+					if (downJustPressed()) {
+						elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
+						persevereHover = 1;
+					}
+					if (leftJustPressed()) {
+						elementHovered = (byte) max((getElement() - 1), 0);
+						persevereHover = 1;
+					}
+					if (rightJustPressed()) {
+						elementHovered = (byte) (getElement() + 1);
+						persevereHover = 1;
+					}
+				}
+				if (persevereHover != 1) {
+					dehover();
+				}
+				if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+						cursorY() >= 0 && cursorY() <= endSY) {
+					elementHovered = -1;
+					persevereHover = -1;
+				}
+				if (!existsSelCard())
+					for (int i = 0; i < classesCards.length; i++) {
+						if (cursorX() >= classesCards[i].x && cursorX()
+								<= classesCards[i].x + cardsSize &&
+								cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
+							dehover();
+							elementHovered = (byte) i;
+							persevereHover = 1;
+							break;
+						}
+					}
+				if (persevereHover != 0) {
+					if (elementHovered == -1) {
+						dehover();
+						close.hovered = true;
+						persevereHover = persevereHover == 1 ? persevereHover : 0;
+					} else if (elementHovered != -2 && elementHovered != -3) {
+						dehover();
+						for (int i = 0; i < classesCards.length; i++)
+							if (i == elementHovered) {
+								classesCards[i].hovered = true;
+								persevereHover = persevereHover == 1 ? persevereHover : 0;
+								if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
+									slider.xCursor += Gdx.graphics.getWidth() / 640f;
+
+								} else if (classesCards[i].x - cardsIniGapX < 0)
+									slider.xCursor -= Gdx.graphics.getWidth() / 640f;
+							}
+					} else if (elementHovered == -3) {
+						dehover();
+						slider.selected = true;
+					}
 				}
 			} else {
-				if (upJustPressed()) {
-					elementHovered = -1;
-					persevereHover = 1;
-				}
-				if (downJustPressed()) {
-					elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
-					persevereHover = 1;
-				}
-				if (leftJustPressed()) {
-					elementHovered = (byte) max((getElement() - 1),0);
-					persevereHover = 1;
-				}
-				if (rightJustPressed()) {
-					elementHovered = (byte) (getElement() + 1);
-					persevereHover = 1;
-				}
-			}
-			if (persevereHover != 1) {
-				dehover();
-			}
-			if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
-					cursorY() >= 0 && cursorY() <= endSY) {
-				elementHovered = -1;
-				persevereHover = -1;
-			}
-			if (!existsSelCard())
-				for (int i = 0; i < classesCards.length; i++) {
-					if (cursorX() >= classesCards[i].x && cursorX()
-							<= classesCards[i].x + cardsSize &&
-							cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
-						dehover();
-						elementHovered = (byte) i;
+				if (elementHovered != -2) {
+					if (upJustPressed()) {
+						if (elementHovered == 0) {
+							if(items.processUp())
+								elementHovered = -1;
+							else
+								counterStateU = 0;
+						}
 						persevereHover = 1;
-						break;
+					} else if (upPressed() && elementHovered == 0 && counterStateU != -1) {
+						if (counterU++ > times[counterStateU]) {
+							counterStateU += counterStateU < times.length - 1 ? 1 : 0;
+							counterU = 0;
+							if (items.processUp()) {
+								elementHovered = -1;
+								counterStateU = -1;
+							}
+						}
+					} else {
+						counterU = 0;
+						counterStateU = -1;
+					}
+					if (downJustPressed()) {
+						elementHovered = 0;
+						items.processDown();
+						counterStateD = 0;
+						persevereHover = 1;
+					} else if (downPressed() && elementHovered == 0 && counterStateD != -1) {
+						if (counterD++ > times[counterStateD]) {
+							counterStateD += counterStateD < times.length - 1 ? 1 : 0;
+							counterD = 0;
+							if (items.processDown()) {
+								counterStateD = -1;
+							}
+						}
+					} else {
+						counterD = 0;
+						counterStateD = -1;
+					}
+
+					if (leftJustPressed()) {
+						if (elementHovered == 0) {
+							items.processLeft();
+						}
+						persevereHover = 1;
+					}
+					if (rightJustPressed()) {
+						if (elementHovered == 0) {
+							items.processRight();
+						}
+						persevereHover = 1;
+					}
+				} else {
+					if (upJustPressed()) {
+						if(items.processUp())
+							elementHovered = -1;
+						persevereHover = 1;
+					}
+					if (downJustPressed()) {
+						items.processDown();
+						elementHovered = 0;
+						persevereHover = 1;
+					}
+					if (leftJustPressed()) {
+						items.processLeft();
+						persevereHover = 1;
+					}
+					if (rightJustPressed()) {
+						items.processRight();
+						persevereHover = 1;
 					}
 				}
-			if (persevereHover != 0) {
-				if (elementHovered == -1) {
+				if (persevereHover != 1) {
 					dehover();
-					close.hovered = true;
-					persevereHover = persevereHover == 1 ? persevereHover : 0;
-				} else if (elementHovered != -2 && elementHovered != -3) {
-					dehover();
-					for (int i = 0; i < classesCards.length; i++)
-						if (i == elementHovered) {
-							classesCards[i].hovered = true;
-							persevereHover = persevereHover == 1 ? persevereHover : 0;
-							if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
-								slider.xCursor += Gdx.graphics.getWidth() / 640f;
-
-							} else if (classesCards[i].x - cardsIniGapX < 0)
-								slider.xCursor -= Gdx.graphics.getWidth() / 640f;
-						}
-				} else if (elementHovered == -3) {
-					dehover();
-					slider.selected = true;
 				}
+				if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+						cursorY() >= 0 && cursorY() <= endSY) {
+					elementHovered = -1;
+					persevereHover = -1;
+				}
+				if(items.processCursor() && cursorMoved()){
+					items.saveCursor();
+					elementHovered = 0;
+					persevereHover = 1;
+				}
+				if (persevereHover != 0) {
+					if (elementHovered == -1) {
+						dehover();
+						close.hovered = true;
+						persevereHover = persevereHover == 1 ? persevereHover : 0;
+					} else if (elementHovered == 0) {
+						dehover();
+						items.processHover();
+						persevereHover = persevereHover == 1 ? persevereHover : 0;
+					}
+				}
+
 			}
 		}
 

@@ -46,10 +46,6 @@ public class Summoner extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Summoner").getWeapon(this) != null)
-			equipWeapon(getClIns("Summoner").getWeapon(this));
-		if(getClIns("Summoner").getShield(this) != null)
-			equipShield(getClIns("Summoner").getShield(this));
 
 		abilities.add(new Ability("Summon", "Summon", 5, 75	,76, (float) globalSize() /2){
 			@Override
@@ -59,6 +55,7 @@ public class Summoner extends CharacterClasses {
 				character.cancelAttackMode();
 				summonRange = 3;
 				character.movementLock = true;
+				character.path.pathReset();
 			}
 
 			@Override
@@ -73,6 +70,7 @@ public class Summoner extends CharacterClasses {
 				isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
+				character.path.pathReset();
 			}
 
 		});
@@ -85,6 +83,7 @@ public class Summoner extends CharacterClasses {
 				character.cancelAttackMode();
 				cancelSummon();
 				character.movementLock = true;
+				character.path.pathReset();
 			}
 
 			@Override
@@ -109,7 +108,10 @@ public class Summoner extends CharacterClasses {
 				summons.clear();
 			}
 		};
-
+		if(getClIns("Summoner").getWeapon() != null)
+			equipWeapon(getClIns("Summoner").getWeapon());
+		if(getClIns("Summoner").getShield() != null)
+			equipShield(getClIns("Summoner").getShield());
 		if(getClIns("Summoner").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
 				abilities.get(i).cooldown = getClIns("Summoner").getCooldown()[i];
@@ -188,6 +190,7 @@ public class Summoner extends CharacterClasses {
 		summonLocation = new float[2];
 		summonDecided = false;
 		targetProcessor.reset();
+		character.path.pathReset();
 	}
 
 	void controlInput(){

@@ -79,6 +79,7 @@ public class ControllableFriend extends Friend {
 					path.pathReset();
 					if (!attackMode)
 						cancelAttackMode();
+					resetAttackMode();
 				}
 			}
 			if(Gdx.input.isKeyJustPressed(Input.Keys.C))

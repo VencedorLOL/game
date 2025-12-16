@@ -3,8 +3,6 @@ package com.mygdx.game.items.guielements;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.TextureManager;
-import com.mygdx.game.items.characters.CharacterClasses;
-import com.mygdx.game.items.characters.equipment.Weapons;
 
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
@@ -19,26 +17,18 @@ public class ItemsList  {
 
 	String texture = "TextBar";
 	float size, x, y, x2;
-	boolean[] selected;
-	boolean[] hovered;
+	int hovered = -1;
+	boolean canHover = true;
 
 	public ItemsList(ClassAndEquipmentChanger.ClassObject clsCardObj, Character chara){
 		classs = clsCardObj;
 		this.chara = chara;
 		nameExtractor();
 		texts = new TextureManager.Text[weapons.length + shields.length];
-		selected = new boolean[weapons.length + shields.length];
-		hovered = new boolean[weapons.length + shields.length];
 
 	}
 
-	public void clearHovered(){
-		hovered = new boolean[weapons.length + shields.length];
-	}
 
-	public void clearSelected(){
-		selected = new boolean[weapons.length + shields.length];
-	}
 
 	public void render(float size,float x, float x2, float yIni,boolean touch){
 		this.size = size;
@@ -65,8 +55,8 @@ public class ItemsList  {
 
 		}
 		for (int i = 0; i < shields.length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x2 , yIni + (size*11*i), 1, 0, size, size,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x2 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(shields[i])){
 				fixatedDrawables.add(new DrawableObject("ShieldMiniIconEquipped", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			} else
@@ -80,16 +70,20 @@ public class ItemsList  {
 			texts[i+ weapons.length].x = x2 + size  +size;
 			texts[i+ weapons.length].y = yIni + (size*11*i) - size*27.55f;
 		}
+
+		if(hovered > -1 && canHover){
+			fixatedDrawables.add(new TextureManager.DrawableObject("TextBarSelected", hovered >= weapons.length ? x2 : x , yIni + (size*11*(hovered >= weapons.length ? hovered - weapons.length : hovered)), 1, 0, size, size,true));
+		}
 		onTouchDetect(touch);
 	}
 
 	public void onTouchDetect(boolean touch){
-		if (touch && leftClickJustPressed()){
+		if ((touch && leftClickJustPressed()) || (actionConfirmJustPressed() && hovered != -1 && canHover)){
 			for(int i = 0; i < weapons.length; i++)
-				if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 )  || (actionConfirmJustPressed() && hovered[i]))
+				if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 && leftClickJustPressed())  || (actionConfirmJustPressed() && hovered == i && canHover))
 					onTouch(i);
 			for(int i = 0; i < shields.length; i++)
-				if((cursorX() >= x2 - size*11 && cursorX() <= x2 + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20)  || (actionConfirmJustPressed() && hovered[i + weapons.length]))
+				if((cursorX() >= x2 - size*11 && cursorX() <= x2 + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 && leftClickJustPressed())  || (actionConfirmJustPressed() && hovered == i + weapons.length && canHover))
 					onTouch(i + weapons.length);
 
 
@@ -105,7 +99,60 @@ public class ItemsList  {
 
 //texture = selected ? "TextBarSelected" : hovered ? "TextBarHovered" : "TextBar";
 
+	public boolean processUp(){
+		if(hovered == -1 || hovered == 0) {
+			hovered = -1;
+			return true;
+		}
+		hovered--;
+		return false;
+	}
 
+	public boolean processDown(){
+		if(hovered >= weapons.length + shields.length - 1)
+			return true;
+		hovered++;
+		return false;
+	}
+
+	public void processRight(){
+		if(hovered <= weapons.length){
+			hovered += weapons.length;
+			if(hovered >= weapons.length + shields.length)
+				hovered = weapons.length + shields.length -1;
+		}
+	}
+
+	public void processLeft(){
+		if(hovered >= weapons.length){
+			hovered -= weapons.length;
+			if(hovered >= weapons.length)
+				hovered = weapons.length - 1;
+		}
+	}
+
+	public boolean processCursor(){
+		for(int i = 0; i < weapons.length; i++)
+			if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 ))
+				return true;
+		for(int i = 0; i < shields.length; i++)
+			if((cursorX() >= x2 - size*11 && cursorX() <= x2 + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20))
+				return true;
+		return false;
+	}
+
+	public void saveCursor(){
+		for(int i = 0; i < weapons.length; i++)
+			if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 ))
+				hovered = i;
+		for(int i = 0; i < shields.length; i++)
+			if((cursorX() >= x2 - size*11 && cursorX() <= x2 + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20))
+				hovered = i + weapons.length;
+	}
+
+	public void processHover(){
+		canHover = true;
+	}
 
 
 	public void nameExtractor(){

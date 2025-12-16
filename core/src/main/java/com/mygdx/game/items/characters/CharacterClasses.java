@@ -5,6 +5,7 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -248,21 +249,30 @@ public class CharacterClasses {
 	}
 
 
-	public void equipWeapon(Weapons targetWeapon) {
-		print(targetWeapon.weaponName + " was just equipped");
-		if (name.equals(targetWeapon.equippableBy) || targetWeapon.equippableBy == null) {
-			print(targetWeapon.equippableBy);
+	public void equipWeapon(Class<? extends Weapons> targetWeapon) {
+		Weapons temp;
+		try {temp = targetWeapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(this,true);
+		} catch (InstantiationException | NoSuchMethodException | IllegalAccessException |
+				 InvocationTargetException | NullPointerException ignored) { print("ERROR: WEAPON DOES NOT EXIST"); return;}
+		print(temp.weaponName + " was just equipped");
+		if (name.equals(temp.equippableBy) || temp.equippableBy == null) {
+			print(temp.equippableBy);
 			weapon.destroy();
-			weapon = targetWeapon;
+			weapon = temp;
 			reset();
 		}
 	}
 
-	public void equipShield(Shields targetShield) {
-		print(targetShield.shieldName + " was just equipped");
-		if (name.equals(targetShield.equippableBy) || targetShield.equippableBy == null) {
+	public void equipShield(Class<? extends Shields> targetShield) {
+		Shields temp;
+		try {temp = targetShield.getConstructor(CharacterClasses.class,boolean.class).newInstance(this,true);
+		} catch (InstantiationException | NoSuchMethodException | IllegalAccessException |
+				 InvocationTargetException | NullPointerException ignored) { print("ERROR: SHIELD DOES NOT EXIST"); return;}
+		print(temp.shieldName + " was just equipped");
+		if (name.equals(temp.equippableBy) || temp.equippableBy == null) {
+			print(temp.equippableBy);
 			shield.destroy();
-			shield = targetShield;
+			shield = temp;
 			reset();
 		}
 	}

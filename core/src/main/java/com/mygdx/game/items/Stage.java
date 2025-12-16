@@ -13,8 +13,7 @@ import com.mygdx.game.items.solids.Tree;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.clearHazards;
@@ -228,10 +227,10 @@ public class Stage implements Utils {
 
 		}
 		else {
-			camaraX = Camara.x;
-			camaraY = Camara.y;
-			camaraBase = Camara.base;
-			camaraHeight = Camara.height;
+			camaraX = getCamara().x;
+			camaraY = getCamara().y;
+			camaraBase = getCamara().base;
+			camaraHeight = getCamara().height;
 			tilesetRenderer();
 			enemyRenderer();
 			wallRenderer();
@@ -255,10 +254,10 @@ public class Stage implements Utils {
 
 		}
 		else {
-			camaraX = Camara.x;
-			camaraY = Camara.y;
-			camaraBase = Camara.base;
-			camaraHeight = Camara.height;
+			camaraX = getCamara().x;
+			camaraY = getCamara().y;
+			camaraBase = getCamara().base;
+			camaraHeight = getCamara().height;
 			tilesetRenderer();
 			enemyRenderer();
 			screenWarpRenderer();

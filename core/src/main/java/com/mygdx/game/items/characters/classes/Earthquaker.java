@@ -45,10 +45,10 @@ public class Earthquaker extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Earthquaker").getWeapon(this) != null)
-			equipWeapon(getClIns("Earthquaker").getWeapon(this));
-		if(getClIns("Earthquaker").getShield(this) != null)
-			equipShield(getClIns("Earthquaker").getShield(this));
+		if(getClIns("Earthquaker").getWeapon() != null)
+			equipWeapon(getClIns("Earthquaker").getWeapon());
+		if(getClIns("Earthquaker").getShield() != null)
+			equipShield(getClIns("Earthquaker").getShield());
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
@@ -65,12 +65,14 @@ public class Earthquaker extends CharacterClasses {
 					character.actionDecided();
 					decidingEarthquake = false;
 					character.movementLock = false;
+					character.path.pathReset();
 				}
 				else if (actionResetJustPressed()){
 					targetProcessor.reset();
 					earthquake = false;
 					decidingEarthquake = false;
 					character.movementLock = false;
+					character.path.pathReset();
 				}
 			}
 		};
@@ -95,6 +97,7 @@ public class Earthquaker extends CharacterClasses {
 				character.cancelAttackMode();
 				decidingEarthquake = false;
 				character.movementLock = false;
+				character.path.pathReset();
 			} else {
 				character.cancelAttackMode();
 				character.movementLock = true;
@@ -102,6 +105,7 @@ public class Earthquaker extends CharacterClasses {
 				if(targetProcessor.targetsTarget != null && targetProcessor.target != null && targetProcessor.target.render)
 					earthquakeProcessor.render();
 				targetProcessor.render();
+				character.path.pathReset();
 			}
 		}
 

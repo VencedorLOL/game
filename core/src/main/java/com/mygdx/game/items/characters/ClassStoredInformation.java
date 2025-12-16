@@ -11,8 +11,6 @@ public class ClassStoredInformation {
 	public static class ClassInstance {
 		public String weaponName;
 		public String shieldName;
-		public Weapons currentWeapon;
-		public Shields currentShield;
 		public Class<?> weaponClass;
 		public Class<?> shieldClass;
 		public int[] cooldownsState;
@@ -34,38 +32,20 @@ public class ClassStoredInformation {
 			}
 			return null;
 		}
-		// these.. complications are so weapons/shields are instantiated ON USE instead of on set AND so the instance is conserved between class changes
-		// (although i might not want that?? I have to have this in account for future on turn change weapon/shield effects)
-		// Permanent TODO: check this (explained above)
-		// Second TODO: maybe let this task up to equipWeapon()/equipShield()??
-		//         DEF GET THE TASK UP TO equipWeapon()/equipShield().
+
 		public void setWeapon(Weapons weapon) {
-			if (currentWeapon != null && !currentWeapon.weaponName.equals(weapon.weaponName))
-				currentWeapon = null;
 			weaponName = weapon.weaponName;
 			weaponClass = weapon.getClass();
 		}
 		public void setShield(Shields shield){
-			if (currentShield != null && !currentShield.shieldName.equals(shield.shieldName))
-				currentShield = null;
 			shieldName = shield.shieldName;
 			shieldClass = shield.getClass();
 		}
-		public Weapons getWeapon(CharacterClasses character){
-			try {
-				if(currentWeapon == null){
-					currentWeapon = (Weapons) weaponClass.getConstructor(CharacterClasses.class,boolean.class).newInstance(character,true);
-				}
-				return currentWeapon;
-			} catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | NullPointerException ignored) {return null;}
+		public Class<? extends Weapons> getWeapon(){
+			return (Class<? extends Weapons>) weaponClass;
 		}
-		public Shields getShield(CharacterClasses character){
-			try {
-				if(currentShield == null){
-					currentShield = (Shields) shieldClass.getConstructor(CharacterClasses.class,boolean.class).newInstance(character,true);
-				}
-				return currentShield;
-			} catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | NullPointerException ignored) {return null;}
+		public Class<? extends Shields> getShield(){
+			return (Class<? extends Shields>) shieldClass;
 		}
 		public String getWeaponName(){return weaponName;}
 		public String getShieldName(){return shieldName;}

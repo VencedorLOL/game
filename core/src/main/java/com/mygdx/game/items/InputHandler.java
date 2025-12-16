@@ -5,7 +5,9 @@ import com.badlogic.gdx.InputProcessor;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
+import static java.lang.Math.floor;
 
+@SuppressWarnings("all")
 public class InputHandler implements InputProcessor {
 
 	static Input up 			= new Input();
@@ -134,9 +136,13 @@ public class InputHandler implements InputProcessor {
 	public static boolean leftClickReleased() {return leftClick.wasReleased();}
 	public static boolean rightClickReleased() {return rightClick.wasReleased();}
 
+	public static void resetAttackMode(){attackMode.release(); attackMode.resetRelease();}
+
 	public static float[] cursorCoordinates(){return new float[] {x, y};}
 	public static float cursorX(){return x;}
 	public static float cursorY(){return y;}
+	public static float roundedCursorX(){return (float) (globalSize() * floor((x) / globalSize()));}
+	public static float roundedCursorY(){return (float) (globalSize() * floor((y) / globalSize()));}
 	public static boolean cursorDragged(){return dragged;}
 	public static boolean cursorMoved(){return moved;}
 

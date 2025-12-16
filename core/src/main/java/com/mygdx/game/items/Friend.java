@@ -167,7 +167,7 @@ public class Friend extends Actor {
 		float damagedFor = getDamagedFor(damage,damageReason);
 		health -= damagedFor;
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
-			particle.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,40,true,false,10,this);
+			ParticleManager.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,40,true,false,10,this);
 		}
 		AttackTextProcessor.addAttackText(damagedFor,damageReason,this);
 		print("remaining health is: " + health);

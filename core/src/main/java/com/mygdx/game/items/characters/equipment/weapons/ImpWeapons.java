@@ -24,6 +24,7 @@ public class ImpWeapons extends Weapons{
 		super(holder, effectiveInstantiation);
 	}
 
+	@SuppressWarnings("all")
 	public static class ImpDagger extends ImpWeapons {
 		OnVariousScenarios oVE;
 		public ImpDagger(CharacterClasses holder, boolean effectiveInstantiation) {
@@ -130,6 +131,8 @@ public class ImpWeapons extends Weapons{
 						isItActive = true;
 						chara.cancelAttackMode();
 						((Imp) holder).targetProcessor.reset();
+						holder.character.movementLock = true;
+						holder.character.path.pathReset();
 					}
 
 					@Override
@@ -137,6 +140,8 @@ public class ImpWeapons extends Weapons{
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.path.pathReset();
+						holder.character.movementLock = false;
 					}
 
 					@Override
@@ -178,6 +183,8 @@ public class ImpWeapons extends Weapons{
 						isItActive = true;
 						holder.character.actionDecided();
 						((Imp) holder).targetProcessor.reset();
+						holder.character.path.pathReset();
+						holder.character.movementLock = true;
 					}
 
 					@Override
@@ -193,6 +200,8 @@ public class ImpWeapons extends Weapons{
 						isItActive = true;
 						chara.cancelAttackMode();
 						((Imp) holder).targetProcessor.reset();
+						holder.character.path.pathReset();
+						holder.character.movementLock = true;
 					}
 
 					@Override
@@ -200,6 +209,8 @@ public class ImpWeapons extends Weapons{
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.path.pathReset();
+						holder.character.movementLock = false;
 					}
 
 					@Override

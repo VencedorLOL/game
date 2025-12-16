@@ -51,10 +51,6 @@ public class Imp extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Imp").getWeapon(this) != null)
-			equipWeapon(getClIns("Imp").getWeapon(this));
-		if(getClIns("Imp").getShield(this) != null)
-			equipShield(getClIns("Imp").getShield(this));
 
 		abilities.add(new Ability("Ritual", "Ritual", 12, 75	,76, (float) globalSize() /2){
 			@Override
@@ -64,6 +60,7 @@ public class Imp extends CharacterClasses {
 				character.actionDecided();
 				targetProcessor.reset();
 				print("activated rutial");
+				character.path.pathReset();
 			}
 
 
@@ -81,6 +78,7 @@ public class Imp extends CharacterClasses {
 				chara.cancelAttackMode();
 				targetProcessor.reset();
 				character.movementLock = true;
+				character.path.pathReset();
 			}
 
 			@Override
@@ -89,6 +87,7 @@ public class Imp extends CharacterClasses {
 				markCoords = null;
 				targetProcessor.reset();
 				character.movementLock = false;
+				character.path.pathReset();
 			}
 
 			@Override
@@ -107,6 +106,10 @@ public class Imp extends CharacterClasses {
 					abilities.get(1).cancelActivation();
 			}
 		};
+		if(getClIns("Imp").getWeapon() != null)
+			equipWeapon(getClIns("Imp").getWeapon());
+		if(getClIns("Imp").getShield() != null)
+			equipShield(getClIns("Imp").getShield());
 		if(getClIns("Imp").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
 				abilities.get(i).cooldown = getClIns("Imp").getCooldown()[i];
@@ -186,14 +189,16 @@ public class Imp extends CharacterClasses {
 		for (Ability a : abilities) {
 			a.cooldownCounter = 0;
 			a.isItActive = false;
-			character.movementLock = false;
 		}
+		character.movementLock = false;
+		character.path.pathReset();
 	}
 
 	public void softCancelDemonize(){
 		abilities.get(1).isItActive = false;
 		markCoords = null;
 		character.movementLock = false;
+		character.path.pathReset();
 	}
 
 	public void cancelDemonize(){

@@ -42,11 +42,6 @@ public class SwordMage extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("SwordMage").getWeapon(this) != null)
-			equipWeapon(getClIns("SwordMage").getWeapon(this));
-		if(getClIns("SwordMage").getShield(this) != null)
-			equipShield(getClIns("SwordMage").getShield(this));
-
 		abilities.add(new Ability("manahit", "Magically Enhanced Attack", -1, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -75,6 +70,10 @@ public class SwordMage extends CharacterClasses {
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
+		if(getClIns("SwordMage").getWeapon() != null)
+			equipWeapon(getClIns("SwordMage").getWeapon());
+		if(getClIns("SwordMage").getShield() != null)
+			equipShield(getClIns("SwordMage").getShield());
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;

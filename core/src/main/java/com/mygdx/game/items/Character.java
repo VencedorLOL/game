@@ -7,9 +7,6 @@ import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
-import com.mygdx.game.items.characters.equipment.Weapons;
-import com.mygdx.game.items.characters.equipment.shields.*;
-import com.mygdx.game.items.characters.equipment.weapons.*;
 
 
 import java.util.ArrayList;
@@ -90,9 +87,9 @@ public class Character extends Actor implements Utils {
 	}
 
 	protected void automatedMovement(){
-		if(leftClickJustPressed()){
-			lastClickX = roundedClick().x;
-			lastClickY = roundedClick().y;
+		if(leftClickReleased()){
+			lastClickX = roundedCursorX();
+			lastClickY = roundedCursorY();
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
@@ -170,20 +167,23 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void update(){
-		if(classes.tempDefense <= 0)
-			text.text = classes.currentHealth+"/"+classes.totalHealth;
-		else
-			text.text = classes.currentHealth+"/"+classes.totalHealth+" + "+classes.tempDefense;
-		classes.update();
-		statsUpdater();
+		if(turnMode) {
+			if (classes.tempDefense <= 0)
+				text.text = classes.currentHealth + "/" + classes.totalHealth;
+			else
+				text.text = classes.currentHealth + "/" + classes.totalHealth + " + " + classes.tempDefense;
+			classes.update();
+			statsUpdater();
+		} else
+			text.text = "";
 		onDeath();
 		path.getStats(x,y, classes.totalSpeed);
 
 		if(!lockClass) {
 			if(!classChanging && changePos == -1) {
-				if (!attackMode)
+				if (!attackMode && !movementLock)
 					movement();
-				else
+				else if (attackMode)
 					attack();
 			}
 			classChangeManager();
@@ -476,6 +476,7 @@ public class Character extends Actor implements Utils {
 
 		if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
 			if (turnMode) {
+				targetProcessor.reset();
 				attackMode = !attackMode;
 				path.pathReset();
 				if (!attackMode)
@@ -496,8 +497,9 @@ public class Character extends Actor implements Utils {
 				}
 			}
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.E) || (escapeJustPressed() && classChanging)){
 			if(turnMode && isDecidingWhatToDo(this)) {
+				getCamara().smoothZoom(1,30);
 				path.pathReset();
 				attacks.clear();
 				targetProcessor.reset();

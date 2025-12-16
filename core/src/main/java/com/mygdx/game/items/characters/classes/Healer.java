@@ -10,6 +10,7 @@ import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
@@ -45,11 +46,8 @@ public class Healer extends CharacterClasses implements Utils {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-		if(getClIns("Healer").getWeapon(this) != null)
-			equipWeapon(getClIns("Healer").getWeapon(this));
-		if(getClIns("Healer").getShield(this) != null)
-			equipShield(getClIns("Healer").getShield(this));
-		reset();
+
+
 		currentHealth = totalHealth;
 		manaPool = mana;
 		healTarget = character;
@@ -62,6 +60,7 @@ public class Healer extends CharacterClasses implements Utils {
 				character.cancelAttackMode();
 				targetProcessor.reset();
 				character.movementLock = true;
+				character.path.pathReset();
 			}
 
 			@Override
@@ -69,6 +68,8 @@ public class Healer extends CharacterClasses implements Utils {
 				isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
+				getCamara().smoothZoom(1,30);
+				character.path.pathReset();
 			}
 
 			public void finished() {
@@ -76,6 +77,8 @@ public class Healer extends CharacterClasses implements Utils {
 				isItActive = false;
 				character.movementLock = false;
 				targetProcessor.reset();
+				getCamara().smoothZoom(1,30);
+				character.path.pathReset();
 			}
 		});
 
@@ -84,6 +87,11 @@ public class Healer extends CharacterClasses implements Utils {
 				healTarget = character;
 			}
 		};
+		if(getClIns("Healer").getWeapon() != null)
+			equipWeapon(getClIns("Healer").getWeapon());
+		if(getClIns("Healer").getShield() != null)
+			equipShield(getClIns("Healer").getShield());
+		reset();
 		targetProcessor = new TargetProcessor(character,healRange,true,false,"healtarget");
 	}
 

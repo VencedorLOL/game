@@ -35,11 +35,6 @@ public class Speedster extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Speedster").getWeapon(this) != null)
-			equipWeapon(getClIns("Speedster").getWeapon(this));
-		if(getClIns("Speedster").getShield(this) != null)
-			equipShield(getClIns("Speedster").getShield(this));
-
 		abilities.add(new Ability("evenFaster", "Even Faster", 2, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
@@ -62,7 +57,10 @@ public class Speedster extends CharacterClasses {
 					abilities.get(0).finished();
 			}
 		};
-
+		if(getClIns("Speedster").getWeapon() != null)
+			equipWeapon(getClIns("Speedster").getWeapon());
+		if(getClIns("Speedster").getShield() != null)
+			equipShield(getClIns("Speedster").getShield());
 		if(getClIns("Speedster").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
 				abilities.get(i).cooldown = getClIns("Speedster").getCooldown()[i];

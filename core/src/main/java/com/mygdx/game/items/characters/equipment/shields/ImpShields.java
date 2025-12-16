@@ -1,19 +1,15 @@
 package com.mygdx.game.items.characters.equipment.shields;
 
 import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.Conditions;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Imp;
 import com.mygdx.game.items.characters.equipment.Shields;
 
-import java.util.Objects;
-
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
-import static com.mygdx.game.items.Conditions.ConditionNames.RAINY;
 import static com.mygdx.game.items.Conditions.ConditionNames.RITUAL;
 
 public class ImpShields extends Shields {
@@ -148,6 +144,8 @@ public class ImpShields extends Shields {
 						chara.cancelAttackMode();
 						((Imp) holder).targetProcessor.reset();
 						holder.character.actionDecided();
+						holder.character.movementLock = true;
+						holder.character.path.pathReset();
 					}
 
 					@Override
@@ -155,6 +153,8 @@ public class ImpShields extends Shields {
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.movementLock = false;
+						holder.character.path.pathReset();
 					}
 
 					@Override
@@ -162,6 +162,8 @@ public class ImpShields extends Shields {
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.movementLock = false;
+						holder.character.path.pathReset();
 					}
 				});
 			}
@@ -185,6 +187,8 @@ public class ImpShields extends Shields {
 						chara.cancelAttackMode();
 						((Imp) holder).targetProcessor.reset();
 						holder.character.actionDecided();
+						holder.character.movementLock = true;
+						holder.character.path.pathReset();
 					}
 
 					@Override
@@ -192,6 +196,8 @@ public class ImpShields extends Shields {
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.movementLock = false;
+						holder.character.path.pathReset();
 					}
 
 					@Override
@@ -199,6 +205,8 @@ public class ImpShields extends Shields {
 						isItActive = false;
 						((Imp) holder).markCoords = null;
 						((Imp) holder).targetProcessor.reset();
+						holder.character.movementLock = false;
+						holder.character.path.pathReset();
 					}
 				};
 				holder.abilities.add(daredevil);
@@ -218,13 +226,19 @@ public class ImpShields extends Shields {
 								a.conditions.getStatus(RITUAL).setTurns(1);
 							}
 						}
+					float proportionalHealth = holder.currentHealth / holder.totalHealth;
 					shieldHealth = 36.6f;
 					shieldDefense = 6;
+					holder.refresh();
+					holder.currentHealth = proportionalHealth * holder.totalHealth;
 				}
-				else{
+				else {
+					float proportionalHealth = holder.currentHealth / holder.totalHealth;
 					daredevilToggled = false;
 					shieldHealth = 333;
 					shieldDefense = 66;
+					holder.refresh();
+					holder.currentHealth = proportionalHealth * holder.totalHealth;
 				}
 			}
 			if(daredevilToggled){

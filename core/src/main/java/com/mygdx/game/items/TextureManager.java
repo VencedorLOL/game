@@ -1,13 +1,11 @@
 package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.GameScreen;
-import com.mygdx.game.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,13 +15,13 @@ import java.util.Objects;
 import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.cC;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
 import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static java.lang.Math.*;
 
+@SuppressWarnings("all")
 public class TextureManager {
 	public static SpriteBatch batch;
 	public static TextureAtlas atlas;
@@ -793,10 +791,12 @@ public class TextureManager {
 			}
 			if (framesForCurrentAnimation <= 0) play();
 			else framesForCurrentAnimation--;
+			updateOverridableFinal();
 		}
 
 		public void updateOverridable(){}
 
+		public void updateOverridableFinal(){}
 
 		public final void read(){
 			while (fileReader.hasNext()){

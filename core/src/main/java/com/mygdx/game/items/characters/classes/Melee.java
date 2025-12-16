@@ -35,17 +35,13 @@ public class Melee extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Melee").getWeapon(this) != null)
-			equipWeapon(getClIns("Melee").getWeapon(this));
-		if(getClIns("Melee").getShield(this) != null)
-			equipShield(getClIns("Melee").getShield(this));
-
 		abilities.add(new Ability("flurryofhits", "Flurry Of Attacks", 4, 75	,76, (float) globalSize() /2){
 			@Override
 			public void active() {
 				cancelOfA();
 				character.attackMode = true;
 				isItActive = true;
+				character.path.pathReset();
 
 			}
 
@@ -54,6 +50,7 @@ public class Melee extends CharacterClasses {
 				isItActive = false;
 				character.cancelAttackMode();
 				character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
+				character.path.pathReset();
 			}
 		});
 		abilities.add(new Ability("oneforall", "One For All", 4, 87f, 30f, (float) globalSize() /2){
@@ -63,6 +60,7 @@ public class Melee extends CharacterClasses {
 				character.attackMode = true;
 				isItActive = true;
 				character.conditions.status(Conditions.ConditionNames.ONE_FOR_ALL);
+				character.path.pathReset();
 			}
 
 			@Override
@@ -70,6 +68,7 @@ public class Melee extends CharacterClasses {
 				isItActive = false;
 				character.cancelAttackMode();
 				character.conditions.remove(Conditions.ConditionNames.ONE_FOR_ALL);
+				character.path.pathReset();
 			}
 
 			public void finished(){
@@ -86,6 +85,12 @@ public class Melee extends CharacterClasses {
 					resetAbilities();
 			}
 		};
+
+		if(getClIns("Melee").getWeapon() != null)
+			equipWeapon(getClIns("Melee").getWeapon());
+		if(getClIns("Melee").getShield() != null)
+			equipShield(getClIns("Melee").getShield());
+
 		reset();
 
 		if(getClIns("Melee").getCooldown().length >= abilities.size())

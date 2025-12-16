@@ -8,10 +8,11 @@ import com.badlogic.gdx.math.Vector3;
 import static com.mygdx.game.GameScreen.initalized;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 
+@SuppressWarnings("all")
 public class Camara {
 
 	public OrthographicCamera camara;
-	static float x,y,base,height;
+	float x,y,base,height;
 	public float zoom = 2f;
 	static Entity attached;
 	public float finalZoom = -1;
@@ -30,13 +31,13 @@ public class Camara {
 
 	public void zoomToPoint(float x, float y,float base, float height){
 		if(!startAsPathfinding || !initalized){
-			if ((x < Camara.x - Camara.base / 2 || y < Camara.y - Camara.height / 2 || x + base > Camara.x + Camara.base / 2 || y + height > Camara.y + Camara.height / 2) && !Float.isNaN(Camara.base) && !Float.isNaN(Camara.height)) {
-				float distanceX = (Camara.x > x ? Camara.x - x : Camara.x < x ? (x + base) - Camara.x : 0);
-				float distanceY = (Camara.y > y ? Camara.y - y : Camara.y < y ? (y + height) - Camara.y : 0);
-				float baseBase = Camara.base / zoom;
-				float baseHeight = Camara.height / zoom;
-				float newBase = distanceX > Camara.base / 2 ? distanceX * 2 : 0;
-				float newHeight = distanceY > Camara.height / 2 ? distanceY * 2 : 0;
+			if ((x < this.x - this.base / 2 || y < this.y - this.height / 2 || x + base > this.x + this.base / 2 || y + height > this.y + this.height / 2) && !Float.isNaN(this.base) && !Float.isNaN(this.height)) {
+				float distanceX = (this.x > x ? this.x - x : this.x < x ? (x + base) - this.x : 0);
+				float distanceY = (this.y > y ? this.y - y : this.y < y ? (y + height) - this.y : 0);
+				float baseBase = this.base / zoom;
+				float baseHeight = this.height / zoom;
+				float newBase = distanceX > this.base / 2 ? distanceX * 2 : 0;
+				float newHeight = distanceY > this.height / 2 ? distanceY * 2 : 0;
 				float zoom1 = newBase / baseBase;
 				float zoom2 = newHeight / baseHeight;
 				float newZoom = Math.max(Math.max(zoom1, zoom2), zoom);
@@ -46,13 +47,13 @@ public class Camara {
 	}
 
 	public void zoomToPoint(float x, float y,float base, float height,float minZoom){
-		if (!Float.isNaN(Camara.base) && !Float.isNaN(Camara.height)){
-			float distanceX  = (Camara.x > x ? Camara.x - x : Camara.x < x ? (x+base) - Camara.x : 0);
-			float distanceY  = (Camara.y > y ? Camara.y - y : Camara.y < y ? (y+height) - Camara.y : 0);
-			float baseBase = Camara.base / zoom;
-			float baseHeight = Camara.height / zoom;
-			float newBase = distanceX>Camara.base/2 ? distanceX*2 : 0;
-			float newHeight = distanceY>Camara.height/2 ? distanceY*2 : 0;
+		if (!Float.isNaN(this.base) && !Float.isNaN(this.height)){
+			float distanceX  = (this.x > x ? this.x - x : this.x < x ? (x+base) - this.x : 0);
+			float distanceY  = (this.y > y ? this.y - y : this.y < y ? (y+height) - this.y : 0);
+			float baseBase = this.base / zoom;
+			float baseHeight = this.height / zoom;
+			float newBase = distanceX>this.base/2 ? distanceX*2 : 0;
+			float newHeight = distanceY>this.height/2 ? distanceY*2 : 0;
 			float zoom1 = newBase/baseBase;
 			float zoom2 = newHeight/baseHeight;
 			float newZoom = Math.max(Math.max(zoom1, zoom2), minZoom);
@@ -93,8 +94,8 @@ public class Camara {
 	}
 
 	public boolean areCoordsOnTheScreen(float x, float y){
-		return (float) Gdx.graphics.getHeight() / 2 + Camara.y > (y+1) || (float) Gdx.graphics.getHeight() / 2 + Camara.y < (y-1) ||
-			   (float) Gdx.graphics. getWidth() / 2 + Camara.x > (x+1) || (float) Gdx.graphics. getWidth() / 2 + Camara.x < (x-1);
+		return (float) Gdx.graphics.getHeight() / 2 + this.y > (y+1) || (float) Gdx.graphics.getHeight() / 2 + this.y < (y-1) ||
+			   (float) Gdx.graphics. getWidth() / 2 + this.x > (x+1) || (float) Gdx.graphics. getWidth() / 2 + this.x < (x-1);
 	}
 
 

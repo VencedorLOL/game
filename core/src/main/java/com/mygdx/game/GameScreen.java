@@ -22,7 +22,6 @@ import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
 	public static float delta;
-	public static ParticleManager particle;
 	public static Character chara;
 	public static Camara camara = new Camara();
 	public static Stage stage = new Stage();
@@ -45,7 +44,6 @@ public class GameScreen implements Screen, Utils {
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();
-		particle = new ParticleManager();
 		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
 		camara.attach(startAsPathfinding ? attacher : chara);
@@ -92,7 +90,7 @@ public class GameScreen implements Screen, Utils {
 
 	public void finish(){
 		camara.updater();
-		particle.particleRenderer();
+		ParticleManager.particleRenderer();
 		camara.finalizer(TextureManager.batch);
 		TextureManager.batch.end();
 		InputHandler.resetter();
@@ -150,7 +148,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void show() {
-
+		getCamara().setToOrtho(getCamara().zoom = 1);
 	}
 
 	@Override
@@ -162,7 +160,7 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void resize(int width, int height) {
-		getCamara().zoom = 1;
+		getCamara().setToOrtho(getCamara().zoom = 1);
 	}
 
 	@Override

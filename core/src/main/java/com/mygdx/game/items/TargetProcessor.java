@@ -133,12 +133,13 @@ public class TargetProcessor {
 				targetsTarget.setX(roundedClick().x);
 				targetsTarget.setY(roundedClick().y);
 			}
+			if(circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
+				targetRender();
 
-			targetRender();
 
 		} else if (!cursorMoved() || leftClickJustPressed()){
 			targetKeyboardMovement();
-			if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()))
+			if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()) && circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
 				targetRender();
 		} else {
 			animations.remove(target);
@@ -148,16 +149,16 @@ public class TargetProcessor {
 		}
 	}
 
-
 	public void targetRender(){
 		if (target == null) {
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();}};
+			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();} public void updateOverridableFinal(){if(texture.equals("target") || texture.equals("notarget") ) if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY())) target.texture = "notarget";else target.texture = "target";}};
 			animations.add(target);
 		}
 		if (target.finished){
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();}};
+			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();} public void updateOverridableFinal(){if(texture.equals("target") || texture.equals("notarget") )if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY())) target.texture = "notarget";else target.texture = "target";}};
 			animations.add(target);
 		}
+
 	}
 
 
@@ -204,7 +205,10 @@ public class TargetProcessor {
 		circle = null;
 		animations.remove(target);
 		target = null;
-		getCamara().smoothZoom(1,30);
+		targetsTarget.setX(fixated.getX());
+		targetsTarget.setY(fixated.getY());
+
+	//	getCamara().smoothZoom(1,30);
 	}
 
 
@@ -270,9 +274,13 @@ public class TargetProcessor {
 			circle = circle();
 			detectCornersOfCircle(circle);
 			this.zoom = zoom;
-			if(zoom)
-				getCamara().zoomToPoint(furthestX + center.x,furthestY + center.y,globalSize(),globalSize());
+			if(zoom) {
+				getCamara().zoomToPoint(furthestX + center.x + abs(center.x - getCamara().x), globalSize() +furthestY + center.y + abs(center.y - getCamara().y), globalSize(), globalSize());
+				print("zom " +(furthestY + center.y + abs(center.y - getCamara().y)) );
+				print("zom fur " + furthestY);
+				print("zom centr" + center.y);
 
+			}
 		}
 
 		private void changeColor(int r, int g, int b){

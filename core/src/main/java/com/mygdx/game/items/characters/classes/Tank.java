@@ -29,10 +29,10 @@ public class Tank extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-		if(getClIns("Tank").getWeapon(this) != null)
-			equipWeapon(getClIns("Tank").getWeapon(this));
-		if(getClIns("Tank").getShield(this) != null)
-			equipShield(getClIns("Tank").getShield(this));
+		if(getClIns("Tank").getWeapon() != null)
+			equipWeapon(getClIns("Tank").getWeapon());
+		if(getClIns("Tank").getShield() != null)
+			equipShield(getClIns("Tank").getShield());
 
 		reset();
 		currentHealth = totalHealth;
