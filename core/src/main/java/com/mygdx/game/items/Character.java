@@ -23,7 +23,7 @@ import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.*;
+import static com.mygdx.game.items.TurnManager.*;
 
 public class Character extends Actor implements Utils {
 
@@ -72,13 +72,13 @@ public class Character extends Actor implements Utils {
 		actorsThatAttack.add(this);
 		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{244,83,23});
-		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target");
+		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target","notarget");
 		targetProcessor.opacity = .2f;
 		cC = new ClassAndEquipmentChanger(this);
+		path.pathReset();
 	}
 
 	public void spendTurn(){
-		printErr("Called Spend Turn");
 		permittedToAct = false;
 		path.pathStart();
 		isOnTheGrid();
@@ -88,8 +88,9 @@ public class Character extends Actor implements Utils {
 
 	protected void automatedMovement(){
 		if(leftClickReleased()){
-			lastClickX = roundedCursorX();
-			lastClickY = roundedCursorY();
+			Vector3 temporal = roundedClick();
+			lastClickX = temporal.x;
+			lastClickY = temporal.y;
 			print("last ckik x " + lastClickX + " y " + lastClickY);
 			pathFinding();
 		}
@@ -206,12 +207,8 @@ public class Character extends Actor implements Utils {
 		if (classChanging && changePos == -1 && isDecidingWhatToDo(this))
 			cC.render();
 		else if (changePos != -1 && isPermittedToAct()){
-			float healthPercentage = classes.currentHealth / classes.totalHealth;
-			float tempDf = classes.tempDefense;
 			cC.activate(changePos);
-			classes.currentHealth = classes.totalHealth * healthPercentage;
-			classes.tempDefense += tempDf;
-			classes.totalStatsCalculator();
+			classes.handleHpManaTempDf();
 			changePos = -1;
 			spendTurn();
 		}
@@ -249,6 +246,28 @@ public class Character extends Actor implements Utils {
 		targetProcessor.reset();
 		attacks.clear();
 	}
+
+	public void leaveTurnMode(){
+		cancelAttackMode();
+		turnMode = false;
+		classes.destroy();
+		classes = new Classless();
+		path.pathReset();
+	}
+
+	public void enterTurnMode(){
+		cancelAttackMode();
+		turnMode = true;
+		path.pathReset();
+		speedLeft[0] = 0;
+		speedLeft[1] = 0;
+		isOnTheGrid();
+		cC.activate(0);
+		classes.handleHpManaTempDf();
+		changePos = -1;
+
+	}
+
 
 	public void attackActuator(){
 		if(!attacks.isEmpty() && !lockClassTilAnimationFinishes) {
@@ -296,15 +315,16 @@ public class Character extends Actor implements Utils {
 	protected void attackInput() {
 		targetProcessor.changeRadius(totalRange);
 		targetProcessor.render();
-		if(leftClickJustPressed()) {
+		if(leftClickReleased()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
 				attacks.add(new Attack(temporal.x, temporal.y,this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
+				return;
 			}
 		}
-		if (actionConfirmJustPressed()) {
+		if (actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
 				attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
 				if (classes.runOnAttackDecided())
@@ -430,7 +450,7 @@ public class Character extends Actor implements Utils {
 
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			Turns.reset();
+			TurnManager.reset();
 		}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
@@ -487,14 +507,10 @@ public class Character extends Actor implements Utils {
 
 		if(Gdx.input.isKeyJustPressed(Input.Keys.L)) {
 			if (!attackMode) {
-				turnMode = !turnMode;
-				path.pathReset();
+				if(!turnMode)
+					enterTurnMode();
+				else leaveTurnMode();
 				fixatedText("turnMode is now: " + turnMode,500,500,100,Fonts.ComicSans,40);
-				if (turnMode) {
-					speedLeft[0] = 0;
-					speedLeft[1] = 0;
-					isOnTheGrid();
-				}
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E) || (escapeJustPressed() && classChanging)){
@@ -569,6 +585,18 @@ public class Character extends Actor implements Utils {
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
 			addField(FieldEffects.FieldNames.CATACLYSM_NUCLEAR);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
+			addField(FieldEffects.FieldNames.CATACLYSM_GRAVITATIONAL);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
+			addField(FieldEffects.FieldNames.CATACLYSM_STELLAR_EXPLOSION);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
+			addField(FieldEffects.FieldNames.ALERT_TSUNAMI);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
+			addField(FieldEffects.FieldNames.CATACLYSM_ELECTRIC);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
 			classes.health = 1000000;

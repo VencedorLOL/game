@@ -18,10 +18,11 @@ import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.turnables;
 import static java.lang.Math.*;
 
-public class Actor extends Entity{
+public class Actor extends Entity implements TurnManager.Turnable {
 	public float maxHealth;
 	public float health = 20;
 	public float damage;
@@ -76,6 +77,11 @@ public class Actor extends Entity{
 
 	public boolean movementLock = false;
 
+	@Override
+	public float getSpeed() {
+		return totalActingSpeed*100 + totalSpeed;
+	}
+
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
@@ -92,13 +98,14 @@ public class Actor extends Entity{
 		@Override
 		public void onStageChange() {
 			for (Actor a : actors) {
-				a.didItAct = false;
+				a.setDidItAct(false);
 				a.permittedToAct = false;
 			}
 		}
 
 		@Override
 		public void onTurnPass() {
+			print("wan tun has pasd");
 			for (Actor a : actors) {
 				a.path.pathReset();
 				a.movedThisTurn = 0;
@@ -122,6 +129,7 @@ public class Actor extends Entity{
 		super(aChar,x,y,base,height);
 		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
+		turnables.add(this);
 	}
 
 	public void statsUpdater(){
@@ -175,6 +183,14 @@ public class Actor extends Entity{
 
 	public void permitToAct(){permittedToAct = true;}
 
+	@Override
+	public void letAct() {
+		if (!didItAct()) {
+			permitToAct();
+			setDidItAct(true);
+		}
+	}
+
 	public boolean overlapsWithStage(Stage stage, Entity tester){
 		return overlapsWithStageWithException(stage,tester,null);
 	}
@@ -206,7 +222,7 @@ public class Actor extends Entity{
 
 
 	public void cancelDecision(){
-		if(Turns.cancelDecision(this)){
+		if(TurnManager.cancelDecision(this)){
 			speedLeft[0] = 0; speedLeft[1] = 0;
 			path.pathStart();
 			attacks.clear();
@@ -375,7 +391,7 @@ public class Actor extends Entity{
 
 	public void actionDecided(){
 		thisTurnVSM = getVisualSpeedMultiplier();
-		Turns.finalizedChoosing(this);
+		TurnManager.finalizedChoosing(this);
 	}
 
 	public void finalizedTurn(){
@@ -387,7 +403,6 @@ public class Actor extends Entity{
 
 
 	public void spendTurn(){
-		printErr("Called spendTurn on + " + this);
 		permittedToAct = false;
 		path.pathStart();
 		attacks.clear();
@@ -471,7 +486,9 @@ public class Actor extends Entity{
 		actors.clear();
 		friend.clear();
 		enemies.clear();
+		turnables.clear();
 		actors.add(chara);
+		turnables.add(chara);
 	}
 
 

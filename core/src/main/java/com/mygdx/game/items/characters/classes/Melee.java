@@ -86,16 +86,12 @@ public class Melee extends CharacterClasses {
 			}
 		};
 
-		if(getClIns("Melee").getWeapon() != null)
-			equipWeapon(getClIns("Melee").getWeapon());
-		if(getClIns("Melee").getShield() != null)
-			equipShield(getClIns("Melee").getShield());
-
+		getEquipment();
 		reset();
 
 		if(getClIns("Melee").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("Melee").getCooldown()[i];
+				abilities.get(i).cooldownCounter = getClIns("Melee").getCooldown()[i];
 
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -151,9 +147,6 @@ public class Melee extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		getClIns("Melee").setShield(shield);
-		getClIns("Melee").setWeapon(weapon);
-		getClIns("Melee").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

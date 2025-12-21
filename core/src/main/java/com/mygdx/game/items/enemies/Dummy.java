@@ -7,7 +7,7 @@ import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 
 public class Dummy extends Enemy {
 
@@ -23,6 +23,10 @@ public class Dummy extends Enemy {
 				text("Hi, I am a dummy!", x,y+globalSize()*2,200, TextureManager.Fonts.ComicSans, 40, 255,255,255,1,150);
 			}
 		};
+	}
+
+	public boolean didItAct(){
+		return true;
 	}
 
 	public void attack(){

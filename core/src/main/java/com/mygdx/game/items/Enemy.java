@@ -8,7 +8,8 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.animationToList;
 import static com.mygdx.game.items.Tile.findATile;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.turnables;
 import static java.lang.Math.*;
 
 public class Enemy extends Actor {
@@ -160,6 +161,7 @@ public class Enemy extends Actor {
 			actors.remove(this);
 			enemies.remove(this);
 			entityList.remove(this);
+			turnables.remove(this);
 		}
 	}
 

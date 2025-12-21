@@ -11,26 +11,38 @@ public class Entity {
 	public float x, y,z, base, height;
 	String texture;
 	public boolean render = true;
+	public boolean generalRender;
 	public static ArrayList<Entity> entityList = new ArrayList<>();
+
+	public static void generalRender(){
+		for(int i = 0; i < entityList.size(); i++){
+			if(entityList.get(i).generalRender && entityList.get(i).render)
+				entityList.get(i).render();
+		}
+	}
 
 	public Entity(String texture, float x, float y, float base, float height){
 		refresh(texture,x,y,base,height);
 		entityList.add(this);
+		 z = 0;
 	}
 
 	public Entity() {
 		entityList.add(this);
+		z = 0;
 	}
 
 	public Entity(String texture, float x, float y){
 		refresh(texture,x,y,globalSize(),globalSize());
 		entityList.add(this);
+		z = 0;
 	}
 
 	public Entity(String texture, float x, float y,boolean render){
 		refresh(texture,x,y,globalSize(),globalSize());
 		this.render = render;
 		entityList.add(this);
+		z = 0;
 	}
 
 	public void refresh(String texture, float x, float y, float base, float height){
@@ -39,6 +51,7 @@ public class Entity {
 		this.base    = base;
 		this.height  = height;
 		this.texture = texture;
+		z = 0;
 	}
 
 	public boolean overlaps (Entity entity) {
@@ -130,6 +143,16 @@ public class Entity {
 		expectedY = new Floatt(y);
 	}
 
+	public void glideAbsoluteCoords(float x, float y, float z, float time){
+		isGliding = true;
+		glideTime = time;
+		glideXPerFrame = (x - this.x) / time;
+		glideYPerFrame = (y - this.y) / time;
+		glideZPerFrame = (z - this.z) / time;
+		expectedX = new Floatt(x);
+		expectedY = new Floatt(y);
+	}
+
 	public void glideAbsoluteCoords(float x, float y){
 		glideAbsoluteCoords(x,y,(float)sqrt(pow(x,2)+pow(y,2))/2);
 	}
@@ -165,7 +188,6 @@ public class Entity {
 	}
 
 	public double dC(float x, float y){
-		print("this distance is of: " + sqrt(pow((x)-(this.x),2)+pow((y)-(this.y),2))/globalSize());
 		return sqrt(pow((x)-(this.x),2)+pow((y)-(this.y),2));
 	}
 

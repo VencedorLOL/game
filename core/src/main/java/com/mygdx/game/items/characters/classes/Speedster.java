@@ -57,13 +57,10 @@ public class Speedster extends CharacterClasses {
 					abilities.get(0).finished();
 			}
 		};
-		if(getClIns("Speedster").getWeapon() != null)
-			equipWeapon(getClIns("Speedster").getWeapon());
-		if(getClIns("Speedster").getShield() != null)
-			equipShield(getClIns("Speedster").getShield());
+		getEquipment();
 		if(getClIns("Speedster").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("Speedster").getCooldown()[i];
+				abilities.get(i).cooldownCounter = getClIns("Speedster").getCooldown()[i];
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -108,9 +105,6 @@ public class Speedster extends CharacterClasses {
 	}
 */
 	public void destroyOverridable(){
-		getClIns("Speedster").setShield(shield);
-		getClIns("Speedster").setWeapon(weapon);
-		getClIns("Speedster").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 

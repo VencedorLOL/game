@@ -11,7 +11,7 @@ import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Math.abs;
 
@@ -58,13 +58,9 @@ public class StellarExplosion extends CharacterClasses {
 		text.setColor(new int[]{157,216,242});
 		if(getClIns("StellarExplosion").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("StellarExplosion").getCooldown()[i];
+				abilities.get(i).cooldownCounter = getClIns("StellarExplosion").getCooldown()[i];
 
-		if(getClIns("StellarExplosion").getWeapon() != null)
-			equipWeapon(getClIns("StellarExplosion").getWeapon());
-		if(getClIns("StellarExplosion").getShield() != null)
-			equipShield(getClIns("StellarExplosion").getShield());
-
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;
@@ -148,9 +144,6 @@ public class StellarExplosion extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		getClIns("StellarExplosion").setShield(shield);
-		getClIns("StellarExplosion").setWeapon(weapon);
-		getClIns("StellarExplosion").setCooldown(getAbilitiesCd());
 		text.onScreenTime = 1;
 	}
 

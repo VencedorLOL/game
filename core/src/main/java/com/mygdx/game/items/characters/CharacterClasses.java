@@ -2,6 +2,7 @@ package com.mygdx.game.items.characters;
 
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.characters.classes.Classless;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
@@ -16,7 +17,9 @@ import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
 import static com.mygdx.game.items.FieldEffects.getAdditive;
 import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.*;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Math.max;
 
 public class CharacterClasses {
@@ -67,52 +70,10 @@ public class CharacterClasses {
 	public ArrayList<Ability> abilities;
 
 	public boolean pierces;
-	// If true, turn completion will be handled by classes instead of normal procedure
-	public boolean shouldTurnCompletionBeLeftToClass;
 
 	OnVariousScenarios oVE;
 
 	public float aggro;
-
-	public CharacterClasses(String name, float health, float damage,
-							byte speed, byte attackSpeed, float defense,
-							int range, float tempDefense, float rainbowDefense,
-							float mana, float magicDefense, float magicDamage,
-							float manaPerTurn, float manaPerUse, float magicHealing, float aggro){
-		this.name             = name;
-		this.health           = health;
-		this.damage           = damage;
-		this.speed            = speed;
-		this.attackSpeed      = attackSpeed;
-		this.defense          = defense;
-		this.range            = range;
-		this.tempDefense      = tempDefense;
-		this.rainbowDefense   = rainbowDefense;
-		this.mana             = mana;
-		this.magicDefense     = magicDefense;
-		this.magicDamage      = magicDamage;
-		this.manaPerTurn      = manaPerTurn;
-		this.manaPerUse       = manaPerUse;
-		this.magicHealing     = magicHealing;
-		this.aggro            = aggro;
-		this.shouldTurnCompletionBeLeftToClass = false;
-		reset();
-		currentHealth = totalHealth;
-		manaPool = mana;
-		oVE = new OnVariousScenarios(){
-			@Override
-			public void onTurnPass(){
-				turnHasPassed();
-			}
-
-			@Override
-			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
-				if (damagedActor == character){
-					onHurt(source);
-				}
-			}
-		};
-	}
 
 	public CharacterClasses(){
 		abilities = new ArrayList<>();
@@ -150,6 +111,24 @@ public class CharacterClasses {
 			}
 
 		};
+	}
+
+	public void handleHpManaTempDf(){
+		totalStatsCalculator();
+		currentHealth = totalHealth * standarizedHealth;
+		manaPool = ClassStoredInformation.ClassInstance.mana;
+		tempDefense = tempDf;
+	}
+
+	public void getEquipment(){
+		if(getClIns(name).getWeapon() != null)
+			equipWeapon(getClIns(name).getWeapon());
+		if(getClIns(name).getShield() != null)
+			equipShield(getClIns(name).getShield());
+		if(abilities != null && !abilities.isEmpty())
+			if(getClIns(name).getCooldown().length >= abilities.size())
+				for(int i = 0; i < abilities.size(); i++)
+					abilities.get(i).cooldownCounter = getClIns(name).getCooldown()[i];
 	}
 
 
@@ -400,6 +379,15 @@ public class CharacterClasses {
 
 
 	public final void destroy(){
+		if (!(this instanceof Classless)) {
+			getClIns(name).setShield(shield);
+			getClIns(name).setWeapon(weapon);
+		}
+		if(abilities != null && !abilities.isEmpty())
+			getClIns(name).setCooldown(getAbilitiesCd());
+		standarizedHealth = currentHealth / totalHealth;
+		tempDf = tempDefense;
+		ClassStoredInformation.ClassInstance.mana = manaPool;
 		destroyListener(oVE);
 		weapon.destroy();
 		shield.destroy();

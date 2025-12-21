@@ -29,11 +29,7 @@ public class Tank extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-		if(getClIns("Tank").getWeapon() != null)
-			equipWeapon(getClIns("Tank").getWeapon());
-		if(getClIns("Tank").getShield() != null)
-			equipShield(getClIns("Tank").getShield());
-
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -50,8 +46,6 @@ public class Tank extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		getClIns("Tank").setShield(shield);
-		getClIns("Tank").setWeapon(weapon);
 		destroyListener(oVE);
 	}
 }

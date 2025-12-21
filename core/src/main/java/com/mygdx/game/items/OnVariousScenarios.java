@@ -51,9 +51,9 @@ public class OnVariousScenarios {
 
 	public static void triggerOnCounter(){
 		onScenarios.removeIf(t -> t instanceof CounterObject && ((CounterObject) t).didItExpire);
-		for(OnVariousScenarios t : onScenarios)
-			if(t instanceof CounterObject)
-				((CounterObject) t).trueOnCounterFinish();
+		for(int i = 0; i < onScenarios.size() ; i++)
+			if(onScenarios.get(i) instanceof CounterObject)
+				((CounterObject) onScenarios.get(i)).trueOnCounterFinish();
 	}
 
 	public void onVolumeChange(){}

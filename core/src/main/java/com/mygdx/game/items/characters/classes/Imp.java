@@ -1,13 +1,12 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.GameScreen.chara;
-//import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Actor.actors;
@@ -16,9 +15,8 @@ import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.ParticleManager.particleEmitter;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.isTurnRunning;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isTurnRunning;
 
 public class Imp extends CharacterClasses {
 
@@ -88,6 +86,7 @@ public class Imp extends CharacterClasses {
 				targetProcessor.reset();
 				character.movementLock = false;
 				character.path.pathReset();
+				getCamara().smoothZoom(1,30);
 			}
 
 			@Override
@@ -106,18 +105,12 @@ public class Imp extends CharacterClasses {
 					abilities.get(1).cancelActivation();
 			}
 		};
-		if(getClIns("Imp").getWeapon() != null)
-			equipWeapon(getClIns("Imp").getWeapon());
-		if(getClIns("Imp").getShield() != null)
-			equipShield(getClIns("Imp").getShield());
-		if(getClIns("Imp").getCooldown().length >= abilities.size())
-			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("Imp").getCooldown()[i];
 
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
-		targetProcessor = new TargetProcessor(character,markRange,false,false,"marktarget");
+		targetProcessor = new TargetProcessor(character,markRange,false,false,"DemonMark","notarget");
 	}
 
 	public void resetClassesState() {
@@ -213,26 +206,24 @@ public class Imp extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		getClIns("Imp").setShield(shield);
-		getClIns("Imp").setWeapon(weapon);
-		getClIns("Imp").setCooldown(getAbilitiesCd());
 		destroyListener(oVSce);
 	}
 
 
 	protected void demonizeInput() {
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
-	//		getCamara().smoothZoom(1,30);
+		if(leftClickReleased()) {
 			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null && !(temporal.x == character.getX() && temporal.y == character.getY())) {
+				getCamara().smoothZoom(1,30);
 				markCoords = new float[]{temporal.x,temporal.y};
 				character.actionDecided();
+				return;
 			}
 		}
-		if(actionConfirmJustPressed()) {
-	//		getCamara().smoothZoom(1,30);
-			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				getCamara().smoothZoom(1,30);
 				markCoords = new float[]{targetProcessor.getTargetX(),targetProcessor.getTargetY()};
 				character.actionDecided();
 			}

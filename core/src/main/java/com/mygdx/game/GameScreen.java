@@ -12,12 +12,13 @@ import com.mygdx.game.items.stages.StagePathfinding;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
+import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedText;
-import static com.mygdx.game.items.Turns.*;
+import static com.mygdx.game.items.TurnManager.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
 public class GameScreen implements Screen, Utils {
@@ -81,6 +82,7 @@ public class GameScreen implements Screen, Utils {
 		stage.screenWarpTrigger();
 		stage.stageRenderer();
 		chara.update();
+		generalRender();
 		attackRenderer();
 		renderGUI();
 		zoomManagement();

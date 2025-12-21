@@ -120,7 +120,7 @@ public class AttackTextProcessor {
 				this.text = text;
 				this.damage = damage;
 				this.reason = reason;
-				turn = Turns.getTurnCount();
+				turn = TurnManager.getTurnCount();
 			}
 		}
 

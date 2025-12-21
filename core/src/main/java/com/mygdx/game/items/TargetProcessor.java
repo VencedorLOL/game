@@ -26,6 +26,19 @@ public class TargetProcessor {
 	byte r = (byte) 200,g = (byte) 200,b = (byte) 200;
 	float x,y;
 	public float opacity = 0f;
+	public float borderOpacity = .6f;
+	String firTexture, secTexture;
+
+	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String texture, String secTexture){
+		this.fixated = fixated;
+		this.size = size;
+		this.checkWalkable = checkWalkable;
+		this.rayCast = rayCast;
+		targetsTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
+		this.firTexture = texture;
+		this.secTexture = secTexture;
+	}
+
 
 	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String targetAnimation){
 		this.fixated = fixated;
@@ -58,7 +71,7 @@ public class TargetProcessor {
 
 
 	public void render(){
-		if(targetAnimation != null)
+		if(targetAnimation != null || (firTexture != null ||secTexture!=null))
 			targetProcesor();
 		else if(fixated != null)
 			circleProcesor();
@@ -81,7 +94,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast,r,g,b,true,opacity);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, checkWalkable,rayCast,r,g,b,true,opacity,borderOpacity);
 
 		}
 		circle.renderCircle();
@@ -95,7 +108,7 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(x, y), stage.tileset, size, checkWalkable,rayCast,r,g,b,false,opacity);
+			circle = new Circle(stage.findATile(x, y), stage.tileset, size, checkWalkable,rayCast,r,g,b,false,opacity,borderOpacity);
 
 		}
 		circle.renderCircle();
@@ -119,10 +132,11 @@ public class TargetProcessor {
 				for (Circle.CircleTile t : circle.circle)
 					for (int i = 0; i < 13; i++)
 						t.setSecondaryTexture(null,0.8f,0,false,false,i);
-			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false,r,g,b,true,opacity);
+			circle = new Circle(stage.findATile(fixated.getX(), fixated.getY()), stage.tileset, size, true,false,r,g,b,true,opacity,borderOpacity);
 
 		}
-		circle.renderCircle();
+		if(borderOpacity != 0)
+			circle.renderCircle();
 		Vector3 temporal = roundedClick();
 		if (circle.isInsideOfCircle(temporal.x, temporal.y)) {
 
@@ -150,15 +164,59 @@ public class TargetProcessor {
 	}
 
 	public void targetRender(){
-		if (target == null) {
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();} public void updateOverridableFinal(){if(texture.equals("target") || texture.equals("notarget") ) if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY())) target.texture = "notarget";else target.texture = "target";}};
-			animations.add(target);
-		}
-		if (target.finished){
-			target = new TextureManager.Animation(targetAnimation, targetsTarget){public void updateOverridable() {if(leftClickJustPressed() || actionConfirmJustPressed()) this.stop();} public void updateOverridableFinal(){if(texture.equals("target") || texture.equals("notarget") )if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY())) target.texture = "notarget";else target.texture = "target";}};
-			animations.add(target);
-		}
+		if(secTexture == null) {
+			if (target == null) {
+				target = new TextureManager.Animation(targetAnimation, targetsTarget) {
+					public void updateOverridable() {
+						if (leftClickReleased() || actionConfirmJustPressed())
+							this.stop();
+					}
+				};
+				animations.add(target);
+			}
+			if (target.finished) {
+				target = new TextureManager.Animation(targetAnimation, targetsTarget) {
+					public void updateOverridable() {
+						if (leftClickReleased() || actionConfirmJustPressed())
+							this.stop();
+					}
+				};
+				animations.add(target);
+			}
+		} else {
+			if (target == null) {
+				target = new TextureManager.Animation("target", targetsTarget) {
+					public void updateOverridable() {
+						if (leftClickReleased() || actionConfirmJustPressed())
+							this.stop();
+					}
 
+					public void updateOverridableFinal() {
+						if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()))
+							target.texture = secTexture;
+						else
+							target.texture = firTexture;
+					}
+				};
+				animations.add(target);
+			}
+			if (target.finished) {
+				target = new TextureManager.Animation("target", targetsTarget) {
+					public void updateOverridable() {
+						if (leftClickReleased() || actionConfirmJustPressed())
+							this.stop();
+					}
+
+					public void updateOverridableFinal() {
+						if ((targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()))
+							target.texture = secTexture;
+						else
+							target.texture = firTexture;
+					}
+				};
+				animations.add(target);
+			}
+		}
 	}
 
 
@@ -257,9 +315,11 @@ public class TargetProcessor {
 		float furthestX, furthestY;
 		boolean zoom;
 		public float opacity;
+		public float borderOpacity;
 
-		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast,int r,int g, int b,boolean zoom,float opacity){
+		public Circle(Tile center, ArrayList<Tile> tileset, float radius,boolean checkWalkable,boolean rayCast,int r,int g, int b,boolean zoom,float opacity,float borderOpacity){
 			this.opacity = opacity;
+			this.borderOpacity = borderOpacity;
 			this.center = center;
 			this.radius = radius;
 			this.tileset = tileset;
@@ -281,6 +341,13 @@ public class TargetProcessor {
 				print("zom centr" + center.y);
 
 			}
+		}
+
+		public static ArrayList<CircleTile> simpleCircle(float x, float y, float radius) {
+			if(Tile.findATile(stage.tileset,x,y) != null) {
+				Circle c = new Circle(Tile.findATile(stage.tileset, x, y),stage.tileset , radius - .5f, false, false, 0,0,0,false,0,0);
+				return c.circle();
+			} else return null;
 		}
 
 		private void changeColor(int r, int g, int b){

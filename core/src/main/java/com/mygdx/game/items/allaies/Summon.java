@@ -2,7 +2,6 @@ package com.mygdx.game.items.allaies;
 
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.Friend;
-import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.Tile;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -10,8 +9,6 @@ import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.Stage.haveScreenWarpsBeenRendered;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.isTurnRunning;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 

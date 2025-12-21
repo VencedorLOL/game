@@ -7,7 +7,7 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
-import static com.mygdx.game.items.Turns.turnStopTimer;
+import static com.mygdx.game.items.TurnManager.turnStopTimer;
 
 public class Path {
 	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());

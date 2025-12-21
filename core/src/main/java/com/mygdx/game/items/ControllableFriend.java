@@ -14,7 +14,8 @@ import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.turnables;
 
 public class ControllableFriend extends Friend {
 
@@ -123,7 +124,7 @@ public class ControllableFriend extends Friend {
 
 	public void actionDecided(){
 		thisTurnVSM = getVisualSpeedMultiplier();
-		Turns.finalizedChoosing(this);
+		TurnManager.finalizedChoosing(this);
 		active = false;
 	}
 
@@ -191,6 +192,7 @@ public class ControllableFriend extends Friend {
 			entityList.remove(this);
 			controllableCharacters.remove(this);
 			actorsThatAttack.remove(this);
+			turnables.remove(this);
 		}
 	}
 /*	protected void turnSpeedActuator(){

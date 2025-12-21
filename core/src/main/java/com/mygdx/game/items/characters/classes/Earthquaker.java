@@ -12,8 +12,7 @@ import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
 import static com.mygdx.game.items.InputHandler.actionResetJustPressed;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static java.lang.Math.abs;
 
 public class Earthquaker extends CharacterClasses {
@@ -45,10 +44,7 @@ public class Earthquaker extends CharacterClasses {
 		magicHealing = 0;
 		aggro = 1;
 
-		if(getClIns("Earthquaker").getWeapon() != null)
-			equipWeapon(getClIns("Earthquaker").getWeapon());
-		if(getClIns("Earthquaker").getShield() != null)
-			equipShield(getClIns("Earthquaker").getShield());
+		getEquipment();
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
@@ -145,8 +141,6 @@ public class Earthquaker extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		getClIns("Earthquaker").setShield(shield);
-		getClIns("Earthquaker").setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 

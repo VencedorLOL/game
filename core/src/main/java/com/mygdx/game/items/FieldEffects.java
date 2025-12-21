@@ -13,7 +13,7 @@ import static com.mygdx.game.items.Hazards.HazardNames.FIRE;
 import static com.mygdx.game.items.Hazards.getHazard;
 import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isTurnRunning;
+import static com.mygdx.game.items.TurnManager.isTurnRunning;
 import static java.lang.Math.*;
 
 public class FieldEffects {
@@ -337,7 +337,7 @@ public class FieldEffects {
 		public void setLightningLocation(){
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f,.6f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < numberLightning; i++) {
 				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());
@@ -740,7 +740,7 @@ public class FieldEffects {
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f,.6f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
@@ -882,7 +882,7 @@ public class FieldEffects {
 			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
 			locations = new ArrayList<>();
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f,.6f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
 				if(direction == 0) {
@@ -1134,7 +1134,7 @@ public class FieldEffects {
 			locations = new ArrayList<>();
 			numberLightning = (int) ((sqrt((stage.finalX-stage.startX) * (stage.finalY-stage.startY)/pow(globalSize(),2)))/2 * max(floor(turnCounter/2f),1));
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f,.6f);
 			warning.circle.circle.clear();
 			for(int i = 0; i < numberLightning; i++) {
 				locations.add(stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1))).xAndY());

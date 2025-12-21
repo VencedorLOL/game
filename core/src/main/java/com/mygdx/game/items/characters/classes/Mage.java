@@ -28,10 +28,7 @@ public class Mage extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 0;
-		if(getClIns("Mage").getWeapon() != null)
-			equipWeapon(getClIns("Mage").getWeapon());
-		if(getClIns("Mage").getShield() != null)
-			equipShield(getClIns("Mage").getShield());
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
@@ -59,8 +56,6 @@ public class Mage extends CharacterClasses {
 	}
 
 	public void destroyOverridable(){
-		getClIns("Mage").setShield(shield);
-		getClIns("Mage").setWeapon(weapon);
 		text.onScreenTime = 1;
 	}
 

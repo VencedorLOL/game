@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.allaies.Summon;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
-import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
@@ -108,14 +107,7 @@ public class Summoner extends CharacterClasses {
 				summons.clear();
 			}
 		};
-		if(getClIns("Summoner").getWeapon() != null)
-			equipWeapon(getClIns("Summoner").getWeapon());
-		if(getClIns("Summoner").getShield() != null)
-			equipShield(getClIns("Summoner").getShield());
-		if(getClIns("Summoner").getCooldown().length >= abilities.size())
-			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("Summoner").getCooldown()[i];
-
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,summonRange,true,false,"summontarget");
@@ -197,21 +189,22 @@ public class Summoner extends CharacterClasses {
 		targetProcessor.changeAnimation("summoncontrol");
 		targetProcessor.changeRadius(summonRange);
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
-			getCamara().smoothZoom(1,30);
+		if(leftClickReleased()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
+				getCamara().smoothZoom(1,30);
 				for(Summon s : summons){
 					s.cancelDecision();
 					s.setTarget(temporal.x,temporal.y);
 				}
 				cancelControl();
 				cancelSummon();
+				return;
 			}
 		}
-		if(actionConfirmJustPressed()) {
-			getCamara().smoothZoom(1,30);
-			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null) {
+				getCamara().smoothZoom(1,30);
 				for(Summon s : summons){
 					s.cancelDecision();
 					s.setTarget(targetProcessor.getTargetX(), targetProcessor.getTargetY());
@@ -238,22 +231,23 @@ public class Summoner extends CharacterClasses {
 			addToList("Ball",weakestSummon.getX(),weakestSummon.getY() + globalSize()/4f,1,0,240,25,25);
 		}
 
-		if(Gdx.input.justTouched()) {
-			getCamara().smoothZoom(1,30);
+		if(leftClickReleased()) {
 			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-					summonLocation[0] = temporal.x;
-					summonLocation[1] = temporal.y;
-					character.actionDecided();
-					abilities.get(0).finished();
-					summonDecided = true;
+			if (targetProcessor.findATile(temporal.x,temporal.y) != null && !(temporal.x == character.getX() && temporal.y == character.getY())) {
+				getCamara().smoothZoom(1,30);
+				summonLocation[0] = temporal.x;
+				summonLocation[1] = temporal.y;
+				character.actionDecided();
+				abilities.get(0).finished();
+				summonDecided = true;
+				return;
 			}
 		}
-		if(actionConfirmJustPressed()) {
-			getCamara().smoothZoom(1,30);
-			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+				getCamara().smoothZoom(1,30);
 				summonLocation[0] = targetProcessor.getTargetX();
-				summonLocation[1] = targetProcessor.getTargetX();
+				summonLocation[1] = targetProcessor.getTargetY();
 				character.actionDecided();
 				abilities.get(0).finished();
 				summonDecided = true;
@@ -264,9 +258,6 @@ public class Summoner extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		getClIns("Summoner").setShield(shield);
-		getClIns("Summoner").setWeapon(weapon);
-		getClIns("Summoner").setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 	}
 }

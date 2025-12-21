@@ -14,7 +14,7 @@ import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 
 
 public class ImpWeapons extends Weapons{

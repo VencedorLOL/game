@@ -318,8 +318,11 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<Weapons.NoWeapon>());
-			shielder.add(new Shielder<Shields.NoShield>());
+			weaponer.add(new Weaponer<CatapultAmmo>());
+			weaponer.add(new Weaponer<CatapultAmmo.FlamingRock>());
+			weaponer.add(new Weaponer<CatapultAmmo.HomingRock>());
+			weaponer.add(new Weaponer<CatapultAmmo.ClusterRock>());
+			shielder.add(new Shielder<CatapultParts.MetalBucket>());
 		}
 
 		public void activate(Character character){

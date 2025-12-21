@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
+import com.mygdx.game.items.characters.equipment.weapons.CatapultAmmo;
 
 import java.util.ArrayList;
 
@@ -12,20 +13,16 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
-import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
-import static com.mygdx.game.items.InputHandler.leftClickJustPressed;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.Turns.turnStopTimer;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static com.mygdx.game.items.TurnManager.*;
 import static java.lang.Math.max;
 
 public class Catapult extends CharacterClasses {
 
 	public float chargeRange = 3;
 	public float throwRange = 30;
-	public ArrayList<Rock> rocks = new ArrayList<>();
 	public float[] rocksCoords = new float[2];
 	public float[] chargeCoords = new float[2];
 	public boolean isCharged = false;
@@ -34,9 +31,9 @@ public class Catapult extends CharacterClasses {
 	OnVariousScenarios oVS;
 	OnVariousScenarios oVS2;
 	TargetProcessor targetProcessor;
-	TargetProcessor circle2;
-	TargetProcessor circle5;
-	TargetProcessor circle8;
+	public TargetProcessor circle2;
+	public TargetProcessor circle5;
+	public TargetProcessor circle8;
 
 	public Catapult() {
 		super();
@@ -56,11 +53,6 @@ public class Catapult extends CharacterClasses {
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 1;
-
-		if(getClIns("Catapult").getWeapon() != null)
-			equipWeapon(getClIns("Catapult").getWeapon());
-		if(getClIns("Catapult").getShield() != null)
-			equipShield(getClIns("Catapult").getShield());
 
 		abilities.add(new Ability("ChargeCatapult", "Charge the Catapult", 0, 75	,76, (float) globalSize() /2){
 			@Override
@@ -147,40 +139,27 @@ public class Catapult extends CharacterClasses {
 				character.path.pathReset();
 			}
 		});
-
-		oVS = new OnVariousScenarios(){
-			@Override
-			public void onStageChange() {
-				rocks.clear();
-			}
-		};
-		if(getClIns("Catapult").getCooldown().length >= abilities.size())
-			for(int i = 0; i < abilities.size(); i++)
-				abilities.get(i).cooldown = getClIns("Catapult").getCooldown()[i];
-		reset();
-		currentHealth = totalHealth;
-		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target"); targetProcessor.opacity = .2f;
+		targetProcessor = new TargetProcessor(character,chargeRange,true,true,"target","notarget"); targetProcessor.opacity = .2f;
 		circle2 = new TargetProcessor(character,1.5f,true,false);circle2.opacity = 0f;
 		circle5 = new TargetProcessor(character,4.5f,true,false);circle5.opacity = 0f;
 		circle8 = new TargetProcessor(character,7.5f,true,false);circle8.opacity = 0f;
+		getEquipment();
+		reset();
+		currentHealth = totalHealth;
 	}
 
-	public void onFinalizedTurn() {
-		for(Rock r : rocks)
-			r.advanceRock();
-	}
 
 	public void updateOverridable() {
 		abilitiesProcessor();
-		rocks.removeIf(r -> r.finished && !r.isGliding);
-		for(Rock r : rocks)
-			r.update();
 		if(character.permittedToAct){
 			if(willShoot && isCharged){
 				throwingMode = false;
 				isCharged = false;
 				willShoot = false;
-				rocks.add(new Rock(character.x,character.y,rocksCoords[0],rocksCoords[1],totalDamage*10));
+				if(weapon != null && weapon instanceof CatapultAmmo)
+					((CatapultAmmo) weapon).throwRock(character.x,character.y,rocksCoords[0],rocksCoords[1],totalDamage*10,totalAttackSpeed*100+totalSpeed);
+				else
+					new Rock(character.x,character.y,rocksCoords[0],rocksCoords[1],totalDamage*10,totalAttackSpeed*100+totalSpeed);
 				rocksCoords = new float[2];
 				character.spendTurn();
 			}
@@ -244,15 +223,7 @@ public class Catapult extends CharacterClasses {
 		targetProcessor.changeCheckWalkable(true);
 		targetProcessor.changeRayCast(true);
 		targetProcessor.render();
-		if(leftClickJustPressed()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				chargeCoords[0] = temporal.x;
-				chargeCoords[1] = temporal.y;
-				character.actionDecided();
-			}
-		}
-		if(actionConfirmJustPressed()) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				chargeCoords[0] = targetProcessor.getTargetX();
 				chargeCoords[1] = targetProcessor.getTargetY();
@@ -281,18 +252,8 @@ public class Catapult extends CharacterClasses {
 		targetProcessor.changeRayCast(false);
 		renderCircle();
 		targetProcessor.render();
-		if(leftClickJustPressed()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				rocksCoords[0] = temporal.x;
-				rocksCoords[1] = temporal.y;
-				willShoot = true;
-				character.actionDecided();
-				character.movementLock = false;
-			}
-		}
-		if(actionConfirmJustPressed()) {
-			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null) {
 				rocksCoords[0] = targetProcessor.getTargetX();
 				rocksCoords[1] = targetProcessor.getTargetY();
 				willShoot = true;
@@ -305,23 +266,24 @@ public class Catapult extends CharacterClasses {
 
 	@Override
 	protected void destroyOverridable() {
-		getClIns("Catapult").setShield(shield);
-		getClIns("Catapult").setWeapon(weapon);
-		getClIns("Catapult").setCooldown(getAbilitiesCd());
 		destroyListener(oVS);
 		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
 	}
 
 
-	public static class Rock extends Entity {
-		float objectiveX, objectiveY,xPerTurn,yPerTurn,zPerTurn;
-		int turnsToFall;
-		float damage;
-		boolean finished;
-		OnVariousScenarios ove;
-		float initialDistance;
+	public static class Rock extends Entity implements TurnManager.Turnable {
+		public float objectiveX, objectiveY,xPerTurn,yPerTurn,zPerTurn;
+		public int turnsToFall;
+		public float damage;
+		public boolean finished;
+		public OnVariousScenarios ove;
+		public OnVariousScenarios lifeOVE;
+		public float initialDistance;
+		public float speed;
+		public boolean didItAct;
+		public boolean permitToAct;
 
-		public Rock(float x,float y,float objectiveX, float objectiveY,float damage){
+		public Rock(float x,float y,float objectiveX, float objectiveY,float damage,float speed){
 			super("Boulder",x,y);
 			this.damage = damage;
 			this.objectiveX = objectiveX;
@@ -332,46 +294,99 @@ public class Catapult extends CharacterClasses {
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);
 			zPerTurn = max(5 / (initialDistance + 2),1.5f);
+			this.speed = speed - .1f;
+			Rock temp = this;
+			lifeOVE = new OnVariousScenarios(){
+				@Override
+				public void onStageChange() {
+					destroyListener(ove);
+					destroyListener(lifeOVE);
+					entityList.remove(temp);
+					turnables.remove(temp);
+				}
+			};
+			generalRender = true;
+			turnables.add(this);
+			changeZ();
 		}
+
+		public void render(){
+			glideProcess();
+			if(render)
+				TextureManager.addToList(getTexture(),x,y,z);
+			if(finished && !isGliding){
+				destroyListener(ove);
+				destroyListener(lifeOVE);
+				entityList.remove(this);
+				turnables.remove(this);
+			}
+		}
+
+		public void changeZ(){}
 
 		public void advanceRock(){
 			glide(xPerTurn, yPerTurn, dC(objectiveX,objectiveY)/globalSize()*1.5 > initialDistance ? zPerTurn : -zPerTurn,60);
 			turnStopTimer(60);
 			if(turnsToFall == 0){
-				if (actorInPos(objectiveX,objectiveY) != null && !finished)
+				Rock temp = this;
+				if (!finished)
 					ove = new OnVariousScenarios.CounterObject(60){
 					public void onCounterFinish(){
-						animations.add(new Animation("boulderbreaking",x,y){
-							public void onFinish() {
-								print("finished");
-							}
-						});
-						actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
+						animations.add(new Animation("boulderbreaking",x,y));
+						if(actorInPos(objectiveX,objectiveY) != null)
+							actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
 						destroyListener(ove);
+						destroyListener(lifeOVE);
+						entityList.remove(temp);
+						turnables.remove(temp);
 					}
 				};
-				else if (!finished){
-					ove = new OnVariousScenarios.CounterObject(60){
-						public void onCounterFinish(){
-							animations.add(new Animation("boulderbreaking",x,y){
-								public void onFinish() {
-									print("finished");
-								}
-							});
-							destroyListener(ove);
-						}
-					};
-				}
+
 				finished = true;
 			}
 			turnsToFall--;
+			permitToAct = false;
 		}
 
-		public void update(){
-			glideProcess();
-			render();
+		@Override
+		public float getSpeed() {
+			return speed;
 		}
 
+		@Override
+		public boolean didItAct() {
+			return didItAct;
+		}
+
+		@Override
+		public boolean getIsDead() {
+			return false;
+		}
+
+		@Override
+		public boolean isPermittedToAct() {
+			return permitToAct;
+		}
+
+		@Override
+		public void setDidItAct(boolean didItAct) {
+			this.didItAct = didItAct;
+		}
+
+		@Override
+		public void permitToAct() {
+			permitToAct = true;
+		}
+
+		@Override
+		public void letAct() {
+			if (!didItAct()) {
+				permitToAct();
+				setDidItAct(true);
+				advanceRock();
+
+			}
+		}
 	}
 
 

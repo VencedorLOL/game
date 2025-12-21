@@ -70,10 +70,7 @@ public class SwordMage extends CharacterClasses {
 
 		text = dinamicFixatedText(manaPool+"",100,400,-1, TextureManager.Fonts.ComicSans,30);
 		text.setColor(new int[]{157,216,242});
-		if(getClIns("SwordMage").getWeapon() != null)
-			equipWeapon(getClIns("SwordMage").getWeapon());
-		if(getClIns("SwordMage").getShield() != null)
-			equipShield(getClIns("SwordMage").getShield());
+		getEquipment();
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;
@@ -111,8 +108,6 @@ public class SwordMage extends CharacterClasses {
 
 
 	public void destroyOverridable(){
-		getClIns("SwordMage").setShield(shield);
-		getClIns("SwordMage").setWeapon(weapon);
 		destroyListener(oVSce);
 		text.onScreenTime = 1;
 		character.conditions.remove(Conditions.ConditionNames.MANA_HIT);

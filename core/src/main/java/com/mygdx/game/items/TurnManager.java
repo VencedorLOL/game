@@ -10,7 +10,7 @@ import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
 
-public class Turns implements Utils {
+public class TurnManager implements Utils {
 	private static boolean isTurnApproved;
 	private static long turnCount;
 	private static ArrayList<ActorAndBoolean> finalizedToChoose /*and ready to act!*/ = new ArrayList<>();
@@ -74,10 +74,10 @@ public class Turns implements Utils {
 		return isTurnApproved;
 	}
 
-	private static ArrayList<ActorAndSpeed> finalList;
+	private static ArrayList<Turnable> finalList;
 
 
-	public static void finalizedChoosing(Actor actor){
+	public static void finalizedChoosing(Turnable actor){
 		if(valueSearcher(finalizedToChoose,actor) != null)
 			valueSearcher(finalizedToChoose,actor).setBool(true);
 		else
@@ -95,7 +95,7 @@ public class Turns implements Utils {
 		return listOfActors.size() == numberOfTrueFinalizedChoosers && !finalizedToChoose.isEmpty();
 	}
 
-	public static boolean isDecidingWhatToDo(Actor entity){
+	public static boolean isDecidingWhatToDo(Turnable entity){
 		for (ActorAndBoolean f : finalizedToChoose)
 			if(f.actor == entity)
 				return !f.bool;
@@ -103,7 +103,7 @@ public class Turns implements Utils {
 		return true;
 	}
 
-	public static boolean cancelDecision(Actor actor){
+	public static boolean cancelDecision(Turnable actor){
 		if(!isTurnApproved){
 			if(valueSearcher(finalizedToChoose,actor) != null)
 				valueSearcher(finalizedToChoose,actor).setBool(false);
@@ -117,25 +117,25 @@ public class Turns implements Utils {
 	public static long getTurnCount(){return turnCount;}
 
 	public static void turnLogic() {
-		finalizedToChoose.removeIf(a -> a.actor.isDead);
+		finalizedToChoose.removeIf(a -> a.actor.getIsDead());
 		if(timer > 0){ timer--;
 			if(timer == 0) willTurnRun = true;}
 		if (willTurnRun) {
 			if (isTurnApproved) {
 				finalList = new ArrayList<>();
-				for (Actor a : actors)
-					if(!a.isDead)
-						finalList.add(new ActorAndSpeed(a.totalActingSpeed * 100 + a.totalSpeed, a));
+				for (Turnable t : turnables)
+					if(!t.getIsDead())
+						finalList.add(t);
 				Collections.shuffle(finalList);
-				finalList.sort((o1, o2) -> Integer.compare(o2.getSpeed(), o1.getSpeed()));
+				finalList.sort((o1, o2) -> Float.compare(o2.getSpeed(), o1.getSpeed()));
 				act();
 				if (canTurnFinish) {
 					canTurnFinish = false;
 					turnCount++;
 					for (ActorAndBoolean f : finalizedToChoose)
 						f.setBool(false);
-					for (ActorAndSpeed l : finalList)
-						l.getActor().setDidItAct(false);
+					for (Turnable t : turnables)
+						t.setDidItAct(false);
 					for(FieldEffects f : fieldEffects)
 						f.didFieldAct = false;
 					for(Hazards h : hazards)
@@ -161,12 +161,12 @@ public class Turns implements Utils {
 			if (f.canFieldAct) {
 				return;
 			}
-		for (ActorAndSpeed a : finalList)
-			if (a.getActor().didItAct() && a.getActor().isPermittedToAct())
+		for (Turnable a : finalList)
+			if (a.didItAct() && a.isPermittedToAct())
 				return;
 
-		for (ActorAndSpeed a : finalList)
-			if (a.getActor() != null && !a.getActor().didItAct() && !a.getActor().getIsDead()) {
+		for (Turnable a : finalList)
+			if (a != null && !a.didItAct() && !a.getIsDead()) {
 				a.letAct();
 				return;
 			}
@@ -196,7 +196,7 @@ public class Turns implements Utils {
 		}
 	}
 
-	private static ActorAndBoolean valueSearcher(ArrayList<ActorAndBoolean> theListInQuestion, Entity theValueInQuestion){
+	private static ActorAndBoolean valueSearcher(ArrayList<ActorAndBoolean> theListInQuestion, Turnable theValueInQuestion){
 		for (ActorAndBoolean l : theListInQuestion){
 			if(l.actor == theValueInQuestion)
 				return l;
@@ -205,7 +205,7 @@ public class Turns implements Utils {
 	}
 
 	@SuppressWarnings("all")
-	private static int valuePosition(ArrayList<ActorAndBoolean> theListInQuestion, Entity theValueInQuestion){
+	private static int valuePosition(ArrayList<ActorAndBoolean> theListInQuestion, Turnable theValueInQuestion){
 		for (int l = 0; l < theListInQuestion.size(); l++){
 			if(theListInQuestion.get(l).actor == theValueInQuestion)
 				return l;
@@ -214,37 +214,30 @@ public class Turns implements Utils {
 	}
 
 
-	private static class ActorAndSpeed {
-		Actor actor;
-		int speed;
-
-		public void setSpeed(int speed){this.speed = speed;}
-		public void setActor(Actor actor) {this.actor = actor;}
-		public int getSpeed() {return speed;}
-		public Actor getActor() {return actor;}
-
-		public ActorAndSpeed(int speed, Actor actor){
-			setSpeed(speed);
-			setActor(actor);
-		}
-
-		public void letAct(){
-			if (!actor.didItAct()) {
-				actor.permitToAct();
-				actor.didItAct = true;
-			}
-		}
-	}
-
 	public static class ActorAndBoolean {
 		boolean bool;
-		Actor actor;
+		Turnable actor;
 
-		public ActorAndBoolean(boolean bool, Actor actor){ this.bool = bool; this.actor = actor; }
+		public ActorAndBoolean(boolean bool, Turnable actor){ this.bool = bool; this.actor = actor; }
 
 		public boolean getBool() {return bool;}
 
 		public void setBool (boolean bool) {this.bool = bool; }
 
 	}
+	public static ArrayList<Turnable> turnables = new ArrayList<>();
+	public interface Turnable {
+		float getSpeed();
+
+		boolean didItAct();
+		boolean getIsDead();
+		boolean isPermittedToAct();
+
+		void setDidItAct(boolean didItAct);
+		void permitToAct();
+		void letAct();
+
+
+	}
+
 }

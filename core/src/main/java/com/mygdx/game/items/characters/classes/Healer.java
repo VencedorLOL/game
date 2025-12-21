@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.Actor;
@@ -14,10 +13,9 @@ import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
-import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 
 
 public class Healer extends CharacterClasses implements Utils {
@@ -87,10 +85,7 @@ public class Healer extends CharacterClasses implements Utils {
 				healTarget = character;
 			}
 		};
-		if(getClIns("Healer").getWeapon() != null)
-			equipWeapon(getClIns("Healer").getWeapon());
-		if(getClIns("Healer").getShield() != null)
-			equipShield(getClIns("Healer").getShield());
+		getEquipment();
 		reset();
 		targetProcessor = new TargetProcessor(character,healRange,true,false,"healtarget");
 	}
@@ -119,20 +114,21 @@ public class Healer extends CharacterClasses implements Utils {
 	void healDirectionInput(){
 		targetProcessor.changeRadius(healRange);
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
-		//	getCamara().smoothZoom(1,30);
+		if(leftClickReleased()) {
 			Vector3 temporal = roundedClick();
 			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
+				getCamara().smoothZoom(1,30);
 				for(Actor a : actors){
 					if(a.x == temporal.x && a.y == temporal.y && a.team == character.team)
 						healTarget = a;
 				}
 				abilities.get(0).finished();
+				return;
 			}
 		}
-		if(actionConfirmJustPressed()) {
-		//	getCamara().smoothZoom(1,30);
-			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetY() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
+			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null) {
+				getCamara().smoothZoom(1,30);
 				for(Actor a : actors){
 					if(a.x == targetProcessor.getTargetX() && a.y == targetProcessor.getTargetY() && a.team == character.team)
 						healTarget = a;
@@ -158,8 +154,6 @@ public class Healer extends CharacterClasses implements Utils {
 
 
 	protected void destroyOverridable() {
-		getClIns("Healer").setShield(shield);
-		getClIns("Healer").setWeapon(weapon);
 		destroyListener(oVS);
 	}
 

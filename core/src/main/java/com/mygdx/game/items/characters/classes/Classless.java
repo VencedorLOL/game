@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.mygdx.game.items.Character;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 public class Classless extends CharacterClasses {

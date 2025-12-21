@@ -3,12 +3,11 @@ package com.mygdx.game.items.characters.classes;
 import static com.mygdx.game.Settings.touchDetect;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.TextureManager.addToFixatedList;
-import static com.mygdx.game.items.Turns.isDecidingWhatToDo;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Entity;
 import com.mygdx.game.items.characters.CharacterClasses;
 

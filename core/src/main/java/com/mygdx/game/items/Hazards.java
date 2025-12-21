@@ -32,6 +32,16 @@ public class Hazards {
 		hazards.add(hazardsBuilder(hazard,x*globalSize(),y*globalSize()));
 	}
 
+	/**
+	 *
+	 * @param hazard: A HazardName object.
+	 * @param x: The x coordinate, without simplify.
+	 * @param y: The y coordinate, without simplify.
+	 */
+	public static void addHazard2(HazardNames hazard,float x, float y){
+		hazards.add(hazardsBuilder(hazard,x,y));
+	}
+
 	public static void clearHazards(){hazards.clear();}
 
 	@SuppressWarnings("all")
