@@ -158,21 +158,7 @@ public class Background extends GUI {
 			}
 		};
 
-		classesCards = new ClassesCards[ClassesCards.ClsCardObj.values().length]/*{
-				new ClassesCards(ClassesCards.ClsCardObj.MELEE)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.SPEEDSTER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.HEALER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.TANK)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.MAGE)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.SWORD_MAGE)		{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.SUMMONER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.IMP)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.CATAPULT)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.STELLAR_EXPLOSION)	{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-				new ClassesCards(ClassesCards.ClsCardObj.EARTHQUAKER)		{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
-
-		}*/;
-
+		classesCards = new ClassesCards[ClassesCards.ClsCardObj.values().length];
 		for (int i = 0; i < classesCards.length; i++)
 			classesCards[i] = new ClassesCards(ClassesCards.ClsCardObj.values()[i]){public void onTouchOverridable() {cardFunctionalitySquared(this);}};
 
@@ -253,9 +239,8 @@ public class Background extends GUI {
 		if(renderr) {
 			calculateMath();
 			fixatedDrawables.add(new DrawableObject(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 0.5f, 0, sizeX, sizeY));
-//			fixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
 			hoverCheck();
-			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
+
 			counter -= counter > 0 ? 1 : 0;
 			if (modes == 0){
 				for (int i = 0; i < modeSelector.length; i++) {
@@ -306,6 +291,9 @@ public class Background extends GUI {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
 			}
+			fixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
+			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
+
 
 			if(delete)
 				delete(this);

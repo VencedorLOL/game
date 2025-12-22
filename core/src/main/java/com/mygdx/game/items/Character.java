@@ -194,11 +194,13 @@ public class Character extends Actor implements Utils {
 		}
 		glideProcess();
 		updateFriends();
-		controlProcessor();
-		massCancel();
 		debug();
-		path.render();
-		conditions.render();
+		if(turnMode) {
+			controlProcessor();
+			massCancel();
+			path.render();
+			conditions.render();
+		}
 		textureUpdater();
 		render();
 	}
