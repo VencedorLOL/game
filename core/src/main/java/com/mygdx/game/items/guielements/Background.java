@@ -95,6 +95,7 @@ public class Background extends GUI {
 						delete = true;
 				}
 				else if(modes > 0 ){
+					counter = 20;
 					if (!existsSelCard()) {
 						modes = 0;
 						selectedOne = -1;
@@ -118,6 +119,8 @@ public class Background extends GUI {
 				selectedOne = -2;
 				counter = 20;
 				slider.xCursor = 0;
+				selected = false;
+				hovered = false;
 			}
 		},new SelectionButton(){
 			public void onTouchOverridable() {
@@ -125,6 +128,8 @@ public class Background extends GUI {
 				selectedOne = -2;
 				counter = 20;
 				slider.xCursor = 0;
+				selected = false;
+				hovered = false;
 			}
 		}};
 		modeSelector[0].secTexture = "SwapClasses";
@@ -153,7 +158,7 @@ public class Background extends GUI {
 			}
 		};
 
-		classesCards = new ClassesCards[]{
+		classesCards = new ClassesCards[ClassesCards.ClsCardObj.values().length]/*{
 				new ClassesCards(ClassesCards.ClsCardObj.MELEE)				{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
 				new ClassesCards(ClassesCards.ClsCardObj.SPEEDSTER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
 				new ClassesCards(ClassesCards.ClsCardObj.HEALER)			{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
@@ -166,7 +171,11 @@ public class Background extends GUI {
 				new ClassesCards(ClassesCards.ClsCardObj.STELLAR_EXPLOSION)	{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
 				new ClassesCards(ClassesCards.ClsCardObj.EARTHQUAKER)		{public void onTouchOverridable() {cardFunctionalitySquared(this);}},
 
-		};
+		}*/;
+
+		for (int i = 0; i < classesCards.length; i++)
+			classesCards[i] = new ClassesCards(ClassesCards.ClsCardObj.values()[i]){public void onTouchOverridable() {cardFunctionalitySquared(this);}};
+
 
 	}
 
@@ -246,19 +255,19 @@ public class Background extends GUI {
 			fixatedDrawables.add(new DrawableObject(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 0.5f, 0, sizeX, sizeY));
 //			fixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
 			hoverCheck();
-			close.render(endSY/globalSize(),endSX,endSY);
+			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
+			counter -= counter > 0 ? 1 : 0;
 			if (modes == 0){
 				for (int i = 0; i < modeSelector.length; i++) {
-					modeSelector[i].render(modeSize, modeIniGapX + i * (modeGapX + modeSize * 32), modeGapY);
+					modeSelector[i].render(modeSize, modeIniGapX + i * (modeGapX + modeSize * 32), modeGapY,counter <= 0);
 				}
 			} else if (modes == 1) {
-				counter -= counter > 0 ? 1 : 0;
 				for (int i = 0; i < selButtons.length; i++) {
 					selButtons[i].secTexture = classSlots[i].texture;
 					if (!existsSelCard())
-						selButtons[i].render(selSize, selIniGapX + i * (selGapX + selSize * 32), selGapY);
+						selButtons[i].render(selSize, selIniGapX + i * (selGapX + selSize * 32), selGapY,true);
 					else
-						selButtons[i].render(selSizeB, selIniGapXB + i * (selGapXB + selSizeB * 32), selGapYB);
+						selButtons[i].render(selSizeB, selIniGapXB + i * (selGapXB + selSizeB * 32), selGapYB,true);
 				}
 
 				if (!existsSelCard())
@@ -274,7 +283,6 @@ public class Background extends GUI {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
 			} else if (modes == 2){
-				counter -= counter > 0 ? 1 : 0;
 				if (!existsSelCard())
 					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
 
@@ -288,8 +296,8 @@ public class Background extends GUI {
 					if(items == null){
 						items = new ItemsList(classesCards[getSelCard()].classs,character);
 					}
-					meleeHolder.render(holderSize/32,meleeGapX,holderGapY);
-					shieldHolder.render(holderSize/32,shieldGapX,holderGapY);
+					meleeHolder.render(holderSize/32,meleeGapX,holderGapY,false);
+					shieldHolder.render(holderSize/32,shieldGapX,holderGapY,false);
 					items.render(itemsSize/32,itemsIniGapX,itemsGapX,itemsY,true);
 				} else if(items != null)
 					items = null;

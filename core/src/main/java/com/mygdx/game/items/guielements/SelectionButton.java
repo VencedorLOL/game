@@ -16,7 +16,7 @@ public class SelectionButton extends GUI {
 
 	public SelectionButton(){}
 
-	public void render(float size,float x, float y){
+	public void render(float size,float x, float y,boolean touch){
 		this.size = size*32;
 		this.x = x;
 		this.y = y;
@@ -26,12 +26,12 @@ public class SelectionButton extends GUI {
 			fixatedDrawables.add(new DrawableObject("SelectedSelection", x , y, 0.7f, 0, size, size,true));
 		else if(hovered)
 			fixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size, size,true));
-		onTouchDetect(x,y);
+		onTouchDetect(x,y,touch);
 	}
 
-	public void onTouchDetect(float x, float y){
-		if ((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size &&
-				cursorY() >= y - size && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
+	public void onTouchDetect(float x, float y, boolean touch){
+		if (((leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size &&
+				cursorY() >= y - size && cursorY() <= y)  || (actionConfirmReleased() && hovered)) && touch)
 			onTouchOverridable();
 
 	}

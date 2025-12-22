@@ -13,20 +13,20 @@ public class CloseButton extends GUI {
 	float size;
 	boolean hovered = false;
 	String texture = "CloseButton";
-	int counter = 10;
+	int counterr = 10;
 
 	public CloseButton(){}
 
-	public void render(float size, float x, float y){
+	public void render(float size, float x, float y, boolean touch){
 		this.size = size;
 		fixatedDrawables.add(new DrawableObject(texture, x, y, 1, 0, size, size,true));
 		if(hovered)
 			fixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size*4, size*4,true));
-		onTouchDetect(x ,y);
+		onTouchDetect(x ,y,touch);
 	}
 
-	public void onTouchDetect(float x, float y){
-		if (touchActionCursorDetector(x,y) || escapeJustPressed() || (actionConfirmJustPressed() && hovered))
+	public void onTouchDetect(float x, float y, boolean touch){
+		if ((touchActionCursorDetector(x,y) || escapeJustPressed() || (actionConfirmReleased() && hovered)) && touch)
 			onTouchOverridable();
 
 	}
@@ -37,7 +37,7 @@ public class CloseButton extends GUI {
 	boolean touchedOut;
 	private boolean touchActionCursorDetector(float x, float y){
 		boolean bool = false;
-		if(counter <= 0) {
+		if(counterr <= 0) {
 			if (leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size * globalSize() &&
 					cursorY() >= y - size * globalSize() && cursorY() <= y)
 				touchedIn = true;
@@ -50,14 +50,14 @@ public class CloseButton extends GUI {
 				touchedOut = false;
 
 			if(touchedIn && touchedOut){
-				counter = 20;
+				counterr = 20;
 				touchedIn = false;
 				touchedOut = false;
 				bool = true;
 			}
 		}
 
-		counter -= counter > 0 ? 1 : 0;
+		counterr -= counterr > 0 ? 1 : 0;
 		return bool;
 	}
 

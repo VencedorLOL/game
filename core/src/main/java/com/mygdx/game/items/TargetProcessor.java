@@ -27,7 +27,9 @@ public class TargetProcessor {
 	float x,y;
 	public float opacity = 0f;
 	public float borderOpacity = .6f;
-	String firTexture, secTexture;
+	public String firTexture;
+	public String secTexture;
+	public boolean renderingTarget;
 
 	public TargetProcessor(Entity fixated,float size,boolean checkWalkable, boolean rayCast,String texture, String secTexture){
 		this.fixated = fixated;
@@ -127,6 +129,7 @@ public class TargetProcessor {
 
 
 	private void targetProcesor(){
+		renderingTarget = false;
 		if (circle == null || circle.center != stage.findATile(fixated.getX(),fixated.getY()) || circle.tileset != stage.tileset || circle.radius != size || !circle.walkable) {
 			if (circle != null)
 				for (Circle.CircleTile t : circle.circle)
@@ -143,7 +146,7 @@ public class TargetProcessor {
 			if (!cursorMoved() || leftClickJustPressed())
 				targetKeyboardMovement();
 
-			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || (cursorMoved() || leftClickJustPressed())) {
+			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || cursorMoved() || leftClickJustPressed()) {
 				targetsTarget.setX(roundedClick().x);
 				targetsTarget.setY(roundedClick().y);
 			}
@@ -151,19 +154,20 @@ public class TargetProcessor {
 				targetRender();
 
 
-		} else if (!cursorMoved() || leftClickJustPressed()){
+		} else/* if (!cursorMoved() || leftClickJustPressed()) */{
 			targetKeyboardMovement();
 			if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()) && circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
 				targetRender();
-		} else {
-			animations.remove(target);
-			target = null;
-			targetsTarget.setX(fixated.getX());
-			targetsTarget.setY(fixated.getY());
-		}
+		} //else {
+//			animations.remove(target);
+//			target = null;
+//			targetsTarget.setX(fixated.getX());
+//			targetsTarget.setY(fixated.getY());
+//		}
 	}
 
 	public void targetRender(){
+		renderingTarget = true;
 		if(secTexture == null) {
 			if (target == null) {
 				target = new TextureManager.Animation(targetAnimation, targetsTarget) {
@@ -227,7 +231,7 @@ public class TargetProcessor {
 		if((key == 0 && upJustPressed()) || (key == 1 && rightJustPressed()) || (key == 2 && downJustPressed()) || (key == 3 && leftJustPressed())){
 			counterState[key] = 0;
 			return true;
-		} else if ((key == 0 && upPressed()) || (key == 1 && rightPressed()) || (key == 2 && downPressed()) || (key == 3 && leftPressed())){
+		} else if (((key == 0 && upPressed()) || (key == 1 && rightPressed()) || (key == 2 && downPressed()) || (key == 3 && leftPressed())) && counterState[key] != -1){
 			if (counter[key]++ > times[counterState[key]]){
 				counterState[key] += counterState[key] < times.length -1 ? 1 : 0;
 				counter[key] = 0;
@@ -260,6 +264,7 @@ public class TargetProcessor {
 	}
 
 	public void reset(){
+		renderingTarget = false;
 		circle = null;
 		animations.remove(target);
 		target = null;
@@ -277,7 +282,6 @@ public class TargetProcessor {
 	public void changeCheckWalkable(boolean walkable){checkWalkable = walkable;}
 	public void changeRayCast(boolean cast){rayCast = cast;}
 	public void changeRadius(float radius){size = radius;}
-	public void changeAnimation(String animation){targetAnimation = animation;}
 
 	public void deleteTexture(){
 		for (Circle.CircleTile t : circle.circle)

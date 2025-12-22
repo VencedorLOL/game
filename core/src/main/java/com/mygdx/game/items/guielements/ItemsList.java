@@ -78,7 +78,7 @@ public class ItemsList  {
 	}
 
 	public void onTouchDetect(boolean touch){
-		if ((touch && leftClickJustPressed()) || (actionConfirmJustPressed() && hovered != -1 && canHover)){
+		if ((touch && leftClickJustPressed()) || (actionConfirmReleased() && hovered != -1 && canHover)){
 			for(int i = 0; i < weapons.length; i++)
 				if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 && leftClickJustPressed())  || (actionConfirmJustPressed() && hovered == i && canHover))
 					onTouch(i);

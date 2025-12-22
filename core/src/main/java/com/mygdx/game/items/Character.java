@@ -315,22 +315,15 @@ public class Character extends Actor implements Utils {
 	protected void attackInput() {
 		targetProcessor.changeRadius(totalRange);
 		targetProcessor.render();
-		if(leftClickReleased()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				attacks.add(new Attack(temporal.x, temporal.y,this));
-				if (classes.runOnAttackDecided())
-					actionDecided();
-				return;
-			}
-		}
 		if (actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
 				attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
 				if (classes.runOnAttackDecided())
 					actionDecided();
-			}
-		}
+			} else if (targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)
+				cancelAttackMode();
+		} else if (escapeJustPressed())
+			cancelAttackMode();
 	}
 
 

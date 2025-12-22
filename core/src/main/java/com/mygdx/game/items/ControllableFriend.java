@@ -2,7 +2,6 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
@@ -25,7 +24,6 @@ public class ControllableFriend extends Friend {
 	public TargetProcessor targetProcessor;
 	static {
 		oVSc = new OnVariousScenarios(){
-			@Override
 			public void onStageChange() {
 				controllableCharacters.clear();
 			}
@@ -34,7 +32,7 @@ public class ControllableFriend extends Friend {
 
 	public float lastClickX, lastClickY;
 	protected void automatedMovement(){
-		if(Gdx.input.justTouched()){
+		if(leftClickReleased()){
 			lastClickX = roundedClick().x;
 			lastClickY = roundedClick().y;
 			print("last ckik x " + lastClickX + " y " + lastClickY); 
@@ -55,7 +53,7 @@ public class ControllableFriend extends Friend {
 	public ControllableFriend(float x, float y, String texture, float health) {
 		super(x, y,texture,health);
 		controllableCharacters.add(this);
-		targetProcessor = new TargetProcessor(this,totalRange,true,false,"target");
+		targetProcessor = new TargetProcessor(this,totalRange,true,false,"target","notarget");
 	}
 
 
@@ -74,17 +72,17 @@ public class ControllableFriend extends Friend {
 			glideProcess();
 			path.render();
 
-			if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
+			if(attackModeJustPressed() && active && isDecidingWhatToDo(this)) {
 				if (turnMode) {
+					targetProcessor.reset();
 					attackMode = !attackMode;
 					path.pathReset();
 					if (!attackMode)
 						cancelAttackMode();
-					resetAttackMode();
 				}
 			}
 			if(Gdx.input.isKeyJustPressed(Input.Keys.C))
-				print("color: " + color[0] + ", " + color[1] + ", " + color[2] );
+				print("color: r: " + color[0] + ", g: " + color[1] + ", b: " + color[2] );
 			renderBall();
 			conditions.render();
 		}
@@ -142,20 +140,13 @@ public class ControllableFriend extends Friend {
 	protected void attackInput() {
 		targetProcessor.changeRadius(totalRange);
 		targetProcessor.render();
-		if(Gdx.input.justTouched()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				attacks.add(new Attack(temporal.x, temporal.y,this));
-//				if (classes.runOnAttackDecided())
-					actionDecided();
-			}
-		}
-		if(actionConfirmJustPressed()) {
+		if(actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
 				attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
 //				if (classes.runOnAttackDecided())
 					actionDecided();
-			}
+			} else if (targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)
+				cancelAttackMode();
 		}
 	}
 

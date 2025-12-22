@@ -81,11 +81,9 @@ public class CharacterClasses {
 		currentHealth = totalHealth;
 		manaPool = mana;
 		oVE = new OnVariousScenarios(){
-			@Override
 			public void onTurnPass(){
 				turnHasPassed();
 			}
-			@Override
 			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);

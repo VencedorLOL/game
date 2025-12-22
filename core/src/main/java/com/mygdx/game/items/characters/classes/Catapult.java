@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
@@ -12,7 +11,6 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
-import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
@@ -58,7 +56,6 @@ public class Catapult extends CharacterClasses {
 			@Override
 			public void active() {
 				if(!isCharged) {
-					print("activated cata 2");
 					isItActive = true;
 					cancelRam();
 					character.cancelAttackMode();
@@ -197,13 +194,13 @@ public class Catapult extends CharacterClasses {
 			if (character.attackMode && isCharged) {
 				character.cancelAttackMode();
 				throwingMode = !throwingMode;
-				abilities.get(1).cancelActivation();
+				cancelRam();
 			}
 
 			if (throwingMode)
 				rockThrowInput();
-			else if (character.attackMode)
-				abilities.get(1).cancelActivation();
+			else if (character.attackMode || escapeReleased())
+				cancelRam();
 			if (abilities.get(1).isItActive) {
 				chargeInput();
 			}
@@ -228,7 +225,8 @@ public class Catapult extends CharacterClasses {
 				chargeCoords[0] = targetProcessor.getTargetX();
 				chargeCoords[1] = targetProcessor.getTargetY();
 				character.actionDecided();
-			}
+			} else if (targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())
+				cancelRam();
 		}
 	}
 
@@ -289,7 +287,6 @@ public class Catapult extends CharacterClasses {
 			this.objectiveX = objectiveX;
 			this.objectiveY = objectiveY;
 			initialDistance = (float) dC(objectiveX,objectiveY)/globalSize();
-			print("Distance of rock is of " + initialDistance);
 			turnsToFall = initialDistance <= 2 ? 3 : initialDistance <= 5 ? 2 : initialDistance <= 8 ? 1 : 0;
 			xPerTurn = (objectiveX - x) / (1+turnsToFall);
 			yPerTurn = (objectiveY - y) / (1+turnsToFall);

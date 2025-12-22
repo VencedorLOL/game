@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.allaies.Summon;
 import com.mygdx.game.items.characters.Ability;
@@ -10,11 +9,9 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.*;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Float.POSITIVE_INFINITY;
 
 public class Summoner extends CharacterClasses {
@@ -110,7 +107,7 @@ public class Summoner extends CharacterClasses {
 		getEquipment();
 		reset();
 		currentHealth = totalHealth;
-		targetProcessor = new TargetProcessor(character,summonRange,true,false,"summontarget");
+		targetProcessor = new TargetProcessor(character,summonRange,true,false,"SummonDirection","AnimaSummonDirection");
 	}
 
 	public void resetClassesState() {
@@ -122,7 +119,7 @@ public class Summoner extends CharacterClasses {
 	public void updateOverridable() {
 		summons.removeIf(Actor::getIsDead);
 		abilitiesProcessor();
-		if(character.attackMode){
+		if(character.attackMode || escapeReleased()){
 			cancelSummon();
 			cancelControl();
 		}
@@ -186,22 +183,10 @@ public class Summoner extends CharacterClasses {
 	}
 
 	void controlInput(){
-		targetProcessor.changeAnimation("summoncontrol");
+		targetProcessor.firTexture = "SummonDirection";
+		targetProcessor.secTexture = "AnimaSummonDirection";
 		targetProcessor.changeRadius(summonRange);
 		targetProcessor.render();
-		if(leftClickReleased()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				getCamara().smoothZoom(1,30);
-				for(Summon s : summons){
-					s.cancelDecision();
-					s.setTarget(temporal.x,temporal.y);
-				}
-				cancelControl();
-				cancelSummon();
-				return;
-			}
-		}
 		if(actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null) {
 				getCamara().smoothZoom(1,30);
@@ -217,7 +202,8 @@ public class Summoner extends CharacterClasses {
 
 
 	protected void summonInput() {
-		targetProcessor.changeAnimation("summontarget");
+		targetProcessor.firTexture = "SummonLocation";
+		targetProcessor.secTexture = "NoSummonLocation";
 		targetProcessor.changeRadius(summonRange);
 		targetProcessor.render();
 		if(summons.size() >= 5) {
@@ -230,19 +216,6 @@ public class Summoner extends CharacterClasses {
 				}
 			addToList("Ball",weakestSummon.getX(),weakestSummon.getY() + globalSize()/4f,1,0,240,25,25);
 		}
-
-		if(leftClickReleased()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null && !(temporal.x == character.getX() && temporal.y == character.getY())) {
-				getCamara().smoothZoom(1,30);
-				summonLocation[0] = temporal.x;
-				summonLocation[1] = temporal.y;
-				character.actionDecided();
-				abilities.get(0).finished();
-				summonDecided = true;
-				return;
-			}
-		}
 		if(actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				getCamara().smoothZoom(1,30);
@@ -251,7 +224,8 @@ public class Summoner extends CharacterClasses {
 				character.actionDecided();
 				abilities.get(0).finished();
 				summonDecided = true;
-			}
+			} else if (targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())
+				cancelSummon();
 		}
 	}
 

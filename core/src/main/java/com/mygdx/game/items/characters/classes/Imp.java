@@ -9,6 +9,7 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Friend.friend;
@@ -127,7 +128,7 @@ public class Imp extends CharacterClasses {
 			demonizeInput();
 
 		abilitiesProcessor();
-		if(character.attackMode){
+		if(character.attackMode || escapeReleased()){
 			softCancelDemonize();
 			cancelRitual();
 		}
@@ -156,19 +157,16 @@ public class Imp extends CharacterClasses {
 
 		if(abilities.get(1).isItActive && character.isPermittedToAct() && markCoords != null){
 			abilities.get(1).finished();
-			boolean gotActor = false;
-			for(Actor a : actors){
-				if(a.getX() == markCoords[0] && a.getY() == markCoords[1]) {
-					gotActor = true;
-					a.conditions.status(Conditions.ConditionNames.DEMONIZED);
-					a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(turnsMark);
-					particleEmitter("DEMONIZE",(float) globalSize() /2,
-							(float) globalSize() /2,1, 1,true,false,60,a);
-					((Conditions.Demonized) a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(this);
-					break;
-				}
+			Actor target = actorInPos(markCoords[0],markCoords[1]);
+			if(target != null) {
+				target.conditions.status(Conditions.ConditionNames.DEMONIZED);
+				target.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(turnsMark);
+				particleEmitter("DEMONIZE",(float) globalSize() /2,
+						(float) globalSize() /2,1, 1,true,false,60,target);
+				((Conditions.Demonized) target.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(this);
+
 			}
-			if(!gotActor){
+			else{
 				particleEmitter("DEMONIZE",markCoords[0] + (float) globalSize() /2,
 						markCoords[1] + (float) globalSize() /2,1, 1,true,false,60,null);
 			}
@@ -212,21 +210,13 @@ public class Imp extends CharacterClasses {
 
 	protected void demonizeInput() {
 		targetProcessor.render();
-		if(leftClickReleased()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null && !(temporal.x == character.getX() && temporal.y == character.getY())) {
-				getCamara().smoothZoom(1,30);
-				markCoords = new float[]{temporal.x,temporal.y};
-				character.actionDecided();
-				return;
-			}
-		}
 		if(actionConfirmJustPressed() || leftClickReleased()) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())) {
 				getCamara().smoothZoom(1,30);
 				markCoords = new float[]{targetProcessor.getTargetX(),targetProcessor.getTargetY()};
 				character.actionDecided();
-			}
+			} else if(targetProcessor.getTargetX() == character.getX() && targetProcessor.getTargetY() == character.getY())
+				cancelDemonize();
 		}
 	}
 

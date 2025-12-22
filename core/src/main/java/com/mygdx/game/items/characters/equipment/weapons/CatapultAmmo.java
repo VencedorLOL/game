@@ -5,6 +5,8 @@ import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Catapult;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
+import java.util.ArrayList;
+
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actorInPos;
@@ -71,55 +73,57 @@ public class CatapultAmmo extends Weapons {
 								turnStopTimer(12);
 								new OnVariousScenarios.CounterObject(10){
 									public void onCounterFinish() {
-										Catapult.Rock[] rocks = {
-											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY,damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX,objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY,damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX,objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
-										};
-										turnStopTimer(12);
-										for(Catapult.Rock r : rocks){
-											r.advanceRock();
-											r.advanceRock();
-											r.advanceRock();
-											r.advanceRock();
-										}
-										new OnVariousScenarios.CounterObject(10){
-											public void onCounterFinish() {
-												Catapult.Rock[] rocks = {
-														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+										ArrayList<Catapult.Rock> rocks = new ArrayList<>();
+										for (TargetProcessor.Circle.CircleTile t : simpleCircle(objectiveX,objectiveY,2.5f))
+											rocks.add(new Catapult.Rock(x,y,t.x,t.y,dC(t.x,t.y) > 1.5f*globalSize() ? damage/3 : damage/2,speed){public void changeZ() {zPerTurn = -.5f; turnsToFall = 0; xPerTurn = t.x - x; yPerTurn = t.y - y;}});
 
-														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY+globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY+globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY-globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY-globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
-												};
-												for (Catapult.Rock r : rocks) {
-													r.advanceRock();
-													r.advanceRock();
-													r.advanceRock();
-													r.advanceRock();
-												}
-											}
-										};
+//										Catapult.Rock[] rocks = {
+//		**									new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY,damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX,objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY,damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX,objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY-globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
+//										};
+										turnStopTimer(12);
+										for(Catapult.Rock r : rocks)
+											r.advanceRock();
 
 										entityList.remove(temp);
 										turnables.remove(temp);
+//										new OnVariousScenarios.CounterObject(10){
+//	*										public void onCounterFinish() {
+//												Catapult.Rock[] rocks = {
+//														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//
+//														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY+globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY+globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY+globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize(),objectiveY-globalSize()*2,damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX+globalSize()*2,objectiveY-globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//														new Catapult.Rock(x,y,objectiveX-globalSize()*2,objectiveY-globalSize(),damage/3,speed){public void changeZ() {zPerTurn = -.5f;}},
+//												};
+//												for (Catapult.Rock r : rocks) {
+//													r.advanceRock();
+//													r.advanceRock();
+//													r.advanceRock();
+//													r.advanceRock();
+//												}
+//											}
+//										};
+
+
 									}
 								};
 								destroyListener(ove);

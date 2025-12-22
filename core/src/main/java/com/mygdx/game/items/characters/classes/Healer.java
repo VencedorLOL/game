@@ -11,6 +11,7 @@ import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Actor.actorInPos;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
@@ -56,6 +57,7 @@ public class Healer extends CharacterClasses implements Utils {
 				isItActive = true;
 				healRange = 40;
 				character.cancelAttackMode();
+
 				targetProcessor.reset();
 				character.movementLock = true;
 				character.path.pathReset();
@@ -87,7 +89,7 @@ public class Healer extends CharacterClasses implements Utils {
 		};
 		getEquipment();
 		reset();
-		targetProcessor = new TargetProcessor(character,healRange,true,false,"healtarget");
+		targetProcessor = new TargetProcessor(character,healRange,true,false,"healTarget","AnimahealTarget");
 	}
 
 	@Override
@@ -102,7 +104,7 @@ public class Healer extends CharacterClasses implements Utils {
 
 		abilitiesProcessor();
 
-		if(character.attackMode)
+		if(character.attackMode || escapeReleased())
 			abilities.get(0).cancelActivation();
 
 		if(abilities.get(0).isItActive && isDecidingWhatToDo(character)){
@@ -114,25 +116,12 @@ public class Healer extends CharacterClasses implements Utils {
 	void healDirectionInput(){
 		targetProcessor.changeRadius(healRange);
 		targetProcessor.render();
-		if(leftClickReleased()) {
-			Vector3 temporal = roundedClick();
-			if (targetProcessor.findATile(temporal.x,temporal.y) != null) {
-				getCamara().smoothZoom(1,30);
-				for(Actor a : actors){
-					if(a.x == temporal.x && a.y == temporal.y && a.team == character.team)
-						healTarget = a;
-				}
-				abilities.get(0).finished();
-				return;
-			}
-		}
-		if(actionConfirmJustPressed() || leftClickReleased()) {
+		if((actionConfirmJustPressed() || leftClickReleased()) && targetProcessor.renderingTarget) {
 			if (targetProcessor.findATile(targetProcessor.getTargetX(), targetProcessor.getTargetY()) != null) {
 				getCamara().smoothZoom(1,30);
-				for(Actor a : actors){
-					if(a.x == targetProcessor.getTargetX() && a.y == targetProcessor.getTargetY() && a.team == character.team)
-						healTarget = a;
-				}
+				Actor target;
+				if ((target = actorInPos(targetProcessor.getTargetX(),targetProcessor.getTargetY())) != null)
+						healTarget = target;
 				abilities.get(0).finished();
 			}
 		}

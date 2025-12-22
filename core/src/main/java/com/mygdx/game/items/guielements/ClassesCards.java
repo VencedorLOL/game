@@ -33,7 +33,7 @@ public class ClassesCards extends GUI {
 
 	public void onTouchDetect(float x, float y, boolean touch){
 		if ((touch && leftClickJustPressed() && cursorX() >= x && cursorX() <= x + size*32 &&
-				cursorY() >= y - size*32 && cursorY() <= y)  || (actionConfirmJustPressed() && hovered))
+				cursorY() >= y - size*32 && cursorY() <= y)  || (actionConfirmReleased() && hovered))
 			onTouchOverridable();
 
 	}
@@ -50,11 +50,11 @@ public class ClassesCards extends GUI {
 		SPEEDSTER("SpeedsterCard",new ClassAndEquipmentChanger.Speedster()),
 		HEALER("HealerCard", new ClassAndEquipmentChanger.Healer()),
 		TANK("TankCard",new ClassAndEquipmentChanger.Tank()),
+		MAGE("MageCard", new ClassAndEquipmentChanger.Mage()),
+		SWORD_MAGE("SwordMageCard",new ClassAndEquipmentChanger.SwordMage()),
 		SUMMONER("SummonerCard",new ClassAndEquipmentChanger.Summoner()),
 		IMP("ImpCard",new ClassAndEquipmentChanger.Imp()),
 		CATAPULT("CatapultCard",new ClassAndEquipmentChanger.Catapult()),
-		MAGE("MageCard", new ClassAndEquipmentChanger.Mage()),
-		SWORD_MAGE("SwordMageCard",new ClassAndEquipmentChanger.SwordMage()),
 		STELLAR_EXPLOSION("StellarExplosionCard",new ClassAndEquipmentChanger.StellarExplosion()),
 		EARTHQUAKER("EarthquakerCard",new ClassAndEquipmentChanger.Earthquaker()),
 		;
