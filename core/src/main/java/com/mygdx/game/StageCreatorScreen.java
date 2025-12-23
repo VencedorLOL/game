@@ -8,9 +8,11 @@ import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 
 import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.Utils.colorConverter;
 import static com.mygdx.game.items.Stage.betweenStages;
 
-public class StageCreatorScreen implements Screen, Utils {
+@SuppressWarnings("all")
+public class StageCreatorScreen implements Screen{
 	public GUI testUi;
 	public ParticleManager particle;
 	public MainClass mainClass;

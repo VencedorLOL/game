@@ -75,6 +75,7 @@ public class Conditions {
 	float getMagicDamageAdditive(){return 0;}
 	float getAggroMultiplier(){return 1;}
 	float getAggroAdditive(){return 0;}
+	float getTeam(){return 1;}
 
 	public void destroyCondition(){}
 
@@ -677,8 +678,33 @@ public class Conditions {
 
 	}
 
+	public static class Powered extends Conditions{
+		float damage = 10;
+		public Powered(Actor owner) {
+			super(owner);
+			name = "Powered";
+			//texture = "Powered";
+			turnsActive = -1;
+		}
+
+		float getDamageAdditive() {
+			return damage;
+		}
+	}
 
 
+	public static class MindControl extends Conditions{
+		public MindControl(Actor owner) {
+			super(owner);
+			name = "MindControl";
+			texture = "Powered";
+			turnsActive = -1;
+		}
+
+		float getTeam() {
+			return -1;
+		}
+	}
 
 
 
@@ -713,6 +739,9 @@ public class Conditions {
 		NUCLEAR_EVENT("NuclearEvent"),
 		GLACIATION("Glaciation"),
 		STELLAR_EXPLOSION("StellarExplosion"),
+		POWERED("Powered"),
+		MIND_CONTROL("MindControl"),
+
 		;
 
 

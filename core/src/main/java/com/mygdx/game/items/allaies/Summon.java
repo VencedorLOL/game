@@ -55,13 +55,13 @@ public class Summon extends Friend {
 			path.getStats(this.getX(),this.getY(),totalSpeed);
 			loop();
 			onDeath();
-			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.team == -team && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
 			glideProcess();
 
-//			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
+//	*		if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();
 		}
 	}

@@ -21,7 +21,7 @@ public class EarthquakerShields extends Shields {
 
 		public StablePlatform(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "StablePlatform";
+			shieldName = "Stable platform";
 			shieldHealth = 20;
 			shieldDamage = 0;
 			shieldSpeed = 0;
@@ -37,15 +37,16 @@ public class EarthquakerShields extends Shields {
 			shieldMagicHealing = 0;
 			equippableBy = "Earthquaker";
 			aggro = 0;
-			oVE = new OnVariousScenarios(){
+			if(effectiveInstantiation)
+				oVE = new OnVariousScenarios(){
 				@Override
 				public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
-					if(holder.shield instanceof StablePlatform && damagedActor.team == holder.character.team && source == AttackTextProcessor.DamageReasons.EARTHQUAKE
-							&&  damagedActor.dC(holder.character.x,holder.character.y) <= 7*globalSize()
-							)
-						damagedActor.damageRecieved = 0;
-				}
-			};
+						if(holder.shield instanceof StablePlatform && damagedActor.totalTeam == holder.character.totalTeam && source == AttackTextProcessor.DamageReasons.EARTHQUAKE
+								&&  damagedActor.dC(holder.character.x,holder.character.y) <= 7*globalSize()
+								)
+							damagedActor.damageRecieved = 0;
+					}
+				};
 		}
 
 		@Override

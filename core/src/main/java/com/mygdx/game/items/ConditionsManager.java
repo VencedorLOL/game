@@ -70,6 +70,7 @@ public class ConditionsManager {
 		return false;
 	}
 
+	@SuppressWarnings("all")
 	public boolean hasStatus(Conditions condition){
 		for (Conditions c : conditions)
 			if(c.name.equals(condition.name))
@@ -175,18 +176,19 @@ public class ConditionsManager {
 		float finalMultiplier = 1;
 		for (Conditions c : conditions)
 			switch (type) {
-				case 0 : finalMultiplier *= c.getHealthMultiplier();      break;
-				case 1 : finalMultiplier *= c.getDamageMultiplier();      break;
-				case 2 : finalMultiplier *= c.getSpeedMultiplier();       break;
-				case 3 : finalMultiplier *= c.getActingSpeedMultiplier(); break;
-				case 4 : finalMultiplier *= c.getDefenseMultiplier();     break;
-				case 5 : finalMultiplier *= c.getRangeMultiplier();       break;
-				case 6 : finalMultiplier *= c.getManaMultiplier();        break;
-				case 7 : finalMultiplier *= c.getManaPerTurnMultiplier(); break;
-				case 8 : finalMultiplier *= c.getManaPerUseMultiplier();  break;
-				case 9 : finalMultiplier *= c.getMagicDamageMultiplier(); break;
+				case -1: finalMultiplier *= c.getTeam();				 	break;
+				case 0 : finalMultiplier *= c.getHealthMultiplier();     	break;
+				case 1 : finalMultiplier *= c.getDamageMultiplier();     	break;
+				case 2 : finalMultiplier *= c.getSpeedMultiplier();      	break;
+				case 3 : finalMultiplier *= c.getActingSpeedMultiplier();	break;
+				case 4 : finalMultiplier *= c.getDefenseMultiplier();    	break;
+				case 5 : finalMultiplier *= c.getRangeMultiplier();      	break;
+				case 6 : finalMultiplier *= c.getManaMultiplier();       	break;
+				case 7 : finalMultiplier *= c.getManaPerTurnMultiplier();	break;
+				case 8 : finalMultiplier *= c.getManaPerUseMultiplier();	break;
+				case 9 : finalMultiplier *= c.getMagicDamageMultiplier();	break;
 
-				case 11: finalMultiplier *= c.getAggroMultiplier();       break;
+				case 11: finalMultiplier *= c.getAggroMultiplier();			break;
 
 			}
 		return finalMultiplier;
@@ -256,6 +258,9 @@ public class ConditionsManager {
 			case NUCLEAR_EVENT:		return new Conditions.NuclearEvent		(owner);
 			case GLACIATION:		return new Conditions.Glaciation		(owner);
 			case STELLAR_EXPLOSION:	return new Conditions.StellarExplosion	(owner);
+			case POWERED:			return new Conditions.Powered			(owner);
+			case MIND_CONTROL:		return new Conditions.MindControl		(owner);
+
 
 		}
 		return null;

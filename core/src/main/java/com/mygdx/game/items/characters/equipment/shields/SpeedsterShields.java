@@ -15,7 +15,7 @@ public class SpeedsterShields extends Shields {
 
 		public SpeedsterShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "SpeedsterShield";
+			shieldName = "Insignificant shield";
 			shieldHealth = 10;
 			shieldDamage = 0;
 			shieldSpeed = 0;

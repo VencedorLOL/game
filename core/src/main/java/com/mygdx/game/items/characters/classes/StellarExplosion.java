@@ -121,7 +121,7 @@ public class StellarExplosion extends CharacterClasses {
 		if(character.permittedToAct && explode && manaPool >= totalManaPerUse){
 			manaPool -= totalManaPerUse;
 			for(Actor a : actors)
-				if(abs(character.dC(a.getX(),a.y)/globalSize()) <= explosionRange + 0.25f && a.team != character.team) {
+				if(abs(character.dC(a.getX(),a.y)/globalSize()) <= explosionRange + 0.25f && a.totalTeam != character.totalTeam) {
 					a.damage(totalMagicDamage, damageReason, character);
 					runAttack();
 				}

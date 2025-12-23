@@ -156,7 +156,7 @@ public class TargetProcessor {
 
 		} else/* if (!cursorMoved() || leftClickJustPressed()) */{
 			targetKeyboardMovement();
-			if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()) && circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
+	//		if (!(targetsTarget.getX() == fixated.getX() && targetsTarget.getY() == fixated.getY()) && circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
 				targetRender();
 		} //else {
 //			animations.remove(target);

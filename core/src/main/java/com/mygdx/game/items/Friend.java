@@ -140,9 +140,9 @@ public class Friend extends Actor {
 			path.getStats(x,y,totalSpeed);
 			loop();
 			onDeath();
-			if ((targetActor == null || targetActor.isDead || targetActor.team != -team) && turnMode && isDecidingWhatToDo(this))
+			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
-			if (targetActor != null && !targetActor.isDead && ((targetActor.team == -team && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.isDead && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
 				movement();
@@ -180,11 +180,11 @@ public class Friend extends Actor {
 	public void attackDetector(){
 		ArrayList<Actor> allMyFriends = new ArrayList<>(friend);
 		allMyFriends.add(chara);
-		allMyFriends.removeIf(e -> e.team != 1);
+		allMyFriends.removeIf(e -> e.totalTeam != 1);
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
 		if (list != null) {
 			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.team != team) {
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.totalTeam != totalTeam) {
 					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
@@ -199,7 +199,7 @@ public class Friend extends Actor {
 	public void targetFinder() {
 		ArrayList<ActorAndDistance> targets = new ArrayList<>();
 		for (Actor a : actors)
-			if (!a.isDead && a.team == team * -1)
+			if (!a.isDead && a.totalTeam == totalTeam * -1)
 				targets.add(new ActorAndDistance(a, dC(a.x, a.y) * a.totalAggro));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
@@ -211,7 +211,7 @@ public class Friend extends Actor {
 			}
 		}
 		for (Actor a : actors)
-			if (!a.isDead && a.team == team && a == chara)
+			if (!a.isDead && a.totalTeam == totalTeam && a == chara)
 				targets.add(new ActorAndDistance(a, dC(a.x, a.y)));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));

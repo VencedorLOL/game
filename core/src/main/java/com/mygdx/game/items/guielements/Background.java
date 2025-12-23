@@ -9,6 +9,7 @@ import com.mygdx.game.items.GUI;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.GameScreen.savefile;
 import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.InputHandler.*;
@@ -54,8 +55,8 @@ public class Background extends GUI {
 	float modeGapX, modeIniGapX, modeGapY, modeSize;
 	byte modes = 0;
 
-	SelectionButton meleeHolder, shieldHolder;
-	float meleeGapX, shieldGapX, holderGapY, holderSize;
+	SelectionButton weaponHolder, shieldHolder;
+	float weaponGapX, shieldGapX, holderGapY, holderSize;
 
 	ItemsList items;
 	float itemsIniGapX, itemsGapX, itemsY, itemsSize;
@@ -70,7 +71,8 @@ public class Background extends GUI {
 		sizeY = Gdx.graphics.getHeight() /(globalSize()*.5625f);
 		Vector3 realCoords = (new Vector3(Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f,Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f, 0));
 		realCoords = getCamara().camara.unproject(realCoords);
-		Animation animation = new Animation("guibackgroundopening",realCoords.x,realCoords.y){
+		Animation animation = new Animation("guibackgroundopening",realCoords.x,realCoords.y);
+		Animation animation2 = new Animation("guibackgroundopeningnobg",realCoords.x,realCoords.y){
 			public void onFinish() {
 				renderr = true;
 			}
@@ -78,21 +80,32 @@ public class Background extends GUI {
 		animation.scaleY = sizeY;
 		animation.scaleX = sizeX;
 		animation.opacity = 0.5f;
+
+		animation2.scaleY = sizeY;
+		animation2.scaleX = sizeX;
+		animation2.opacity = 1f;
 		animations.add(animation);
+		animations.add(animation2);
 
 		close =  new CloseButton(){
 			public void onTouchOverridable() {
 				if(modes == 0) {
-						sizeX = Gdx.graphics.getWidth() / (globalSize() * 1f);
-						sizeY = Gdx.graphics.getHeight() / (globalSize() * .5625f);
-						Animation animation = new Animation("guibackgroundclosing", chara);
-						animation.scaleY = sizeY;
-						animation.scaleX = sizeX;
-						animation.opacity = 0.5f;
-						animations.add(animation);
-						renderr = false;
-						delete(close);
-						delete = true;
+					sizeX = Gdx.graphics.getWidth() / (globalSize() * 1f);
+					sizeY = Gdx.graphics.getHeight() / (globalSize() * .5625f);
+					Animation animation = new Animation("guibackgroundclosing", chara);
+					Animation animation2 = new Animation("guibackgroundclosingnobg", chara);
+					animation.scaleX = sizeX;
+					animation2.scaleX = sizeX;
+					animation.scaleY = sizeY;
+					animation2.scaleY = sizeY;
+					animation.opacity = 0.5f;
+					animation2.opacity = 1f;
+					animations.add(animation);
+					animations.add(animation2);
+					renderr = false;
+					delete(close);
+					delete = true;
+					savefile.writeFile();
 				}
 				else if(modes > 0 ){
 					counter = 20;
@@ -108,8 +121,8 @@ public class Background extends GUI {
 			}
 		};
 
-		meleeHolder = new SelectionButton();
-		meleeHolder.secTexture = "WeaponSlot";
+		weaponHolder = new SelectionButton();
+		weaponHolder.secTexture = "WeaponSlot";
 		shieldHolder = new SelectionButton();
 		shieldHolder.secTexture = "ShieldSlot";
 
@@ -281,7 +294,7 @@ public class Background extends GUI {
 					if(items == null){
 						items = new ItemsList(classesCards[getSelCard()].classs,character);
 					}
-					meleeHolder.render(holderSize/32,meleeGapX,holderGapY,false);
+					weaponHolder.render(holderSize/32, weaponGapX,holderGapY,false);
 					shieldHolder.render(holderSize/32,shieldGapX,holderGapY,false);
 					items.render(itemsSize/32,itemsIniGapX,itemsGapX,itemsY,true);
 				} else if(items != null)
@@ -778,14 +791,14 @@ public class Background extends GUI {
 			cardIniGapXB = spaceX + Gdx.graphics.getWidth()*.01f;
 
 			holderSize = cardSizeB *.35f;
-			meleeGapX =  Gdx.graphics.getWidth() * .50f;
+			weaponGapX =  Gdx.graphics.getWidth() * .50f;
 			shieldGapX = Gdx.graphics.getWidth() * .76f;
 			holderGapY = cardYB - (holderSize)/(2*.3f);
 
 			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2 + cardsSize * classesCards.length;
 
 			itemsGapX = shieldGapX;
-			itemsIniGapX = meleeGapX;
+			itemsIniGapX = weaponGapX;
 			itemsY = Gdx.graphics.getHeight() * .6f;
 			itemsSize = holderSize * 1.3f;
 

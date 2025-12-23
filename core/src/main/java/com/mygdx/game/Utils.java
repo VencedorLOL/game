@@ -1,15 +1,16 @@
 package com.mygdx.game;
 
-public interface Utils {
-	default float colorConverter(float color){
+@SuppressWarnings("all")
+public class Utils {
+	public static float colorConverter(float color){
 		return color / 255;
 	}
 
-	static float cC(float color){
+	public static float cC(float color){
 		return color / 255;
 	}
 
-	default int intArraySearcher(int[] array, int position){
+	public static int intArraySearcher(int[] array, int position){
 		for (int i = 0; i < array.length; i++){
 			if (i == position)
 				return array[i];
@@ -17,7 +18,7 @@ public interface Utils {
 		return -1;
 	}
 
-	default byte byteArraySearcherForScreenWarps(byte[] array, int position){
+	public static byte byteArraySearcherForScreenWarps(byte[] array, int position){
 		for (int i = 1; i < array.length + 1; i++){
 			if (i == position){
 				return array[i - 1];
@@ -26,10 +27,32 @@ public interface Utils {
 		return -1;
 	}
 
-	static float pickValueAUnlessEqualsZeroThenPickB(float a, float b){
+	public static float pickValueAUnlessEqualsZeroThenPickB(float a, float b){
 		if (a == 0)
 			return b;
 		return a;
 	}
+
+	public static int nthIndexOf(String objective, String analyzed, int n){
+		if(n < 1)
+			return -1;
+		for (int i = 1; i <= n; i++){
+			if(i == n)
+				return analyzed.indexOf(objective) + (objective.length() * i - 1);
+			analyzed = analyzed.replaceFirst(objective,"");
+		}
+		return -1;
+	}
+
+	public static int numberOfStrings(String objective, String analyzed){
+		int times = 0;
+		while(analyzed.contains(objective)){
+			times++;
+			analyzed = analyzed.replaceFirst(objective,"");
+		}
+		return times;
+	}
+
+
 
 }

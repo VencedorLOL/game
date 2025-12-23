@@ -15,7 +15,8 @@ import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.Math.*;
 import static java.lang.Math.pow;
 
-public class ClickDetector implements Utils {
+@SuppressWarnings("all")
+public class ClickDetector  {
 	static float halfSize = globalSize() / 2f;
 
 

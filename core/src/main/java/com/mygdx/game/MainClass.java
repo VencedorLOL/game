@@ -7,7 +7,7 @@ import com.mygdx.game.items.Camara;
 
 import static com.mygdx.game.GameScreen.getCamara;
 
-public class MainClass extends Game implements Utils, ApplicationListener {
+public class MainClass extends Game implements ApplicationListener {
 	BitmapFont font;
 	GameScreen gameScreen;
 	Camara camara = new Camara();
@@ -30,6 +30,7 @@ public class MainClass extends Game implements Utils, ApplicationListener {
 			gameScreen = new GameScreen();
 		setScreen(gameScreen);
 	}
+	@SuppressWarnings("all")
 	public void setPauseScreen() {
 		PauseScreen pauseScreen = new PauseScreen(this);
 		setScreen(pauseScreen);

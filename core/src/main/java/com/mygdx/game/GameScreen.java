@@ -11,6 +11,7 @@ import com.mygdx.game.items.stages.StagePathfinding;
 
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
+import static com.mygdx.game.Utils.colorConverter;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
 import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
@@ -21,7 +22,8 @@ import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.TurnManager.*;
 import static com.mygdx.game.Settings.camaraZoom;
 
-public class GameScreen implements Screen, Utils {
+@SuppressWarnings("all")
+public class GameScreen implements Screen{
 	public static float delta;
 	public static Character chara;
 	public static Camara camara = new Camara();
@@ -36,6 +38,7 @@ public class GameScreen implements Screen, Utils {
 	Entity attacher = new Entity(null,5 * globalSize(), 5 * globalSize(),false);
 	InputHandler handler;
 	public static boolean initalized = false;
+	public static Savefile savefile;
 
 	public void create () {
 		camaraZoom = 1;
@@ -52,7 +55,7 @@ public class GameScreen implements Screen, Utils {
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);
 		initalized = true;
-
+		savefile = new Savefile();
 	}
 
 	public GameScreen(){
@@ -180,5 +183,6 @@ public class GameScreen implements Screen, Utils {
 
 	@Override
 	public void dispose() {
+		savefile.writeFile();
 	}
 }

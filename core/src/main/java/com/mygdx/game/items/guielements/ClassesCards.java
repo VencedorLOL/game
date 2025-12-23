@@ -59,8 +59,8 @@ public class ClassesCards extends GUI {
 		EARTHQUAKER("EarthquakerCard",new ClassAndEquipmentChanger.Earthquaker()),
 		;
 
-		final String texture;
-		final ClassAndEquipmentChanger.ClassObject clsObj;
+		public final String texture;
+		public final ClassAndEquipmentChanger.ClassObject clsObj;
 		ClsCardObj(String texture, ClassAndEquipmentChanger.ClassObject obj){
 			this.texture = texture;
 			clsObj = obj;

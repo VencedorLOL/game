@@ -3,11 +3,9 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.Utils;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
-
 
 import java.util.ArrayList;
 
@@ -25,7 +23,7 @@ import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TurnManager.*;
 
-public class Character extends Actor implements Utils {
+public class Character extends Actor {
 
 	public CharacterClasses classes;
 
@@ -48,6 +46,10 @@ public class Character extends Actor implements Utils {
 	public boolean classChanging = false;
 	public int changePos = -1;
 
+	public Animation idleAnimation;
+	public String idleAnimationFile;
+	public String idleTexture = "anima";
+
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);
 		testCollision.x = x;
@@ -61,7 +63,7 @@ public class Character extends Actor implements Utils {
 				didItAct = false;
 				permittedToAct = false;
 				lockClassTilAnimationFinishes = false;
-				texture = "anima";
+				texture = idleTexture;
 				conditions.onStageChange();
 			}
 		};
@@ -165,6 +167,8 @@ public class Character extends Actor implements Utils {
 		health = classes.currentHealth;
 		totalDefense = classes.totalDefense;
 		totalAggro = classes.totalAggro;
+		//anima cannot be mind controlled
+		totalTeam = team;
 	}
 
 	public void update(){
@@ -250,14 +254,22 @@ public class Character extends Actor implements Utils {
 	}
 
 	public void leaveTurnMode(){
+		lockClass = true;
+		getCamara().smoothAttachment(this,20);
 		cancelAttackMode();
 		turnMode = false;
 		classes.destroy();
 		classes = new Classless();
 		path.pathReset();
+		new OnVariousScenarios.CounterObject(21){
+			public void onCounterFinish() {
+				lockClass = false;
+			}
+		};
 	}
 
 	public void enterTurnMode(){
+		lockClass = true;
 		cancelAttackMode();
 		turnMode = true;
 		path.pathReset();
@@ -267,7 +279,11 @@ public class Character extends Actor implements Utils {
 		cC.activate(0);
 		classes.handleHpManaTempDf();
 		changePos = -1;
-
+		new OnVariousScenarios.CounterObject(21){
+			public void onCounterFinish() {
+				lockClass = false;
+			}
+		};
 	}
 
 
@@ -372,12 +388,12 @@ public class Character extends Actor implements Utils {
 			case 6: walkingFile = "walkingdown";			break;
 			case 8: walkingFile = "walkingup";				break;
 		}
-		if(walkingAnimation == null || (walkingAnimation.finished || !walkingAnimation.name.equals(walkingFile))) {
+		if(walkingAnimation == null || walkingAnimation.finished || !walkingAnimation.name.equals(walkingFile)) {
 			if (walkingAnimation != null)
 				walkingAnimation.stop();
 			walkingAnimation = new Animation(walkingFile, this){
 				public void onFinish() {
-					entityToFollow.texture = "anima";
+					entityToFollow.texture = idleTexture;
 				}};
 			animations.add(walkingAnimation);
 		}
@@ -389,15 +405,32 @@ public class Character extends Actor implements Utils {
 			if(textureOrientation != 7)
 				animationWalking();
 		if (speedLeft[0] == 0 && speedLeft[1] == 0 && lastTimeTilLastMovement >= 2 && !isGliding) {
-			texture = lastDamageCounter > 0 ? lastDamageCounter-- >= 0 ? "animaPain" + damageAnimation : "anima" : "anima";
+			texture = lastDamageCounter > 0 ? lastDamageCounter-- >= 0 ? "animaPain" + damageAnimation : idleTexture : idleTexture;
 			if(lockClassTilAnimationFinishes)
 				texture = null;
 			if (walkingAnimation != null && !walkingAnimation.finished)
 				walkingAnimation.stop();
+		} else if (lastTimeTilLastMovement >= 2 && !isGliding){
+			idleAnimation();
 		}
+
 		if (alreadyTextured)
 			print(textureOrientation +" is the texuter orientation");
 	}
+
+	public void idleAnimation(){
+		texture = null;
+		if(idleAnimationFile != null && (walkingAnimation == null || walkingAnimation.finished || !walkingAnimation.name.equals(idleAnimationFile))){
+			if(idleAnimation != null) idleAnimation.stop();
+			idleAnimation = new Animation(idleAnimationFile,this){
+				public void onFinish(){
+					entityToFollow.texture =idleTexture;
+				}};
+			animations.add(idleAnimation);
+		} else if (idleAnimationFile == null)
+			texture = idleTexture;
+	}
+
 
 	byte damageAnimation;
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){

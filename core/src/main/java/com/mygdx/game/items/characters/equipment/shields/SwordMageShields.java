@@ -16,7 +16,7 @@ public class SwordMageShields extends Shields {
 
 		public CrystalizedShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "CrystalizedShield";
+			shieldName = "Crystalized shield";
 			shieldHealth = 30;
 			shieldDamage = 0;
 			shieldSpeed = 0;

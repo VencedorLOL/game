@@ -19,11 +19,10 @@ public class ImpShields extends Shields {
 	}
 
 
-
 	public static class ImpDemonizeShield extends ImpShields {
 		public ImpDemonizeShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "ImpDemonizeShield";
+			shieldName = "Demonize shield";
 			shieldHealth = 40;
 			shieldDamage = 0;
 			shieldSpeed = 0;
@@ -56,7 +55,7 @@ public class ImpShields extends Shields {
 	public static class ImpRitualShield extends ImpShields {
 		public ImpRitualShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "ImpRitualShield";
+			shieldName = "Ritual shield";
 			shieldHealth = 22;
 			shieldDamage = 0;
 			shieldSpeed = 0;
@@ -85,7 +84,7 @@ public class ImpShields extends Shields {
 	public static class DarkWings extends ImpShields {
 		public DarkWings(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "DarkWings";
+			shieldName = "Dark wings";
 			shieldHealth = 66;
 			shieldDamage = 0;
 			shieldSpeed = 0;
@@ -101,18 +100,25 @@ public class ImpShields extends Shields {
 			shieldMagicHealing = 0;
 			equippableBy = "Imp";
 			aggro = 0;
-			if (effectiveInstantiation)
+			if (effectiveInstantiation) {
 				holder.character.airborn = true;
+				holder.character.idleTexture = "animaWinged";
+			}
 		}
 
 		public void update() {
 			holder.character.airborn = true;
 			for(Actor a : actors){
-				if(a.team == holder.character.team && a.conditions.hasStatus(RITUAL)) {
+				if(a.totalTeam == holder.character.totalTeam && a.conditions.hasStatus(RITUAL)) {
 					((Conditions.Ritual) a.conditions.getStatus(RITUAL)).wingedRitual = true;
 					((Conditions.Ritual) a.conditions.getStatus(RITUAL)).speed = 3;
 				}
 			}
+		}
+
+		@Override
+		public void destroyOverridable() {
+			holder.character.idleTexture = "anima";
 		}
 	}
 
@@ -217,7 +223,7 @@ public class ImpShields extends Shields {
 				if(!daredevilToggled) {
 					daredevilToggled = true;
 					for (Actor a : actors)
-						if (a.team == holder.character.team) {
+						if (a.totalTeam == holder.character.totalTeam) {
 							if (a.conditions.hasStatus(RITUAL) && a.conditions.getStatus(RITUAL).getTurns() <= 1) {
 								a.conditions.condition(RITUAL);
 								a.conditions.getStatus(RITUAL).setTurns(1);
@@ -226,6 +232,7 @@ public class ImpShields extends Shields {
 								a.conditions.getStatus(RITUAL).setTurns(1);
 							}
 						}
+					holder.character.idleTexture = "animaMischievous2";
 					float proportionalHealth = holder.currentHealth / holder.totalHealth;
 					shieldHealth = 36.6f;
 					shieldDefense = 6;
@@ -233,6 +240,7 @@ public class ImpShields extends Shields {
 					holder.currentHealth = proportionalHealth * holder.totalHealth;
 				}
 				else {
+					holder.character.idleTexture = "anima";
 					float proportionalHealth = holder.currentHealth / holder.totalHealth;
 					daredevilToggled = false;
 					shieldHealth = 333;
@@ -243,7 +251,7 @@ public class ImpShields extends Shields {
 			}
 			if(daredevilToggled){
 				for(Actor a : actors)
-					if(a.team == holder.character.team){
+					if(a.totalTeam == holder.character.totalTeam){
 						if (a.conditions.hasStatus(RITUAL) && a.conditions.getStatus(RITUAL).getTurns() <= 1) {
 							a.conditions.condition(RITUAL);
 							a.conditions.getStatus(RITUAL).setTurns(1);
@@ -257,6 +265,7 @@ public class ImpShields extends Shields {
 
 		@Override
 		public void destroyOverridable() {
+			holder.character.idleTexture = "anima";
 			holder.abilities.removeIf(a -> a.name.equals("Daredevil"));
 		}
 	}

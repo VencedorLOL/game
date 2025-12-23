@@ -1,6 +1,5 @@
 package com.mygdx.game.items.characters.classes;
 
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Utils;
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.OnVariousScenarios;
@@ -12,14 +11,12 @@ import com.mygdx.game.items.characters.equipment.weapons.HealerWeapons;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actorInPos;
-import static com.mygdx.game.items.Actor.actors;
-import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 
 
-public class Healer extends CharacterClasses implements Utils {
+public class Healer extends CharacterClasses {
 
 	public float healingFromAbility = 1.2f;
 	public Actor healTarget;

@@ -13,7 +13,7 @@ public class HealerWeapons extends Weapons {
 	public static class BlessedSword extends HealerWeapons {
 		public BlessedSword(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "BlessedSword";
+			weaponName = "Blessed sword";
 			weaponHealth = 0;
 			weaponDamage = 10;
 			weaponSpeed = 0;

@@ -14,7 +14,7 @@ public class SwordMageWeapons extends Weapons{
 	public static class SwordWand extends SwordMageWeapons {
 		public SwordWand(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "SwordWand";
+			weaponName = "Sword-wand";
 			weaponHealth = 0;
 			weaponDamage = 30;
 			weaponSpeed = 0;

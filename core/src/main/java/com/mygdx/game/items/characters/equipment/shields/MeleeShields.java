@@ -15,7 +15,7 @@ public class MeleeShields extends Shields {
 
 		public MeleeShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "MeleeShield";
+			shieldName = "Wood \"shield\"";
 			shieldHealth = 20;
 			shieldDamage = 0;
 			shieldSpeed = 0;

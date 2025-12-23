@@ -6,13 +6,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.items.Camara;
 
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Utils.colorConverter;
 
-public class StartScreen implements Screen, Utils {
+public class StartScreen implements Screen {
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
 	public boolean fullscreen;

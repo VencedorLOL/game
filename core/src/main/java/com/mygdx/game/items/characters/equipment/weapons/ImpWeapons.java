@@ -29,7 +29,7 @@ public class ImpWeapons extends Weapons{
 		OnVariousScenarios oVE;
 		public ImpDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "ImpDagger";
+			weaponName = "Devilish dagger";
 			weaponHealth = 0;
 			weaponDamage = 12;
 			weaponSpeed = 0;
@@ -64,7 +64,7 @@ public class ImpWeapons extends Weapons{
 	public static class ImpHastyDagger extends ImpWeapons {
 		public ImpHastyDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "ImpHastyDagger";
+			weaponName = "Hasty dagger";
 			weaponHealth = 0;
 			weaponDamage = 12;
 			weaponSpeed = 2;
@@ -84,7 +84,7 @@ public class ImpWeapons extends Weapons{
 
 		public void update() {
 			for (Actor a : actors)
-				if(a.team == holder.character.team && a.conditions.hasStatus(Conditions.ConditionNames.RITUAL)) {
+				if(a.totalTeam == holder.character.totalTeam && a.conditions.hasStatus(Conditions.ConditionNames.RITUAL)) {
 					((Conditions.Ritual) a.conditions.getStatus(Conditions.ConditionNames.RITUAL)).speed = 3;
 					((Conditions.Ritual) a.conditions.getStatus(Conditions.ConditionNames.RITUAL)).actingSpeed = 3;
 				}
@@ -95,7 +95,7 @@ public class ImpWeapons extends Weapons{
 	public static class MassDemonizeDagger extends ImpWeapons {
 		public MassDemonizeDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "MassDemonizeDagger";
+			weaponName = "Mass demonize dagger";
 			weaponHealth = 0;
 			weaponDamage = 60;
 			weaponSpeed = 0;
@@ -162,7 +162,7 @@ public class ImpWeapons extends Weapons{
 
 			if(holder.abilities.get(1).isItActive && holder.character.isPermittedToAct()){
 				for(Actor a : actors){
-					if(a.team != holder.character.team) {
+					if(a.totalTeam != holder.character.totalTeam) {
 						a.conditions.status(Conditions.ConditionNames.DEMONIZED);
 						a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED).setTurns(((Imp) holder).turnsMark);
 						((Conditions.Demonized) a.conditions.getStatus(Conditions.ConditionNames.DEMONIZED)).getBeneficiary(holder);

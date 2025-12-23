@@ -13,7 +13,7 @@ public class TankWeapons extends Weapons{
 	public static class TankSword extends TankWeapons{
 		public TankSword(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "TankSword";
+			weaponName = "Bulky stone";
 			weaponHealth = 10;
 			weaponDamage = 15;
 			weaponSpeed = 0;

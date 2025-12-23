@@ -49,6 +49,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	public float movedThisTurn;
 	public Entity lastDamager;
 	public byte team;
+	public byte totalTeam;
 	// -1 = evil
 	// 0 = neutral
 	// 1 = good
@@ -140,6 +141,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 		totalDefense = (defense + conditions.getAdditive(4)+ getAdditive(4)) * conditions.getMultiplier(4) * getMultiplier(4);
 		totalRange = (int) ((range + conditions.getAdditive(5)+ getAdditive(5)) * conditions.getMultiplier(5) * getMultiplier(5));
 		totalAggro = (aggro + conditions.getAdditive(11)+ getAdditive(11)) * conditions.getMultiplier(11) * getMultiplier(11);
+		totalTeam = (byte) (team *conditions.getMultiplier(-1));
 		totalSightRange = sightRange;
 		totalFollowRange = followRange;
 	}
@@ -495,7 +497,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	public void targetFinder(){
 		ArrayList<ActorAndDistance> targets = new ArrayList<>();
 		for (Actor a : actors)
-			if (!a.isDead && a.team == team*-1)
+			if (!a.isDead && a.totalTeam == totalTeam*-1)
 				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.totalAggro));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
@@ -581,11 +583,11 @@ public class Actor extends Entity implements TurnManager.Turnable {
 
 	public void attackDetector(){
 		ArrayList<Actor> actuallyEnemies = new ArrayList<>(enemies);
-		actuallyEnemies.removeIf(e -> e.team != -1);
+		actuallyEnemies.removeIf(e -> e.totalTeam != -1);
 		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
 		if (list != null) {
 			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.team != team) {
+				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.totalTeam != totalTeam) {
 					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;

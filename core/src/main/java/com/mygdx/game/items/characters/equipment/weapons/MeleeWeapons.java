@@ -12,7 +12,7 @@ public class MeleeWeapons extends Weapons{
 	public static class ABat extends MeleeWeapons{
 		public ABat(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "MeleeSword";
+			weaponName = "A Bat";
 			weaponHealth = 0;
 			weaponDamage = 40;
 			weaponSpeed = 0;

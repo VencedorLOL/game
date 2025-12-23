@@ -104,8 +104,8 @@ public class ClassAndEquipmentChanger {
 	public static class ClassObject{
 		public String name;
 		public String texture;
-		ArrayList weaponer = new ArrayList<Weaponer<?>>();
-		ArrayList shielder = new ArrayList<Shielder<?>>();
+		public ArrayList weaponer = new ArrayList<Weaponer<?>>();
+		public ArrayList shielder = new ArrayList<Shielder<?>>();
 
 
 		public void activate(Character character){}
@@ -147,6 +147,7 @@ public class ClassAndEquipmentChanger {
 		}
 
 		public void helperMaker(){}
+
 
 	}
 
@@ -274,8 +275,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<Weapons.NoWeapon>());
-			shielder.add(new Shielder<Shields.NoShield>());
+			weaponer.add(new Weaponer<SummonerWeapons.SummonerInstrument>());
+			shielder.add(new Shielder<SummonerShields.SummonerFlag>());
 		}
 
 
@@ -357,6 +358,12 @@ public class ClassAndEquipmentChanger {
 			texture = "EarthquakerIcon";
 		}
 
+		@SuppressWarnings("all")
+		public void helperMaker(){
+			weaponer.add(new Weaponer<EarthquakerWeapons.GroundStomper>());
+			shielder.add(new Shielder<EarthquakerShields.StablePlatform>());
+		}
+
 		public void activate(Character character){
 			character.classes.destroy();
 			character.classes = new com.mygdx.game.items.characters.classes.Earthquaker();
@@ -379,14 +386,14 @@ public class ClassAndEquipmentChanger {
 
 		public Weapons getWeapon(Character character){
 			try {
-				return ((Weapons) weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character.classes,false));
+				return ((Weapons) weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed weapon getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);}
 			return null;
 		}
 
 		public String getWeaponName(Character character){
 			try {
-				return (String) weapon.getField("weaponName").get(weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character.classes,false));
+				return (String) weapon.getField("weaponName").get(weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchFieldException |IllegalAccessException | InvocationTargetException | InstantiationException |
 					 NoSuchMethodException ignored) {text("Failed weapon getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);
 			print("Failed in the name getting");}
@@ -411,14 +418,14 @@ public class ClassAndEquipmentChanger {
 
 		public Shields getShield(Character character){
 			try {
-				return ((Shields) shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character.classes,false));
+				return ((Shields) shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed shield getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);}
 			return null;
 		}
 
 		public String getShieldName(Character character){
 			try {
-				return (String) shield.getField("shieldName").get(shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character.classes,false));
+				return (String) shield.getField("shieldName").get(shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchFieldException |IllegalAccessException | InvocationTargetException | InstantiationException |
 					 NoSuchMethodException ignored) {text("Failed shield getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);
 			}

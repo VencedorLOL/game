@@ -6,7 +6,6 @@ import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Tank extends CharacterClasses {
 
@@ -36,8 +35,8 @@ public class Tank extends CharacterClasses {
 	}
 
 	OnVariousScenarios oVE = new OnVariousScenarios() {
-			public void onDamagedActor(Actor damagedActor) {
-				if (damagedActor.team == character.team && character.classes.name.equals("Tank")) {
+			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
+				if (damagedActor.totalTeam == character.totalTeam && character.classes.name.equals("Tank") && damagedActor != character) {
 					damagedActor.damageRecieved *= 0.2f;
 					damage(damagedActor.damageRecieved * 4, AttackTextProcessor.DamageReasons.ABSORBED); //this is exactly 80% of the damage
 				}

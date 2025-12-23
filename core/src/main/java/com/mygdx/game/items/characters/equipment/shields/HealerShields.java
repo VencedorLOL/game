@@ -8,7 +8,6 @@ public class HealerShields extends Shields{
 
 	public HealerShields(CharacterClasses holder, boolean effectiveInstantiation) {
 		super(holder, effectiveInstantiation);
-		this.shieldHealingPerTurn = shieldHealingPerTurn;
 	}
 
 
@@ -17,7 +16,7 @@ public class HealerShields extends Shields{
 
 		public BlessedShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "BlessedShield";
+			shieldName = "Blessed shield";
 			shieldHealth = 30;
 			shieldDamage = 0;
 			shieldSpeed = 0;

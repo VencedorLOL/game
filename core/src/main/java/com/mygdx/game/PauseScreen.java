@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import static com.mygdx.game.Settings.touchDetect;
 
-public class PauseScreen implements Screen, Utils {
+public class PauseScreen implements Screen {
 	MainClass mainClass;
 	SpriteBatch menuScreenBatch;
 	BitmapFont font;

@@ -1,7 +1,6 @@
 package com.mygdx.game.items;
 
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.Utils;
 import com.mygdx.game.items.enemies.Dummy;
 import com.mygdx.game.items.enemies.EvilGuy;
 import com.mygdx.game.items.enemies.GoalDummy;
@@ -15,13 +14,14 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.Utils.byteArraySearcherForScreenWarps;
 import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.clearHazards;
 import static com.mygdx.game.items.Hazards.updateHazards;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnStageChange;
 import static com.mygdx.game.items.ScreenWarp.*;
 
-public class Stage implements Utils {
+public class Stage  {
 	public int startX, startY, finalX, finalY, spawnX, spawnY;
 
 	public ArrayList<Wall> walls = new ArrayList<>();

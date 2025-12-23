@@ -15,7 +15,7 @@ public class MageShields extends Shields {
 
 		public RoughCrystal(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "RoughCrystal";
+			shieldName = "Rough crystal";
 			shieldHealth = 0;
 			shieldDamage = 0;
 			shieldSpeed = 0;

@@ -1,7 +1,5 @@
 package com.mygdx.game.items;
 
-import com.mygdx.game.Utils;
-
 import java.util.*;
 
 import static com.mygdx.game.Settings.*;
@@ -10,7 +8,7 @@ import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTurnPass;
 
-public class TurnManager implements Utils {
+public class TurnManager {
 	private static boolean isTurnApproved;
 	private static long turnCount;
 	private static ArrayList<ActorAndBoolean> finalizedToChoose /*and ready to act!*/ = new ArrayList<>();

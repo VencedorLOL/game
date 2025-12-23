@@ -52,7 +52,7 @@ public class Earthquaker extends CharacterClasses {
 		currentHealth = totalHealth;
 		manaPool = totalMana;
 		damageReason = AttackTextProcessor.DamageReasons.MELEE;
-		targetProcessor = new TargetProcessor(character,earthquakeSelectionRange,false,false,"earthquaketarget");
+		targetProcessor = new TargetProcessor(character,earthquakeSelectionRange,false,false,"EarthquakeTarget","GroundZero");
 		earthquakeProcessor = new TargetProcessor(targetProcessor.targetsTarget,earthquakeRadius,false,false){
 			@Override
 			public void circleOverridable(Vector3 click) {

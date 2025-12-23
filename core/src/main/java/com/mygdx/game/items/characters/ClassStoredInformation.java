@@ -3,11 +3,11 @@ package com.mygdx.game.items.characters;
 import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 
-import java.lang.reflect.InvocationTargetException;
 
 public class ClassStoredInformation {
 
 
+	@SuppressWarnings("all")
 	public static class ClassInstance {
 		public static float mana;
 		public static float standarizedHealth;
@@ -19,11 +19,11 @@ public class ClassStoredInformation {
 		public Class<?> shieldClass;
 		public int[] cooldownsState;
 
-		static ClassInstance[] classes;
+		public static ClassInstance[] classes;
+
 		static{
-			//ignore the error, ironically the same Java static characteristic I am trying to avoid prevents the recursive softlock
 			classes = new ClassInstance[]{
-					new Classless(), new Melee(), new Speedster(), new Mage() ,new Tank() ,new Healer(), new SwordMage(), new Summoner(), new Imp(), new Catapult(), new StellarExplosion(),
+					new Classless(), new Melee(), new Speedster(), new Healer() ,new Tank() ,new Mage(), new SwordMage(), new Summoner(), new Imp(), new Catapult(), new StellarExplosion(),
 					new Earthquaker()
 			};
 

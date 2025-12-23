@@ -13,7 +13,7 @@ public class StellarExplosionShields extends Shields {
 
 		public EnergyAccelerator(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "EnergyAccelerator";
+			shieldName = "Energy accelerator";
 			shieldHealth = 0;
 			shieldDamage = 0;
 			shieldSpeed = 0;

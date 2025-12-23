@@ -12,7 +12,7 @@ public class EarthquakerWeapons extends Weapons{
 	public static class GroundStomper extends EarthquakerWeapons {
 		public GroundStomper(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "GroundStomper";
+			weaponName = "Ground stomper";
 			weaponHealth = 0;
 			weaponDamage = 5;
 			weaponSpeed = 0;
@@ -31,7 +31,7 @@ public class EarthquakerWeapons extends Weapons{
 		}
 
 		public void onAttack() {
-			if (holder instanceof Earthquaker && ((Earthquaker) holder).earthquakeProcessor.circle.center.x() == holder.character.x && ((Earthquaker) holder).earthquakeProcessor.circle.center.y() == holder.character.y){
+			if (holder instanceof Earthquaker && (holder.manaPool >= holder.totalManaPerUse) && (((Earthquaker) holder).earthquakeProcessor.circle != null) && ((Earthquaker) holder).earthquakeProcessor.circle.center.x() == holder.character.x && ((Earthquaker) holder).earthquakeProcessor.circle.center.y() == holder.character.y){
 				weaponMagicDamage = 45;
 			}
 			else
