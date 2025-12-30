@@ -387,7 +387,7 @@ public class ClassAndEquipmentChanger {
 		public Weapons getWeapon(Character character){
 			try {
 				return ((Weapons) weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
-			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed weapon getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);}
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed weapon getter. This is a bug.",100,100, 40);}
 			return null;
 		}
 
@@ -395,7 +395,7 @@ public class ClassAndEquipmentChanger {
 			try {
 				return (String) weapon.getField("weaponName").get(weapon.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchFieldException |IllegalAccessException | InvocationTargetException | InstantiationException |
-					 NoSuchMethodException ignored) {text("Failed weapon getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);
+					 NoSuchMethodException ignored) {text("Failed weapon getter. This is a bug.",100,100, 40);
 			print("Failed in the name getting");}
 			return "ERROR. THIS IS A BUG";
 		}
@@ -419,7 +419,7 @@ public class ClassAndEquipmentChanger {
 		public Shields getShield(Character character){
 			try {
 				return ((Shields) shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
-			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed shield getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);}
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored){text("Failed shield getter. This is a bug.",100,100,40);}
 			return null;
 		}
 
@@ -427,7 +427,7 @@ public class ClassAndEquipmentChanger {
 			try {
 				return (String) shield.getField("shieldName").get(shield.getConstructor(CharacterClasses.class,boolean.class).newInstance(character != null ? character.classes : null,false));
 			} catch (NoSuchFieldException |IllegalAccessException | InvocationTargetException | InstantiationException |
-					 NoSuchMethodException ignored) {text("Failed shield getter. This is a bug.",100,100, TextureManager.Fonts.ComicSans,40);
+					 NoSuchMethodException ignored) {text("Failed shield getter. This is a bug.",100,100, 40);
 			}
 
 

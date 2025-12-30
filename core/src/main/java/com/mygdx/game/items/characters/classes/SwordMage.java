@@ -64,11 +64,11 @@ public class SwordMage extends CharacterClasses {
 				refresh();
 				costAndDamage();
 				if(totalDamage * finalDamageMultiplier * finalManaCost > manaPool)
-					text("Warning! Right now you don't have enough mana!",-400,150,200, TextureManager.Fonts.ComicSans,40,character);
+					text("Warning! Right now you don't have enough mana!",-400,150,200, 40,character);
 			}
 		};
 
-		text = dinamicFixatedText(manaPool+"",100,400,-1, TextureManager.Fonts.ComicSans,30);
+		text = dinamicFixatedText(manaPool+"",100,400,-1, 30);
 		text.setColor(new int[]{157,216,242});
 		getEquipment();
 		reset();

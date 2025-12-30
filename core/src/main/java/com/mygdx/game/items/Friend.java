@@ -11,6 +11,7 @@ import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.Tile.findATile;
 import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static com.mygdx.game.items.TurnManager.turnables;
@@ -191,7 +192,7 @@ public class Friend extends Actor {
 				}
 		}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX+globalSize()/2f - textSize("Missed!",40) + 40,attacks.get(elementOfAttack -  1).targetY + 240,60, 40,127,127,127,1,30);
 	}
 
 

@@ -20,7 +20,7 @@ public class Dummy extends Enemy {
 		defense = 0;
 		test = new Interactable(null,x,y,globalSize(),globalSize()){
 			public void onInteract(Character character) {
-				text("Hi, I am a dummy!", x,y+globalSize()*2,200, TextureManager.Fonts.ComicSans, 40, 255,255,255,1,150);
+				text("Hi, I am a dummy!", x,y+globalSize()*2,200,  40, 255,255,255,1,150);
 			}
 		};
 	}

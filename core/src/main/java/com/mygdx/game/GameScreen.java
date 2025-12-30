@@ -51,7 +51,8 @@ public class GameScreen implements Screen{
 		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
 		camara.attach(startAsPathfinding ? attacher : chara);
-		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",10,10,-1, TextureManager.Fonts.ComicSans,30);
+		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",0,5,-1, 30);
+		text.setColor(25,190,50);
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);
 		initalized = true;
@@ -144,7 +145,7 @@ public class GameScreen implements Screen{
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
 			getCamara().smoothZoom(camaraZoom -= .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, TextureManager.Fonts.ComicSans, (int) (20 * getCamara().zoom));
+			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, (int) (20 * getCamara().zoom));
 
 	}
 

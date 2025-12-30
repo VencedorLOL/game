@@ -21,6 +21,7 @@ import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.Interactable.interactables;
 import static com.mygdx.game.items.ParticleManager.particleEmitter;
 import static com.mygdx.game.items.TextureManager.*;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TurnManager.*;
 
 public class Character extends Actor {
@@ -72,8 +73,8 @@ public class Character extends Actor {
 		classes.character = this;
 		path = new Path(x,y, classes.totalSpeed,this);
 		actorsThatAttack.add(this);
-		text = dinamicFixatedText(classes.currentHealth+"",100,300,-1, TextureManager.Fonts.ComicSans,30);
-		text.setColor(new int[]{244,83,23});
+		text = dinamicFixatedText(classes.currentHealth+"",80,100,-1, 30);
+		text.setColor(244,83,23);
 		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target","notarget");
 		targetProcessor.opacity = .2f;
 		cC = new ClassAndEquipmentChanger(this);
@@ -325,7 +326,9 @@ public class Character extends Actor {
 					break;
 			}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack - 1).targetX + globalSize() / 2f - textSize("Missed!", 40) + 40,
+					attacks.get(elementOfAttack - 1).targetY + globalSize() + 50, 100, 40, 200, 200, 200, 10, 50);
+
 		attacks.get(elementOfAttack - 1).render = false;
 	}
 
@@ -469,12 +472,12 @@ public class Character extends Actor {
 			if(!getReleaseVersion())
 				print("Chara real x pos is: " + x + " and simplified x is: " + x/globalSize());
 			else
-				fixatedText("Chara real x pos is: " + x + " and on-the-grid x is: " + x/globalSize(),300,300,100,Fonts.ComicSans,40);
+				fixatedText("Chara real x pos is: " + x + " and on-the-grid x is: " + x/globalSize(),300,300,100,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Y))
 			if(!getReleaseVersion())
 				print("Chara real y pos is: " + y + " and simplified y is: " + y/globalSize());
 			else
-				fixatedText("Chara real y pos is: " + y + " and on-the-grid y is: " + y/globalSize(),300,300,100,Fonts.ComicSans,40);
+				fixatedText("Chara real y pos is: " + y + " and on-the-grid y is: " + y/globalSize(),300,300,100,40);
 
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.U)){
@@ -519,7 +522,7 @@ public class Character extends Actor {
 			"Current health: " + classes.currentHealth+"\n"+
 			"Texture" + texture+"\n"+
 			"Real x: " + x + " simplified x: " + x / globalSize()+"\n"+
-			"Real y: " + y + " simplified y: " + y / globalSize(),300,100,500,Fonts.ComicSans,40);
+			"Real y: " + y + " simplified y: " + y / globalSize(),0,0,500,40);
 		}
 
 		if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
@@ -538,7 +541,9 @@ public class Character extends Actor {
 				if(!turnMode)
 					enterTurnMode();
 				else leaveTurnMode();
-				fixatedText("turnMode is now: " + turnMode,500,500,100,Fonts.ComicSans,40);
+				fixatedText("Turn mode is now: " + turnMode,300,200,100,40,255,255,255);
+			//	fixatedText("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ\nabcdefghijklmnñopqrstuvwxyz" +
+			//			"\n1234567890 ¡!¿?@#·ºª<> \n \"\"\\/$%&()[]{}ü=:;-_+*",400,400,1200*6,40,255,40,255);
 			}
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.E) || (escapeJustPressed() && classChanging)){
@@ -587,9 +592,9 @@ public class Character extends Actor {
 		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
 			if(!getReleaseVersion())
 				print(stage+"");
-			else fixatedText("Current Stage: " + stage,300,200,200,Fonts.ComicSans,40);
+			else fixatedText("Current Stage: " + stage,300,200,200,40);
 			classes.currentHealth = classes.totalHealth;
-			fixatedText("Healed to max hp",400,400,200,Fonts.ComicSans,40);
+			fixatedText("Healed to max hp",400,400,200,40);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
 		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
@@ -599,7 +604,7 @@ public class Character extends Actor {
 			print("is cam moving "+getCamara().isCamaraMoving());
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			fixatedText("Version: B",400,200,100, Fonts.ComicSans,40);
+			fixatedText("Version: B",400,200,100, 40);
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
 			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;

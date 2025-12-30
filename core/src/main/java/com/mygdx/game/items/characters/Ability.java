@@ -3,7 +3,6 @@ package com.mygdx.game.items.characters;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector3;
-import com.mygdx.game.items.Camara;
 import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -11,7 +10,6 @@ import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.InputHandler.*;
-import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
@@ -40,7 +38,7 @@ public class Ability{
 		text = new TextureManager.Text();
 		text.render = false;
 		text.onScreenTime = 1;
-		text.font = createFont(TextureManager.Fonts.ComicSans,50);
+		text.realSize = 50;
 		text.setColor(new int[]{255,255,255});
 		text.opacity = 1;
 		circle.set(Gdx.graphics.getWidth() * this.x + getCamara().getX(),
@@ -110,17 +108,17 @@ public class Ability{
 			if (cooldownCounter >= cooldown) {
 				isItActive = true;
 				active();
-				text(name+" activated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, TextureManager.Fonts.ComicSans,32,40,200,40,1,30);
+				text(name+" activated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, 32,40,200,40,1,30);
 			}
 			else if (cooldown - cooldownCounter > 1)
 				text("Couldn't activate " + name + "! You still have to wait " + (cooldown - cooldownCounter) + " more turns!"
-						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + globalSize() * 3/4f + chara.getHeight(),120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + globalSize() * 3/4f + chara.getHeight(),120, 32,256,0,0,1,30);
 			else
 				text("Couldn't activate " + name + "! You still have to wait one more turn!"
-						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, TextureManager.Fonts.ComicSans,32,256,0,0,1,30);
+						,chara.getX() + chara.getBase() - globalSize() * 5 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f,120, 32,256,0,0,1,30);
 		} else {
 			cancelActivation();
-			text(name+ " deactivated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f ,120, TextureManager.Fonts.ComicSans,32,200,200,40,1,30);
+			text(name+ " deactivated!",chara.getX() + chara.getBase() - globalSize() * 2 ,chara.getY() + chara.getHeight() + globalSize() * 3/4f ,120, 32,200,200,40,1,30);
 		}
 	}
 

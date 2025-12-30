@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.OnVariousScenarios;
-import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnVolume;
 import static com.mygdx.game.items.TextureManager.fixatedText;
@@ -83,10 +82,10 @@ public class Settings {
 	public static float getVolume() {return mute ? 0 : volume;}
 	public static float getRealVolume() {return volume;}
 	public static void setVolume(float volume) {Settings.volume = volume;
-		fixatedText(Settings.volume+"",40,50,100, TextureManager.Fonts.ComicSans,40);
+		fixatedText(Settings.volume+"",40,50,100, 40);
 		triggerOnVolume();}
 	public static void setMute(boolean mute) {Settings.mute = mute;
-		fixatedText("mute is now " + mute,40,54,100, TextureManager.Fonts.ComicSans,40);
+		fixatedText("mute is now " + mute,40,54,100, 40);
 		triggerOnVolume();}
 	public static boolean getMute() {return mute;}
 

@@ -1,13 +1,11 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.items.AttackTextProcessor;
-import com.mygdx.game.items.TextureManager;
 import com.mygdx.game.items.TextureManager.*;
 import com.mygdx.game.items.characters.CharacterClasses;
 
 import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class Mage extends CharacterClasses {
 	public Mage(){
@@ -32,7 +30,7 @@ public class Mage extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
-		text = dinamicFixatedText(manaPool+"",100,400,-1, Fonts.ComicSans,30);
+		text = dinamicFixatedText(manaPool+"",100,400,-1,30);
 		text.setColor(new int[]{157,216,242});
 		damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
 	}
@@ -51,7 +49,7 @@ public class Mage extends CharacterClasses {
 			return true;
 		}
 		character.cancelAttackMode();
-		text("Out Of Mana!",0,150,200, TextureManager.Fonts.ComicSans,40,character);
+		text("Out Of Mana!",0,150,200, 40,character);
 		return false;
 	}
 

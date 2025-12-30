@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.mygdx.game.GameScreen.*;
-import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.items.Actor.actors;
@@ -14,7 +13,6 @@ import static com.mygdx.game.items.Friend.allaiesGrid;
 import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.Tile.findATile;
-import static java.lang.Math.abs;
 import static java.lang.Float.POSITIVE_INFINITY;
 import static java.lang.System.nanoTime;
 
@@ -127,7 +125,7 @@ public class PathFinder {
 			if (listType == 0) solve(grid);
 			else if (listType == 1) solve(actorGrid);
 			if(startAsPathfinding) {
-				fixatedText(("time difference is of: " + (nanoTime() - time)), 100, 100, 100, TextureManager.Fonts.ComicSans, (int) (20 * getCamara().zoom));
+				fixatedText(("time difference is of: " + (nanoTime() - time)), 100, 100, 100,  (int) (20 * getCamara().zoom));
 				timeReporter.writeFile(nanoTime() - time);
 			}
 			return !solution.isEmpty();

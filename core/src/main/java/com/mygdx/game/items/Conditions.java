@@ -183,7 +183,7 @@ public class Conditions {
 						<= ((Character) owner).classes.manaPool){
 					hits = true;
 				}
-			} else 	text("Out Of Mana!",0,150,200, TextureManager.Fonts.ComicSans,40,owner);
+			} else 	text("Out Of Mana!",0,150,200, 40,owner);
 		}
 
 		float getDamageMultiplier() {

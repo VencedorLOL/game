@@ -34,7 +34,7 @@ public class Interactable extends Entity {
 
 	public void onInteract(Character character){
 		text("This is the test text. \n To add different interactions, \n override onInteract() on your \n " +
-				"interactable subclass or anonymous class.", x,y+globalSize(),200, TextureManager.Fonts.ComicSans, 40, 255,255,255,1,150);
+				"interactable subclass or anonymous class.", x,y+globalSize(),200, 40, 255,255,255,1,150);
 	}
 
 

@@ -53,6 +53,16 @@ public class Utils {
 		return times;
 	}
 
+	public static float[] toFloat(int[] list){
+		float[] finalList = new float[list.length];
+		for(int i = 0; i < list.length; i++)
+			finalList[i] = list[i];
+		return finalList;
+	}
+
+	public static float intravalue(float min, float evaluated, float max){
+		return evaluated > max ? max : evaluated < min ? min : evaluated;
+	}
 
 
 }

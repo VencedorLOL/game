@@ -1,12 +1,17 @@
 package com.mygdx.game.items.guielements;
 
+import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.TextureManager;
 
+import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Utils.intravalue;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
+import static com.mygdx.game.items.TextureManager.Text.adequateSize;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
+import static java.lang.Math.min;
 
 public class ItemsList  {
 	Character chara;
@@ -45,13 +50,19 @@ public class ItemsList  {
 				fixatedDrawables.add(new DrawableObject("WeaponMiniIcon", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 
 			if(texts[i] == null){
-				texts[i] = dinamicFixatedText(weapons[i],0,0,-1,Fonts.ComicSans,32);
+				texts[i] = dinamicFixatedText(weapons[i],0,0,-1,32);
 			}
+			texts[i].realSize = adequateSize(texts[i].text,size*32*.9f);
+			texts[i].setColor(255,255,255);
 			texts[i].render = true;
 			texts[i].onScreenTime = 2;
 			texts[i].fakeNull = false;
-			texts[i].x = x + size  +size;
-			texts[i].y = yIni + (size*11*i)	- size*27.55f;
+			texts[i].x = x + size*2;
+			texts[i].y = yIni + (size*11*i)	- size*27.75f;
+			if(texts[i].maxVariation != 0)
+				texts[i].maxVariation -= .05f;
+			if(texts[i].maxVariation < 0)
+				texts[i].maxVariation = 0;
 
 		}
 		for (int i = 0; i < shields.length; i++){
@@ -62,13 +73,19 @@ public class ItemsList  {
 			} else
 				fixatedDrawables.add(new DrawableObject("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(texts[i+ weapons.length] == null){
-				texts[i+ weapons.length] = dinamicFixatedText(shields[i],0,0,-1,Fonts.ComicSans,32);
+				texts[i+ weapons.length] = dinamicFixatedText(shields[i],0,0,-1,32);
 			}
+			texts[i+ weapons.length].realSize = adequateSize(texts[i + weapons.length].text,size*32*.9f);
+			texts[i+ weapons.length].setColor(255,255,255);
 			texts[i+ weapons.length].render = true;
 			texts[i+ weapons.length].onScreenTime = 2;
 			texts[i+ weapons.length].fakeNull = false;
-			texts[i+ weapons.length].x = x2 + size  +size;
-			texts[i+ weapons.length].y = yIni + (size*11*i) - size*27.55f;
+			texts[i+ weapons.length].x = x2+ size*2;
+			texts[i+ weapons.length].y = yIni + (size*11*i) - size*27.75f;
+			if(texts[i+ weapons.length].maxVariation != 0)
+				texts[i+ weapons.length].maxVariation -= .05f;
+			if(texts[i+ weapons.length].maxVariation < 0)
+				texts[i+ weapons.length].maxVariation = 0;
 		}
 
 		if(hovered > -1 && canHover){
@@ -91,10 +108,18 @@ public class ItemsList  {
 	}
 
 	public void onTouch(int i){
-		if(i < weapons.length)
-			getClIns(classs.name).setWeapon(classs.getWeapon(i,chara));
-		else
-			getClIns(classs.name).setShield(classs.getShield(i- weapons.length,chara));
+		if(i < weapons.length) {
+			if(getClIns(classs.name).getWeaponName().equals(texts[i].text))
+				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
+			else
+				getClIns(classs.name).setWeapon(classs.getWeapon(i, null));
+		}
+		else {
+			if(getClIns(classs.name).getShieldName().equals(texts[i].text))
+				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
+			else
+				getClIns(classs.name).setShield(classs.getShield(i - weapons.length, null));
+		}
 	}
 
 //texture = selected ? "TextBarSelected" : hovered ? "TextBarHovered" : "TextBar";

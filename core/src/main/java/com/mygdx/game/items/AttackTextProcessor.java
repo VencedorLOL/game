@@ -3,7 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.items.TextureManager.Text.createFont;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TextureManager.addToList;
 import static com.mygdx.game.items.TextureManager.text;
 
@@ -80,9 +80,9 @@ public class AttackTextProcessor {
 			for (TextDamageAndReason t : textDamageAndReason){
 				t.text.render = true;
 				t.text.text = String.format("%.2f", t.damage);
-				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() + 28) / 2));
+				t.text.x = follow.x + (globalSize()/2f - textSize(t.text.text,40)/2f) - 32;
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
-				t.text.font = createFont(TextureManager.Fonts.ComicSans,40);
+				t.text.realSize = 40;
 				t.text.setColor(t.reason.getColor());
 				t.text.opacity = 1;
 				addToList(t.reason.texture, t.text.x - 40, t.text.y - 22,1,0,t.reason.r,t.reason.g,t.reason.b,5,5);
@@ -101,7 +101,7 @@ public class AttackTextProcessor {
 			textDamageAndReason.removeIf(t -> !text.contains(t.text));
 			int aid = 0;
 			for (TextDamageAndReason t : textDamageAndReason) {
-				t.text.x = follow.x + ((float) globalSize() /2 - (float) ((String.format("%.2f", t.damage).length() + 28) / 2));
+				t.text.x = follow.x + (globalSize()/2f - textSize(t.text.text,40)/2f) - 32;
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				float textureOpacity = t.text.vanishingThreshold >= t.text.onScreenTime && t.text.vanishingThreshold > 0 ? t.text.opacity * (1 - (t.text.vanishingThreshold - t.text.onScreenTime) / (t.text.vanishingThreshold)) : t.text.opacity;
 				addToList(t.reason.texture, t.text.x - 40, t.text.y - 22,textureOpacity,0,t.reason.r,t.reason.g,t.reason.b,5,5);

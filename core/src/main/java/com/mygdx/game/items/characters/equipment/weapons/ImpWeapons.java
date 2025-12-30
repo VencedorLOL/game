@@ -116,7 +116,7 @@ public class ImpWeapons extends Weapons{
 				holder.abilities.add((new Ability("RitualCancelled", "RitualCancelled", 0, 75, 76, (float) globalSize() / 2) {
 					@Override
 					public void keybindActivate() {
-						text("But it was blocked.", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3 / 4f, 120, TextureManager.Fonts.ComicSans, 32, 240, 20, 40, 1, 30);
+						text("But it was blocked.", chara.getX() + chara.getBase() - globalSize() * 2, chara.getY() + chara.getHeight() + globalSize() * 3 / 4f, 120, 32, 240, 20, 40, 1, 30);
 					}
 
 					@Override

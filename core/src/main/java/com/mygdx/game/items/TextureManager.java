@@ -3,7 +3,6 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.GameScreen;
 
@@ -16,9 +15,8 @@ import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.Utils.cC;
+import static com.mygdx.game.Utils.toFloat;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
-import static com.mygdx.game.items.TextureManager.Text.createFont;
 import static java.lang.Math.*;
 
 @SuppressWarnings("all")
@@ -251,7 +249,7 @@ public class TextureManager {
 		// Text display
 		for (TextureManager.Text t : text){
 			if (!t.fakeNull && t.render)
-				t.draw(batch);
+				t.draw();
 		}
 		text.removeIf(tex -> tex.fakeNull);
 		// Most priority drawables
@@ -272,7 +270,7 @@ public class TextureManager {
 		//Priority Text
 		for (TextureManager.Text t : priorityText){
 			if (!t.fakeNull && t.render)
-				t.draw(batch);
+				t.draw();
 		}
 		priorityText.removeIf(tex -> tex.fakeNull);
 
@@ -280,7 +278,7 @@ public class TextureManager {
 
 		for (TextureManager.Text t : fixatedText){
 			if (!t.fakeNull && t.render) {
-				t.drawStatic(batch);
+				t.drawStatic();
 			}
 		}
 		fixatedText.removeIf(tex -> tex.fakeNull);
@@ -294,32 +292,44 @@ public class TextureManager {
 		videos.clear();
 	}
 
-	public static void fixatedText (String text,float x, float y,int timeOnScreen,Fonts font,int size){
-		TextureManager.fixatedText.add(new Text(text,x,y,timeOnScreen,createFont(font,size)));
+	public static void fixatedText (String text,float x, float y,int timeOnScreen,int size){
+		TextureManager.fixatedText.add(new Text(text,x,y,size,timeOnScreen));
 	}
 
-	public static Text dinamicFixatedText (String text,float x, float y,int timeOnScreen,Fonts font,int size){
-		Text text1 = new Text(text,x,y,timeOnScreen,createFont(font,size));
+	public static void fixatedText (String text,float x, float y,int timeOnScreen,int size,int r, int g, int b){
+		TextureManager.fixatedText.add(new Text(text,x,y, timeOnScreen,r,g,b,1,0,size));
+	}
+
+	public static Text dinamicFixatedText (String text,float x, float y,int timeOnScreen,int size){
+		Text text1 = new Text(text,x,y,size,timeOnScreen);
 		TextureManager.fixatedText.add(text1);
 		return text1;
 	}
 
 
-	public static void text (String text,float x, float y,Fonts font,int size){
-		TextureManager.text.add(new Text(text,x,y,createFont(font,size)));
+	public static void text (String text,float x, float y,int size){
+		TextureManager.text.add(new Text(text,x,y,size));
 	}
 
-	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font,int size,Entity entityToFollow){
-		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),entityToFollow));
+	public static void text (String text,float x, float y,int timeTilDisappear,int size,Entity entityToFollow){
+		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,entityToFollow,size));
 	}
 
-	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font, int size,int r, int g, int b,float opacity,float vanishingThreshold){
-		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size),r,g,b,opacity,vanishingThreshold));
+	public static void text (String text,float x, float y,int timeTilDisappear, int size,int r, int g, int b,float opacity,float vanishingThreshold){
+		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,r,g,b,opacity,vanishingThreshold,size));
 	}
 
-	public static void text (String text,float x, float y,int timeTilDisappear,Fonts font,int size){
+	public static void rainbowText (String text,float x, float y,int timeTilDisappear, int size,float opacity,float vanishingThreshold,int cycleTime, float multiplicator){
+		TextureManager.text.add(new Text(text,x,y,timeTilDisappear,opacity,vanishingThreshold,size,cycleTime,multiplicator));
+	}
+
+	public static void shakyText (String text,float x, float y,int timeTilDisappear, float size,int vanishingThreshold,int r,int g,int b,float maxY,int time){
+		TextureManager.text.add(new Text(text,x,y,size,timeTilDisappear,vanishingThreshold,r,g,b,maxY,time));
+	}
+
+	public static void text (String text,float x, float y,int timeTilDisappear,int size){
 		if (text!= null)
-			TextureManager.text.add(new Text(text,x,y,timeTilDisappear,createFont(font,size)));}
+			TextureManager.text.add(new Text(text,x,y,timeTilDisappear));}
 
 	public static class DrawableObject{
 		public float x,y,z = 0;
@@ -425,65 +435,401 @@ public class TextureManager {
 		public String text;
 		public int onScreenTime;
 		public boolean fakeNull = false;
-		public BitmapFont font;
 		int r,g,b;
 		public float opacity;
 		float vanishingThreshold;
 		public boolean render = true;
 		public Entity entityToFollow;
+		public float realSize;
+		//rainbow mode only
+		public static final float totalJumps = 1530;
+		public int jumpsPerTick; // = totalJumps/cycleTime
+		public float letterMultiplicator;
+		//shaking mode only
+		//if i want to make it compatible with changing the text, i should change this to an array list
+		public float[] shiftedCoordinates;
+		public boolean[] isUp;
+		public int[] timeTilStart;
+		public float maxVariation;
+		public int timeToReachMaxVar;
 
-		public Text(String text, float x, float y, BitmapFont font){
+		public Text(String text, float x, float y, float realSize){
 			this.text = text;
 			this.x = x;
 			this. y = y;
 			onScreenTime = -1;
-			this.font = font;
 			this.r = -1;
+			this.realSize = realSize;
+			opacity = 1;
 
 		}
 
-		public Text(String text, float x, float y,int onScreenTime,BitmapFont font,int r, int b, int g,float opacity,float vanishingThreshold){
+		public Text(String text, float x, float y, float realSize,int onScreenTime,int vanishingThreshold,int r,int g,int b,float yVariation,int time){
+			this.text = text;
+			this.x = x;
+			this. y = y;
+			this.onScreenTime = onScreenTime;
+			this.vanishingThreshold = vanishingThreshold;
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.realSize = realSize;
+			opacity = 1;
+			maxVariation = yVariation;
+			shiftedCoordinates = new float[text.length()];
+			timeTilStart = new int[text.length()];
+			isUp = new boolean[text.length()];
+			for(int i = 0; i < text.length(); i++) {
+				timeTilStart[i] = (int) (random() * time);
+				isUp[i] = random() < .5 ? false : true;
+			}
+			timeToReachMaxVar = time;
+		}
+
+
+		public Text(String text, float x, float y,int onScreenTime,float opacity,float vanishingThreshold,float size,int cycleTime,float multiplicator){
 			this.onScreenTime = onScreenTime;
 			this.text = text;
 			this.x = x;
 			this. y = y;
-			this.font = font;
+			this.r = 255;
+			this.g = 0;
+			this.b = 0;
+			this.opacity = opacity;
+			this.vanishingThreshold = vanishingThreshold;
+			this.realSize = size;
+			letterMultiplicator = multiplicator;
+			jumpsPerTick = (int) (totalJumps/cycleTime);
+
+		}
+
+		public Text(String text, float x, float y,int onScreenTime,int r, int b, int g,float opacity,float vanishingThreshold,float size){
+			this.onScreenTime = onScreenTime;
+			this.text = text;
+			this.x = x;
+			this. y = y;
 			this.r = r;
 			this.g = g;
 			this.b = b;
 			this.opacity = opacity;
 			this.vanishingThreshold = vanishingThreshold;
+			this.realSize = size;
 		}
 
-		public Text(String text, float x, float y,int onScreenTime,BitmapFont font){
-			this.onScreenTime = onScreenTime;
-			this.text = text;
-			this.x = x;
-			this. y = y;
-			this.font = font;
-			this.r = -1;
-		}
 
-		public Text(String text, float x, float y,int onScreenTime,BitmapFont font,Entity entityToFollow){
+		public Text(String text, float x, float y,int onScreenTime,Entity entityToFollow,float size){
 			this.text = text;
 			this.onScreenTime = onScreenTime;
 			this.x = x;
 			this. y = y;
 			this.entityToFollow = entityToFollow;
-			this.font = font;
 			this.r = -1;
+			realSize = size;
+			opacity = 1;
 		}
 
 		public Text(){}
 
+		public Text(String text, float x, float y, int size, int timeOnScreen) {
+			this.text = text;
+			this.x = x;
+			this. y = y;
+			onScreenTime = -1;
+			this.r = -1;
+			this.realSize = size;
+			this.onScreenTime = timeOnScreen;
+			opacity = 1;
+		}
 
-		public void draw(Batch batch){
+		//for late shake initiation
+		public void initiateShake(float yVariation, int time){
+			maxVariation = yVariation;
+			shiftedCoordinates = new float[text.length()];
+			timeTilStart = new int[text.length()];
+			isUp = new boolean[text.length()];
+			for(int i = 0; i < text.length(); i++) {
+				timeTilStart[i] = (int) (random() * time);
+				isUp[i] = random() < .5 ? false : true;
+			}
+			timeToReachMaxVar = time;
+		}
+
+
+		public final static float charSize = 8;
+		public void drawAll(float x, float y, float opacity){
+			char[] letters = text.toCharArray();
+			int lineJumps = 0;
+			float addition;
+			if(letters.length > 0)
+				addition = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
+			else
+				addition = 0;
+			if(jumpsPerTick != 0)
+				rainbowColorCalculation();
+			for(int i = 0; i < letters.length; i++){
+				if(letters[i] == '\n'){
+					lineJumps++;
+					addition = 0;
+					continue;
+				}
+				addition += realSize/charSize*(getTexture(letters[i]).size + 1);
+				float[] colors = {r,g,b};
+				if(letterMultiplicator != 0)
+					colors = toFloat(rainbowColorCalculationPerLetter(letters.length-i,(int) colors[0],(int) colors[1],(int) colors[2]));
+				if(shiftedCoordinates == null || shiftedCoordinates.length < letters.length || maxVariation == 0)
+					drawer(getTexture(letters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,opacity,false,false,0,
+						realSize/charSize,realSize/charSize,colors[0]/255,colors[1]/255,colors[2]/255,true);
+				else {
+					processShake();
+					drawer(getTexture(letters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
+							, 0, opacity, false, false, 0,
+							realSize / charSize, realSize / charSize, colors[0] / 255, colors[1] / 255, colors[2] / 255, true);
+				}
+
+			}
+		}
+
+		//changing these can be fun!
+		public static final int upperEnd = 255;
+		public static final int lowerEnd = 0;
+		public void rainbowColorCalculation(){
+			if (b <= lowerEnd && r >= upperEnd && g != upperEnd)
+				g += jumpsPerTick;
+			else if (b <= lowerEnd && g >= upperEnd && r != lowerEnd)
+				r -= jumpsPerTick;
+			else if (r <= lowerEnd && g >= upperEnd && b != upperEnd)
+				b += jumpsPerTick;
+			else if (r <= lowerEnd && b >= upperEnd && g != lowerEnd)
+				g -= jumpsPerTick;
+			else if (g <= lowerEnd && b >= upperEnd && r != upperEnd)
+				r += jumpsPerTick;
+			else if (g <= lowerEnd && r >= upperEnd  && b != lowerEnd)
+				b -= jumpsPerTick;
+			r = r > upperEnd ? upperEnd : r < lowerEnd ? lowerEnd : r;
+			g = g > upperEnd ? upperEnd : g < lowerEnd ? lowerEnd : g;
+			b = b > upperEnd ? upperEnd : b < lowerEnd ? lowerEnd : b;
+		}
+
+		public int[] rainbowColorCalculationPerLetter(int letter, int r, int g, int b){
+			for(int i = 0; i < letter; i++) {
+				if (r == upperEnd && g != upperEnd && b == lowerEnd)
+					g += jumpsPerTick*letterMultiplicator;
+				else if (b == lowerEnd && g == upperEnd && r != lowerEnd)
+					r -= jumpsPerTick*letterMultiplicator;
+				else if (r == lowerEnd && g == upperEnd && b != upperEnd)
+					b += jumpsPerTick*letterMultiplicator;
+				else if (r == lowerEnd && b == upperEnd && g != lowerEnd)
+					g -= jumpsPerTick*letterMultiplicator;
+				else if (g == lowerEnd && b == upperEnd && r != upperEnd)
+					r += jumpsPerTick*letterMultiplicator;
+				else if (b != lowerEnd && g == lowerEnd && r == upperEnd)
+					b -= jumpsPerTick*letterMultiplicator;
+				r = r > upperEnd ? upperEnd : r < lowerEnd ? lowerEnd : r;
+				g = g > upperEnd ? upperEnd : g < lowerEnd ? lowerEnd : g;
+				b = b > upperEnd ? upperEnd : b < lowerEnd ? lowerEnd : b;
+			}
+			return new int[]{r,g,b};
+		}
+
+
+		public void processShake(){
+			for(int i = 0; i < text.length(); i++){
+				if (timeTilStart[i] > 0){
+					timeTilStart[i]--;
+					continue;
+				}
+				if (shiftedCoordinates[i] == 0)
+					shiftedCoordinates[i] += random() > .5 ? maxVariation/timeToReachMaxVar : -maxVariation/timeToReachMaxVar;
+				else if (isUp[i]){
+					shiftedCoordinates[i] += maxVariation/timeToReachMaxVar;
+					if(shiftedCoordinates[i] >= maxVariation)
+						isUp[i] = false;
+					else if (shiftedCoordinates[i] == 0)
+						isUp[i] = random() < .5 ? true : false;
+				} else if(!isUp[i]){
+					shiftedCoordinates[i] -= maxVariation/timeToReachMaxVar;
+					if(shiftedCoordinates[i] <= -maxVariation)
+						isUp[i] = true;
+					else if (shiftedCoordinates[i] == 0)
+						isUp[i] = random() < .5 ? true : false;
+				}
+			}
+		}
+
+
+
+		public static float textSize(String text, float realSize){
+			char[] letters = text.toCharArray();
+			float counter = 0;
+			for(char c : letters)
+				counter += realSize/charSize*(getTexture(c).size + 1);
+			return counter;
+		}
+
+		public static float adequateSize(String text, float maxXSpace){
+			char[] letters = text.toCharArray();
+			float counter = 0;
+			for(char c : letters)
+				counter += (getTexture(c).size + 1);
+			return maxXSpace/counter*charSize;
+		}
+
+
+		public static Letters getTexture(char character){
+			switch(character){
+				case 'A': return Letters.A;
+				case 'B': return Letters.B;
+				case 'C': return Letters.C;
+				case 'D': return Letters.D;
+				case 'E': return Letters.E;
+				case 'F': return Letters.F;
+				case 'G': return Letters.G;
+				case 'H': return Letters.H;
+				case 'I': return Letters.I;
+				case 'J': return Letters.J;
+				case 'K': return Letters.K;
+				case 'L': return Letters.L;
+				case 'M': return Letters.M;
+				case 'N': return Letters.N;
+				case 'Ñ': return Letters.ENNE;
+				case 'O': return Letters.O;
+				case 'P': return Letters.P;
+				case 'Q': return Letters.Q;
+				case 'R': return Letters.R;
+				case 'S': return Letters.S;
+				case 'T': return Letters.T;
+				case 'U': return Letters.U;
+				case 'V': return Letters.V;
+				case 'W': return Letters.W;
+				case 'X': return Letters.X;
+				case 'Y': return Letters.Y;
+				case 'Z': return Letters.Z;
+				case 'a': return Letters.a;
+				case 'b': return Letters.b;
+				case 'c': return Letters.c;
+				case 'd': return Letters.d;
+				case 'e': return Letters.e;
+				case 'f': return Letters.f;
+				case 'g': return Letters.g;
+				case 'h': return Letters.h;
+				case 'i': return Letters.i;
+				case 'j': return Letters.j;
+				case 'k': return Letters.k;
+				case 'l': return Letters.l;
+				case 'm': return Letters.m;
+				case 'n': return Letters.n;
+				case 'ñ': return Letters.enne;
+				case 'o': return Letters.o;
+				case 'p': return Letters.p;
+				case 'q': return Letters.q;
+				case 'r': return Letters.r;
+				case 's': return Letters.s;
+				case 't': return Letters.t;
+				case 'u': return Letters.u;
+				case 'v': return Letters.v;
+				case 'w': return Letters.w;
+				case 'x': return Letters.x;
+				case 'y': return Letters.y;
+				case 'z': return Letters.z;
+				case ' ': return Letters.BLANK;
+				case ':': return Letters.CO;
+				case ';': return Letters.SECO;
+				case ',': return Letters.COMM;
+				case '.': return Letters.DOT;
+				case '1': return Letters.ON;
+				case '2': return Letters.TW;
+				case '3': return Letters.TH;
+				case '4': return Letters.FO;
+				case '5': return Letters.FI;
+				case '6': return Letters.SI;
+				case '7': return Letters.SE;
+				case '8': return Letters.EI;
+				case '9': return Letters.NI;
+				case '0': return Letters.ZE;
+				case '\'':return Letters.APO;
+				case '!': return Letters.EXC;
+				case '¡': return Letters.EXO;
+				case '?': return Letters.INTC;
+				case '¿': return Letters.INTO;
+				case '_': return Letters.UNDS;
+				case '-': return Letters.DASH;
+				case '@': return Letters.ARR;
+				case '\"':return Letters.QUO;
+				case '+': return Letters.PL;
+				case '%': return Letters.PER;
+				case '*': return Letters.AST;
+				case '=': return Letters.EQU;
+				case '(': return Letters.BRO;
+				case ')': return Letters.BRC;
+				case '\\':return Letters.CDD;
+				case '/': return Letters.CCDD;
+				case '>': return Letters.SUCO;
+				case '<': return Letters.INCO;
+				case '#': return Letters.PO;
+				case '·': return Letters.MUAR;
+				case '[': return Letters.BKC;
+				case ']': return Letters.BKO;
+				case '{': return Letters.CBKO;
+				case '}': return Letters.CBKC;
+				case 'º': return Letters.MOI;
+				case 'ª': return Letters.FOI;
+				case '&': return Letters.AND;
+				case 'ü': return Letters.DIEU;
+				case '$': return Letters.DOLL;
+			}
+			return null;
+		}
+
+		enum Letters{
+			A("A",5),B("B",5),C("C",6),D("D",5),E("E",5),
+			F("F",5),G("G",6),H("H",4),I("I",5),
+			J("J",3),K("K",4),L("L",3),M("M",7),N("N",5),
+			O("O",6),P("P",5),Q("Q",6),R("R",5),S("S",5),
+			T("T",5),U("U",5),V("V",5),W("W",7),X("X",5),Y("Y",5),Z("Z",6),
+			a("aa",5),
+			b("bb",4),c("cc",4),d("dd",4),e("ee",5),
+			f("ff",4),g("gg",4),h("hh",4),i("ii",2),j("jj",3),k("kk",3),
+			l("ll",2),m("mm",5),n("nn",4),o("oo",5),p("pp",4),q("qq",5),
+			r("rr4",4),s("ss",4),t("tt",3),u("uu",5),v("vv",5),
+			w("ww",5),x("xx",4),y("yy",3),z("zz",4),ENNE("ENNE",5),enne("ennne",4),
+			ON("1",3),TW("2",5),TH("3",5),FO("4",5),FI("5",5),SI("6",5),SE("7",5),
+			EI("8",5),NI("9",5),
+			ZE("0",5),BLANK("Space",4),
+			CO("Colon",2),SECO("Semicolon",2),COMM("Comma",2),DOT("Dot",2),
+			APO("Apostrophe",1),EXO("ExclamationOpen",2),EXC("ExclamationClose",2),
+			INTO("InterrogationOpen",4),INTC("InterrogationClose",4),UNDS("Underscore",8),
+			DASH("Minus",3),ARR("Arroba",8),PL("Plus",3),QUO("QuotationMarks",4),PER("Percent",4),
+			AST("Asterisk",3),EQU("Equal",3),
+			BRO("BraceOpen",2),BRC("BraceClose",2),CDD("ClockwiseDiagonalDash",5),CCDD("CounterclockwiseDiagonalDash",5),
+			SUCO("SuperiorityComparator",4),INCO("InferiorityComparator",4),
+			PO("Pound",5),MUAR("MultiplicationArithmetic",2),
+			BKO("BracketOpen",3),BKC("BracketClose",3),CBKO("CurlyBracketOpen",4),
+			CBKC("CurlyBracketClose",4),MOI("MascOrdIndicator",3),FOI("FemOrdIndicator",3),
+			AND("Anderson",5),DIEU("DieresisU",5),
+			DIV("Division",3),DOLL("Dollar",5)
+			;
+
+			final int size;
+			final String texture;
+			Letters(String texture, int size){
+				this.size = size;
+				this.texture = texture;
+			}
+
+		}
+
+
+
+
+		public void draw(){
+			float functionalOpacity = opacity;
+			int r = this.r,g = this.g,b = this.b;
 			if (r != -1)
-				font.setColor(cC(r), cC(g), cC(b), vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity);
+				functionalOpacity = vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity;
 			if(entityToFollow!=null && getRender())
-				font.draw(batch, text,x + entityToFollow.x,y + entityToFollow.y);
+				drawAll(x + entityToFollow.x,y + entityToFollow.y,functionalOpacity);
 			else if (getRender())
-				font.draw(batch, text,x,y);
+				drawAll(x,y,functionalOpacity);
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;
@@ -492,14 +838,14 @@ public class TextureManager {
 
 		}
 
-		public void drawStatic(Batch batch){
+		public void drawStatic(){
 			Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
+			float functionalOpacity = opacity;
+			int r = this.r,g = this.g,b = this.b;
 			if (r != -1 && vanishingThreshold > 0)
-				font.setColor(cC(r),cC(g),cC(b), vanishingThreshold >= onScreenTime ? opacity * (1-(vanishingThreshold-onScreenTime)/(vanishingThreshold)) : opacity);
-			else if (r != -1)
-				font.setColor(cC(r),cC(g),cC(b),1);
+				functionalOpacity = vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity;
 			if(getRender())
-				font.draw(batch, text,coords.x,coords.y);
+				drawAll(coords.x,coords.y,functionalOpacity);
 			onScreenTime--;
 			if(onScreenTime == 0){
 				fakeNull = true;
@@ -511,29 +857,12 @@ public class TextureManager {
 		public void onFinishOverridable(){}
 
 
-		public void setColor(int[] color){
+		public void setColor(int... color){
 			this.r = color[0];
 			this.g = color[1];
 			this.b = color[2];
 		}
 
-		public static BitmapFont createFont(Fonts name, int size) {
-			FreeTypeFontGenerator.FreeTypeFontParameter fontParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-			fontParameter.size = size;
-			return new FreeTypeFontGenerator(Gdx.files.internal(name.path)).generateFont(fontParameter);
-		}
-
-
-
-	}
-
-	public enum Fonts {
-		ComicSans("Fonts\\Comic Sans MS.ttf");
-
-		public final String path;
-		Fonts(String path) {
-			this.path = path;
-		}
 	}
 
 
@@ -581,7 +910,7 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,40,255,255,40,1,50);
 			print("Name of NFA: " + name);}
 		}
 
@@ -595,7 +924,7 @@ public class TextureManager {
 				read();
 				opacity = 1;
 				base = height = globalSize();
-			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,Fonts.ComicSans,40,255,255,40,1,50);
+			} catch (FileNotFoundException ignored){text("ANIMATION NOT FOUND ", chara.x,chara.y,100,40,255,255,40,1,50);
 				print("Name of NFA: " + name);}
 		}
 

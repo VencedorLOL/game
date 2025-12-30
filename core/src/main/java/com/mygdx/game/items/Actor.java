@@ -16,6 +16,7 @@ import static com.mygdx.game.items.Friend.friend;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnActorDeath;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
 import static com.mygdx.game.items.Stage.betweenStages;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
@@ -594,7 +595,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 				}
 		}
 		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX,attacks.get(elementOfAttack -  1).targetY + 240,60, TextureManager.Fonts.ComicSans,40,127,127,127,1,30);
+			text("Missed!", attacks.get(elementOfAttack -  1).targetX+globalSize()/2f - textSize("Missed!",40) + 40,attacks.get(elementOfAttack -  1).targetY + 240,60, 40,127,127,127,1,30);
 	}
 
 
