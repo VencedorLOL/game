@@ -145,7 +145,7 @@ public class GameScreen implements Screen{
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
 			getCamara().smoothZoom(camaraZoom -= .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, (int) (20 * getCamara().zoom));
+			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, (int) (20 * getCamara().zoom),255,255,255);
 
 	}
 

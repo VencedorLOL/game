@@ -7,6 +7,7 @@ next turn you cant decide what to do, you will keep moving the ball.
 
 Bogfixes: enemies trying (and failing) to attack through walls
 	camera remaining attached to path if path hasnt been walked yet
+	recalculate text center (now thankfully this being much easier) for AttackTextProcessor, as its broken
 
 idea:
 path indicator having same theme as ambient
