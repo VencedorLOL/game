@@ -46,7 +46,7 @@ public class Earthquaker extends CharacterClasses {
 
 		getEquipment();
 
-		text = dinamicFixatedText(manaPool+"",100,400,-1, 30);
+		text = dynamicFixatedText(manaPool+"",100,400,-1, 30);
 		text.setColor(new int[]{157,216,242});
 		reset();
 		currentHealth = totalHealth;

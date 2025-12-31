@@ -4,7 +4,7 @@ import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.TextureManager.*;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
+import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
 
 public class Mage extends CharacterClasses {
@@ -30,7 +30,7 @@ public class Mage extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
-		text = dinamicFixatedText(manaPool+"",100,400,-1,30);
+		text = dynamicFixatedText(manaPool+"",100,400,-1,30);
 		text.setColor(new int[]{157,216,242});
 		damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
 	}

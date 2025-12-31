@@ -10,6 +10,7 @@ import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.InputHandler.*;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
@@ -92,8 +93,8 @@ public class Ability{
 			text.fakeNull = false;
 			text.render = true;
 			text.text = String.format("%.0f",( (float) cooldown - cooldownCounter));
-			text.x = coords[0] + ((float) globalSize() /2) - 15;
-			text.y = coords[1] + ((float) globalSize() /2) + 20;
+			text.x = coords[0] + (globalSize() - text.textSize() - text.realSize)/2f;
+			text.y = coords[1] + ((float) globalSize() /2) + 25;
 		}
 	}
 

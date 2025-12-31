@@ -4,10 +4,10 @@ Character: Code the +80 characters :D.
 Game: The rest of the game.
 Char.Class idea: Psyquic shot: controll a proyectile. The proyectile has infinite reach. It moves 10 tiles per act. turn subdivision. If it didnt end on the first turn, on the
 next turn you cant decide what to do, you will keep moving the ball.
+Text: add custom text gradients and text wave and text bounce
 
 Bogfixes: enemies trying (and failing) to attack through walls
 	camera remaining attached to path if path hasnt been walked yet
-	recalculate text center (now thankfully this being much easier) for AttackTextProcessor, as its broken
 
 idea:
 path indicator having same theme as ambient

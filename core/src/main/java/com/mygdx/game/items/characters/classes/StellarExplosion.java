@@ -54,7 +54,7 @@ public class StellarExplosion extends CharacterClasses {
 			}
 		});
 
-		text = dinamicFixatedText(manaPool+"",100,400,-1,30);
+		text = dynamicFixatedText(manaPool+"",100,400,-1,30);
 		text.setColor(new int[]{157,216,242});
 		if(getClIns("StellarExplosion").getCooldown().length >= abilities.size())
 			for(int i = 0; i < abilities.size(); i++)

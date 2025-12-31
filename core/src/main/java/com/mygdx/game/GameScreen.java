@@ -17,7 +17,7 @@ import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
-import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
+import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.items.TurnManager.*;
 import static com.mygdx.game.Settings.camaraZoom;
@@ -51,7 +51,7 @@ public class GameScreen implements Screen{
 		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
 		camara.attach(startAsPathfinding ? attacher : chara);
-		text = dinamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",0,5,-1, 30);
+		text = dynamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",0,5,-1, 30);
 		text.setColor(25,190,50);
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);

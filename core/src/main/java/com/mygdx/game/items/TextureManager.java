@@ -135,12 +135,12 @@ public class TextureManager {
 
 
 
-	private static void fixatedScreenDrawer(String texture, float x, float y,float z, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b,boolean originZero,float xPercentage){
+	private static void fixatedScreenDrawer(String texture, float x, float y,float z, float opacity,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b,boolean originZero,float xPercentage,boolean flipX, boolean flipY){
 		Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
 		if(xPercentage != 0 && xPercentage != 1){
 			drawer(texture,coords.x,coords.y,scaleX,scaleY,originZero,xPercentage);
 		} else
-			drawer(texture,coords.x, coords.y,z,opacity,false,false,rotationDegrees,scaleX,scaleY,r,g,b, originZero);
+			drawer(texture,coords.x, coords.y,z,opacity,flipX,flipY,rotationDegrees,scaleX,scaleY,r,g,b, originZero);
 	}
 
 	private static void fixatedScreenDrawer(String texture, float x, float y,float z,float base,float height, float opacity,boolean flipX, boolean flipY,float rotationDegrees,float scaleX, float scaleY,float r,float g, float b,boolean originZero){
@@ -264,7 +264,7 @@ public class TextureManager {
 
 		for (TextureManager.DrawableObject d : fixatedDrawables){
 			if (d.texture != null)
-				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero,d.xPercentage);
+				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero,d.xPercentage,d.flipX,d.flipY);
 		}
 		fixatedDrawables.clear();
 		//Priority Text
@@ -300,7 +300,7 @@ public class TextureManager {
 		TextureManager.fixatedText.add(new Text(text,x,y, timeOnScreen,r,g,b,1,0,size));
 	}
 
-	public static Text dinamicFixatedText (String text,float x, float y,int timeOnScreen,int size){
+	public static Text dynamicFixatedText(String text, float x, float y, int timeOnScreen, float size){
 		Text text1 = new Text(text,x,y,size,timeOnScreen);
 		TextureManager.fixatedText.add(text1);
 		return text1;
@@ -373,6 +373,25 @@ public class TextureManager {
 				this.opacity = opacity;
 			this.flipX = flipX;
 			this.flipY = flipY;
+		}
+
+		public DrawableObject(String texture, float x, float y,float opacity, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
+			this.x = x;
+			this.y = y;
+			this.texture = texture;
+			this.rotationDegrees = 0;
+			if (opacity > 1)
+				this.opacity = opacity / 100;
+			else
+				this.opacity = opacity;
+			this.flipX = flipX;
+			this.flipY = flipY;
+			this.scaleX = scaleX;
+			this.scaleY = scaleY;
+			this.originZero = originZero;
+			this.r = r/255;
+			this.g = g/255;
+			this.b = b/255;
 		}
 
 		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float r, float g, float b){
@@ -530,7 +549,7 @@ public class TextureManager {
 
 		public Text(){}
 
-		public Text(String text, float x, float y, int size, int timeOnScreen) {
+		public Text(String text, float x, float y, float size, int timeOnScreen) {
 			this.text = text;
 			this.x = x;
 			this. y = y;
@@ -540,6 +559,25 @@ public class TextureManager {
 			this.onScreenTime = timeOnScreen;
 			opacity = 1;
 		}
+
+		public int[] listOfExclusion;
+		public void setListOfExclusion(int... list){
+			listOfExclusion = list;
+		}
+
+		public void clearListOfExclusion(){
+			listOfExclusion = null;
+		}
+
+		public boolean isElementExcluded(int element){
+			if(listOfExclusion != null)
+				for(int l : listOfExclusion)
+					if (element == l)
+						return true;
+			return false;
+		}
+
+
 
 		//for late shake initiation
 		public void initiateShake(float yVariation, int time){
@@ -577,12 +615,15 @@ public class TextureManager {
 				if(letterMultiplicator != 0)
 					colors = toFloat(rainbowColorCalculationPerLetter(letters.length-i,(int) colors[0],(int) colors[1],(int) colors[2]));
 				if(shiftedCoordinates == null || shiftedCoordinates.length < letters.length || maxVariation == 0)
-					drawer(getTexture(letters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,opacity,false,false,0,
+					drawer(getTexture(letters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
+							isElementExcluded(i) ? 0 : opacity,
+							false,false,0,
 						realSize/charSize,realSize/charSize,colors[0]/255,colors[1]/255,colors[2]/255,true);
 				else {
 					processShake();
 					drawer(getTexture(letters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
-							, 0, opacity, false, false, 0,
+							, 0,
+							 isElementExcluded(i) ? 0 : opacity, false, false, 0,
 							realSize / charSize, realSize / charSize, colors[0] / 255, colors[1] / 255, colors[2] / 255, true);
 				}
 
@@ -656,11 +697,22 @@ public class TextureManager {
 			}
 		}
 
+		public float textSize(){
+			char[] letters = text.toCharArray();
+			float counter = 0;
+			if(letters.length > 0)
+				counter = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
+			for(char c : letters)
+				counter += realSize/charSize*(getTexture(c).size + 1);
+			return counter;
+		}
 
 
 		public static float textSize(String text, float realSize){
 			char[] letters = text.toCharArray();
 			float counter = 0;
+			if(letters.length > 0)
+				counter = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
 			for(char c : letters)
 				counter += realSize/charSize*(getTexture(c).size + 1);
 			return counter;
@@ -731,7 +783,7 @@ public class TextureManager {
 				case 'x': return Letters.x;
 				case 'y': return Letters.y;
 				case 'z': return Letters.z;
-				case ' ': return Letters.BLANK;
+				case ' ': return Letters.SPACE;
 				case ':': return Letters.CO;
 				case ';': return Letters.SECO;
 				case ',': return Letters.COMM;
@@ -776,12 +828,12 @@ public class TextureManager {
 				case '&': return Letters.AND;
 				case 'ü': return Letters.DIEU;
 				case '$': return Letters.DOLL;
+				default : return Letters.BLANK;
 			}
-			return null;
 		}
 
 		enum Letters{
-			A("A",5),B("B",5),C("C",6),D("D",5),E("E",5),
+			A("A",6),B("B",5),C("C",6),D("D",5),E("E",5),
 			F("F",5),G("G",6),H("H",4),I("I",5),
 			J("J",3),K("K",4),L("L",3),M("M",7),N("N",5),
 			O("O",6),P("P",5),Q("Q",6),R("R",5),S("S",5),
@@ -794,7 +846,7 @@ public class TextureManager {
 			w("ww",5),x("xx",4),y("yy",3),z("zz",4),ENNE("ENNE",5),enne("ennne",4),
 			ON("1",3),TW("2",5),TH("3",5),FO("4",5),FI("5",5),SI("6",5),SE("7",5),
 			EI("8",5),NI("9",5),
-			ZE("0",5),BLANK("Space",4),
+			ZE("0",5),SPACE("Space",4),
 			CO("Colon",2),SECO("Semicolon",2),COMM("Comma",2),DOT("Dot",2),
 			APO("Apostrophe",1),EXO("ExclamationOpen",2),EXC("ExclamationClose",2),
 			INTO("InterrogationOpen",4),INTC("InterrogationClose",4),UNDS("Underscore",8),
@@ -806,7 +858,7 @@ public class TextureManager {
 			BKO("BracketOpen",3),BKC("BracketClose",3),CBKO("CurlyBracketOpen",4),
 			CBKC("CurlyBracketClose",4),MOI("MascOrdIndicator",3),FOI("FemOrdIndicator",3),
 			AND("Anderson",5),DIEU("DieresisU",5),
-			DIV("Division",3),DOLL("Dollar",5)
+			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0)
 			;
 
 			final int size;

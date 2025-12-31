@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
+import com.mygdx.game.items.textboxelements.Textbox;
 
 import java.util.ArrayList;
 
@@ -73,7 +74,7 @@ public class Character extends Actor {
 		classes.character = this;
 		path = new Path(x,y, classes.totalSpeed,this);
 		actorsThatAttack.add(this);
-		text = dinamicFixatedText(classes.currentHealth+"",80,100,-1, 30);
+		text = dynamicFixatedText(classes.currentHealth+"",80,100,-1, 30);
 		text.setColor(244,83,23);
 		targetProcessor = new TargetProcessor(this,classes.totalRange,true,classes.pierces,"target","notarget");
 		targetProcessor.opacity = .2f;
@@ -569,6 +570,7 @@ public class Character extends Actor {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
 			quickPlay("test");
 			animations.add(new Animation("beneath the mask",x,y));
+			new Textbox("CornerTextbox","SideTextbox","SideWaysTextbox","BackgroundTextbox",20,"Anima: abcdefghijklmnñoppfuwrm09murmapj\n2rfpoa9j2fpjap2r9ipajp9ja\np92fjpajfpajp29jfpjaphfpahfp\na92fupa9jufw9apf");
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
 			setVolume(getRealVolume()-10 >= 0 ? getRealVolume()-10 : 0);

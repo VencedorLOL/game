@@ -96,7 +96,7 @@ public class ConditionsManager {
 		int aid = 0; int aidY = 0;
 		for(Conditions c : conditions)
 			if (c.texture != null) {
-				c.render(150 + 150f*aid, 100 + 40f*aidY);
+				c.render(100 + 150f*aid, 210 + 40f*aidY);
 					if(++aid > 5) {
 						aid = 0;
 						aidY++;

@@ -1,4 +1,4 @@
-StellarExplosion,Imp,Catapult
+Imp,StellarExplosion,Catapult
 0,0
 0,0
 1,0

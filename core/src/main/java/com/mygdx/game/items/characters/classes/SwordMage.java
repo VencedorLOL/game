@@ -11,9 +11,8 @@ import com.mygdx.game.items.characters.equipment.weapons.SwordMageWeapons;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
-import static com.mygdx.game.items.TextureManager.dinamicFixatedText;
+import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.text;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 
 public class SwordMage extends CharacterClasses {
 
@@ -68,7 +67,7 @@ public class SwordMage extends CharacterClasses {
 			}
 		};
 
-		text = dinamicFixatedText(manaPool+"",100,400,-1, 30);
+		text = dynamicFixatedText(manaPool+"",100,400,-1, 30);
 		text.setColor(new int[]{157,216,242});
 		getEquipment();
 		reset();

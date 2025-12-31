@@ -50,20 +50,19 @@ public class ItemsList  {
 				fixatedDrawables.add(new DrawableObject("WeaponMiniIcon", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 
 			if(texts[i] == null){
-				texts[i] = dinamicFixatedText(weapons[i],0,0,-1,32);
+				texts[i] = dynamicFixatedText(weapons[i],0,0,-1,32);
 			}
-			texts[i].realSize = adequateSize(texts[i].text,size*32*.9f);
+			texts[i].realSize = min(adequateSize(texts[i].text,size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
 			texts[i].setColor(255,255,255);
 			texts[i].render = true;
 			texts[i].onScreenTime = 2;
 			texts[i].fakeNull = false;
-			texts[i].x = x + size*2;
-			texts[i].y = yIni + (size*11*i)	- size*27.75f;
+			texts[i].x = x + size*2 + (texts[i].realSize - 20*Gdx.graphics.getHeight()/1080f)*.2f*Gdx.graphics.getHeight()/1080;
+			texts[i].y = yIni + (size*11*i)	- size*27.75f  + (20*Gdx.graphics.getHeight()/1080f - texts[i].realSize)*.55f*Gdx.graphics.getHeight()/1080;
 			if(texts[i].maxVariation != 0)
 				texts[i].maxVariation -= .05f;
 			if(texts[i].maxVariation < 0)
 				texts[i].maxVariation = 0;
-
 		}
 		for (int i = 0; i < shields.length; i++){
 			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
@@ -73,15 +72,15 @@ public class ItemsList  {
 			} else
 				fixatedDrawables.add(new DrawableObject("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(texts[i+ weapons.length] == null){
-				texts[i+ weapons.length] = dinamicFixatedText(shields[i],0,0,-1,32);
+				texts[i+ weapons.length] = dynamicFixatedText(shields[i],0,0,-1,32);
 			}
-			texts[i+ weapons.length].realSize = adequateSize(texts[i + weapons.length].text,size*32*.9f);
+			texts[i+ weapons.length].realSize =min(adequateSize(texts[i + weapons.length].text,size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
 			texts[i+ weapons.length].setColor(255,255,255);
 			texts[i+ weapons.length].render = true;
 			texts[i+ weapons.length].onScreenTime = 2;
 			texts[i+ weapons.length].fakeNull = false;
-			texts[i+ weapons.length].x = x2+ size*2;
-			texts[i+ weapons.length].y = yIni + (size*11*i) - size*27.75f;
+			texts[i+ weapons.length].x = x2+ size*2 + (texts[i + weapons.length].realSize - 20*Gdx.graphics.getHeight()/1080f)*.2f*Gdx.graphics.getHeight()/1080;
+			texts[i+ weapons.length].y = yIni + (size*11*i) - size*27.75f + (20*Gdx.graphics.getHeight()/1080f - texts[i + weapons.length].realSize)*.55f*Gdx.graphics.getHeight()/1080;
 			if(texts[i+ weapons.length].maxVariation != 0)
 				texts[i+ weapons.length].maxVariation -= .05f;
 			if(texts[i+ weapons.length].maxVariation < 0)
