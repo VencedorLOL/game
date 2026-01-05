@@ -464,6 +464,8 @@ public class TextureManager {
 		public static final float totalJumps = 1530;
 		public int jumpsPerTick; // = totalJumps/cycleTime
 		public float letterMultiplicator;
+		public float superFrames;
+		public float superFramesCounter;
 		//shaking mode only
 		//if i want to make it compatible with changing the text, i should change this to an array list
 		public float[] shiftedCoordinates;
@@ -506,6 +508,9 @@ public class TextureManager {
 		}
 
 
+		//magic rainbow numbers: cycleTime set to >3060 and multiplicator set to 20..
+
+
 		public Text(String text, float x, float y,int onScreenTime,float opacity,float vanishingThreshold,float size,int cycleTime,float multiplicator){
 			this.onScreenTime = onScreenTime;
 			this.text = text;
@@ -518,7 +523,13 @@ public class TextureManager {
 			this.vanishingThreshold = vanishingThreshold;
 			this.realSize = size;
 			letterMultiplicator = multiplicator;
-			jumpsPerTick = (int) (totalJumps/cycleTime);
+			jumpsPerTick = (int) floor(totalJumps/cycleTime);
+			if(jumpsPerTick == 0){
+				jumpsPerTick = 1;
+				superFrames = totalJumps/cycleTime;
+			}
+			else
+				superFrames = 0;
 
 		}
 
@@ -578,8 +589,13 @@ public class TextureManager {
 		}
 
 
-
-		//for late shake initiation
+		/**<h5>For late shake initiation
+		 *</h5>
+		 * @param yVariation
+		 * 			In pixeles, the maximum amount a character will move, in the Y-axis.
+		 * @param time
+		 * 			The frames it takes for characters to reach its {@code yVariation} set position.
+		 */
 		public void initiateShake(float yVariation, int time){
 			maxVariation = yVariation;
 			shiftedCoordinates = new float[text.length()];
@@ -592,86 +608,116 @@ public class TextureManager {
 			timeToReachMaxVar = time;
 		}
 
+		/**<h5>For late rainbow initiation.
+		 * </h5>
+		 * @param cycleTime
+		 * 			Dividing {@value totalJumps}, sets the jumps of color per tick.
+		 * @param multiplicator
+		 * 			Only if you want to activate the rainbow wave.
+		 * 			Will determine the rainbow difference from one character to the next one.
+		 */
+		public void initiateRainbow(float cycleTime, float multiplicator){
+			letterMultiplicator = multiplicator;
+			jumpsPerTick = (int) (totalJumps/cycleTime);
+			if(jumpsPerTick == 0){
+				jumpsPerTick = 1;
+				superFrames = totalJumps/cycleTime;
+			}
+			else
+				superFrames = 0;
+			r = 255;
+			g = 0;
+			b = 0;
+		}
 
+		public float[][] waveColors;
 		public final static float charSize = 8;
 		public void drawAll(float x, float y, float opacity){
-			char[] letters = text.toCharArray();
+			char[] characters = text.toCharArray();
 			int lineJumps = 0;
 			float addition;
-			if(letters.length > 0)
-				addition = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
+			if(characters.length > 0)
+				addition = -(realSize/charSize*((getTexture(characters[0]).size+1) +(charSize - getTexture(characters[0]).size)));
 			else
 				addition = 0;
 			if(jumpsPerTick != 0)
 				rainbowColorCalculation();
-			for(int i = 0; i < letters.length; i++){
-				if(letters[i] == '\n'){
+			if(letterMultiplicator != 0)
+				allRainbow(characters.length);
+			for(int i = 0; i < characters.length; i++){
+				if(characters[i] == '\n'){
 					lineJumps++;
-					addition = 0;
+					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
 					continue;
 				}
-				addition += realSize/charSize*(getTexture(letters[i]).size + 1);
-				float[] colors = {r,g,b};
-				if(letterMultiplicator != 0)
-					colors = toFloat(rainbowColorCalculationPerLetter(letters.length-i,(int) colors[0],(int) colors[1],(int) colors[2]));
-				if(shiftedCoordinates == null || shiftedCoordinates.length < letters.length || maxVariation == 0)
-					drawer(getTexture(letters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
-							isElementExcluded(i) ? 0 : opacity,
-							false,false,0,
-						realSize/charSize,realSize/charSize,colors[0]/255,colors[1]/255,colors[2]/255,true);
+				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
+				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0)
+					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
+							isElementExcluded(i) ? 0 : opacity, false,false,0, realSize/charSize,realSize/charSize,
+							(letterMultiplicator != 0 ? waveColors[i][0]: r)/255,(letterMultiplicator != 0 ? waveColors[i][1]: g)/255,(letterMultiplicator != 0 ? waveColors[i][2]: b)/255,
+							true);
 				else {
 					processShake();
-					drawer(getTexture(letters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
+					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
-							 isElementExcluded(i) ? 0 : opacity, false, false, 0,
-							realSize / charSize, realSize / charSize, colors[0] / 255, colors[1] / 255, colors[2] / 255, true);
+							 isElementExcluded(i) ? 0 : opacity, false, false, 0, realSize / charSize, realSize / charSize,
+							(letterMultiplicator != 0 ? waveColors[i][0]: r)/255,(letterMultiplicator != 0 ? waveColors[i][1]: g)/255,(letterMultiplicator != 0 ? waveColors[i][2]: b)/255,
+							true);
 				}
-
 			}
 		}
+		public void rainbowColorCalculation(){
+			if(superFrames > 0) {
+				superFramesCounter += superFrames;
+				if(superFramesCounter >= 1){
+					thisColorAdjustment();
+					superFramesCounter--;
+				}
+			} else if (superFrames == 0)
+				thisColorAdjustment();
+		}
+
+		public void allRainbow(int letters){
+			waveColors = new float[letters][3];
+			for(int i = 0; i < letters; i++){
+				if(i == 0){
+					waveColors[letters-1][0] = r;
+					waveColors[letters-1][1] = g;
+					waveColors[letters-1][2] = b;
+				}
+				else
+					waveColors[letters - 1 - i] = toFloat(colorAdjustment((int) waveColors[letters - i][0],(int)waveColors[letters - i][1],(int)waveColors[letters - i][2],letterMultiplicator));
+			}
+		}
+
+
 
 		//changing these can be fun!
 		public static final int upperEnd = 255;
 		public static final int lowerEnd = 0;
-		public void rainbowColorCalculation(){
-			if (b <= lowerEnd && r >= upperEnd && g != upperEnd)
-				g += jumpsPerTick;
-			else if (b <= lowerEnd && g >= upperEnd && r != lowerEnd)
-				r -= jumpsPerTick;
-			else if (r <= lowerEnd && g >= upperEnd && b != upperEnd)
-				b += jumpsPerTick;
-			else if (r <= lowerEnd && b >= upperEnd && g != lowerEnd)
-				g -= jumpsPerTick;
-			else if (g <= lowerEnd && b >= upperEnd && r != upperEnd)
-				r += jumpsPerTick;
-			else if (g <= lowerEnd && r >= upperEnd  && b != lowerEnd)
-				b -= jumpsPerTick;
+		private int[] colorAdjustment(int r, int g, int b, float multiplicator){
+			if (r == upperEnd && g != upperEnd && b == lowerEnd)
+				g += jumpsPerTick*multiplicator;
+			else if (b == lowerEnd && g == upperEnd && r != lowerEnd)
+				r -= jumpsPerTick*multiplicator;
+			else if (r == lowerEnd && g == upperEnd && b != upperEnd)
+				b += jumpsPerTick*multiplicator;
+			else if (r == lowerEnd && b == upperEnd && g != lowerEnd)
+				g -= jumpsPerTick*multiplicator;
+			else if (g == lowerEnd && b == upperEnd && r != upperEnd)
+				r += jumpsPerTick*multiplicator;
+			else if (b != lowerEnd && g == lowerEnd && r == upperEnd)
+				b -= jumpsPerTick*multiplicator;
 			r = r > upperEnd ? upperEnd : r < lowerEnd ? lowerEnd : r;
 			g = g > upperEnd ? upperEnd : g < lowerEnd ? lowerEnd : g;
 			b = b > upperEnd ? upperEnd : b < lowerEnd ? lowerEnd : b;
-		}
-
-		public int[] rainbowColorCalculationPerLetter(int letter, int r, int g, int b){
-			for(int i = 0; i < letter; i++) {
-				if (r == upperEnd && g != upperEnd && b == lowerEnd)
-					g += jumpsPerTick*letterMultiplicator;
-				else if (b == lowerEnd && g == upperEnd && r != lowerEnd)
-					r -= jumpsPerTick*letterMultiplicator;
-				else if (r == lowerEnd && g == upperEnd && b != upperEnd)
-					b += jumpsPerTick*letterMultiplicator;
-				else if (r == lowerEnd && b == upperEnd && g != lowerEnd)
-					g -= jumpsPerTick*letterMultiplicator;
-				else if (g == lowerEnd && b == upperEnd && r != upperEnd)
-					r += jumpsPerTick*letterMultiplicator;
-				else if (b != lowerEnd && g == lowerEnd && r == upperEnd)
-					b -= jumpsPerTick*letterMultiplicator;
-				r = r > upperEnd ? upperEnd : r < lowerEnd ? lowerEnd : r;
-				g = g > upperEnd ? upperEnd : g < lowerEnd ? lowerEnd : g;
-				b = b > upperEnd ? upperEnd : b < lowerEnd ? lowerEnd : b;
-			}
 			return new int[]{r,g,b};
 		}
 
+		private void thisColorAdjustment(){
+			int[] temp = colorAdjustment(r,g,b,1);
+			r = temp[0]; g = temp[1]; b = temp[2];
+		}
 
 		public void processShake(){
 			for(int i = 0; i < text.length(); i++){
@@ -913,6 +959,10 @@ public class TextureManager {
 			this.r = color[0];
 			this.g = color[1];
 			this.b = color[2];
+		}
+
+		public int[] getColor(){
+			return new int[]{r,g,b};
 		}
 
 	}
@@ -1238,3 +1288,80 @@ public class TextureManager {
 	}
 
 }
+
+
+
+/* bugged; 633-691
+*	cycle 3060 multiplier 20
+ 		public boolean coloredThisFrame;
+		public boolean alreadyCalculatedThisFrame;
+		public float[] colors;
+		public final static float charSize = 8;
+		public void drawAll(float x, float y, float opacity){
+			alreadyCalculatedThisFrame = false;
+			coloredThisFrame = false;
+			char[] characters = text.toCharArray();
+			int lineJumps = 0;
+			float addition;
+			if(characters.length > 0)
+				addition = -(realSize/charSize*((getTexture(characters[0]).size+1) +(charSize - getTexture(characters[0]).size)));
+			else
+				addition = 0;
+			if(jumpsPerTick != 0)
+				rainbowColorCalculation();
+
+			colors = new float[]{r, g, b};
+			for(int i = 0; i < characters.length; i++){
+				if(characters[i] == '\n'){
+					lineJumps++;
+					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
+					continue;
+				}
+				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
+				if(letterMultiplicator != 0)
+					colors = toFloat(rainbowColorCalculationPerLetter(characters.length - i,(int) colors[0],(int) colors[1],(int) colors[2]));
+				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0)
+					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
+							isElementExcluded(i) ? 0 : opacity,
+							false,false,0,
+						realSize/charSize,realSize/charSize,colors[0]/255,colors[1]/255,colors[2]/255,true);
+				else {
+					processShake();
+					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
+							, 0,
+							 isElementExcluded(i) ? 0 : opacity, false, false, 0,
+							realSize / charSize, realSize / charSize, colors[0] / 255, colors[1] / 255, colors[2] / 255, true);
+				}
+			}
+			if(superFrames > 0 && coloredThisFrame)
+				superFramesCounter--;
+		}
+		public void rainbowColorCalculation(){
+			if(superFrames > 0) {
+				superFramesCounter += !alreadyCalculatedThisFrame ? superFrames : 0;
+				alreadyCalculatedThisFrame = true;
+				print("state of the counter: " + superFramesCounter);
+				if(superFramesCounter >= 1){
+					thisColorAdjustment();
+					coloredThisFrame = true;
+				}
+			} else if (superFrames == 0)
+				thisColorAdjustment();
+		}
+
+		public int[] rainbowColorCalculationPerLetter(int letter, int r, int g, int b){
+			int[] colors = {r,g,b};
+			if(superFrames > 0) {
+				superFramesCounter += !alreadyCalculatedThisFrame ? superFrames : 0;
+				alreadyCalculatedThisFrame = true;
+				if(superFramesCounter >= 1) {
+					for (int i = 0; i < letter; i++)
+						colors = colorAdjustment(colors[0], colors[1], colors[2], letterMultiplicator);
+					coloredThisFrame = true;
+				}
+			} else if (superFrames == 0)
+				colors = colorAdjustment(colors[0], colors[1], colors[2], letterMultiplicator);
+			return colors;
+		}
+
+		*/

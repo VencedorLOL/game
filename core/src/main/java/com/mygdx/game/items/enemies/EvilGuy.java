@@ -13,7 +13,7 @@ public class EvilGuy extends Enemy {
 	Interactable tenna;
 	public EvilGuy(float x, float y) {
 		super(x, y, enemyTexture, 25);
-		tenna = new Interactable(null,x,y,globalSize(),globalSize()){
+		tenna = new Interactable(x,y,globalSize(),globalSize()){
 			@Override
 			public void onInteract(Character character) {
 				createVideo(x,y);

@@ -5,6 +5,9 @@ import com.mygdx.game.items.Interactable;
 import com.mygdx.game.items.Wall;
 import com.mygdx.game.items.guielements.Background;
 
+import static com.mygdx.game.Utils.deparalyzeCharacter;
+import static com.mygdx.game.Utils.paralyzeCharacter;
+
 public class ClassChangeStation extends Wall {
 
 	public Interactable guiOpen;
@@ -14,14 +17,10 @@ public class ClassChangeStation extends Wall {
 		setTexture("ClassChangeSpot");
 		guiOpen = new Interactable(this){
 			public void onInteract(Character character) {
-				character.lockClass = true;
-				if(character.walkingAnimation != null)
-					character.walkingAnimation.stop();
-				character.walkingAnimation = null;
-				character.speedLeft[0] = 0; character.speedLeft[1] = 0;
+				paralyzeCharacter();
 				new Background(character){
 					public void onRemoval() {
-						character.lockClass = false;
+						deparalyzeCharacter();
 					}
 				};
 			}

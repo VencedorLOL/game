@@ -20,8 +20,8 @@ public class Interactable extends Entity {
 		};
 	}
 
-	public Interactable(String texture, float x, float y, float base, float height){
-		super(texture,x,y,base,height);
+	public Interactable(float x, float y, float base, float height){
+		super(null,x,y,base,height);
 		interactables.add(this);
 	}
 

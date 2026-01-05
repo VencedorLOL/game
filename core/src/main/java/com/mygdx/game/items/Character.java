@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
-import com.mygdx.game.items.textboxelements.Textbox;
+import com.mygdx.game.items.textboxelements.textboxes.tests.Test1;
 
 import java.util.ArrayList;
 
@@ -452,15 +452,43 @@ public class Character extends Actor {
 	}
 
 
+
+
+	boolean touchedIn, touchedOut;
+	Interactable interactedObject;
 	public void interact(){
-		if(actionConfirmJustPressed()){
-			testCollision.x = x - globalSize(); testCollision.y = y - globalSize();
-			testCollision.base = globalSize()*3; testCollision.height = globalSize() * 3;
-			for(Interactable i : interactables)
-				if (testCollision.overlaps(i))
-					i.onInteract(this);
+		testCollision.x = x - globalSize(); testCollision.y = y - globalSize();
+		testCollision.base = globalSize() * 3; testCollision.height = globalSize() * 3;
+		interactableOverlaps(interactedObject);
+		if(actionConfirmJustPressed() && interactableOverlaps(interactedObject))
+			touchedIn = true;
+		else if (actionConfirmJustPressed())
+			touchedIn = false;
+		if(actionConfirmReleased() && interactableOverlaps(interactedObject))
+			touchedOut = true;
+		else if (actionConfirmReleased())
+			touchedOut = false;
+		if(touchedIn && touchedOut && interactableOverlaps(interactedObject)){
 			testCollision.base = globalSize(); testCollision.height = globalSize();
+			touchedIn = false; touchedOut = false;
+			interactedObject.onInteract(this);
 		}
+		testCollision.base = globalSize(); testCollision.height = globalSize();
+	}
+
+	@SuppressWarnings("all")
+	public boolean interactableOverlaps(Interactable interactable){
+		ArrayList<Interactable> sorted = ((ArrayList<Interactable>) interactables.clone());
+		sorted.sort(((o1, o2) -> Float.compare((float) o1.dC(x,y), (float) o2.dC(x,y))));
+		for(Interactable i : sorted)
+			if (testCollision.overlaps(i)) {
+				if(interactable == i){
+					interactedObject = i;
+					return true;
+				}
+				interactedObject = i;
+			}
+		return false;
 	}
 
 
@@ -543,7 +571,7 @@ public class Character extends Actor {
 					enterTurnMode();
 				else leaveTurnMode();
 				fixatedText("Turn mode is now: " + turnMode,300,200,100,40,255,255,255);
-			//	fixatedText("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ\nabcdefghijklmnñopqrstuvwxyz" +
+			//*	fixatedText("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ\nabcdefghijklmnñopqrstuvwxyz" +
 			//			"\n1234567890 ¡!¿?@#·ºª<> \n \"\"\\/$%&()[]{}ü=:;-_+*",400,400,1200*6,40,255,40,255);
 			}
 		}
@@ -570,7 +598,7 @@ public class Character extends Actor {
 		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
 			quickPlay("test");
 			animations.add(new Animation("beneath the mask",x,y));
-			new Textbox("CornerTextbox","SideTextbox","SideWaysTextbox","BackgroundTextbox",20,"Anima: abcdefghijklmnñoppfuwrm09murmapj\n2rfpoa9j2fpjap2r9ipajp9ja\np92fjpajfpajp29jfpjaphfpahfp\na92fupa9jufw9apf");
+			new Test1();
 		}
 		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
 			setVolume(getRealVolume()-10 >= 0 ? getRealVolume()-10 : 0);

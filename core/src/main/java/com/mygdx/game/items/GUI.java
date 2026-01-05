@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class GUI {
 
 	public static ArrayList<GUI> elements = new ArrayList<>();
-
+	@SuppressWarnings("all")
 	public static void renderGUI(){
-		for(GUI g : elements)
-			g.render();
+		for(int i = 0; i < elements.size(); i++)
+			elements.get(i).render();
 		elements.removeIf(e -> e.queuedForRemoval);
 	}
 

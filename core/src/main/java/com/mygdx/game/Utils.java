@@ -1,5 +1,7 @@
 package com.mygdx.game;
 
+import static com.mygdx.game.GameScreen.chara;
+
 @SuppressWarnings("all")
 public class Utils {
 	public static float colorConverter(float color){
@@ -63,6 +65,23 @@ public class Utils {
 	public static float intravalue(float min, float evaluated, float max){
 		return evaluated > max ? max : evaluated < min ? min : evaluated;
 	}
+
+	public static void paralyzeCharacter(){
+		chara.lockClass = true;
+		if(chara.walkingAnimation != null)
+			chara.walkingAnimation.stop();
+		chara.walkingAnimation = null;
+		chara.speedLeft[0] = 0; chara.speedLeft[1] = 0;
+		if (chara.targetProcessor.circle != null)
+			chara.targetProcessor.deleteTexture();
+		chara.targetProcessor.reset();
+		chara.attacks.clear();
+	}
+
+	public static void deparalyzeCharacter(){
+		chara.lockClass = false;
+	}
+
 
 
 }
