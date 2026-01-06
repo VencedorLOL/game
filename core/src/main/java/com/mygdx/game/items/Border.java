@@ -3,13 +3,13 @@ package com.mygdx.game.items;
 public class Border {
 
 	public void border (Character chara, Stage stage){
-		if (chara.x <= stage.startX)
+		if (chara.x <= stage.startX && !chara.noClip)
 			chara.x = stage.startX;
-		else if (chara.x >= stage.finalX)
+		else if (chara.x >= stage.finalX && !chara.noClip)
 			chara.x = stage.finalX;
-		if (chara.y <= stage.startY)
+		if (chara.y <= stage.startY && !chara.noClip)
 			chara.y = stage.startY;
-		else if (chara.y >= stage.finalY)
+		else if (chara.y >= stage.finalY && !chara.noClip)
 			chara.y = stage.finalY;
 	}
 	public void border (Stage stage){

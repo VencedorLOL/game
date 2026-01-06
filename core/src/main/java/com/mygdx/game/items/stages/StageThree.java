@@ -1,6 +1,5 @@
 package com.mygdx.game.items.stages;
 
-
 import com.mygdx.game.items.FieldEffects;
 import com.mygdx.game.items.Stage;
 import static com.mygdx.game.items.FieldEffects.addField;

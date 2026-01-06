@@ -9,6 +9,9 @@ public class Wall extends Entity {
 
     public static ArrayList<Wall> walls = new ArrayList<>();
 
+    // creator scene only
+
+
     public Wall(float x, float y) {
         super("Rock",x,y,globalSize(),globalSize());
         refresh(x,y,globalSize(),globalSize());

@@ -9,13 +9,14 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.CraterStage;
 import com.mygdx.game.items.stages.StagePathfinding;
 
+import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.StageCreatorScreen.camera;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 import static com.mygdx.game.Utils.colorConverter;
 import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
 import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
-import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedText;
@@ -30,7 +31,6 @@ public class GameScreen implements Screen{
 	public static Stage stage = new Stage();
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
-	public ClickDetector clickDetector;
 	public boolean fullscreen;
 	public int latestNonFullScreenX = 640;
 	public int latestNonFullScreenY = 400;
@@ -48,7 +48,6 @@ public class GameScreen implements Screen{
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();
-		clickDetector = new ClickDetector();
 		InputHandler.defaultKeybinds();
 		camara.attach(startAsPathfinding ? attacher : chara);
 		text = dynamicFixatedText(Gdx.graphics.getFramesPerSecond()+"",0,5,-1, 30);
@@ -64,7 +63,9 @@ public class GameScreen implements Screen{
 	}
 
 	public static Camara getCamara(){
-		return camara;
+		if (currentStage != null && !currentStage.equals("Creator"))
+			return camara;
+		return camera;
 	}
 
 
@@ -73,24 +74,20 @@ public class GameScreen implements Screen{
 		//Gdx.graphics.setForegroundFPS(120);
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-		if (escapePressed()){
-			print("YAY");
-		}
-//		System.out.println(Gdx.graphics.getFramesPerSecond());
 		text.text = Gdx.graphics.getFramesPerSecond()+"";
 		turnLogic();
 		fullscreenDetector();
 		screenSizeChangeDetector();
 		TextureManager.batch.begin();
-		screenSizeChangeDetector();
 		stage.screenWarpTrigger();
 		stage.stageRenderer();
 		chara.update();
+		stage.borderUpdate();
 		generalRender();
 		attackRenderer();
 		renderGUI();
 		zoomManagement();
-		TextureManager.render(camara);
+		TextureManager.render();
 	}
 
 

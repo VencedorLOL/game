@@ -1,6 +1,9 @@
 package com.mygdx.game;
 
+import java.util.ArrayList;
+
 import static com.mygdx.game.GameScreen.chara;
+import static java.lang.String.valueOf;
 
 @SuppressWarnings("all")
 public class Utils {
@@ -82,6 +85,25 @@ public class Utils {
 		chara.lockClass = false;
 	}
 
+
+	public static int[] toInt(String... list){
+		int finalListLength = 0;
+		for(int i = 0; i < list.length; i++)
+			try{
+				Integer.parseInt(list[i]);
+				finalListLength++;
+			} catch (NumberFormatException ignored){}
+
+		int[] finalList = new int[finalListLength];
+		for (int i = 0; i < finalListLength; i++)
+			finalList[i] = Integer.parseInt(list[i]);
+		return finalList;
+	}
+
+	// it's actually shorter to write the return expression each time rather than typing the method why am I making this.
+	public static boolean floatInRange(float min, float max, float value){
+		return value >= min && value <= max;
+	}
 
 
 }

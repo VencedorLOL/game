@@ -25,7 +25,6 @@ public class TextureManager {
 	public static TextureAtlas atlas;
 	public static Sprite sprite;
 	static TextureRegion region;
-	public static Camara camara;
 	public static ArrayList<Text> text;
 	public static ArrayList<Text> priorityText;
 	static ArrayList<Text> fixatedText;
@@ -60,10 +59,6 @@ public class TextureManager {
 		bounder();
 	}
 
-
-	public static void getCamara(Camara camara){
-		TextureManager.camara = camara;
-	}
 
 	public static SpriteBatch getBatch(){
 		return batch;
@@ -176,6 +171,10 @@ public class TextureManager {
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b,scaleX,scaleY));
 	}
 
+	public static void addToPriorityList(String texture, float x, float y,float opacity,float rotationDegrees,float scaleX,float scaleY,boolean originZero){
+		priorityDrawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,scaleX,scaleY,originZero));
+	}
+
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,float r,float g,float b){
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,r,g,b));
 	}
@@ -214,8 +213,7 @@ public class TextureManager {
 	}
 
 
-	public static void render(Camara camara){
-		getCamara(camara);
+	public static void render(){
 		// Least priority drawable objects
 
 		coordsUpdater();

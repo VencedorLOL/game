@@ -27,9 +27,10 @@ public class InputHandler implements InputProcessor {
 	static boolean dragged = false;
 	static boolean moved = false;
 
-
 	static ArrayList<Input> keys = new ArrayList<>();
 	static ArrayList<Cursor> cursor = new ArrayList<>();
+
+	static ArrayList<String> keysPressed = new ArrayList<>();
 
 	static {
 		keys.add(up);
@@ -48,6 +49,7 @@ public class InputHandler implements InputProcessor {
 	}
 
 	public static void resetter(){
+		keysPressed.clear();
 		dragged = false;
 		moved = false;
 		for(Input i : keys){
@@ -141,10 +143,10 @@ public class InputHandler implements InputProcessor {
 	public static float[] cursorCoordinates(){return new float[] {x, y};}
 	public static float cursorX(){return x;}
 	public static float cursorY(){return y;}
-	public static float roundedCursorX(){return (float) (globalSize() * floor((x) / globalSize()));}
-	public static float roundedCursorY(){return (float) (globalSize() * floor((y) / globalSize()));}
 	public static boolean cursorDragged(){return dragged;}
 	public static boolean cursorMoved(){return moved;}
+
+	public static ArrayList<String> getKeysPressed(){return keysPressed;}
 
 	static byte thisTickCounter = -1;
 	public static byte directionalBuffer(){
@@ -224,6 +226,7 @@ public class InputHandler implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
+		keysPressed.add(keycode+"");
 		for (Input i : keys){
 			if(i.getKey() == keycode)
 				i.release();

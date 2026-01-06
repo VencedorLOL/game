@@ -13,6 +13,7 @@ import com.mygdx.game.items.solids.Tree;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
+import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.byteArraySearcherForScreenWarps;
 import static com.mygdx.game.items.FieldEffects.*;
@@ -243,6 +244,11 @@ public class Stage  {
 		}
 	}
 
+	public void borderUpdate(){
+		border.border(chara, this);
+		border.border(this);
+	}
+
 	public void stageRendererr(){
 		if (betweenStages){
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
@@ -298,7 +304,8 @@ public class Stage  {
 		clearHazards();
 		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX, wallY,wallType, enemySpawnX, enemySpawnY,screenWarpX,screenWarpY,
 				screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
-		triggerOnStageChange();
+		if (currentStage != null && !currentStage.equals("Creator"))
+			triggerOnStageChange();
 	}
 
 	/**

@@ -5,7 +5,8 @@ import static com.mygdx.game.Settings.turnMode;
 public class ScreenWarp {
 	protected Stage stage;
 	protected int base, height;
-	protected int x,y;
+	public float x;
+	public float y;
 	protected String screenWarpTexture = "ScreenWarp";
 	public int ID;
 	public static int IDState = 0;

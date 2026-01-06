@@ -138,8 +138,6 @@ public class Textbox extends GUI {
 
 		thickness = height*.00075f;
 
-		textSize = (finalY - startingY - thickness*2)/5 ;
-
 		float boxWidth = height*1.2f;
 		float posStartX = width*.15f;
 		float posFinalX = width*.85f - thickness*szTxtr;
@@ -158,7 +156,7 @@ public class Textbox extends GUI {
 		widthSide = (sideFinalX - sideStartingX)/szTxtr;
 		heightSide = (sideFinalY - sideStartingY)/szTxtr;
 
-
+		textSize = (finalY - startingY - thickness*2)/5 ;
 		textInitialX = startingX + thickness*64*1f ;
 		textInitialY = startingY + thickness*16;
 		textJumpLine = finalX - thickness*.1f;

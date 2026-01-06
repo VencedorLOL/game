@@ -5,7 +5,9 @@ import java.util.Collections;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.StageCreatorScreen.sc;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
@@ -88,6 +90,8 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
 
 	public boolean lockClassTilAnimationFinishes = false;
+
+	public boolean noClip = false;
 
 	@SuppressWarnings("all")
 	static OnVariousScenarios oVS = new OnVariousScenarios(){
@@ -216,11 +220,13 @@ public class Actor extends Entity implements TurnManager.Turnable {
 		}
 		if (tester.overlaps(chara) && tester != chara && ignore != chara && this != chara)
 			return true;
-		return  chara.x == tester.x && chara.y == tester.y && tester != chara ||
+		if(!currentStage.equals("Creator"))
+			return  chara.x == tester.x && chara.y == tester.y && tester != chara ||
 				stage.finalY >= 0 ? tester.y >= stage.finalY + 1 : tester.y <= stage.finalY - 1 ||
 				stage.startY >= 0 ? tester.y <= stage.startY - 1 : tester.y >= stage.startY + 1 ||
 				stage.finalX >= 0 ? tester.x >= stage.finalX + 1 : tester.x <= stage.finalX - 1 ||
 				stage.startX >= 0 ? tester.x <= stage.startX - 1 : tester.x >= stage.startX + 1 ;
+		else return false;
 	}
 
 
@@ -272,7 +278,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	ArrayList<Tile> dumpList;
 	@SuppressWarnings("all")
 	public void softlockOverridable(boolean type) {
-		if (overlapsWithStageWithException(stage,this,this) && !betweenStages){
+		if ((overlapsWithStageWithException(stage,this,this) && !betweenStages) && !noClip){
 			print("SOFTLOCK SOFTLOCK at " + x  + " " + y);
 			for (Tile t : stage.tileset)
 				t.hasBeenChecked = false;
@@ -303,7 +309,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 				dumpList.add(t);
 				dumpList.removeIf(tt -> t == tt);
 				testCollision.x = t.x; testCollision.y = t.y;
-				if (!overlapsWithStageWithException(stage,testCollision,this)) {
+				if (!overlapsWithStageWithException(stage,testCollision,this) || noClip) {
 					if(type)
 						glideAbsoluteCoords(t.x,t.y,20);
 					else {
@@ -320,14 +326,14 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	protected void speedActuator(){
 		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;
-			if (!overlapsWithStage(stage,testCollision))
+			if (!overlapsWithStage(stage,testCollision) || noClip)
 				x += thisTurnVSM;
 			speedLeft[0] -= thisTurnVSM;
 			movedThisTurn++;
 		}
 		else if (speedLeft[0] < 0) {
 			testCollision.x -= thisTurnVSM;
-			if (!overlapsWithStage(stage,testCollision))
+			if (!overlapsWithStage(stage,testCollision) || noClip)
 				x -= thisTurnVSM;
 			speedLeft[0] += thisTurnVSM;
 			movedThisTurn++;
@@ -335,14 +341,14 @@ public class Actor extends Entity implements TurnManager.Turnable {
 		testCollision.x = x;
 		if (speedLeft[1] > 0) {
 			testCollision.y += thisTurnVSM;
-			if (!overlapsWithStage(stage,testCollision))
+			if (!overlapsWithStage(stage,testCollision) || noClip)
 				y += thisTurnVSM;
 			speedLeft[1] -= thisTurnVSM;
 			movedThisTurn++;
 		}
 		else if (speedLeft[1] < 0) {
 			testCollision.y -= thisTurnVSM;
-			if (!overlapsWithStage(stage,testCollision))
+			if (!overlapsWithStage(stage,testCollision) || noClip)
 				y -= thisTurnVSM;
 			speedLeft[1] += thisTurnVSM;
 			movedThisTurn++;

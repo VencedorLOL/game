@@ -6,120 +6,120 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
+import com.mygdx.game.items.stagecreatorelements.InputDimensions;
+import com.mygdx.game.items.stagecreatorelements.StageCreator;
+import com.mygdx.game.items.stagecreatorelements.StageSaver;
 
+
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.colorConverter;
-import static com.mygdx.game.items.Stage.betweenStages;
+import static com.mygdx.game.items.AttackIconRenderer.attackRenderer;
+import static com.mygdx.game.items.Entity.generalRender;
+import static com.mygdx.game.items.GUI.renderGUI;
+import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
+import static com.mygdx.game.items.TextureManager.fixatedText;
 
 @SuppressWarnings("all")
 public class StageCreatorScreen implements Screen{
 	public GUI testUi;
 	public ParticleManager particle;
 	public MainClass mainClass;
-	public TextureManager textureManager = new TextureManager();
-	public Character chara = new Character(0, 0, 128, 128);
-	public Camara camara = new Camara();
+	public static Camara camera = new Camara();
 	public int screenSizeX = Gdx.graphics.getWidth();
 	public int screenSizeY = Gdx.graphics.getHeight();
 	public boolean isScreenChanging = false;
-	StageCreator sc;
+	public static StageCreator sc;
+	InputDimensions text;
+	InputDimensions.InformationTransferer info;
+	InputHandler handler;
+	StageSaver saver;
 
 	StageCreatorScreen() {
-		if (getCamara().zoom <= 0)
-			getCamara().zoom = 2;
-		camara.camaraStarter(getCamara().zoom);
+		camera.camaraStarter(2);
 		particle = new ParticleManager();
-		sc = new StageCreator(testUi,textureManager,camara,chara);
+		sc = new StageCreator();
+		text = new InputDimensions();
+		info = text.getInfo();
+		handler = new InputHandler();
+		Gdx.input.setInputProcessor(handler);
+		chara = new Character(0, 0, globalSize(), globalSize());
+		camera.attach(chara);
+		InputHandler.defaultKeybinds();
+		turnMode = false;
 	}
 
-	@Override
-	public void show() {
-	}
 
 	@Override
 	public void render(float delta) {
-		ScreenUtils.clear(colorConverter( /* red */ 128), colorConverter(/* green */ 180), colorConverter(/* blue */ 128), 1);
-		// System.out.println(Gdx.graphics.getFramesPerSecond());
-		textureManager.batch.begin();
-		screenSizeChangeDetector();
-		if(!isScreenChanging) {
-			screenSizeChangeDetector();
-			camara.updater();
-			sc.update();
-			if (!betweenStages)
-				textureManager.addToList(chara.getTexture(), chara.getX(), chara.getY());
-			textureManager.render(camara);
-			// Hotkeys
-			if (Gdx.input.isKeyPressed(Input.Keys.C))
-				camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), 2);
-			if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-				sc.stage.reseter();
-			}
-			if (Gdx.input.isKeyPressed(Input.Keys.X))
-				System.out.println(chara.getX());
-			if (Gdx.input.isKeyPressed(Input.Keys.Y))
-				System.out.println(chara.getY());
-			// Zoom management
-			if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) &&getCamara(). zoom < 7 && getCamara().zoom >= 4)
-				camara.setToOrtho(++getCamara().zoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4 && getCamara().zoom >= 1)
-				camara.setToOrtho(getCamara().zoom += .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4)
-				camara.setToOrtho(getCamara().zoom += .125f);
-			if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 4)
-				camara.setToOrtho(--getCamara().zoom);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 1 && getCamara().zoom <= 4)
-				camara.setToOrtho(getCamara().zoom -= .5f);
-			else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > .25f && getCamara().zoom <= 1)
-				camara.setToOrtho(getCamara().zoom -= .125f);
-			if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-				System.out.println(getCamara().zoom);
+			triggerOnTick();
+			start();
+			finish();
 		}
 
+	public void testinterface() {
+		if(info.ready){
+			sc.update(info.x,info.y);
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
+			text = new InputDimensions();
+			info = text.getInfo();
+			sc.hasStageBeenCreated = false;
+		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) &&getCamara(). zoom < 7 && getCamara().zoom >= 4)
-			camara.setToOrtho(++getCamara().zoom);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4 && getCamara().zoom >= 1)
-			camara.setToOrtho(getCamara().zoom += .5f);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && getCamara().zoom < 4)
-			camara.setToOrtho(getCamara().zoom += .125f);
-		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 4)
-			camara.setToOrtho(--getCamara().zoom);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > 1 && getCamara().zoom <= 4)
-			camara.setToOrtho(getCamara().zoom -= .5f);
-		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && getCamara().zoom > .25f && getCamara().zoom <= 1)
-			camara.setToOrtho(getCamara().zoom -= .125f);
+		if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
+			saver = new StageSaver(sc.stage);
+		}
+
+	}
+
+
+	public void start(){
+		setRender(true);
+		ScreenUtils.clear(colorConverter( /* red */ 20), colorConverter(/* green */ 120), colorConverter(/* blue */ 40), 1);
+		fullscreenDetector();
+		screenSizeChangeDetector();
+		TextureManager.batch.begin();
+		testinterface();
+		chara.update();
+		if(sc.stage != null)
+			sc.stage.borderUpdate();
+		if(saver != null)
+			if(saver.waiter())
+				saver = null;
+		generalRender();
+		attackRenderer();
+		renderGUI();
+		zoomManagement();
+		TextureManager.render();
+	}
+
+	public void finish(){
+		camera.updater();
+		ParticleManager.particleRenderer();
+		camera.finalizer(TextureManager.batch);
+		TextureManager.batch.end();
+		InputHandler.resetter();
+	}
+
+	public void zoomManagement(){
+		if (Gdx.input.isKeyPressed(Input.Keys.V))
+			camera.setToOrtho(camaraZoom = 1);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
+			camera.smoothZoom(++camaraZoom,40);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)
+			camera.smoothZoom(camaraZoom += .5f,40);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4)
+			camera.smoothZoom(camaraZoom += .125f,40);
+		if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 4)
+			camera.smoothZoom(--camaraZoom,40);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > 1 && camaraZoom <= 4)
+			camera.smoothZoom(camaraZoom -= .5f,40);
+		else if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && camaraZoom > .25f && camaraZoom <= 1)
+			camera.smoothZoom(camaraZoom -= .125f,40);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.Z))
-			System.out.println(getCamara().zoom);
-
-
-
-
-
-
-
-
-/*
-		if (attackModeJustPressed())
-			gui.tesTable();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.B))
-			gui.testButton();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2))
-			gui.testUI();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3))
-			gui.anotherTestUI();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4))
-			gui.testImageIGDunno();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5))
-			gui.text();
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_6))
-			gui.lastTetCode();
-
- */
-
-		particle.particleRenderer();
-		camara.finalizer(textureManager.batch);
-		textureManager.batch.end();
+			fixatedText("Zoom level is of: "+getCamara().zoom, 100,100,100, (int) (20 * getCamara().zoom),255,255,255);
 
 	}
 
@@ -129,17 +129,28 @@ public class StageCreatorScreen implements Screen{
 			screenSizeY = Gdx.graphics.getHeight();
 			ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
 			isScreenChanging = true;
-			camara.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), getCamara().zoom);
+			camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), getCamara().zoom);
 		}
 		else
 			isScreenChanging = false;
 	}
 
 
+	public int latestNonFullScreenX = 640;
 
+	public int latestNonFullScreenY = 400;
+	public boolean fullscreen;
+	public void fullscreenDetector(){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+			setRender(false);
+			fullscreen = !fullscreen;
+			if (fullscreen)
+				Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			else
+				Gdx.graphics.setWindowedMode(latestNonFullScreenX, latestNonFullScreenY);
 
-
-
+		}
+	}
 
 	@Override
 	public void resize(int width, int height) {
@@ -154,6 +165,9 @@ public class StageCreatorScreen implements Screen{
 	@Override
 	public void resume() {
 
+	}
+
+	public void show() {
 	}
 
 	@Override

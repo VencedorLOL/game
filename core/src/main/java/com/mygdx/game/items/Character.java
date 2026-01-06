@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.GlobalVariables.classSlots;
+import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
@@ -509,163 +510,180 @@ public class Character extends Actor {
 				fixatedText("Chara real y pos is: " + y + " and on-the-grid y is: " + y/globalSize(),300,300,100,40);
 
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			TurnManager.reset();
+		if (currentStage.equals("Creator")) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.N))
+				noClip = !noClip;
+
+
+
+		}
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T)){
+			fixatedText("Stages walls: ",300,0,300,40,255,255,255);
+			for(int i = 0; i < stage.walls.size(); i++){
+				fixatedText(stage.walls.get(i).getClass().getSimpleName() + " x: " + stage.walls.get(i).x + " y: " + stage.walls.get(i).y + " w: "
+						+ stage.walls.get(i).base + " h: " + stage.walls.get(i).getHeight(), 200,50 + 50*i, 100 + 100 * stage.walls.size(),40,255,255,255);
+			}
+			print(stage.walls.size()+"");
 		}
 
-		if (Gdx.input.isKeyJustPressed(Input.Keys.I)){
-			if(!getReleaseVersion()) {
-				print("");
-				print("Current Health is of: " + classes.health);
-				print("Max Health is of: " + classes.totalHealth);
-				print("speedLeft on x: " + speedLeft[0]);
-				print("speedLeft on y: " + speedLeft[1]);
-				print("permittedToAct: " + permittedToAct);
-				print("Weapon: " + classes.weapon);
-				print("Health: " + classes.totalHealth);
-				print("Damage: " + classes.totalDamage);
-				print("Class: " + classes.name);
-				print("WeaponName: " + classes.weapon.weaponName);
-				print("ShieldName: " + classes.shield.shieldName);
-				print("Current health: " + classes.currentHealth);
-				print("Texture" + texture);
-				print("Real x: " + x + " simplified x: " + x / globalSize());
-				print("Real y: " + y + " simplified y: " + y / globalSize());
-				print("Base is: " + base + " Height is: " + height);
-				print("");
-			} else
-				fixatedText(
-	   "Max Mana: " + classes.totalMana + "\n" +
-			"Mana Pool: " + classes.manaPool + "\n" +
-			"Mana Per Use: " + classes.totalManaPerUse + "\n" +
-			"Mana Regeneration: " + classes.totalManaPerTurn + "\n" +
-	   		"speedLeft on x: " + speedLeft[0] + "\n"+
-			"speedLeft on y: " + speedLeft[1] +"\n"+
-			"permittedToAct: " + permittedToAct +"\n"+
-			"Weapon: " + classes.weapon +"\n"+
-			"Health: " + classes.totalHealth+"\n"+
-			"Damage: " + classes.totalDamage+"\n"+
-			"Class: " + classes.name+"\n"+
-			"WeaponName: " + classes.weapon.weaponName+"\n"+
-			"ShieldName: " + classes.shield.shieldName+"\n"+
-			"Current health: " + classes.currentHealth+"\n"+
-			"Texture" + texture+"\n"+
-			"Real x: " + x + " simplified x: " + x / globalSize()+"\n"+
-			"Real y: " + y + " simplified y: " + y / globalSize(),0,0,500,40);
-		}
+		if(currentStage.equals("Game")) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+				TurnManager.reset();
+			}
 
-		if(attackModeJustPressed() && isDecidingWhatToDo(this)) {
-			if (turnMode) {
-				targetProcessor.reset();
-				attackMode = !attackMode;
-				path.pathReset();
-				if (!attackMode)
-					cancelAttackMode();
-			//	targetProcessor.mouseMoved = true;
+			if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+				if (!getReleaseVersion()) {
+					print("");
+					print("Current Health is of: " + classes.health);
+					print("Max Health is of: " + classes.totalHealth);
+					print("speedLeft on x: " + speedLeft[0]);
+					print("speedLeft on y: " + speedLeft[1]);
+					print("permittedToAct: " + permittedToAct);
+					print("Weapon: " + classes.weapon);
+					print("Health: " + classes.totalHealth);
+					print("Damage: " + classes.totalDamage);
+					print("Class: " + classes.name);
+					print("WeaponName: " + classes.weapon.weaponName);
+					print("ShieldName: " + classes.shield.shieldName);
+					print("Current health: " + classes.currentHealth);
+					print("Texture" + texture);
+					print("Real x: " + x + " simplified x: " + x / globalSize());
+					print("Real y: " + y + " simplified y: " + y / globalSize());
+					print("Base is: " + base + " Height is: " + height);
+					print("");
+				} else
+					fixatedText(
+							"Max Mana: " + classes.totalMana + "\n" +
+									"Mana Pool: " + classes.manaPool + "\n" +
+									"Mana Per Use: " + classes.totalManaPerUse + "\n" +
+									"Mana Regeneration: " + classes.totalManaPerTurn + "\n" +
+									"speedLeft on x: " + speedLeft[0] + "\n" +
+									"speedLeft on y: " + speedLeft[1] + "\n" +
+									"permittedToAct: " + permittedToAct + "\n" +
+									"Weapon: " + classes.weapon + "\n" +
+									"Health: " + classes.totalHealth + "\n" +
+									"Damage: " + classes.totalDamage + "\n" +
+									"Class: " + classes.name + "\n" +
+									"WeaponName: " + classes.weapon.weaponName + "\n" +
+									"ShieldName: " + classes.shield.shieldName + "\n" +
+									"Current health: " + classes.currentHealth + "\n" +
+									"Texture" + texture + "\n" +
+									"Real x: " + x + " simplified x: " + x / globalSize() + "\n" +
+									"Real y: " + y + " simplified y: " + y / globalSize(), 0, 0, 500, 40);
+			}
+
+			if (attackModeJustPressed() && isDecidingWhatToDo(this)) {
+				if (turnMode) {
+					targetProcessor.reset();
+					attackMode = !attackMode;
+					path.pathReset();
+					if (!attackMode)
+						cancelAttackMode();
+					//	targetProcessor.mouseMoved = true;
+				}
+			}
+
+			if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+				if (!attackMode) {
+					if (!turnMode)
+						enterTurnMode();
+					else leaveTurnMode();
+					fixatedText("Turn mode is now: " + turnMode, 300, 200, 100, 40, 255, 255, 255);
+					//*	fixatedText("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ\nabcdefghijklmnñopqrstuvwxyz" +
+					//			"\n1234567890 ¡!¿?@#·ºª<> \n \"\"\\/$%&()[]{}ü=:;-_+*",400,400,1200*6,40,255,40,255);
+				}
+			}
+
+			if (Gdx.input.isKeyJustPressed(Input.Keys.E) || (escapeJustPressed() && classChanging)) {
+				if (turnMode && isDecidingWhatToDo(this)) {
+					getCamara().smoothZoom(1, 30);
+					path.pathReset();
+					attacks.clear();
+					targetProcessor.reset();
+					classes.resetClassesState();
+					classChanging = !classChanging;
+				}
+			}
+
+			if (Gdx.input.isKeyPressed(Input.Keys.F10)) {
+				particleEmitter("BLOB", (float) globalSize() / 2,
+						(float) globalSize() / 2, 1, 50, true, false, 10, this);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.F12)) {
+				stage.enemy.add(new Enemy(x + 256, y));
+			}
+
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)) {
+				quickPlay("test");
+				animations.add(new Animation("beneath the mask", x, y));
+				new Test1();
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+				setVolume(getRealVolume() - 10 >= 0 ? getRealVolume() - 10 : 0);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+				setVolume(getRealVolume() + 10 <= 100 ? getRealVolume() + 10 : 100);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+				setMute(!getMute());
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
+				stopAll();
+				VideoManager.stopAll();
+				print("x: " + glideXPerFrame + " y " + glideYPerFrame);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.G)) {
+				for (Actor a : actors) {
+					a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL, null);
+				}
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.H)) {
+				if (!getReleaseVersion())
+					print(stage + "");
+				else fixatedText("Current Stage: " + stage, 300, 200, 200, 40);
+				classes.currentHealth = classes.totalHealth;
+				fixatedText("Healed to max hp", 400, 400, 200, 40);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+				setTakeEnemiesIntoConsideration((byte) (-1 * getTakeEnemiesIntoConsideration() + 1));
+				print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+				print("is cam moving " + getCamara().isCamaraMoving());
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+				fixatedText("Version: B", 400, 200, 100, 40);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+				classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+				new ControllableFriend(x, y + 128, "animaAnnoyed", 100).softlockOverridable(false);
+				print("Name of shield or whatever of thing just done: " + classSlots[0].getShieldName(0, this));
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
+				addField(FieldEffects.FieldNames.CATACLYSM_GLATIATION);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)) {
+				addField(FieldEffects.FieldNames.CATACLYSM_NUCLEAR);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
+				addField(FieldEffects.FieldNames.CATACLYSM_GRAVITATIONAL);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+				addField(FieldEffects.FieldNames.CATACLYSM_STELLAR_EXPLOSION);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
+				addField(FieldEffects.FieldNames.ALERT_TSUNAMI);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
+				addField(FieldEffects.FieldNames.CATACLYSM_ELECTRIC);
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
+				classes.health = 1000000;
+				classes.currentHealth = 1000000;
 			}
 		}
-
-		if(Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-			if (!attackMode) {
-				if(!turnMode)
-					enterTurnMode();
-				else leaveTurnMode();
-				fixatedText("Turn mode is now: " + turnMode,300,200,100,40,255,255,255);
-			//*	fixatedText("ABCDEFGHIJKLMNÑOPQRSTUVWXYZ\nabcdefghijklmnñopqrstuvwxyz" +
-			//			"\n1234567890 ¡!¿?@#·ºª<> \n \"\"\\/$%&()[]{}ü=:;-_+*",400,400,1200*6,40,255,40,255);
-			}
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.E) || (escapeJustPressed() && classChanging)){
-			if(turnMode && isDecidingWhatToDo(this)) {
-				getCamara().smoothZoom(1,30);
-				path.pathReset();
-				attacks.clear();
-				targetProcessor.reset();
-				classes.resetClassesState();
-				classChanging = !classChanging;
-			}
-		}
-
-
-		if(Gdx.input.isKeyPressed(Input.Keys.F10)){
-			particleEmitter("BLOB",(float) globalSize() /2,
-					(float) globalSize() /2,1, 50,true,false,10,this);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
-			stage.enemy.add(new Enemy(x+256,y));
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_7)){
-			quickPlay("test");
-			animations.add(new Animation("beneath the mask",x,y));
-			new Test1();
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)){
-			setVolume(getRealVolume()-10 >= 0 ? getRealVolume()-10 : 0);
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-			setVolume(getRealVolume()+10 <= 100 ? getRealVolume()+10 : 100);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
-			setMute(!getMute());
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
-			stopAll();
-			VideoManager.stopAll();
-			print("x: " + glideXPerFrame + " y " + glideYPerFrame);
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.G)){
-			for (Actor a : actors){
-				a.damage(1000, AttackTextProcessor.DamageReasons.UNIVERSAL,null);
-			}
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.H)){
-			if(!getReleaseVersion())
-				print(stage+"");
-			else fixatedText("Current Stage: " + stage,300,200,200,40);
-			classes.currentHealth = classes.totalHealth;
-			fixatedText("Healed to max hp",400,400,200,40);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.C)){
-		setTakeEnemiesIntoConsideration((byte) (-1* getTakeEnemiesIntoConsideration() + 1));
-		print("takenemiesintoconsideration is " + getTakeEnemiesIntoConsideration());
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
-			print("is cam moving "+getCamara().isCamaraMoving());
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.U)){
-			fixatedText("Version: B",400,200,100, 40);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.K)){
-			classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.N)){
-			new ControllableFriend(x,y+128,"animaAnnoyed",100).softlockOverridable(false);
-			print("Name of shield or whatever of thing just done: "+classSlots[0].getShieldName(0,this));
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)){
-			addField(FieldEffects.FieldNames.CATACLYSM_GLATIATION);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_8)){
-			addField(FieldEffects.FieldNames.CATACLYSM_NUCLEAR);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)){
-			addField(FieldEffects.FieldNames.CATACLYSM_GRAVITATIONAL);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)){
-			addField(FieldEffects.FieldNames.CATACLYSM_STELLAR_EXPLOSION);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)){
-			addField(FieldEffects.FieldNames.ALERT_TSUNAMI);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)){
-			addField(FieldEffects.FieldNames.CATACLYSM_ELECTRIC);
-		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
-			classes.health = 1000000;
-			classes.currentHealth = 1000000;
-		}
-
 
 	}
 
