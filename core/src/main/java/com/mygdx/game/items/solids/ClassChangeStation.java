@@ -26,4 +26,9 @@ public class ClassChangeStation extends Wall {
 			}
 		};
 	}
+
+	@Override
+	public void destroyWall() {
+		guiOpen.removeInteractable();
+	}
 }

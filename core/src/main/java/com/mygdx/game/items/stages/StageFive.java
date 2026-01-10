@@ -23,7 +23,7 @@ public class StageFive extends Stage {
 	}
 	public void reStage() {
 		screenWarpDestination.add(new StageSeven());
-		screenWarpDestination.add(new anima());
+		screenWarpDestination.add(new StageEight());
 	}
 
 }

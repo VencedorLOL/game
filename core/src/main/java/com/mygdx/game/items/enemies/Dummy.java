@@ -61,4 +61,9 @@ public class Dummy extends Enemy {
 		else if (isDecidingWhatToDo(this))
 			actionDecided();
 	}
+
+	@Override
+	public void destroyOverridable() {
+		test.removeInteractable();
+	}
 }

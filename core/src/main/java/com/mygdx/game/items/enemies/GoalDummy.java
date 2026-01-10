@@ -17,4 +17,9 @@ public class GoalDummy extends Dummy{
 			}
 		};
 	}
+
+	@Override
+	public void destroyOverridable() {
+		text.removeInteractable();
+	}
 }

@@ -1,5 +1,15 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.items.enemies.Dummy;
+import com.mygdx.game.items.enemies.EvilGuy;
+import com.mygdx.game.items.enemies.GoalDummy;
+import com.mygdx.game.items.enemies.LoopingHat;
+import com.mygdx.game.items.solids.ClassChangeStation;
+import com.mygdx.game.items.solids.Crater;
+import com.mygdx.game.items.solids.LargeBarricade;
+import com.mygdx.game.items.solids.Tree;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.badlogic.gdx.math.MathUtils.random;
@@ -158,12 +168,19 @@ public class Enemy extends Actor {
 			animationToList("dying",x,y);
 			isDead = true;
 			permittedToAct = false;
-			actors.remove(this);
-			enemies.remove(this);
-			entityList.remove(this);
-			turnables.remove(this);
+			destroy();
 		}
 	}
+
+	public final void destroy(){
+		actors.remove(this);
+		enemies.remove(this);
+		entityList.remove(this);
+		turnables.remove(this);
+		destroyOverridable();
+	}
+
+	public void destroyOverridable(){}
 
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
 		float damagedFor = getDamagedFor(damage, damageReason);
@@ -177,6 +194,60 @@ public class Enemy extends Actor {
 		printErr("damaged for " + damagedFor + " damage");
 
 	}
+
+	public int getType(){
+		for(int i = 0; i < Enemies.values().length; i++)
+			if (Enemies.values()[i].enemy == this.getClass())
+				return i + 1;
+		return -1;
+	}
+
+	public static class EnemyConst<T extends Enemy>{
+		Class<?> enemy;
+		@SafeVarargs
+		public EnemyConst(T... none){enemy = none.getClass().componentType();}
+		public Class<?> getEnemy(){return enemy;}
+	}
+
+	@SuppressWarnings("all")
+	public enum Enemies{
+		GOAL_DUMMY((Class<Enemy>) new EnemyConst<GoalDummy>().getEnemy()),
+		DUMMY((Class<Enemy>) new EnemyConst<Dummy>().getEnemy()),
+		ENEMY((Class<Enemy>) new EnemyConst<Enemy>().getEnemy()),
+		EVIL_GUY((Class<Enemy>) new EnemyConst<EvilGuy>().getEnemy()),
+		LOOPING((Class<Enemy>) new EnemyConst<LoopingHat>().getEnemy()),
+		;
+
+		public static int listDifference(){
+			return -2;
+		}
+
+		public static int getType(Enemy enemy){
+			for(int i = 0; i < Enemies.values().length; i++)
+				if (Enemies.values()[i].enemy == enemy.getClass())
+					return i - 2;
+			return -1;
+		}
+
+		public Enemy getEnemy(float x, float y){
+			try{
+				return enemy.getConstructor(float.class,float.class).newInstance(x,y);
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+					 InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Enemy(x, y);}
+		}
+
+		public Enemy getTexture(float x, float y){
+			try{
+				return enemy.getConstructor(float.class,float.class).newInstance(x,y);
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+					 InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Enemy(x, y);}
+		}
+		public final Class<Enemy> enemy;
+		Enemies(Class<Enemy> enemy){
+			this.enemy = enemy;
+		}
+	}
+
 
 
 /*	protected void turnSpeedActuator(){

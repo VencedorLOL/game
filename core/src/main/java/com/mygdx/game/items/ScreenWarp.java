@@ -1,5 +1,6 @@
 package com.mygdx.game.items;
 
+import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.turnMode;
 
 public class ScreenWarp {
@@ -11,11 +12,24 @@ public class ScreenWarp {
 	public int ID;
 	public static int IDState = 0;
 
+	//only for stage creation
+	public int destination;
+
 	public ScreenWarp(int x, int y, int base, int height) {
 		this.x = x;
 		this.y = y;
 		this.base = base;
 		this.height = height;
+		ID = IDState + 1;
+		IDState++;
+	}
+
+	public ScreenWarp(int x, int y, int destination) {
+		this.x = x;
+		this.y = y;
+		this.base = globalSize();
+		this.height = globalSize();
+		this.destination = destination;
 		ID = IDState + 1;
 		IDState++;
 	}

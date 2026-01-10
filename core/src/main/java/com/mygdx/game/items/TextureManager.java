@@ -290,11 +290,11 @@ public class TextureManager {
 		videos.clear();
 	}
 
-	public static void fixatedText (String text,float x, float y,int timeOnScreen,int size){
+	public static void fixatedText (String text,float x, float y,int timeOnScreen,float size){
 		TextureManager.fixatedText.add(new Text(text,x,y,size,timeOnScreen));
 	}
 
-	public static void fixatedText (String text,float x, float y,int timeOnScreen,int size,int r, int g, int b){
+	public static void fixatedText (String text,float x, float y,int timeOnScreen,float size,int r, int g, int b){
 		TextureManager.fixatedText.add(new Text(text,x,y, timeOnScreen,r,g,b,1,0,size));
 	}
 

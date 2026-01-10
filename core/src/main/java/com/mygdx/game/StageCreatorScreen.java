@@ -58,35 +58,36 @@ public class StageCreatorScreen implements Screen{
 			finish();
 		}
 
-	public void testinterface() {
+	public void testinterface(boolean freeze) {
 		if(info.ready){
-			sc.update(info.x,info.y);
+			sc.update(info.x,info.y,freeze);
 		}
-		if(Gdx.input.isKeyJustPressed(Input.Keys.O)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.O) && !freeze){
 			text = new InputDimensions();
 			info = text.getInfo();
 			sc.hasStageBeenCreated = false;
 		}
 
-		if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
+		if(Gdx.input.isKeyJustPressed(Input.Keys.G) && !freeze){
 			saver = new StageSaver(sc.stage);
 		}
 
 	}
 
-
+	public static boolean freeze;
 	public void start(){
 		setRender(true);
 		ScreenUtils.clear(colorConverter( /* red */ 20), colorConverter(/* green */ 120), colorConverter(/* blue */ 40), 1);
 		fullscreenDetector();
 		screenSizeChangeDetector();
 		TextureManager.batch.begin();
-		testinterface();
-		chara.update();
+		testinterface(freeze);
+		if(!freeze)
+			chara.update();
 		if(sc.stage != null)
 			sc.stage.borderUpdate();
 		if(saver != null)
-			if(saver.waiter())
+			if(saver.waiter(sc.sWDestStages))
 				saver = null;
 		generalRender();
 		attackRenderer();
@@ -104,8 +105,6 @@ public class StageCreatorScreen implements Screen{
 	}
 
 	public void zoomManagement(){
-		if (Gdx.input.isKeyPressed(Input.Keys.V))
-			camera.setToOrtho(camaraZoom = 1);
 		if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 7 && camaraZoom >= 4)
 			camera.smoothZoom(++camaraZoom,40);
 		else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) && camaraZoom < 4 && camaraZoom >= 1)

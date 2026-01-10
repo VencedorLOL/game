@@ -2,18 +2,18 @@ package com.mygdx.game.items.stagecreatorelements;
 
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.Stage;
-import com.mygdx.game.items.Wall;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.TextureManager.fixatedText;
+import static com.mygdx.game.StageCreatorScreen.*;
 
 public class StageSaver {
 	String emptyStage =
@@ -41,11 +41,15 @@ public class StageSaver {
 			"		floorTexture = \"FLOOR_VARIABLE\";\n" +
 			"		scale();\n" +
 			"	}\n" +
+			"\n" +
+			"	public void reStage() {" +
+			"		SCREEN_WARPS_DESTINATIONS" +
+			"\n	}\n"+
 			"}\n";
 
 	Stage stage;
 	InputText nameOfStage;
-	InputText.InformationTransferer info;
+	public InputText.InformationTransferer info;
 	public StageSaver(Stage stageToSave){
 		stage = stageToSave;
 		nameOfStage = new InputText();
@@ -53,8 +57,14 @@ public class StageSaver {
 	}
 
 	File stageFile;
-	public boolean waiter(){
+	ArrayList<String> destination;
+	String finalDestination;
+	public boolean waiter(ArrayList<String> destination){
+		if(escapePressed())
+			return true;
 		if (info.ready){
+			freeze = false;
+			this.destination = destination;
 			setVariables();
 			emptyStage = emptyStage.replace("NAME_CLASS",info.string);
 			emptyStage = emptyStage.replace("FINALX_VARIABLE", stage.finalX/globalSize()+"");
@@ -71,6 +81,7 @@ public class StageSaver {
 			emptyStage = emptyStage.replace("SCREENWARPY_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpY).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPDESTINATION_VARIABLE","new byte[]" + Arrays.toString(stage.screenWarpDestinationSpecification).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("FLOOR_VARIABLE",stage.floorTexture);
+			emptyStage = emptyStage.replace("SCREEN_WARPS_DESTINATIONS",finalDestination);
 			try {
 				fixatedText("Was folder created? " + new File(Gdx.files.getExternalStoragePath() + "/Stages").mkdir(),200,100,300,40,255,255,255);
 				stageFile = new File(Gdx.files.getLocalStoragePath() + "Stages/"+info.string+".java");
@@ -89,7 +100,7 @@ public class StageSaver {
 		return false;
 	}
 
-
+	@SuppressWarnings("all")
 	public void setVariables(){
 		stage.wallX = new int[stage.walls.size()];
 		stage.wallY = new int[stage.walls.size()];
@@ -97,7 +108,7 @@ public class StageSaver {
 		for(int i = 0; i < stage.walls.size(); i++){
 			stage.wallX[i] = (int) (stage.walls.get(i).x/globalSize());
 			stage.wallY[i] = (int) (stage.walls.get(i).y/globalSize());
-			stage.wallType[i] = 0;
+			stage.wallType[i] = stage.walls.get(i).getType();
 		}
 		stage.enemySpawnX = new int[stage.enemy.size()];
 		stage.enemySpawnY = new int[stage.enemy.size()];
@@ -105,7 +116,7 @@ public class StageSaver {
 		for(int i = 0; i < stage.enemy.size(); i++){
 			stage.enemySpawnX[i] = (int) (stage.enemy.get(i).x/globalSize());
 			stage.enemySpawnY[i] = (int) (stage.enemy.get(i).y/globalSize());
-			stage.enemyType[i] = 0;
+			stage.enemyType[i] = stage.enemy.get(i).getType();
 		}
 		stage.screenWarpX = new int[stage.screenWarp.size()];
 		stage.screenWarpY = new int[stage.screenWarp.size()];
@@ -113,9 +124,12 @@ public class StageSaver {
 		for(int i = 0; i < stage.screenWarp.size(); i++){
 			stage.screenWarpX[i] = (int) (stage.screenWarp.get(i).x/globalSize());
 			stage.screenWarpY[i] = (int) (stage.screenWarp.get(i).y/globalSize());
-			stage.screenWarpDestinationSpecification[i] = 0;
+			stage.screenWarpDestinationSpecification[i] = (byte) stage.screenWarp.get(i).destination;
 		}
-
+		finalDestination = "";
+		for(String s : destination){
+			finalDestination = finalDestination + "\n		screenWarpDestination.add(new " + s + "());";
+		}
 
 	}
 

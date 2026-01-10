@@ -24,8 +24,8 @@ public class EvilGuy extends Enemy {
 		speed = 4;
 	}
 
-
-
-
-
+	@Override
+	public void destroyOverridable() {
+		super.destroyOverridable();
+	}
 }

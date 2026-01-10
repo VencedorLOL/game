@@ -19,4 +19,9 @@ public class LoopingHat extends Enemy {
 			}
 		};
 	}
+
+	@Override
+	public void destroyOverridable() {
+		rainbow.removeInteractable();
+	}
 }

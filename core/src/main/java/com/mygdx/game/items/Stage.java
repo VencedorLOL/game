@@ -1,16 +1,9 @@
 package com.mygdx.game.items;
 
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.mygdx.game.items.enemies.Dummy;
-import com.mygdx.game.items.enemies.EvilGuy;
-import com.mygdx.game.items.enemies.GoalDummy;
-import com.mygdx.game.items.enemies.LoopingHat;
-import com.mygdx.game.items.solids.ClassChangeStation;
-import com.mygdx.game.items.solids.Crater;
-import com.mygdx.game.items.solids.LargeBarricade;
-import com.mygdx.game.items.solids.Tree;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.MainClass.currentStage;
@@ -149,7 +142,8 @@ public class Stage  {
 		}
 		for (Enemy e : enemy){
 			if (!e.isDead) {
-				e.update();
+				if(!Objects.equals(currentStage, "Creator"))
+					e.update();
 				e.render();
 			}
 		} enemy.removeIf(e -> e.isDead);
@@ -240,35 +234,12 @@ public class Stage  {
 			updateHazards();
 			border.border(chara, this);
 			border.border(this);
-			screenWarpTrigger();
 		}
 	}
 
 	public void borderUpdate(){
 		border.border(chara, this);
 		border.border(this);
-	}
-
-	public void stageRendererr(){
-		if (betweenStages){
-			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
-			wallSetter();
-			tilesetSetter();
-			enemySetter();
-			screenWarpSetter();
-			betweenStages = false;
-
-		}
-		else {
-			camaraX = getCamara().x;
-			camaraY = getCamara().y;
-			camaraBase = getCamara().base;
-			camaraHeight = getCamara().height;
-			tilesetRenderer();
-			enemyRenderer();
-			screenWarpRenderer();
-			wallRenderer();
-		}
 	}
 
 	public void screenWarpTrigger(){
@@ -318,26 +289,12 @@ public class Stage  {
 	}
 
 	public Enemy enemyClass(int x, int y, int enemyType){
-		switch (enemyType){
-			case -2: return new GoalDummy(globalSize() * x, globalSize() * y);
-			case -1: return new Dummy(globalSize() * x, globalSize() * y);
-			case 1 : return new EvilGuy(globalSize() * x, globalSize() * y);
-			case 2 : return new LoopingHat(globalSize() * x, globalSize() * y);
-		}
-		return new Enemy(globalSize() * x, globalSize() * y);
+		return Enemy.Enemies.values()[enemyType-Enemy.Enemies.listDifference()].getEnemy(globalSize() * x,globalSize() * y);
 
 	}
 
 	public Wall wallClass(int x, int y, int wallType){
-		switch (wallType){
-			case 1 : return new Wall(globalSize() * x, globalSize() * y);
-			case 2 : return new LargeBarricade(globalSize() * x, globalSize() * y);
-			case 3 : return new Crater(globalSize() * x, globalSize() * y);
-			case 4 : return new Tree(globalSize() * x, globalSize() * y);
-			case 5 : return new ClassChangeStation(globalSize() * x, globalSize() * y);
-		}
-		return new Wall(globalSize() * x, globalSize() * y);
-
+		return Wall.Walls.values()[wallType- Wall.Walls.listDifference()].getWall(globalSize() * x,globalSize() * y);
 	}
 
 

@@ -7,7 +7,6 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.StageCreatorScreen.sc;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.ClickDetector.rayCasting;

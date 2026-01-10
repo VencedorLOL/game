@@ -9,6 +9,7 @@ import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.textboxelements.textboxes.tests.Test1;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.GlobalVariables.classSlots;
@@ -196,7 +197,7 @@ public class Character extends Actor {
 			}
 			classChangeManager();
 
-			if (!turnMode)
+			if (!turnMode && !Objects.equals(currentStage, "Creator"))
 				interact();
 		}
 		glideProcess();

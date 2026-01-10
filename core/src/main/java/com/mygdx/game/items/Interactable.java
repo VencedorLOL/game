@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 
 public class Interactable extends Entity {
@@ -28,6 +29,11 @@ public class Interactable extends Entity {
 	public Interactable (Entity entity){
 		super(null, entity.x, entity.y, entity.base, entity.height);
 		interactables.add(this);
+	}
+
+	public void removeInteractable(){
+		destroyListener(oVE);
+		interactables.remove(this);
 	}
 
 

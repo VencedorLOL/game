@@ -9,11 +9,12 @@ import static com.mygdx.game.items.InputHandler.actionConfirmReleased;
 import static com.mygdx.game.items.InputHandler.getKeysPressed;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
+import static com.mygdx.game.StageCreatorScreen.*;
 
 public class InputText extends GUI {
 
 	public TextureManager.Text text;
-	public String storedText;
+	public String storedText = "";
 	public int[] textColor = new int[]{255,255,255};
 	public String texture = "TextBar";
 
@@ -27,6 +28,7 @@ public class InputText extends GUI {
 
 	public InputText(){
 		super();
+		freeze = true;
 		info = new InformationTransferer();
 	}
 
@@ -43,11 +45,13 @@ public class InputText extends GUI {
 			info.ready = true;
 			delete(this);
 			text.fakeNull = true;
+			freeze = false;
 		}
 
 
 	}
 
+	@SuppressWarnings("all")
 	public void mathCalculator(){
 		float height = Gdx.graphics.getHeight();
 		float width = Gdx.graphics.getWidth();
@@ -59,8 +63,12 @@ public class InputText extends GUI {
 
 		textSize = 64 * height/400;
 
-		for (String k : getKeysPressed().toArray(new String[0]))
-				storedText = storedText + toKey(k);
+		for (String k : getKeysPressed().toArray(new String[0])) {
+			String finalKey = toKey(k);
+			if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))
+				finalKey = toKey(k).toUpperCase();
+			storedText = storedText + finalKey;
+		}
 
 		if(text == null)
 			text = dynamicFixatedText("",startingX,startingY,-1,textSize);
@@ -70,13 +78,25 @@ public class InputText extends GUI {
 		text.realSize = textSize;
 
 		if(storedText != null){
-			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && !storedText.isEmpty())
+			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && !storedText.isEmpty())
+				storedText = "";
+			else if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && !storedText.isEmpty())
 				storedText = storedText.substring(0,storedText.length()-1);
+			else if(Gdx.input.isKeyPressed(Input.Keys.DEL) && delCounter >= delCooldown && !storedText.isEmpty()) {
+				storedText = storedText.substring(0, storedText.length() - 1);
+				delCounter = 0;
+			}
+			else if (delCounter < delCooldown)
+				delCounter++;
+			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL))
+				delCounter = 0;
 			text.text = storedText;
 		}
 
-
 	}
+	int delCooldown = 30;
+	int delCounter = 0;
+
 
 	public String toKey(String num){
 		switch (num){
