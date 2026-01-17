@@ -1,6 +1,8 @@
 package com.mygdx.game;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
 import static java.lang.String.valueOf;
@@ -103,6 +105,22 @@ public class Utils {
 	// it's actually shorter to write the return expression each time rather than typing the method why am I making this.
 	public static boolean floatInRange(float min, float max, float value){
 		return value >= min && value <= max;
+	}
+
+
+	public static ArrayList<?>[] getDifference(ArrayList<?> first, ArrayList<?> second){
+		ArrayList<?> missingFirst = new ArrayList<>(second);
+		missingFirst.removeIf(e -> elementExistsInList((ArrayList<Object>) first,e));
+		ArrayList<?> missingSecond = new ArrayList<>(first);
+		missingFirst.removeIf(e -> elementExistsInList((ArrayList<Object>) second,e));
+		return new ArrayList<?>[]{missingSecond,missingFirst};
+	}
+
+	public static boolean elementExistsInList(ArrayList<Object> list, Object element){
+		for(Object o : list)
+			if(element == o)
+				return true;
+		return false;
 	}
 
 

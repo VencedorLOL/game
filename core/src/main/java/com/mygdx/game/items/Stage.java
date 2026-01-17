@@ -9,6 +9,7 @@ import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.byteArraySearcherForScreenWarps;
+import static com.mygdx.game.items.Background.*;
 import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.clearHazards;
 import static com.mygdx.game.items.Hazards.updateHazards;
@@ -43,15 +44,15 @@ public class Stage  {
 
 	public ArrayList<Tile> tileset = new ArrayList<>();
 
-	// public ArrayList<Entity> otherEntities = new ArrayList<>();
+	public String bgTexture = "tree";
+
+	//not reccomended for small rooms
+	public boolean staticCameraXmin = false;
+	public boolean staticCameraYmin = false;
+	public boolean staticCameraXmax = false;
+	public boolean staticCameraYmax = false;
 
 	public float camaraX, camaraY, camaraBase, camaraHeight;
-	public Stage(int startX, int startY, int finalX, int finalY, int spawnX, int spawnY,
-				 int[] wallX, int[] wallY, int[] wallType ,int[] enemySpawnX, int[] enemySpawnY, int[] screenWarpX, int[] screenWarpY,
-				 ArrayList<Stage> screenWarpDestination, String floorTexture,
-				 byte[] screenWarpDestinationSpecification, int[] enemyType){
-		refresh(startX,startY,finalX,finalY,spawnX,spawnY,wallX,wallY,wallType,enemySpawnX,enemySpawnY,screenWarpX,screenWarpY,screenWarpDestination,floorTexture,screenWarpDestinationSpecification,enemyType);
-	}
 
 	public Stage(){
 		this.screenWarpDestination = new ArrayList<>();
@@ -156,7 +157,23 @@ public class Stage  {
 				tileset.add(new Tile(x, y,new Floor(floorTexture)));
 			}
 		}
+		tilesetCleanup();
 		hasFloorBeenRendered = true;
+	}
+
+	public void tilesetCleanup() {}
+
+	@SuppressWarnings("all")
+	public Tile getTile(double x, double y){
+		for (Tile t : tileset)
+			if (t.x == (float) x*globalSize() && t.y == (float) y*globalSize())
+				return t;
+		return null;
+	}
+
+	@SuppressWarnings("all")
+	public Tile createTile(double x, double y){
+		return new Tile((float) (x*globalSize()), (float) (y*globalSize()),new Floor(floorTexture));
 	}
 
 	public void tilesetRenderer(){
@@ -170,15 +187,17 @@ public class Stage  {
 	}
 
 	public void wallBorder(){
-		walls.add(new Wall(startX - globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
-		walls.add(new Wall(finalX + globalSize(),startY - globalSize(),globalSize(),finalY + globalSize() * 30, false));
-		walls.add(new Wall(startX,startY - globalSize() ,finalX + globalSize() * 30,globalSize(), false));
-		walls.add(new Wall(startX,finalY + globalSize(),finalX + globalSize() * 30,globalSize() ,false));
+		if(!currentStage.equals("Creator")) {
+			walls.add(new Wall(border.minX - globalSize(), border.minY - globalSize(), globalSize(), border.maxY + globalSize() * 30, false));
+			walls.add(new Wall(border.maxX + globalSize(), border.minY - globalSize(), globalSize(), border.maxY + globalSize() * 30, false));
+			walls.add(new Wall(border.minX, border.minY - globalSize(), border.maxX + globalSize() * 30, globalSize(), false));
+			walls.add(new Wall(border.minX, border.maxY + globalSize(), border.maxX + globalSize() * 30, globalSize(), false));
+		}
 	}
 
 
 	public void wallSetter(){
-		wallBorder();
+	//	wallBorder();
 		for (int i = 0; i < wallX.length; i++) {
 			walls.add(wallClass(wallX[i], wallY[i],wallType == null ? 1 : wallType[i]));
 		}
@@ -207,38 +226,40 @@ public class Stage  {
 
 	public void stageRenderer(){
 		if (betweenStages){
+			clearBG();
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			enemy.clear();
 			walls.clear();
 			tileset.clear();
 			screenWarp.clear();
-			wallSetter();
 			tilesetSetter();
+			border.updateCoords(this);
+			wallSetter();
 			enemySetter();
 			screenWarpSetter();
 			fieldSetter();
 			hazardSetter();
 			betweenStages = false;
-
+			addBG(bgTexture);
 		}
 		else {
 			camaraX = getCamara().x;
 			camaraY = getCamara().y;
 			camaraBase = getCamara().base;
 			camaraHeight = getCamara().height;
+			renderBGs();
 			tilesetRenderer();
 			enemyRenderer();
 			wallRenderer();
 			screenWarpRenderer();
 			updateFields();
 			updateHazards();
-			border.border(chara, this);
-			border.border(this);
+			borderUpdate();
 		}
 	}
 
 	public void borderUpdate(){
-		border.border(chara, this);
+		border.border(chara);
 		border.border(this);
 	}
 
@@ -289,8 +310,9 @@ public class Stage  {
 	}
 
 	public Enemy enemyClass(int x, int y, int enemyType){
-		return Enemy.Enemies.values()[enemyType-Enemy.Enemies.listDifference()].getEnemy(globalSize() * x,globalSize() * y);
-
+		try {
+			return Enemy.Enemies.values()[enemyType - Enemy.Enemies.listDifference()].getEnemy(globalSize() * x, globalSize() * y);
+		} catch (ArrayIndexOutOfBoundsException ignored){printErr("stage error: " + this.getClass().getSimpleName()); return null;}
 	}
 
 	public Wall wallClass(int x, int y, int wallType){

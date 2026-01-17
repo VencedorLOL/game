@@ -221,10 +221,10 @@ public class Actor extends Entity implements TurnManager.Turnable {
 			return true;
 		if(!currentStage.equals("Creator"))
 			return  chara.x == tester.x && chara.y == tester.y && tester != chara ||
-				stage.finalY >= 0 ? tester.y >= stage.finalY + 1 : tester.y <= stage.finalY - 1 ||
-				stage.startY >= 0 ? tester.y <= stage.startY - 1 : tester.y >= stage.startY + 1 ||
-				stage.finalX >= 0 ? tester.x >= stage.finalX + 1 : tester.x <= stage.finalX - 1 ||
-				stage.startX >= 0 ? tester.x <= stage.startX - 1 : tester.x >= stage.startX + 1 ;
+				stage.border.maxY >= 0 ? tester.y >= stage.border.maxY + 1 : tester.y <= stage.border.maxY - 1 ||
+				stage.border.minY >= 0 ? tester.y <= stage.border.minY - 1 : tester.y >= stage.border.minY + 1 ||
+				stage.border.maxX >= 0 ? tester.x >= stage.border.maxX + 1 : tester.x <= stage.border.maxX - 1 ||
+				stage.border.minX >= 0 ? tester.x <= stage.border.minX - 1 : tester.x >= stage.border.minX + 1 ;
 		else return false;
 	}
 

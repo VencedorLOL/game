@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Background.addBG;
+import static com.mygdx.game.items.Background.clearBG;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
@@ -79,17 +81,20 @@ public class StageCreator {
 	ArrayList<Wall> selectedWalls;
 	ArrayList<Enemy> selectedEnemies;
 	ArrayList<ScreenWarp> selectedScreenWarps;
+	ArrayList<Tile> selectedTiles;
 	TargetProcessor target;
 	Wall movingWall;
 	Enemy movingEnemy;
 	ScreenWarp movingScreenWarp;
-	// 0 = wall		1 = enemy 		2 = screen warp
+	Tile movingTile;
+	// 0 = wall		1 = enemy 		2 = screen warp		3 = tiles		4 = configuration
 	byte typeOfElement = 0;
 	byte typeOfSubElementWall = 0;
 	byte typeOfSubElementEnemy = 0;
 	byte openInterface = 0;
 	boolean interfaceOfTypes;
 	int preferredSWDestination;
+	Entity spawnPosition;
 	public void stageModification(){
 		if(target == null && !stage.tileset.isEmpty()){
 			target = new TargetProcessor();
@@ -97,14 +102,25 @@ public class StageCreator {
 			target.circle.circle.clear();
 		}
 		Vector3 vector = roundedClick();
+		if(typeOfElement == 4){
+			if(spawnPosition == null)
+				spawnPosition = new Entity("Spawnpoint",stage.spawnX,stage.spawnY);
+			spawnPosition.generalRender = true;
+			stage.spawnX = (int) spawnPosition.x;
+			stage.spawnY = (int) spawnPosition.y;
+			if(actionConfirmJustPressed() && openInterface == 0)
+				openInterface = 3;
+			if(attackModeJustPressed() && openInterface == 0)
+				openInterface = 4;
+		}
 		if(action == 0) {
-			if(actionConfirmJustPressed()) {
+			if(actionConfirmJustPressed() && typeOfElement < 2) {
 				openInterface = openInterface != 0 ? 0 : typeOfElement == 0 ? 1 : (byte) -1;
 			}
-			if (leftClickJustPressed() && vector.x <= stage.finalX && vector.x >= stage.startX && vector.y >= stage.startY && vector.y <= stage.finalY && openInterface == 0 && !interfaceOfTypes) {
+			if (leftClickJustPressed() && openInterface == 0 && !interfaceOfTypes) {
 				mode = (byte) (detectElement(vector) ? 1 : -1);
 			}
-			if (mode == 1 && vector.x <= stage.finalX && vector.x >= stage.startX && vector.y >= stage.startY && vector.y <= stage.finalY && openInterface == 0 && !interfaceOfTypes) {
+			if (mode == 1 && openInterface == 0 && !interfaceOfTypes) {
 				if(typeOfElement == 0)
 					for (Wall w : stage.walls)
 						if (w.x == vector.x && w.y == vector.y) {
@@ -125,8 +141,15 @@ public class StageCreator {
 							stage.screenWarp.remove(w);
 							break;
 						}
+				if(typeOfElement == 3)
+					for (Tile t : stage.tileset)
+						if (t.x() == vector.x && t.y() == vector.y) {
+							stage.tileset.remove(t);
+							stage.border.updateCoords(stage);
+							break;
+						}
 
-			} else if (mode == -1 && vector.x <= stage.finalX && vector.x >= stage.startX && vector.y >= stage.startY && vector.y <= stage.finalY && openInterface == 0 && !interfaceOfTypes) {
+			} else if (mode == -1 && openInterface == 0 && !interfaceOfTypes) {
 				if (!detectElement(vector)){
 					if(typeOfElement == 0)
 						stage.walls.add(Wall.Walls.values()[typeOfSubElementWall].getWall(vector.x, vector.y));
@@ -134,6 +157,10 @@ public class StageCreator {
 						stage.enemy.add(Enemy.Enemies.values()[typeOfSubElementEnemy].getEnemy(vector.x, vector.y));
 					if(typeOfElement == 2)
 						stage.screenWarp.add(new ScreenWarp((int) vector.x, (int) vector.y,preferredSWDestination));
+					if(typeOfElement == 3) {
+						stage.tileset.add(new Tile((int) vector.x, (int) vector.y, new Floor(stage.floorTexture)));
+						stage.border.updateCoords(stage);
+					}
 				}
 
 			}
@@ -147,6 +174,7 @@ public class StageCreator {
 				selectedWalls = new ArrayList<>();
 				selectedEnemies = new ArrayList<>();
 				selectedScreenWarps = new ArrayList<>();
+				selectedTiles = new ArrayList<>();
 			}
 			if(leftClickReleased() && mode == 1){
 				mode = 0;
@@ -174,7 +202,7 @@ public class StageCreator {
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
-					// this is done so it renders all selected walls atop non selected ones.
+					// this is done so it renders all selected enemies atop non selected ones.
 					stage.enemy.removeAll(selectedEnemies);
 					stage.enemy.addAll(selectedEnemies);
 				}
@@ -187,9 +215,22 @@ public class StageCreator {
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
-					// this is done so it renders all selected walls atop non selected ones.
+					// this is done so it renders all selected sw atop non selected ones.
 					stage.screenWarp.removeAll(selectedScreenWarps);
 					stage.screenWarp.addAll(selectedScreenWarps);
+				}
+				if(typeOfElement == 3) {
+					for (Tile t : stage.tileset)
+						if (t.x() >= min(startSelectionX, endSelectionX) && t.x() <= max(startSelectionX, endSelectionX) &&
+								t.y() >= min(startSelectionY, endSelectionY) && t.y() <= max(startSelectionY, endSelectionY)) {
+							selectedTiles.add(t);
+							target.circle.addToCircle(t.x(), t.y());
+						}
+					target.circle.circle.removeIf(Objects::isNull);
+					target.circle.detectCornersOfCircle(target.circle.circle);
+					// this is done so it renders all selected tiles atop non selected ones.
+					stage.tileset.removeAll(selectedTiles);
+					stage.tileset.addAll(selectedTiles);
 				}
 			}
 
@@ -199,6 +240,7 @@ public class StageCreator {
 				selectedWalls = new ArrayList<>();
 				selectedScreenWarps = new ArrayList<>();
 				selectedEnemies = new ArrayList<>();
+				selectedTiles = new ArrayList<>();
 			}
 			if(rightClickReleased() && mode == -1){
 				mode = 0;
@@ -225,11 +267,19 @@ public class StageCreator {
 									w.y >= min(startSelectionY, endSelectionY) && w.y <= max(startSelectionY, endSelectionY))
 								selectedScreenWarps.add(w);
 						stage.screenWarp.removeAll(selectedScreenWarps);
+					} if(typeOfElement == 3) {
+						for (Tile t : stage.tileset)
+							if (t.x() >= min(startSelectionX, endSelectionX) && t.x() <= max(startSelectionX, endSelectionX) &&
+									t.y() >= min(startSelectionY, endSelectionY) && t.y() <= max(startSelectionY, endSelectionY))
+								selectedTiles.add(t);
+						stage.tileset.removeAll(selectedTiles);
 					}
 				}
 				selectedWalls = null;
 				selectedScreenWarps = null;
 				selectedEnemies = null;
+				selectedTiles = null;
+				target.circle.circle.clear();
 				target = null;
 			}
 			if(mode != 0){
@@ -263,6 +313,12 @@ public class StageCreator {
 							startPos[i][0] = selectedScreenWarps.get(i).x;
 							startPos[i][1] = selectedScreenWarps.get(i).y;
 						}
+					} if(typeOfElement == 3) {
+						startPos = new float[selectedTiles.size()][2];
+						for (int i = 0; i < selectedTiles.size(); i++) {
+							startPos[i][0] = selectedTiles.get(i).x();
+							startPos[i][1] = selectedTiles.get(i).y();
+						}
 					}
 				}
 				if(leftClickPressed()){
@@ -284,6 +340,12 @@ public class StageCreator {
 							w.x += auth.x - lastFrameX;
 							w.y += auth.y - lastFrameY;
 							target.circle.addToCircle(w.x, w.y);
+						}
+					} if(typeOfElement == 3) {
+						for (Tile t : selectedTiles) {
+							t.sX(t.x() + auth.x - lastFrameX);
+							t.sY(t.y() + auth.y - lastFrameY);
+							target.circle.addToCircle(t.x(), t.y());
 						}
 					}
 					target.circle.circle.removeIf(Objects::isNull);
@@ -309,6 +371,12 @@ public class StageCreator {
 							selectedScreenWarps.get(i).y = startPos[i][1] + vector.y - startSelectionY;
 						}
 						stage.screenWarp.removeIf(this::samePositionAsSelected);
+					} if(typeOfElement == 3) {
+						for (int i = 0; i < selectedTiles.size(); i++) {
+							selectedTiles.get(i).sX(startPos[i][0] + vector.x - startSelectionX);
+							selectedTiles.get(i).sY(startPos[i][1] + vector.y - startSelectionY);
+						}
+						stage.tileset.removeIf(this::samePositionAsSelected);
 					}
 				}
 
@@ -324,14 +392,16 @@ public class StageCreator {
 						stage.walls.add(movingWall);
 					} if (typeOfElement == 1) {
 						movingEnemy = getEnemy(vector);
-						//this is so it renders atop the other walls
 						stage.enemy.remove(movingEnemy);
 						stage.enemy.add(movingEnemy);
 					} if (typeOfElement == 2) {
 						movingScreenWarp = getScreenWarp(vector);
-						//this is so it renders atop the other walls
 						stage.screenWarp.remove(movingScreenWarp);
 						stage.screenWarp.add(movingScreenWarp);
+					} if (typeOfElement == 3) {
+						movingTile = getTile(vector);
+						stage.tileset.remove(movingTile);
+						stage.tileset.add(movingTile);
 					}
 				}
 
@@ -345,6 +415,12 @@ public class StageCreator {
 					} if(typeOfElement == 2) {
 						movingScreenWarp.x += auth.x - lastFrameX;
 						movingScreenWarp.y += auth.y - lastFrameY;
+					} if(typeOfElement == 3) {
+						movingTile.sX(movingTile.x() + auth.x - lastFrameX);
+						movingTile.sY(movingTile.y() + auth.y - lastFrameY);
+					} if (typeOfElement == 4){
+						spawnPosition.x += auth.x - lastFrameX;
+						spawnPosition.y += auth.y - lastFrameY;
 					}
 				}
 
@@ -376,11 +452,24 @@ public class StageCreator {
 								}
 						movingScreenWarp.x = vector.x;
 						movingScreenWarp.y = vector.y;
+					} if(typeOfElement == 3) {
+						if (detectElement(vector))
+							for (int i = 0; i < stage.tileset.size(); i++)
+								if (stage.tileset.get(i).x() == vector.x && stage.tileset.get(i).y() == vector.y && stage.tileset.get(i) != movingTile) {
+									stage.tileset.remove(stage.tileset.get(i));
+								}
+						movingTile.sX(vector.x);
+						movingTile.sY(vector.y);
+					} if(typeOfElement == 4) {
+						spawnPosition.x = vector.x;
+						spawnPosition.y = vector.y;
 					}
 
 					selectedWalls = null;
 					selectedEnemies = null;
 					selectedScreenWarps = null;
+					selectedTiles = null;
+					target.circle.circle.clear();
 					target = null;
 				}
 			}
@@ -392,8 +481,8 @@ public class StageCreator {
 		float x = Gdx.graphics.getWidth()*.9f;
 		float y = Gdx.graphics.getHeight()*.2f;
 		float size = Gdx.graphics.getHeight()*0.008f;
-		String mainTexture = action== 0 ? "Pencil" : action == 2 ? "Move" : action == 1 ? "Select" : "SWConfigure";
-		String texture = typeOfElement == 0 ? wallsTextures[typeOfSubElementWall] : typeOfElement == 1 ? enemiesTextures[typeOfSubElementEnemy] : "ScreenWarp";
+		String mainTexture = action == 0 ? "Pencil" : action == 2 ? "Move" : action == 1 ? "Select" : "SWConfigure";
+		String texture = typeOfElement == 0 ? wallsTextures[typeOfSubElementWall] : typeOfElement == 1 ? enemiesTextures[typeOfSubElementEnemy] : typeOfElement == 2 ? "ScreenWarp" : stage.floorTexture;
 		float sizeX = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][0] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][0] : globalSize();
 		float sizeY = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][1] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][1] : globalSize();
 		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",x,y,1, 0,size,size,true));
@@ -416,6 +505,10 @@ public class StageCreator {
 			enemySubElementSelector();
 		else if (openInterface == 2)
 			destinationsInterface();
+		else if(openInterface == 3)
+			setFloor();
+		else if (openInterface == 4)
+			setBG();
 
 		if(action==3){
 			if(actionConfirmJustPressed()){
@@ -436,17 +529,16 @@ public class StageCreator {
 					for(ScreenWarp s : selectedScreenWarps)
 						s.destination = temp;
 					mode = 0;
+					selectedScreenWarps = null;
+					target.circle.circle.clear();
 				}
 			}
 
 
 
-
-
-
-
-
-
+			for(ScreenWarp s : stage.screenWarp){
+				text(s.destination+"", s.x+48,s.y+96,2, 64);
+			}
 		}
 
 	}
@@ -568,20 +660,22 @@ public class StageCreator {
 		float intX = Gdx.graphics.getWidth()*.9f;
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 5; i++){
 			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*32),1,
 					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : "ScreenWarp"
+			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : "ConfigurationCog"
 					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*32) - 2*intSize,1,
 					0,intSize/globalSize()*32*3/4,intSize/globalSize()*32*3/4,true));
 		}
 		if(leftClickJustPressed()){
-			for(int i = 0; i <3; i++){
+			for(int i = 0; i < 5; i++){
 				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*32 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*32 ) {
 					typeOfElement = (byte) (i);
 					interfaceOfTypes = false;
 					if(action == 3 && typeOfElement != 2)
 						action = 0;
+					if(action != 2 && typeOfElement == 4)
+						action = 2;
 					return;
 				}
 			}
@@ -589,7 +683,39 @@ public class StageCreator {
 	}
 
 
+	InputText floorTexture;
+	InputText.InformationTransferer floorInfo;
+	public void setFloor(){
+		if(floorTexture == null) {
+			floorTexture = new InputText();
+			floorInfo = floorTexture.getInfo();
+		}
+		if (floorInfo != null && floorInfo.ready){
+			stage.floorTexture = floorInfo.string;
+			for(Tile t : stage.tileset)
+				t.texture.texture = floorInfo.string;
+			floorTexture = null;
+			floorInfo = null;
+			openInterface = 0;
+		}
+	}
 
+	InputText bgTexture;
+	InputText.InformationTransferer bgInfo;
+	public void setBG(){
+		if(bgTexture == null) {
+			bgTexture = new InputText();
+			bgInfo = bgTexture.getInfo();
+		}
+		if (bgTexture != null && bgInfo.ready){
+			stage.bgTexture = bgInfo.string;
+			clearBG();
+			addBG(stage.bgTexture);
+			bgTexture = null;
+			bgInfo = null;
+			openInterface = 0;
+		}
+	}
 
 
 	public boolean samePositionAsSelected(Wall wall){
@@ -616,6 +742,14 @@ public class StageCreator {
 		return false;
 	}
 
+	public boolean samePositionAsSelected(Tile wall){
+		if(!isSelected(wall))
+			for(Tile w : selectedTiles)
+				if(w.x() == wall.x() && w.y() == wall.y())
+					return true;
+		return false;
+	}
+
 	public boolean isSelected(Wall wall){
 		for (Wall w : selectedWalls)
 			if (w == wall)
@@ -637,6 +771,13 @@ public class StageCreator {
 		return false;
 	}
 
+	public boolean isSelected(Tile wall){
+		for (Tile w : selectedTiles)
+			if (w == wall)
+				return true;
+		return false;
+	}
+
 	public boolean detectElement(Vector3 vector){
 		if(typeOfElement == 0)
 			for (Wall w : stage.walls)
@@ -650,6 +791,12 @@ public class StageCreator {
 			for (ScreenWarp w : stage.screenWarp)
 				if(w.x == vector.x && w.y == vector.y)
 					return true;
+		if (typeOfElement == 3)
+			for (Tile t : stage.tileset)
+				if(t.x() == vector.x && t.y() == vector.y)
+					return true;
+		if(typeOfElement == 4)
+			return spawnPosition.x == vector.x && spawnPosition.y == vector.y;
 		return false;
 	}
 
@@ -674,13 +821,20 @@ public class StageCreator {
 		return null;
 	}
 
+	public Tile getTile(Vector3 vector){
+		for (Tile t : stage.tileset)
+			if(t.x() == vector.x && t.y() == vector.y)
+				return t;
+		return null;
+	}
+
 	public void actions(){
 		if(info == null) {
-			if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.R)  && typeOfElement != 4) {
 				action = 0;
 				mode = 0;
 			}
-			if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.E) && typeOfElement != 4) {
 				action = 1;
 				mode = 0;
 				openInterface = 0;
@@ -697,9 +851,12 @@ public class StageCreator {
 				selectedEnemies = null;
 				selectedScreenWarps = null;
 				selectedWalls = null;
+				selectedTiles = null;
+				target.circle.circle.clear();
 				movingEnemy = null;
 				movingScreenWarp = null;
 				movingWall = null;
+				movingTile = null;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.C) && typeOfElement == 2) {
 				action = 3;

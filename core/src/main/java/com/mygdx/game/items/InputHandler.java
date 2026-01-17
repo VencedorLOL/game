@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputProcessor;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
-import static java.lang.Math.floor;
 
 @SuppressWarnings("all")
 public class InputHandler implements InputProcessor {
@@ -146,7 +145,9 @@ public class InputHandler implements InputProcessor {
 	public static boolean cursorDragged(){return dragged;}
 	public static boolean cursorMoved(){return moved;}
 
-	public static ArrayList<String> getKeysPressed(){return keysPressed;}
+	public static ArrayList<String> getKeysPressed(){
+		return keysPressed;
+	}
 
 	static byte thisTickCounter = -1;
 	public static byte directionalBuffer(){
@@ -226,7 +227,6 @@ public class InputHandler implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
-		keysPressed.add(keycode+"");
 		for (Input i : keys){
 			if(i.getKey() == keycode)
 				i.release();
@@ -236,6 +236,7 @@ public class InputHandler implements InputProcessor {
 
 	@Override
 	public boolean keyTyped(char character) {
+		keysPressed.add(String.valueOf(character));
 		return false;
 	}
 

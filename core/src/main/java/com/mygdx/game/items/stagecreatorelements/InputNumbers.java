@@ -61,11 +61,16 @@ public class InputNumbers extends GUI {
 
 		textSize = 64 * height/400;
 
-		int[] keys = toInt(getKeysPressed().toArray(new String[0]));
+		String[] keys = (getKeysPressed().toArray(new String[0]));
 
-		for (int k : keys)
-			if (floatInRange(7, 16, k))
-				storedText = storedText + toKey(k);
+		for (String k : keys) {
+			if (k.equals("0") || k.equals("1") || k.equals("2") || k.equals("3") || k.equals("4") || k.equals("5") || k.equals("6") || k.equals("7") ||
+					k.equals("8") || k.equals("9"))
+				storedText = storedText + k;
+			else if (!storedText.isEmpty() && k.toCharArray()[0] == 8 ){
+				storedText = storedText.substring(0,storedText.length()-1);
+			}
+		}
 
 		if(text == null)
 			text = dynamicFixatedText("",startingX,startingY,-1,textSize);
@@ -77,29 +82,14 @@ public class InputNumbers extends GUI {
 		if(storedText != null){
 			if(storedText.contains("null"))
 				storedText = storedText.replace("null","");
-			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && !storedText.isEmpty())
-				storedText = storedText.substring(0,storedText.length()-1);
+			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && !storedText.isEmpty())
+				storedText = "";
 			text.text = storedText;
 		}
 
 
 	}
 
-	public String toKey(int num){
-		switch (num){
-			case 7 : return "0";
-			case 8 : return "1";
-			case 9 : return "2";
-			case 10: return "3";
-			case 11: return "4";
-			case 12: return "5";
-			case 13: return "6";
-			case 14: return "7";
-			case 15: return "8";
-			case 16: return "9";
-		}
-		return "";
-	}
 
 	public boolean canSend(){
 		return true;

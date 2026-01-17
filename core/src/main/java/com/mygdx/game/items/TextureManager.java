@@ -325,9 +325,10 @@ public class TextureManager {
 		TextureManager.text.add(new Text(text,x,y,size,timeTilDisappear,vanishingThreshold,r,g,b,maxY,time));
 	}
 
-	public static void text (String text,float x, float y,int timeTilDisappear,int size){
+	public static void text (String text,float x, float y,int timeTilDisappear,float size){
 		if (text!= null)
-			TextureManager.text.add(new Text(text,x,y,timeTilDisappear));}
+			TextureManager.text.add(new Text(text,x,y,size,timeTilDisappear));
+	}
 
 	public static class DrawableObject{
 		public float x,y,z = 0;

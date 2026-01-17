@@ -1,7 +1,9 @@
 package com.mygdx.game.items.stagecreatorelements;
 
 import com.badlogic.gdx.Gdx;
+import com.mygdx.game.items.Floor;
 import com.mygdx.game.items.Stage;
+import com.mygdx.game.items.Tile;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,11 +41,16 @@ public class StageSaver {
 			"		screenWarpY	= SCREENWARPY_VARIABLE;\n" +
 			"		screenWarpDestinationSpecification = SCREENWARPDESTINATION_VARIABLE;\n" +
 			"		floorTexture = \"FLOOR_VARIABLE\";\n" +
+			"		bgTexture = \"BACKGROUND_VARIABLE\";\n" +
 			"		scale();\n" +
 			"	}\n" +
 			"\n" +
 			"	public void reStage() {" +
 			"		SCREEN_WARPS_DESTINATIONS" +
+			"\n	}\n"+
+			"\n" +
+			"	public void tilesetCleanup() {" +
+			"		TILESET_ALGORITHM" +
 			"\n	}\n"+
 			"}\n";
 
@@ -59,6 +66,7 @@ public class StageSaver {
 	File stageFile;
 	ArrayList<String> destination;
 	String finalDestination;
+	String tileset;
 	public boolean waiter(ArrayList<String> destination){
 		if(escapePressed())
 			return true;
@@ -82,6 +90,8 @@ public class StageSaver {
 			emptyStage = emptyStage.replace("SCREENWARPDESTINATION_VARIABLE","new byte[]" + Arrays.toString(stage.screenWarpDestinationSpecification).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("FLOOR_VARIABLE",stage.floorTexture);
 			emptyStage = emptyStage.replace("SCREEN_WARPS_DESTINATIONS",finalDestination);
+			emptyStage = emptyStage.replace("TILESET_ALGORITHM",tileset);
+			emptyStage = emptyStage.replace("BACKGROUND_VARIABLE",stage.bgTexture);
 			try {
 				fixatedText("Was folder created? " + new File(Gdx.files.getExternalStoragePath() + "/Stages").mkdir(),200,100,300,40,255,255,255);
 				stageFile = new File(Gdx.files.getLocalStoragePath() + "Stages/"+info.string+".java");
@@ -129,6 +139,28 @@ public class StageSaver {
 		finalDestination = "";
 		for(String s : destination){
 			finalDestination = finalDestination + "\n		screenWarpDestination.add(new " + s + "());";
+		}
+		ArrayList<Tile> removables = new ArrayList<>();
+		ArrayList<Tile> tilesetCopy = new ArrayList<>(stage.tileset);
+		boolean addedTile;
+		for (int y = stage.startY; y <= stage.finalY ; y += globalSize())
+			for (int x = stage.startX ; x <= stage.finalX ; x += globalSize()) {
+				addedTile = false;
+				for (Tile t : tilesetCopy)
+					if (t.x() == x && t.y() == y) {
+						tilesetCopy.remove(t);
+						addedTile = true;
+						break;
+					}
+				if(!addedTile)
+					removables.add(new Tile(x, y, new Floor()));
+			}
+		tileset = "";
+		for (Tile t : removables){
+			tileset = tileset + "\n			tileset.remove(getTile(" + t.x()/globalSize() + "," + t.y()/globalSize() + "));" ;
+		}
+		for (Tile t : tilesetCopy){
+			tileset = tileset + "\n			tileset.add(createTile("+t.x()/globalSize() + "," +t.y()/globalSize() + "));";
 		}
 
 	}

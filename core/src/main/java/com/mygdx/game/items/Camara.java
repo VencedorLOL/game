@@ -1,11 +1,13 @@
 package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
-import static com.mygdx.game.GameScreen.initalized;
+import static com.mygdx.game.GameScreen.*;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
 
 @SuppressWarnings("all")
@@ -21,6 +23,10 @@ public class Camara {
 		height = Gdx.graphics.getHeight() * zoom;
 		camara = new OrthographicCamera(0,0);
 		camara.setToOrtho(false, base, height);
+	}
+
+	public float[] getDimensions(){
+		return new float[]{x - base / 2f, x + base / 2f, y - height / 2f, y + height / 2f};
 	}
 
 	public void attach(Entity entity) {
@@ -84,8 +90,24 @@ public class Camara {
 				finalZoom = -1;
 			}
 			camara.setToOrtho(false, base , height);
+		} if(!turnMode && time <= 0 && stage != null){
+			if(stage.staticCameraYmin){
+				float minY = stage.border.minY+height/2;
+				y = y < minY ? minY : y;
+			} if(stage.staticCameraXmin) {
+				float minX = stage.border.minX+base/2;
+				x = x < minX ? minX : x;
+			}if(stage.staticCameraYmax){
+				float maxY = stage.border.maxY-height/2 + globalSize();
+				y = y > maxY ? maxY : y;
+			} if(stage.staticCameraXmax) {
+				float maxX = stage.border.maxX-base/2 + globalSize();
+				x = x > maxX ? maxX : x;
+			}
 		}
 		camara.position.set(x,y,0);
+		if(Gdx.input.isKeyJustPressed(Input.Keys.T))
+			print("cam x is " + x + " cam y is " + y + "\ncam base is " + base + " cam height is " + height);
 		camara.update();
 
 	}

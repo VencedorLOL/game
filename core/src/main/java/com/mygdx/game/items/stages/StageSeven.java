@@ -15,7 +15,7 @@ public class StageSeven extends Stage {
 		wallType 	= new int[]{1,1,1,1,1,1,1,1,1,1};
 		enemySpawnX 	= new int[]{38};
 		enemySpawnY 	= new int[]{37};
-		enemyType 		= new int[]{7};
+		enemyType 		= new int[]{2};
 		screenWarpX 						= new int[]{1,2};
 		screenWarpY 						= new int[]{1,1};
 		screenWarpDestinationSpecification = new byte[]{0,1};

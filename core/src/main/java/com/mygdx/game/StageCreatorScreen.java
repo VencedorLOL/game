@@ -7,9 +7,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stagecreatorelements.InputDimensions;
+import com.mygdx.game.items.stagecreatorelements.InputText;
 import com.mygdx.game.items.stagecreatorelements.StageCreator;
 import com.mygdx.game.items.stagecreatorelements.StageSaver;
 
+
+import java.lang.reflect.InvocationTargetException;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.getCamara;
@@ -20,6 +23,7 @@ import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.fixatedText;
+import static com.mygdx.game.items.TextureManager.text;
 
 @SuppressWarnings("all")
 public class StageCreatorScreen implements Screen{
@@ -58,16 +62,28 @@ public class StageCreatorScreen implements Screen{
 			finish();
 		}
 
+	public InputText stage;
+	public InputText.InformationTransferer stageName;
 	public void testinterface(boolean freeze) {
 		if(info.ready){
 			sc.update(info.x,info.y,freeze);
+		}
+		if(stageName != null && stageName.ready){
+			try {
+				sc.stage = (Stage) Class.forName("com.mygdx.game.items.stages." + stageName.string).getConstructor().newInstance();
+			} catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException ignored ){
+				fixatedText("Coudn't load that class!",200,200,300,50,255,0,0);
+			} stageName = null;
 		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.O) && !freeze){
 			text = new InputDimensions();
 			info = text.getInfo();
 			sc.hasStageBeenCreated = false;
 		}
-
+		if(Gdx.input.isKeyJustPressed(Input.Keys.L) && !freeze){
+			stage = new InputText();
+			stageName = stage.getInfo();
+		}
 		if(Gdx.input.isKeyJustPressed(Input.Keys.G) && !freeze){
 			saver = new StageSaver(sc.stage);
 		}

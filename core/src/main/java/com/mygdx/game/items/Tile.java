@@ -63,6 +63,9 @@ public class Tile implements Cloneable {
 
 	public float y(){return y;}
 
+	public void sX(float x){this.x = x;}
+	public void sY(float y){this.y = y;}
+
 	public float relativeModuleTo(Tile tile){
 		return (float) sqrt(pow(tile.x() - x(),2) + pow(tile.y() - y(),2)) / globalSize();
 	}

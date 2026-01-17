@@ -108,13 +108,13 @@ public class ItemsList  {
 
 	public void onTouch(int i){
 		if(i < weapons.length) {
-			if(getClIns(classs.name).getWeaponName().equals(texts[i].text))
+			if(getClIns(classs.name).getWeaponName() != null && getClIns(classs.name).getWeaponName().equals(texts[i].text))
 				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
 			else
 				getClIns(classs.name).setWeapon(classs.getWeapon(i, null));
 		}
 		else {
-			if(getClIns(classs.name).getShieldName().equals(texts[i].text))
+			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(texts[i].text))
 				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
 			else
 				getClIns(classs.name).setShield(classs.getShield(i - weapons.length, null));
