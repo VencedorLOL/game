@@ -1,6 +1,5 @@
 package com.mygdx.game.items.enemies;
 
-
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.Enemy;
 import com.mygdx.game.items.Interactable;

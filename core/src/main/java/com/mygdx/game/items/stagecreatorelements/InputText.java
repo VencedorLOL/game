@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.InputHandler.actionConfirmReleased;
 import static com.mygdx.game.items.InputHandler.getKeysPressed;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
@@ -27,6 +26,8 @@ public class InputText extends GUI {
 
 	public InformationTransferer info;
 
+	public boolean spareFrame = true;
+
 	public InputText(){
 		super();
 		freeze = true;
@@ -39,17 +40,18 @@ public class InputText extends GUI {
 	}
 
 	public void render(){
-		mathCalculator();
-		fixatedDrawables.add(new TextureManager.DrawableObject(texture,startingX,startingY,1,false,false,size*2,size,true,255,255,255));
-		if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()){
-			info.string = storedText;
-			info.ready = true;
-			delete(this);
-			text.fakeNull = true;
-			freeze = false;
-		}
+		if(!spareFrame) {
+			mathCalculator();
+			fixatedDrawables.add(new TextureManager.DrawableObject(texture, startingX, startingY, 1, false, false, size * 2, size, true, 255, 255, 255));
+			if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()) {
+				info.string = storedText;
+				info.ready = true;
+				delete(this);
+				text.fakeNull = true;
+				freeze = false;
+			}
 
-
+		} else spareFrame = false;
 	}
 
 	@SuppressWarnings("all")

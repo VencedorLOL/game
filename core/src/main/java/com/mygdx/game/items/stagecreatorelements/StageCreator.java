@@ -541,7 +541,7 @@ public class StageCreator {
 			}
 		}
 
-	}
+	}   
 
 	public int editScreenWarp(){
 		float intX = Gdx.graphics.getWidth()*.1f;
@@ -617,15 +617,15 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < Wall.Walls.values().length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*32),1,
+			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
 					0,intSize,intSize,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject(wallsTextures[i]
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*32) - 2*intSize,1,
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
 					0,intSize/wallsSize[i][0]*32f*3/4,intSize/wallsSize[i][1]*32f*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < Wall.Walls.values().length; i++){
-				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*32 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*32 ) {
+				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*16 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*16 ) {
 					typeOfSubElementWall = (byte) (i);
 					openInterface = 0;
 					return;
@@ -639,15 +639,15 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < Enemy.Enemies.values().length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*32),1,
+			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
 					0,intSize,intSize,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject(enemiesTextures[i]
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*32) - 2*intSize,1,
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
 					0,intSize/enemiesSize[i][0]*32f*3/4,intSize/enemiesSize[i][1]*32f*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < Enemy.Enemies.values().length; i++){
-				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*32 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*32 ) {
+				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*16 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*16 ) {
 					typeOfSubElementEnemy = (byte) (i);
 					openInterface = 0;
 					return;
@@ -661,15 +661,15 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < 5; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*32),1,
+			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
 					0,intSize,intSize,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : "ConfigurationCog"
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*32) - 2*intSize,1,
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
 					0,intSize/globalSize()*32*3/4,intSize/globalSize()*32*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < 5; i++){
-				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*32 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*32 ) {
+				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*16 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*16 ) {
 					typeOfElement = (byte) (i);
 					interfaceOfTypes = false;
 					if(action == 3 && typeOfElement != 2)

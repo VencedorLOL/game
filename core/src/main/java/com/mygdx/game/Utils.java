@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 import static java.lang.String.valueOf;
 
 @SuppressWarnings("all")
@@ -121,6 +123,10 @@ public class Utils {
 			if(element == o)
 				return true;
 		return false;
+	}
+
+	public static float distance(float iX, float iY, float fX, float fY){
+		return (float) sqrt(pow((iX)-(fX),2)+pow((iY)-(fY),2));
 	}
 
 

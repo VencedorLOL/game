@@ -1,13 +1,6 @@
 package com.mygdx.game.items;
 
-import com.mygdx.game.items.enemies.Dummy;
-import com.mygdx.game.items.enemies.EvilGuy;
-import com.mygdx.game.items.enemies.GoalDummy;
-import com.mygdx.game.items.enemies.LoopingHat;
-import com.mygdx.game.items.solids.ClassChangeStation;
-import com.mygdx.game.items.solids.Crater;
-import com.mygdx.game.items.solids.LargeBarricade;
-import com.mygdx.game.items.solids.Tree;
+import com.mygdx.game.items.enemies.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -91,7 +84,6 @@ public class Enemy extends Actor {
 		testCollision.height = height;
 		this.texture = texture;
 		path = new Path(x,y,speed,this);
-		team = -1;
 		permittedToAct = false;
 		enemies.add(this);
 	}
@@ -216,6 +208,7 @@ public class Enemy extends Actor {
 		ENEMY((Class<Enemy>) new EnemyConst<Enemy>().getEnemy()),
 		EVIL_GUY((Class<Enemy>) new EnemyConst<EvilGuy>().getEnemy()),
 		LOOPING((Class<Enemy>) new EnemyConst<LoopingHat>().getEnemy()),
+		SOLDIER((Class<Enemy>) new EnemyConst<Soldier>().getEnemy()),
 		;
 
 		public static int listDifference(){

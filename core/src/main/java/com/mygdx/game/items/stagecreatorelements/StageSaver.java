@@ -126,7 +126,7 @@ public class StageSaver {
 		for(int i = 0; i < stage.enemy.size(); i++){
 			stage.enemySpawnX[i] = (int) (stage.enemy.get(i).x/globalSize());
 			stage.enemySpawnY[i] = (int) (stage.enemy.get(i).y/globalSize());
-			stage.enemyType[i] = stage.enemy.get(i).getType();
+			stage.enemyType[i] = stage.enemy.get(i).getType()-3;
 		}
 		stage.screenWarpX = new int[stage.screenWarp.size()];
 		stage.screenWarpY = new int[stage.screenWarp.size()];

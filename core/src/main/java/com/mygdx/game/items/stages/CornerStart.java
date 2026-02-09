@@ -2,6 +2,7 @@ package com.mygdx.game.items.stages;
 
 import com.mygdx.game.items.Stage;
 
+//FIXME: add the missing tree tiles
 public class CornerStart extends Stage {
 	public CornerStart(){
 		startX 		= 0;
@@ -16,15 +17,15 @@ public class CornerStart extends Stage {
 		enemySpawnX		= new int[]{};
 		enemySpawnY 	= new int[]{};
 		enemyType		= new int[]{};
-		screenWarpX 	= new int[]{13, 13, 13};
-		screenWarpY	= new int[]{5, 6, 7};
+		screenWarpX 	= new int[]{23, 23, 23};
+		screenWarpY	= new int[]{7, 6, 5};
 		screenWarpDestinationSpecification = new byte[]{0, 0, 0};
 		floorTexture = "Grass";
 		bgTexture = "tree";
+		scale();
 		staticCameraXmax = true;
 		staticCameraXmin = true;
 		staticCameraYmin = true;
-		scale();
 	}
 
 	public void reStage() {		
@@ -76,5 +77,35 @@ public class CornerStart extends Stage {
 			tileset.add(createTile(13.0,7.0));
 			tileset.add(createTile(13.0,6.0));
 			tileset.add(createTile(13.0,5.0));
+			tileset.add(createTile(14.0,7.0));
+			tileset.add(createTile(14.0,6.0));
+			tileset.add(createTile(14.0,5.0));
+			tileset.add(createTile(15.0,5.0));
+			tileset.add(createTile(16.0,5.0));
+			tileset.add(createTile(17.0,5.0));
+			tileset.add(createTile(18.0,5.0));
+			tileset.add(createTile(19.0,5.0));
+			tileset.add(createTile(20.0,5.0));
+			tileset.add(createTile(21.0,5.0));
+			tileset.add(createTile(22.0,5.0));
+			tileset.add(createTile(23.0,5.0));
+			tileset.add(createTile(23.0,6.0));
+			tileset.add(createTile(23.0,7.0));
+			tileset.add(createTile(22.0,7.0));
+			tileset.add(createTile(21.0,7.0));
+			tileset.add(createTile(20.0,7.0));
+			tileset.add(createTile(19.0,7.0));
+			tileset.add(createTile(18.0,7.0));
+			tileset.add(createTile(17.0,7.0));
+			tileset.add(createTile(16.0,7.0));
+			tileset.add(createTile(15.0,7.0));
+			tileset.add(createTile(15.0,6.0));
+			tileset.add(createTile(16.0,6.0));
+			tileset.add(createTile(17.0,6.0));
+			tileset.add(createTile(18.0,6.0));
+			tileset.add(createTile(19.0,6.0));
+			tileset.add(createTile(20.0,6.0));
+			tileset.add(createTile(21.0,6.0));
+			tileset.add(createTile(22.0,6.0));
 	}
 }

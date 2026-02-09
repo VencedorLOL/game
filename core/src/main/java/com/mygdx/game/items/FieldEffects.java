@@ -733,7 +733,6 @@ public class FieldEffects {
 //			}
 		}
 
-		//floor() my beloved
 		ArrayList<float[]> locations;
 		public void setTsunamiLocation(){
 			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);

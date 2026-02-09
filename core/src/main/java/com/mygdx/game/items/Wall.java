@@ -1,9 +1,6 @@
 package com.mygdx.game.items;
 
-import com.mygdx.game.items.solids.ClassChangeStation;
-import com.mygdx.game.items.solids.Crater;
-import com.mygdx.game.items.solids.LargeBarricade;
-import com.mygdx.game.items.solids.Tree;
+import com.mygdx.game.items.solids.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -74,6 +71,8 @@ public class Wall extends Entity {
         CRATER((Class<Wall>) new WallConst<Crater>().getWall()),
         TREE( (Class<Wall>) new WallConst<Tree>().getWall()),
         C_C_STATION((Class<Wall>) new WallConst<ClassChangeStation>().getWall()),
+        BUSH( (Class<Wall>) new WallConst<Bush>().getWall()),
+        WIRE_FENCE( (Class<Wall>) new WallConst<WiredFence>().getWall()),
         ;
 
         public static int listDifference(){

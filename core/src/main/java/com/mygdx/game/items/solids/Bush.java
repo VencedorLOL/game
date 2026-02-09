@@ -4,11 +4,11 @@ import com.mygdx.game.items.Wall;
 
 import static com.mygdx.game.Settings.globalSize;
 
-public class Tree extends Wall {
+public class Bush extends Wall {
 
-	public Tree(float x, float y) {
+	public Bush(float x, float y) {
 		super(x, y, globalSize(), globalSize(), true);
-		setTexture("tree");
+		setTexture("Bush");
 	}
 
 }

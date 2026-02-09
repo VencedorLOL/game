@@ -25,6 +25,8 @@ public class InputDimensions extends GUI {
 
 	public InformationTransferer info;
 
+	public boolean spareFrame = true;
+
 	public InputDimensions(){
 		super();
 		info = new InformationTransferer();
@@ -36,17 +38,18 @@ public class InputDimensions extends GUI {
 	}
 
 	public void render(){
-		mathCalculator();
-		fixatedDrawables.add(new TextureManager.DrawableObject(texture,startingX,startingY,1,false,false,size,size,true,255,255,255));
-		if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()){
-			info.x = Integer.parseInt(storedText.split("x")[0]);
-			info.y = Integer.parseInt(storedText.split("x")[1]);
-			info.ready = true;
-			delete(this);
-			text.fakeNull = true;
-		}
+		if(!spareFrame) {
+			mathCalculator();
+			fixatedDrawables.add(new TextureManager.DrawableObject(texture, startingX, startingY, 1, false, false, size, size, true, 255, 255, 255));
+			if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()) {
+				info.x = Integer.parseInt(storedText.split("x")[0]);
+				info.y = Integer.parseInt(storedText.split("x")[1]);
+				info.ready = true;
+				delete(this);
+				text.fakeNull = true;
+			}
 
-
+		} else spareFrame = false;
 	}
 
 	public void mathCalculator(){
@@ -60,7 +63,7 @@ public class InputDimensions extends GUI {
 
 		textSize = 64 * height/400;
 
-		String[] keys = (getKeysPressed().toArray(new String[0]));
+		String[] keys = getKeysPressed().toArray(new String[0]);
 
 		for (String k : keys) {
 			if (k.equals("0") || k.equals("1") || k.equals("2") || k.equals("3") || k.equals("4") || k.equals("5") || k.equals("6") || k.equals("7") ||
@@ -91,6 +94,8 @@ public class InputDimensions extends GUI {
 
 	public boolean canSend(){
 		return storedText.split("x").length == 2;
+		//System.out.println("Your string has " + string.replaceAll("\n"," ").split(" ").length + " words.");
+		//System.out.println("Your string has " + string.length() + " characters.");
 	}
 
 

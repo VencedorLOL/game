@@ -5,13 +5,11 @@ import com.badlogic.gdx.Input;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
-import static com.mygdx.game.Utils.floatInRange;
-import static com.mygdx.game.Utils.toInt;
 import static com.mygdx.game.items.InputHandler.actionConfirmReleased;
 import static com.mygdx.game.items.InputHandler.getKeysPressed;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
-
+@SuppressWarnings("all")
 public class InputNumbers extends GUI {
 
 	public TextureManager.Text text;
@@ -27,6 +25,8 @@ public class InputNumbers extends GUI {
 
 	public InformationTransferer info;
 
+	public boolean spareFrame = true;
+
 	public InputNumbers(){
 		super();
 		info = new InformationTransferer();
@@ -38,16 +38,17 @@ public class InputNumbers extends GUI {
 	}
 
 	public void render(){
-		mathCalculator();
-		fixatedDrawables.add(new TextureManager.DrawableObject(texture,startingX,startingY,1,false,false,size,size,true,255,255,255));
-		if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER))&& canSend()){
-			info.number = Integer.parseInt(storedText.split("x")[0]);
-			info.ready = true;
-			delete(this);
-			text.fakeNull = true;
-		}
+		if(!spareFrame) {
+			mathCalculator();
+			fixatedDrawables.add(new TextureManager.DrawableObject(texture, startingX, startingY, 1, false, false, size, size, true, 255, 255, 255));
+			if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()) {
+				info.number = Integer.parseInt(storedText.split("x")[0]);
+				info.ready = true;
+				delete(this);
+				text.fakeNull = true;
+			}
 
-
+		} else spareFrame = false;
 	}
 
 	public void mathCalculator(){

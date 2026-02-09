@@ -113,34 +113,32 @@ public class Stage  {
 	}
 
 	public void screenWarpSetter(){
-		for (int i = 0; i < screenWarpX.length; i++) {
+		for (int i = 0; i < screenWarpX.length; i++)
 			screenWarp.add(new ScreenWarp(globalSize() * screenWarpX[i], globalSize() * screenWarpY[i], globalSize(), globalSize()));
-		}
 		haveScreenWarpsBeenRendered = true;
 	}
 
 	public void screenWarpRenderer(){
-		if (!haveScreenWarpsBeenRendered){
+		if (!haveScreenWarpsBeenRendered)
 			screenWarpSetter();
-			haveScreenWarpsBeenRendered = true;
-		}
-		for (ScreenWarp s : screenWarp){
+		for (ScreenWarp s : screenWarp)
 			TextureManager.addToList(s.screenWarpTexture, s.x, s.y);
-		}
 	}
 
 	public void enemySetter(){
-		for (int i = 0; i < enemySpawnX.length; i++) {
+		for (int i = 0; i < enemySpawnX.length; i++)
 			enemy.add(enemyClass(enemySpawnX[i], enemySpawnY[i], enemyType == null || enemyType.length < i ? 1 : enemyType[i]));
-		}
+		customEnemySetter();
 		haveEnemiesBeenRendered = true;
 	}
 
+	public void customEnemySetter(){
+
+	}
+
 	public void enemyRenderer(){
-		if (!haveEnemiesBeenRendered){
+		if (!haveEnemiesBeenRendered)
 			enemySetter();
-			haveEnemiesBeenRendered = true;
-		}
 		for (Enemy e : enemy){
 			if (!e.isDead) {
 				if(!Objects.equals(currentStage, "Creator"))
@@ -152,11 +150,9 @@ public class Stage  {
 
 
 	public void tilesetSetter(){
-		for (int y = startY; y <= finalY ; y += globalSize()) {
-			for (int x = startX ; x <= finalX ; x += globalSize()) {
+		for (int y = startY; y <= finalY ; y += globalSize())
+			for (int x = startX ; x <= finalX ; x += globalSize())
 				tileset.add(new Tile(x, y,new Floor(floorTexture)));
-			}
-		}
 		tilesetCleanup();
 		hasFloorBeenRendered = true;
 	}
@@ -177,23 +173,21 @@ public class Stage  {
 	}
 
 	public void tilesetRenderer(){
-		if(!hasFloorBeenRendered) {
+		if(!hasFloorBeenRendered)
 			tilesetSetter();
-			hasFloorBeenRendered = true;
-		}
-		for (Tile g : tileset){
+		for (Tile g : tileset)
 			g.render();
-		}
+
 	}
 
-	public void wallBorder(){
-		if(!currentStage.equals("Creator")) {
+	/*public void wallBorder(){
+	*	if(!currentStage.equals("Creator")) {
 			walls.add(new Wall(border.minX - globalSize(), border.minY - globalSize(), globalSize(), border.maxY + globalSize() * 30, false));
 			walls.add(new Wall(border.maxX + globalSize(), border.minY - globalSize(), globalSize(), border.maxY + globalSize() * 30, false));
 			walls.add(new Wall(border.minX, border.minY - globalSize(), border.maxX + globalSize() * 30, globalSize(), false));
 			walls.add(new Wall(border.minX, border.maxY + globalSize(), border.maxX + globalSize() * 30, globalSize(), false));
 		}
-	}
+	}*/
 
 
 	public void wallSetter(){

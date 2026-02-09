@@ -1,6 +1,7 @@
 package com.mygdx.game.items.textboxelements;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
@@ -42,6 +43,7 @@ public class Textbox extends GUI {
 	public int amountOfTextWritten = 0;
 	public int framesTilNextLetter;
 	public int framesTilNextLetterCounter;
+	public boolean doFastText;
 
 	private int cooldownToRemove = 10;
 
@@ -96,6 +98,7 @@ public class Textbox extends GUI {
 
 	public void render(){
 		beforeRenderOverridable();
+		fastText();
 		mathCalculator();
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, startingX,startingY,1,false,false,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, finalX,startingY,1,true,false,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
@@ -169,12 +172,18 @@ public class Textbox extends GUI {
 		text.y = textInitialY;
 		text.realSize = textSize;
 		if (amountOfTextWritten != storedText.length()){
-			if(framesTilNextLetterCounter++ >= framesTilNextLetter){
+			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
 				text.text = text.text + storedText.charAt(amountOfTextWritten++);
 			}
 		}
 	}
+
+	//TODO: ADD A HOTKEY FOR THIS
+	public void fastText(){
+		doFastText = Gdx.input.isKeyPressed(Input.Keys.C);
+	}
+
 
 	 @SuppressWarnings("all")
 	public void writeTheRestOfTheText(){

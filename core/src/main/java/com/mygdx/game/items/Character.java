@@ -15,6 +15,7 @@ import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.Utils.distance;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.AudioManager.*;
 import static com.mygdx.game.items.ClickDetector.*;
@@ -481,9 +482,9 @@ public class Character extends Actor {
 	@SuppressWarnings("all")
 	public boolean interactableOverlaps(Interactable interactable){
 		ArrayList<Interactable> sorted = ((ArrayList<Interactable>) interactables.clone());
-		sorted.sort(((o1, o2) -> Float.compare((float) o1.dC(x,y), (float) o2.dC(x,y))));
+		sorted.sort(((o1, o2) -> Float.compare((float) distance(x,y,o1.x,o1.y), (float) distance(x,y,o2.x,o2.y))));
 		for(Interactable i : sorted)
-			if (testCollision.overlaps(i)) {
+			if (i.detectInteract(testCollision)) {
 				if(interactable == i){
 					interactedObject = i;
 					return true;
@@ -498,7 +499,6 @@ public class Character extends Actor {
 	// Debug
 
 	private void debug(){
-
 		if (Gdx.input.isKeyJustPressed(Input.Keys.X))
 			if(!getReleaseVersion())
 				print("Chara real x pos is: " + x + " and simplified x is: " + x/globalSize());

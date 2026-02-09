@@ -1,10 +1,11 @@
 package com.mygdx.game.items;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.FieldEffects.getField;
 import static com.mygdx.game.items.TextureManager.*;
@@ -35,8 +36,8 @@ public class Hazards {
 	/**
 	 *
 	 * @param hazard: A HazardName object.
-	 * @param x: The x coordinate, without simplify.
-	 * @param y: The y coordinate, without simplify.
+	 * @param x: The x coordinate, not simplified.
+	 * @param y: The y coordinate, not simplified.
 	 */
 	public static void addHazard2(HazardNames hazard,float x, float y){
 		hazards.add(hazardsBuilder(hazard,x,y));
@@ -46,18 +47,13 @@ public class Hazards {
 
 	@SuppressWarnings("all")
 	public static Hazards hazardsBuilder(HazardNames hazard, float x, float y){
-		switch(hazard){
-			case SPIKES:	 	return new Spikes(x,y);
-			case FIRE:			return new FireTile(x,y);
-			case EARTH_CRACK:	return new EarthCrack(x,y,11);
-		}
-		return null;
+		return hazard.getHazard(x,y);
 	}
 
 	@SuppressWarnings("all")
 	public static void deleteHazard(HazardNames hazards, float x, float y){
 		for(Hazards h : Hazards.hazards)
-			if(h.name.equals(hazards.name) && h.x == x && h.y == y) {
+			if(h.getClass() == hazards.hazard && h.x == x && h.y == y) {
 				h.destroyHazard();
 				h.queuedForDeletion = true;
 			}
@@ -67,7 +63,7 @@ public class Hazards {
 	public static ArrayList<Hazards> getHazard(HazardNames name,float x, float y){
 		ArrayList<Hazards> list = new ArrayList<>();
 		for (Hazards h : hazards){
-			if(h.name.equals(name.name) && h.x == x && h.y == y){
+			if(h.getClass() == name.hazard && h.x == x && h.y == y){
 				list.add(h);
 			}
 		}
@@ -187,9 +183,10 @@ public class Hazards {
 		public boolean[] segments;
 		boolean finishedAnimation = false;
 		ArrayList<Actor> triggered = new ArrayList<>();
-
-		public EarthCrack(float x, float y, float size) {
-			super(x, y, size*globalSize(), globalSize());
+		public EarthCrack(float x, float y) {
+			super(x, y, globalSize(), globalSize());
+			float size = overrideSetSize();
+			base = size * globalSize();
 			print("x,y " + x + " " + y);
 			name = "EarthCrack";
 			texture = null;
@@ -207,6 +204,9 @@ public class Hazards {
 			if(counter < 2)
 				queuedForDeletion = true;
 		}
+
+		public float overrideSetSize(){return 11;}
+
 
 		public void update() {
 			if(canHazardAct){
@@ -255,24 +255,81 @@ public class Hazards {
 	}
 
 
+	public static class TriggerCharacter extends Hazards {
+		Actor triggered;
+		/**
+		 * <h3>Don't forget to add it to the {@code hazards} ArrayList </h3>*/
+		public TriggerCharacter(float x,float y){
+			super(x,y,globalSize(),globalSize());
+			name = "Trigger";
+			texture = null;
+		}
+
+		public void update() {
+			Actor victim = stepTrigger();
+			if(victim != null && (triggered == null || triggered != victim))
+				overrideOnStep();
+			triggered = victim;
+		}
+
+		public void overrideOnStep(){
+
+		}
+
+	}
+
+
+	public int getType(){
+		for(int i = 0; i < HazardNames.values().length; i++)
+			if (HazardNames.values()[i].hazard == this.getClass())
+				return i + 1;
+		return -1;
+	}
+
+	public static class HazardConst<T extends Hazards>{
+		Class<?> hazard;
+		@SafeVarargs
+		public HazardConst(T... none){hazard = none.getClass().componentType();}
+		public Class<?> getHazard(){return hazard;}
+	}
 
 
 
-
-
-
-
-
+	@SuppressWarnings("all")
 	public enum HazardNames{
-		SPIKES("Spikes"),
-		FIRE("FireTile"),
-		EARTH_CRACK("EarthCrack"),
+		SPIKES((Class<Hazards>) new Hazards.HazardConst<Spikes>().getHazard()),
+		FIRE((Class<Hazards>) new Hazards.HazardConst<FireTile>().getHazard()),
+		EARTH_CRACK((Class<Hazards>) new Hazards.HazardConst<EarthCrack>().getHazard()),
 
 		;
 
-		public final String name;
-		HazardNames(String name){
-			this.name = name;
+		public static int listDifference(){
+			return 0;
+		}
+
+		public static int getType(Hazards hazard){
+			for(int i = 0; i < HazardNames.values().length; i++)
+				if (HazardNames.values()[i].hazard == hazard.getClass())
+					return i;
+			return -1;
+		}
+
+		public Hazards getHazard(float x, float y){
+			try{
+				return hazard.getConstructor(float.class,float.class).newInstance(x,y);
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return new Hazards(x, y,globalSize(),globalSize());}
+		}
+
+		public Hazards getTexture(float x, float y){
+			try{
+				return hazard.getConstructor(float.class,float.class).newInstance(x,y);
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return new Hazards(x,y,0,0);}
+		}
+		public final Class<Hazards> hazard;
+		HazardNames(Class<Hazards> hazard){
+			this.hazard = hazard;
 		}
 	}
 

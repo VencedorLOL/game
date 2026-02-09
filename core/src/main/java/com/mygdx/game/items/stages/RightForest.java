@@ -27,7 +27,7 @@ public class RightForest extends Stage {
 	}
 
 	public void reStage() {
-		screenWarpDestination.add(new StageOne());
+		screenWarpDestination.add(new TheEntrance());
 	}
 
 	public void tilesetCleanup() {		

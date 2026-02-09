@@ -6,12 +6,12 @@ import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 import static com.mygdx.game.items.TextureManager.text;
 
-public class Interactable extends Entity {
-
+public class Interactable {
 
 	public static ArrayList<Interactable> interactables = new ArrayList<>();
 	static OnVariousScenarios oVE;
-
+	float x,y,base,height;
+	Entity attached;
 	static{
 		oVE = new OnVariousScenarios(){
 			@Override
@@ -22,12 +22,15 @@ public class Interactable extends Entity {
 	}
 
 	public Interactable(float x, float y, float base, float height){
-		super(null,x,y,base,height);
+		this.x = x;
+		this.y = y;
+		this.base = base;
+		this.height = height;
 		interactables.add(this);
 	}
 
 	public Interactable (Entity entity){
-		super(null, entity.x, entity.y, entity.base, entity.height);
+		this.attached = entity;
 		interactables.add(this);
 	}
 
@@ -36,6 +39,19 @@ public class Interactable extends Entity {
 		interactables.remove(this);
 	}
 
+	public boolean detectInteract(float x, float y, float base, float height){
+		if(attached == null)
+			return this.x < x + base && this.x + this.base > x && this.y < y + height && this.y + this.height > y;
+		else
+			return attached.x < x + base && attached.x + attached.base > x && attached.y < y + height && attached.y + attached.height > y;
+	}
+
+	public boolean detectInteract(Entity entity) {
+		if(attached == null)
+			return x < entity.x + entity.base && x + base > entity.x && y < entity.y + entity.height && y + height > entity.y;
+		else
+			return attached.x < entity.x + entity.base && attached.x + attached.base > entity.x && attached.y < entity.y + entity.height && attached.y + attached.height > entity.y;
+	}
 
 
 	public void onInteract(Character character){

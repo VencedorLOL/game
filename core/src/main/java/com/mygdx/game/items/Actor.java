@@ -221,10 +221,10 @@ public class Actor extends Entity implements TurnManager.Turnable {
 			return true;
 		if(!currentStage.equals("Creator"))
 			return  chara.x == tester.x && chara.y == tester.y && tester != chara ||
-				stage.border.maxY >= 0 ? tester.y >= stage.border.maxY + 1 : tester.y <= stage.border.maxY - 1 ||
-				stage.border.minY >= 0 ? tester.y <= stage.border.minY - 1 : tester.y >= stage.border.minY + 1 ||
-				stage.border.maxX >= 0 ? tester.x >= stage.border.maxX + 1 : tester.x <= stage.border.maxX - 1 ||
-				stage.border.minX >= 0 ? tester.x <= stage.border.minX - 1 : tester.x >= stage.border.minX + 1 ;
+				tester.y > stage.border.maxY||
+				tester.y < stage.border.minY||
+				tester.x > stage.border.maxX||
+				tester.x < stage.border.minX;
 		else return false;
 	}
 
@@ -301,7 +301,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	}
 
 	private boolean currentAnalize(Tile currentTile,boolean type){
-		ArrayList<Tile> neighbours = currentTile.walkableOrthogonalTiles(stage.tileset);
+		ArrayList<Tile> neighbours = currentTile.orthogonalTiles(stage.tileset);
 		for (Tile t : neighbours)
 			if (!t.hasBeenChecked) {
 				t.hasBeenChecked = true;
