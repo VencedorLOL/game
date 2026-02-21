@@ -159,9 +159,9 @@ public class Textbox extends GUI {
 		widthSide = (sideFinalX - sideStartingX)/szTxtr;
 		heightSide = (sideFinalY - sideStartingY)/szTxtr;
 
-		textSize = (finalY - startingY - thickness*2)/5 ;
-		textInitialX = startingX + thickness*64*1f ;
-		textInitialY = startingY + thickness*16;
+		textSize = (finalY - startingY - thickness*2)*.15f ;
+		textInitialX = (startingX + thickness*64)*1.05f;
+		textInitialY = (startingY + thickness*16)*1.01f;
 		textJumpLine = finalX - thickness*.1f;
 
 		beforeTextOverridable();
@@ -179,9 +179,8 @@ public class Textbox extends GUI {
 		}
 	}
 
-	//TODO: ADD A HOTKEY FOR THIS
 	public void fastText(){
-		doFastText = Gdx.input.isKeyPressed(Input.Keys.C);
+		doFastText = attackModePressed();
 	}
 
 

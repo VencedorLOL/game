@@ -2,7 +2,6 @@ package com.mygdx.game.items.stages;
 
 import com.mygdx.game.items.Stage;
 
-//FIXME: add the missing tree tiles
 public class CornerStart extends Stage {
 	public CornerStart(){
 		startX 		= 0;
@@ -11,9 +10,9 @@ public class CornerStart extends Stage {
 		finalY 		= 8;
 		spawnX 		= 1;
 		spawnY 		= 0;
-		wallX			= new int[]{2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 2, 1, 0, 0};
-		wallY			= new int[]{0, 1, 1, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 6};
-		wallType		= new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+		wallX			= new int[]{2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 2, 1, 0, 0, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 24, 24, 24};
+		wallY			= new int[]{0, 1, 1, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 6, 7};
+		wallType		= new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
 		enemySpawnX		= new int[]{};
 		enemySpawnY 	= new int[]{};
 		enemyType		= new int[]{};
@@ -22,13 +21,12 @@ public class CornerStart extends Stage {
 		screenWarpDestinationSpecification = new byte[]{0, 0, 0};
 		floorTexture = "Grass";
 		bgTexture = "tree";
-		scale();
 		staticCameraXmax = true;
-		staticCameraXmin = true;
 		staticCameraYmin = true;
+		scale();
 	}
 
-	public void reStage() {		
+	public void reStage() {
 		screenWarpDestination.add(new RightForest());
 	}
 

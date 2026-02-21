@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.items.Actor.actors;
@@ -36,9 +37,21 @@ public class Hazards {
 	/**
 	 *
 	 * @param hazard: A HazardName object.
+	 * @param p: Any number of parameters. If coordinates, not simplified. If the constructor doesn't exist... well, make sure the constructor exists.
+	 */
+	@SuppressWarnings("all")
+	public static void addCustomHazard(HazardNames hazard,Object... p){
+		hazards.add(customHazardsBuilder(hazard,p));
+	}
+
+	/**
+	 *
+	 * @param hazard: A HazardName object.
 	 * @param x: The x coordinate, not simplified.
 	 * @param y: The y coordinate, not simplified.
 	 */
+
+	@SuppressWarnings("all")
 	public static void addHazard2(HazardNames hazard,float x, float y){
 		hazards.add(hazardsBuilder(hazard,x,y));
 	}
@@ -49,6 +62,12 @@ public class Hazards {
 	public static Hazards hazardsBuilder(HazardNames hazard, float x, float y){
 		return hazard.getHazard(x,y);
 	}
+
+	@SuppressWarnings("all")
+	public static Hazards customHazardsBuilder(HazardNames hazard, Object... p){
+		return hazard.getHazard(p);
+	}
+
 
 	@SuppressWarnings("all")
 	public static void deleteHazard(HazardNames hazards, float x, float y){
@@ -185,27 +204,35 @@ public class Hazards {
 		ArrayList<Actor> triggered = new ArrayList<>();
 		public EarthCrack(float x, float y) {
 			super(x, y, globalSize(), globalSize());
-			float size = overrideSetSize();
+			init(x,y,overrideSetSize());
+		}
+
+		public EarthCrack(Float x, Float y, Float size) {
+			super(x, y, globalSize(), globalSize());
+			init(x,y,size);
+		}
+
+		public void init(Float x, Float y, Float size){
 			base = size * globalSize();
 			print("x,y " + x + " " + y);
 			name = "EarthCrack";
-			texture = null;
-			segments = new boolean[(int) size];
+			texture = currentStage.equals("Creator") || currentStage.equals("Start") ? "EarthCrack" : null;
+			segments = new boolean[currentStage.equals("Start") ? 1 : size.intValue()];
 			int counter = 0;
-			for(int i = 0; i < size; i++) {
-				if(findATile(stage.tileset, x + i * globalSize(), y) != null) {
-					segments[i] = true;
-					counter++;
+			if(!currentStage.equals("Creator") && !currentStage.equals("Start")) {
+				for (int i = 0; i < size; i++) {
+					if (findATile(stage.tileset, x + i * globalSize(), y) != null) {
+						segments[i] = true;
+						counter++;
+					} else
+						segments[i] = false;
 				}
-				else
-					segments[i] = false;
-
+				if (counter < 2)
+					queuedForDeletion = true;
 			}
-			if(counter < 2)
-				queuedForDeletion = true;
 		}
 
-		public float overrideSetSize(){return 11;}
+		public float overrideSetSize(){return 2;}
 
 
 		public void update() {
@@ -230,24 +257,28 @@ public class Hazards {
 			}
 		}
 
+		@SuppressWarnings("all")
 		public void render(){
-			if(finishedAnimation) {
+			if(finishedAnimation || currentStage.equals("Creator")) {
 				int counter = 0;
 				for (int i = 0; i < segments.length; i++)
-					if (segments[i]) {
+					if (segments[i] || currentStage.equals("Creator")) {
 						if (counter == 0)
-							addToList("EarthCrackPoint", x, y);
+							if (stage.getTile(x/globalSize(),y/globalSize()) != null || currentStage.equals("Creator"))
+								addToList("EarthCrackPoint", x, y);
 						counter++;
 					}
 				int secondCounter = counter;
 				for (int i = 0; i < segments.length; i++)
-					if (segments[i]) {
+					if (segments[i] || currentStage.equals("Creator")) {
 						if (--counter == 0) {
-							addToList("EarthCrackPoint", x + i * globalSize(), y, 1, 0, true, false);
+							if (stage.getTile((x+ i * globalSize())/globalSize(),y/globalSize()) != null || currentStage.equals("Creator"))
+								addToList("EarthCrackPoint", x + i * globalSize(), y, 1, 0, true, false);
 							break;
 						}
 						if(secondCounter - 1 != counter)
-							addToList("EarthCrack", x + i * globalSize(), y);
+							if (stage.getTile((x+ i * globalSize())/globalSize(),y/globalSize()) != null || currentStage.equals("Creator"))
+								addToList("EarthCrack", x + i * globalSize(), y);
 					}
 			}
 		}
@@ -255,6 +286,7 @@ public class Hazards {
 	}
 
 
+	@SuppressWarnings("all")
 	public static class TriggerCharacter extends Hazards {
 		Actor triggered;
 		/**
@@ -262,7 +294,7 @@ public class Hazards {
 		public TriggerCharacter(float x,float y){
 			super(x,y,globalSize(),globalSize());
 			name = "Trigger";
-			texture = null;
+			texture = "Trigger";
 		}
 
 		public void update() {
@@ -276,9 +308,15 @@ public class Hazards {
 
 		}
 
+		public void render(){
+			if(currentStage.equals("Creator"))
+				TextureManager.addToList(texture,x,y);
+		}
+
 	}
 
 
+	@SuppressWarnings("all")
 	public int getType(){
 		for(int i = 0; i < HazardNames.values().length; i++)
 			if (HazardNames.values()[i].hazard == this.getClass())
@@ -300,7 +338,7 @@ public class Hazards {
 		SPIKES((Class<Hazards>) new Hazards.HazardConst<Spikes>().getHazard()),
 		FIRE((Class<Hazards>) new Hazards.HazardConst<FireTile>().getHazard()),
 		EARTH_CRACK((Class<Hazards>) new Hazards.HazardConst<EarthCrack>().getHazard()),
-
+		TRIGGER((Class<Hazards>) new Hazards.HazardConst<TriggerCharacter>().getHazard()),
 		;
 
 		public static int listDifference(){
@@ -318,15 +356,19 @@ public class Hazards {
 			try{
 				return hazard.getConstructor(float.class,float.class).newInstance(x,y);
 			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return new Hazards(x, y,globalSize(),globalSize());}
+					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return null;}
 		}
 
-		public Hazards getTexture(float x, float y){
+		public Hazards getHazard(Object... p){
 			try{
-				return hazard.getConstructor(float.class,float.class).newInstance(x,y);
+				Class<?>[] c = new Class[p.length];
+				for(int i = 0; i < p.length; i++)
+					c[i] = p[i].getClass();
+				return hazard.getConstructor(c).newInstance(p);
 			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return new Hazards(x,y,0,0);}
+					 InvocationTargetException ignored){printErr("Coudn't get a new hazard!"); return null;}
 		}
+
 		public final Class<Hazards> hazard;
 		HazardNames(Class<Hazards> hazard){
 			this.hazard = hazard;

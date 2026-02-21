@@ -228,13 +228,6 @@ public class Enemy extends Actor {
 			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
 					 InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Enemy(x, y);}
 		}
-
-		public Enemy getTexture(float x, float y){
-			try{
-				return enemy.getConstructor(float.class,float.class).newInstance(x,y);
-			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-					 InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Enemy(x, y);}
-		}
 		public final Class<Enemy> enemy;
 		Enemies(Class<Enemy> enemy){
 			this.enemy = enemy;

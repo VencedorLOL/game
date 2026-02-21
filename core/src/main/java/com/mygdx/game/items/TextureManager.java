@@ -29,7 +29,7 @@ public class TextureManager {
 	public static ArrayList<Text> priorityText;
 	static ArrayList<Text> fixatedText;
 	public static ArrayList<DrawableObject> drawables;
-	static ArrayList<DrawableObject> priorityDrawables;
+	public static ArrayList<DrawableObject> priorityDrawables;
 	public static ArrayList<DrawableObject> fixatedDrawables;
 	public static ArrayList<Animation> animations;
 	public static ArrayList<Animation> fixatedAnimations;

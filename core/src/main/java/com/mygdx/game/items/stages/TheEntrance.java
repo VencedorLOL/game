@@ -192,9 +192,9 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
-									storedText = "Anima: Returning from the \nmission";
+									storedText = "Anima: Returning from the mission";
 								else
-									storedText = "SName Soldier: Understood,\nAnima.";
+									storedText = "SName Soldier: Understood, Anima.";
 							}};}};}};
 		b = new Soldier(7*globalSize(),11*globalSize()){
 			public void setAction() {
@@ -213,7 +213,7 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
-									storedText = "Anima: Returning from the \nmission";
+									storedText = "Anima: Returning from the mission";
 								else
 									storedText = "SName Soldier: Got it, Anima.";
 							}};}};}};

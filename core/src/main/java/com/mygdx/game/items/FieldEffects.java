@@ -1,17 +1,18 @@
 package com.mygdx.game.items;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.stage;
-import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.*;
 import static com.mygdx.game.items.AudioManager.quickPlay;
 import static com.mygdx.game.items.Conditions.ConditionNames.*;
+import static com.mygdx.game.items.Hazards.*;
+import static com.mygdx.game.items.Hazards.HazardNames.EARTH_CRACK;
 import static com.mygdx.game.items.Hazards.HazardNames.FIRE;
-import static com.mygdx.game.items.Hazards.getHazard;
-import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TurnManager.isTurnRunning;
 import static java.lang.Math.*;
@@ -35,33 +36,13 @@ public class FieldEffects {
 	public static void clearFields(){fieldEffects.clear();}
 
 	public static FieldEffects fieldBuilder(FieldNames field){
-		switch(field){
-			case LIGHTNING: 					return new Lightning();
-			case HAILSTORM:						return new Hailstorm();
-			case CLOWDY:						return new Clowdy();
-			case RAINY:							return new Rainy();
-			case SNOWY:							return new Snowy();
-			case SUNNY:							return new Sunny();
-			case ALERT_SNOWSTORM:   			return new AlertSnowstorm();
-			case ALERT_FIRE:					return new AlertFire();
-			case ALERT_STELLAR_STORM:			return new AlertStellarStorm();
-			case ALERT_TSUNAMI:					return new AlertTsunami();
-			case ALERT_ELECTRIC_GROUND:			return new AlertElectricGround();
-			case CATACLYSM_GLATIATION:			return new CataclysmGlacial();
-			case CATACLYSM_GRAVITATIONAL:		return new CataclysmGravitational();
-			case CATACLYSM_NUCLEAR:				return new CataclysmNuclear();
-			case CATACLYSM_ELECTRIC:			return new CataclysmElectric();
-			case CATACLYSM_STELLAR_EXPLOSION:	return new CataclysmStellarExplosion();
-
-
-		}
-		return null;
+		return field.getField();
 	}
 
 	@SuppressWarnings("all")
 	public static void deleteField(FieldNames field){
 		for(FieldEffects f : fieldEffects)
-			if(f.name.equals(field.name)) {
+			if(f.getClass() == field.field) {
 				f.queuedForRemoval = true;
 			}
 //		fieldEffects.removeIf(f -> f.name.equals(field.name));
@@ -69,7 +50,7 @@ public class FieldEffects {
 
 	public static FieldEffects getField(FieldNames field){
 		for(FieldEffects f : fieldEffects)
-			if(f.name.equals(field.name))
+			if(f.getClass() == field.field)
 				return f;
 		return null;
 	}
@@ -367,7 +348,7 @@ public class FieldEffects {
 	}
 
 	public static class Hailstorm extends FieldEffects{
-		int warningTurnsCounter = 0;
+		int warningTurnsCounter = -1;
 		int cooldownTurnsCounter;
 		int turnsConstant = 1;
 		int cooldownConstant = 0;
@@ -787,15 +768,18 @@ public class FieldEffects {
 		int cooldownTurnsCounter;
 		int turnsConstant = 2;
 		int cooldownConstant = 1;
-		boolean renderTsunamiLocation;
+		boolean renderEarthquakeLocation;
 		byte direction;
 		TargetProcessor warning;
+		int earthquakeLenght= 11;
 
 		public AlertEarthquake(){
 			name = "Alert Earthquake";
 			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
-			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
+			turnsConstant = 1;
 			playSiren();
+			if((stage.border.maxX - stage.border.minX)/globalSize() < earthquakeLenght)
+				earthquakeLenght = (int) (stage.border.maxX - stage.border.minX)/globalSize();
 		}
 		boolean justFinished = false;
 		boolean dealDamage = false;
@@ -809,7 +793,7 @@ public class FieldEffects {
 				}
 				else if(warningTurnsCounter < turnsConstant&& !dealDamage){
 					if(warningTurnsCounter == 0){
-						setTsunamiLocation();
+						setEarthquakeLocation();
 						justFinished = true;}
 					warningTurnsCounter++;
 					finishedActing();
@@ -829,24 +813,25 @@ public class FieldEffects {
 					dealDamage = false;
 					cooldownTurnsCounter = cooldownConstant;
 					warningTurnsCounter = 0;
-					renderTsunamiLocation = false;
-//					quickPlay("lightning");
-					for(float[] t : locations) {
-						for (Actor a : actors) {
-							if (t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.8f + 50, PRESSURE, null);
-								a.conditions.remove(BURNING);
-								a.conditions.remove(BURNING_BRIGHT);
-								a.conditions.remove(MELTING);
-								a.conditions.remove(HYPERTHERMIA);
-								a.conditions.remove(SUBLIMATING);
-							}
-						}
-						for (Hazards h : getHazard(FIRE, t[0], t[1])) {
-							if (h instanceof Hazards.FireTile && ((Hazards.FireTile) h).time > 0)
-								((Hazards.FireTile) h).time = 0;
-						}
-					}
+					renderEarthquakeLocation = false;
+					addCustomHazard(EARTH_CRACK,locations.get(0)[0],locations.get(0)[1],(float) earthquakeLenght);
+//					quickPlay("");
+//					for(float[] t : locations) {
+//						for (Actor a : actors) {
+//							if (t[0] == a.x && t[1] == a.y) {
+//								a.damage(a.totalMaxHealth * 0.8f + 50, PRESSURE, null);
+//								a.conditions.remove(BURNING);
+//								a.conditions.remove(BURNING_BRIGHT);
+//								a.conditions.remove(MELTING);
+//								a.conditions.remove(HYPERTHERMIA);
+//								a.conditions.remove(SUBLIMATING);
+//							}
+//						}
+//						for (Hazards h : getHazard(FIRE, t[0], t[1])) {
+//							if (h instanceof Hazards.FireTile && ((Hazards.FireTile) h).time > 0)
+//								((Hazards.FireTile) h).time = 0;
+//						}
+//					}
 					locations = null;
 					warning = new TargetProcessor();
 					queuedForRemoval = true;
@@ -856,12 +841,12 @@ public class FieldEffects {
 			}
 			if(!isTurnRunning())
 				justFinished = false;
-			if(renderTsunamiLocation && locations != null && !justFinished)
-				renderTsunami();
+			if(renderEarthquakeLocation && locations != null && !justFinished)
+				renderEarthquake();
 		}
 
 
-		public void renderTsunami(){
+		public void renderEarthquake(){
 			if(warningTurnsCounter >= turnsConstant)
 				warning.changeColor((byte) 60,(byte)100,(byte)250);
 			warning.render();
@@ -874,45 +859,36 @@ public class FieldEffects {
 //			}
 		}
 
-		//floor() my beloved
 		ArrayList<float[]> locations;
-		public void setTsunamiLocation(){
-			direction = (byte) com.badlogic.gdx.math.MathUtils.random(0,3);
-			turnsConstant = direction > 1 ? max((stage.finalY-stage.startY)/(6*globalSize()),3) : max((stage.finalX-stage.startX)/(6*globalSize()),3);
-			locations = new ArrayList<>();
+		public void setEarthquakeLocation(){
 			warning = new TargetProcessor();
-			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,20,50,201,false,.2f,.6f);
+			warning.circle = new TargetProcessor.Circle(stage.tileset.get(0),stage.tileset,1,false,false,200,200,0,false,.2f,.6f);
 			warning.circle.circle.clear();
-			for(int i = 0; i < ((stage.finalX-stage.startX)/globalSize()+1) * ((stage.finalY-stage.startY)/globalSize()+1) / (2); i++) {
-				if(direction == 0) {
-					locations.add(new float[]{
-							(float) (stage.startX + globalSize() * floor((double) i / (1+(double) (stage.finalY - stage.startY) / globalSize())))
-							,	(float) (stage.startY + globalSize() * valueCutter(i, 1+(stage.finalY - stage.startY) / globalSize()))});
+			boolean condition = false;
+			while(!condition){
+				locations = new ArrayList<>();
+				condition = true;
+				Tile t = stage.tileset.get(com.badlogic.gdx.math.MathUtils.random(0, (stage.tileset.size() - 1)));
+				locations.add(t.xAndY());
+				for(int i = 1; i <= earthquakeLenght; i++) {
+					Tile t2 = stage.getTile((t.x + globalSize()*i)/globalSize(), t.y/globalSize());
+					if (t2 != null) {
+						locations.add(t2.xAndY());
+						continue;
+					}
+					condition = false;
+					break;
 				}
-				if(direction == 1) {
-					locations.add(new float[]{
-							(float) (stage.finalX - globalSize() * floor((double) i / (1+(double) (stage.finalY - stage.startY) / globalSize())))
-							,	(float) (stage.finalY - globalSize() * valueCutter(i, 1+(stage.finalY - stage.startY) / globalSize()))});
-				}
-				if(direction == 2) {
-					locations.add(new float[]{
-							(float) (stage.startX + globalSize() * valueCutter(i, 1+(stage.finalX - stage.startX) / globalSize()))
-							,	(float) (stage.startY + globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
-				}
-
-				if(direction == 3) {
-					locations.add(new float[]{
-							(float) (stage.finalX - globalSize() * valueCutter(i, 1+(stage.finalX - stage.startX) / globalSize()))
-							,	(float) (stage.finalY - globalSize() * floor((double) i / (1+(double) (stage.finalX - stage.startX) / globalSize())))});
-
-				}
-				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
 			}
+			for(int i = 0; i < earthquakeLenght; i++)
+				warning.circle.addToCircle(locations.get(i)[0],locations.get(i)[1]);
 			warning.circle.circle.removeIf(Objects::isNull);
 			warning.circle.detectCornersOfCircle(warning.circle.circle);
-			renderTsunamiLocation = true;
-
+			renderEarthquakeLocation = true;
 		}
+
+
+
 
 	}
 
@@ -1206,30 +1182,63 @@ public class FieldEffects {
 		}
 	}
 
+	@SuppressWarnings("all")
+	public int getType(){
+		for(int i = 0; i < FieldNames.values().length; i++)
+			if (FieldNames.values()[i].field == this.getClass())
+				return i + 1;
+		return -1;
+	}
+
+	public static class FieldConst<T extends FieldEffects>{
+		Class<?> field;
+		@SafeVarargs
+		public FieldConst(T... none){field = none.getClass().componentType();}
+		public Class<?> getField(){return field;}
+	}
 
 	@SuppressWarnings("all")
 	public enum FieldNames{
-		LIGHTNING("Lightning"),
-		HAILSTORM("Hailstorm"),
-		CLOWDY("Clowdy"),
-		RAINY("Rainy"),
-		SNOWY("Snowy"),
-		SUNNY("Sunny"),
-		ALERT_SNOWSTORM("Alert Snowstorm"),
-		ALERT_FIRE("Alert Fire"),
-		ALERT_STELLAR_STORM("Alert StellarStorm"),
-		ALERT_TSUNAMI("Alert Tsunami"),
-		ALERT_ELECTRIC_GROUND("Alert ElectricGround"),
-		CATACLYSM_GLATIATION("Cataclysm Glaciation"),
-		CATACLYSM_ELECTRIC("Cataclysm Electric"),
-		CATACLYSM_NUCLEAR("Cataclysm Nuclear"),
-		CATACLYSM_GRAVITATIONAL("Cataclysm Gravitational"),
-		CATACLYSM_STELLAR_EXPLOSION("Cataclysm StellarExplosion"),
+		LIGHTNING((Class<FieldEffects>) new FieldConst<Lightning>().getField()),
+		HAILSTORM((Class<FieldEffects>) new FieldConst<Hailstorm>().getField()),
+		CLOWDY((Class<FieldEffects>) new FieldConst<Clowdy>().getField()),
+		RAINY((Class<FieldEffects>) new FieldConst<Rainy>().getField()),
+		SNOWY((Class<FieldEffects>) new FieldConst<Snowy>().getField()),
+		SUNNY((Class<FieldEffects>) new FieldConst<Sunny>().getField()),
+		ALERT_SNOWSTORM((Class<FieldEffects>) new FieldConst<AlertSnowstorm>().getField()),
+		ALERT_FIRE((Class<FieldEffects>) new FieldConst<AlertFire>().getField()),
+		ALERT_STELLAR_STORM((Class<FieldEffects>) new FieldConst<AlertStellarStorm>().getField()),
+		ALERT_TSUNAMI((Class<FieldEffects>) new FieldConst<AlertTsunami>().getField()),
+		ALERT_ELECTRIC_GROUND((Class<FieldEffects>) new FieldConst<AlertElectricGround>().getField()),
+		ALERT_EARTHQUAKE((Class<FieldEffects>) new FieldConst<AlertEarthquake>().getField()),
+		CATACLYSM_GLATIATION((Class<FieldEffects>) new FieldConst<CataclysmGravitational>().getField()),
+		CATACLYSM_ELECTRIC((Class<FieldEffects>) new FieldConst<CataclysmElectric>().getField()),
+		CATACLYSM_NUCLEAR((Class<FieldEffects>) new FieldConst<CataclysmNuclear>().getField()),
+		CATACLYSM_GRAVITATIONAL((Class<FieldEffects>) new FieldConst<CataclysmGravitational>().getField()),
+		CATACLYSM_STELLAR_EXPLOSION((Class<FieldEffects>) new FieldConst<CataclysmStellarExplosion>().getField()),
 		;
 
-		public final String name;
-		FieldNames(String name){
-			this.name = name;
+		public static int listDifference(){
+			return 0;
+		}
+
+		public static int getType(FieldEffects field){
+			for(int i = 0; i < FieldNames.values().length; i++)
+				if (FieldNames.values()[i].field == field.getClass())
+					return i;
+			return -1;
+		}
+
+		public FieldEffects getField(){
+			try{
+				return field.getConstructor().newInstance();
+			} catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+					 InvocationTargetException ignored){printErr("Coudn't get a new field!"); return null;}
+		}
+
+		public final Class<FieldEffects> field;
+		FieldNames(Class<FieldEffects> field){
+			this.field = field;
 		}
 	}
 

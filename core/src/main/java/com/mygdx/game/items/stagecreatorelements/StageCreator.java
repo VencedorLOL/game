@@ -13,6 +13,7 @@ import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Background.addBG;
 import static com.mygdx.game.items.Background.clearBG;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
+import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.Wall.walls;
@@ -26,6 +27,8 @@ public class StageCreator {
 	float[][] wallsSize = new float[Wall.Walls.values().length][2];
 	String[] enemiesTextures = new String[Enemy.Enemies.values().length];
 	float[][] enemiesSize = new float[Enemy.Enemies.values().length][2];
+	String[] hazardsTextures = new String[Hazards.HazardNames.values().length];
+	float[][] hazardsSize = new float[Hazards.HazardNames.values().length][2];
 
 	public ArrayList<String> sWDestStages = new ArrayList<>();
 	public StageCreator(){
@@ -43,6 +46,12 @@ public class StageCreator {
 			enemiesSize[i][0] = enemy.getBase();
 			enemiesSize[i][1] = enemy.getHeight();
 			enemy.destroy();
+		}
+		for(int i = 0; i < Hazards.HazardNames.values().length; i++){
+			Hazards hazards = Hazards.HazardNames.values()[i].getHazard(0,0);
+			hazardsTextures[i] = hazards.texture;
+			hazardsSize[i][0] = hazards.base;
+			hazardsSize[i][1] = hazards.height;
 		}
 	}
 
@@ -82,15 +91,18 @@ public class StageCreator {
 	ArrayList<Enemy> selectedEnemies;
 	ArrayList<ScreenWarp> selectedScreenWarps;
 	ArrayList<Tile> selectedTiles;
+	ArrayList<Hazards> selectedHazards;
 	TargetProcessor target;
 	Wall movingWall;
 	Enemy movingEnemy;
 	ScreenWarp movingScreenWarp;
 	Tile movingTile;
-	// 0 = wall		1 = enemy 		2 = screen warp		3 = tiles		4 = configuration
+	Hazards movingHazard;
+	// 0 = wall		1 = enemy 		2 = screen warp		3 = tiles		4 = configuration		5 = hazard
 	byte typeOfElement = 0;
 	byte typeOfSubElementWall = 0;
 	byte typeOfSubElementEnemy = 0;
+	byte typeOfSubElementHazard;
 	byte openInterface = 0;
 	boolean interfaceOfTypes;
 	int preferredSWDestination;
@@ -114,8 +126,8 @@ public class StageCreator {
 				openInterface = 4;
 		}
 		if(action == 0) {
-			if(actionConfirmJustPressed() && typeOfElement < 2) {
-				openInterface = openInterface != 0 ? 0 : typeOfElement == 0 ? 1 : (byte) -1;
+			if(actionConfirmJustPressed() && (typeOfElement < 2 || typeOfElement == 5)) {
+				openInterface = openInterface != 0 ? 0 : typeOfElement == 0 ? 1 : typeOfElement == 1 ? (byte) -1 : 5;
 			}
 			if (leftClickJustPressed() && openInterface == 0 && !interfaceOfTypes) {
 				mode = (byte) (detectElement(vector) ? 1 : -1);
@@ -148,6 +160,12 @@ public class StageCreator {
 							stage.border.updateCoords(stage);
 							break;
 						}
+				if(typeOfElement == 5)
+					for (Hazards h : hazards)
+						if (h.x == vector.x && h.y == vector.y) {
+							hazards.remove(h);
+							break;
+						}
 
 			} else if (mode == -1 && openInterface == 0 && !interfaceOfTypes) {
 				if (!detectElement(vector)){
@@ -161,6 +179,8 @@ public class StageCreator {
 						stage.tileset.add(new Tile((int) vector.x, (int) vector.y, new Floor(stage.floorTexture)));
 						stage.border.updateCoords(stage);
 					}
+					if(typeOfElement == 5)
+						hazards.add(Hazards.HazardNames.values()[typeOfSubElementHazard].getHazard(vector.x, vector.y));
 				}
 
 			}
@@ -175,6 +195,7 @@ public class StageCreator {
 				selectedEnemies = new ArrayList<>();
 				selectedScreenWarps = new ArrayList<>();
 				selectedTiles = new ArrayList<>();
+				selectedHazards = new ArrayList<>();
 			}
 			if(leftClickReleased() && mode == 1){
 				mode = 0;
@@ -202,7 +223,6 @@ public class StageCreator {
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
-					// this is done so it renders all selected enemies atop non selected ones.
 					stage.enemy.removeAll(selectedEnemies);
 					stage.enemy.addAll(selectedEnemies);
 				}
@@ -215,7 +235,6 @@ public class StageCreator {
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
-					// this is done so it renders all selected sw atop non selected ones.
 					stage.screenWarp.removeAll(selectedScreenWarps);
 					stage.screenWarp.addAll(selectedScreenWarps);
 				}
@@ -228,9 +247,20 @@ public class StageCreator {
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
-					// this is done so it renders all selected tiles atop non selected ones.
 					stage.tileset.removeAll(selectedTiles);
 					stage.tileset.addAll(selectedTiles);
+				}
+				if(typeOfElement == 5) {
+					for (Hazards h : hazards)
+						if (h.x >= min(startSelectionX, endSelectionX) && h.x <= max(startSelectionX, endSelectionX) &&
+								h.y >= min(startSelectionY, endSelectionY) && h.y <= max(startSelectionY, endSelectionY)) {
+							selectedHazards.add(h);
+							target.circle.addToCircle(h.x, h.y);
+						}
+					target.circle.circle.removeIf(Objects::isNull);
+					target.circle.detectCornersOfCircle(target.circle.circle);
+					hazards.removeAll(selectedHazards);
+					hazards.addAll(selectedHazards);
 				}
 			}
 
@@ -241,6 +271,7 @@ public class StageCreator {
 				selectedScreenWarps = new ArrayList<>();
 				selectedEnemies = new ArrayList<>();
 				selectedTiles = new ArrayList<>();
+				selectedHazards = new ArrayList<>();
 			}
 			if(rightClickReleased() && mode == -1){
 				mode = 0;
@@ -273,12 +304,20 @@ public class StageCreator {
 									t.y() >= min(startSelectionY, endSelectionY) && t.y() <= max(startSelectionY, endSelectionY))
 								selectedTiles.add(t);
 						stage.tileset.removeAll(selectedTiles);
+					} if(typeOfElement == 5) {
+						for (Hazards h : hazards)
+							if (h.x >= min(startSelectionX, endSelectionX) && h.x <= max(startSelectionX, endSelectionX) &&
+									h.y >= min(startSelectionY, endSelectionY) && h.y <= max(startSelectionY, endSelectionY)) {
+								selectedHazards.add(h);
+							}
+						hazards.removeAll(selectedHazards);
 					}
 				}
 				selectedWalls = null;
 				selectedScreenWarps = null;
 				selectedEnemies = null;
 				selectedTiles = null;
+				selectedHazards = null;
 				target.circle.circle.clear();
 				target = null;
 			}
@@ -290,7 +329,7 @@ public class StageCreator {
 		}
 		if(action == 2){
 			Vector3 auth = roundedClick(); //authenticClick();
-			if((selectedWalls != null || selectedEnemies != null || selectedScreenWarps != null) && (!selectedWalls.isEmpty() || !selectedEnemies.isEmpty() || !selectedScreenWarps.isEmpty())){
+			if((selectedWalls != null || selectedEnemies != null || selectedScreenWarps != null || selectedHazards != null) && (!selectedWalls.isEmpty() || !selectedEnemies.isEmpty() || !selectedScreenWarps.isEmpty() || !selectedHazards.isEmpty())){
 				if(leftClickJustPressed()){
 					mode = 1;
 					startSelectionX = vector.x; startSelectionY = vector.y;
@@ -319,6 +358,12 @@ public class StageCreator {
 							startPos[i][0] = selectedTiles.get(i).x();
 							startPos[i][1] = selectedTiles.get(i).y();
 						}
+					} if(typeOfElement == 5) {
+						startPos = new float[selectedHazards.size()][2];
+						for (int i = 0; i < selectedHazards.size(); i++) {
+							startPos[i][0] = selectedHazards.get(i).x;
+							startPos[i][1] = selectedHazards.get(i).y;
+						}
 					}
 				}
 				if(leftClickPressed()){
@@ -346,6 +391,12 @@ public class StageCreator {
 							t.sX(t.x() + auth.x - lastFrameX);
 							t.sY(t.y() + auth.y - lastFrameY);
 							target.circle.addToCircle(t.x(), t.y());
+						}
+					} if(typeOfElement == 5) {
+						for (Hazards h : selectedHazards) {
+							h.x += auth.x - lastFrameX;
+							h.y += auth.y - lastFrameY;
+							target.circle.addToCircle(h.x, h.y);
 						}
 					}
 					target.circle.circle.removeIf(Objects::isNull);
@@ -377,11 +428,47 @@ public class StageCreator {
 							selectedTiles.get(i).sY(startPos[i][1] + vector.y - startSelectionY);
 						}
 						stage.tileset.removeIf(this::samePositionAsSelected);
+					} if(typeOfElement == 5) {
+						for (int i = 0; i < selectedHazards.size(); i++) {
+							selectedHazards.get(i).x = startPos[i][0] + vector.x - startSelectionX;
+							selectedHazards.get(i).y = startPos[i][1] + vector.y - startSelectionY;
+						}
+						hazards.removeIf(this::samePositionAsSelected);
 					}
 				}
 
 			} else {
-				if(leftClickJustPressed() && detectElement(vector)){
+
+				if(typeOfElement == 5 && mode != 1) {
+					for(Hazards h : hazards){
+						if(!(h instanceof Hazards.EarthCrack))
+							continue;
+						priorityDrawables.add(new DrawableObject("Ball",h.x+h.base-globalSize()*1.5f,h.y,1,0,0,100,225));
+					}
+
+					if (mode == 0 && rightClickJustPressed() && tipOfEarthCrack(vector)) {
+						if (getTipEarthCrack(vector) instanceof Hazards.EarthCrack) {
+							mode = 2;
+							movingHazard = getTipEarthCrack(vector);
+						}
+					}
+				}
+
+				if(rightClickPressed() && mode == 2){
+					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,0,0,100,225));
+					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,180,0,100,225));
+					if(((vector.x - movingHazard.base+globalSize()) - movingHazard.x)/globalSize() != 0 && ((Hazards.EarthCrack) movingHazard).segments.length + ((auth.x - movingHazard.base+globalSize()) - movingHazard.x)/globalSize() > 1) {
+						((Hazards.EarthCrack) movingHazard).segments = new boolean[(int)(((Hazards.EarthCrack) movingHazard).segments.length + ((auth.x - movingHazard.base+globalSize()) - movingHazard.x) / globalSize())];
+						movingHazard.base = ((Hazards.EarthCrack) movingHazard).segments.length * globalSize();
+					}
+				}
+
+				if(rightClickReleased() && mode == 2){
+					movingHazard = null;
+					mode = 0;
+				}
+
+				if(leftClickJustPressed() && detectElement(vector) && mode != 2){
 					mode = 1;
 					startSelectionX = vector.x; startSelectionY = vector.y;
 					lastFrameX = auth.x; lastFrameY = auth.y;
@@ -402,6 +489,10 @@ public class StageCreator {
 						movingTile = getTile(vector);
 						stage.tileset.remove(movingTile);
 						stage.tileset.add(movingTile);
+					} if (typeOfElement == 5) {
+						movingHazard = getHazard(vector);
+						hazards.remove(movingHazard);
+						hazards.add(movingHazard);
 					}
 				}
 
@@ -421,6 +512,9 @@ public class StageCreator {
 					} if (typeOfElement == 4){
 						spawnPosition.x += auth.x - lastFrameX;
 						spawnPosition.y += auth.y - lastFrameY;
+					} if(typeOfElement == 5) {
+						movingHazard.x += auth.x - lastFrameX;
+						movingHazard.y += auth.y - lastFrameY;
 					}
 				}
 
@@ -463,17 +557,26 @@ public class StageCreator {
 					} if(typeOfElement == 4) {
 						spawnPosition.x = vector.x;
 						spawnPosition.y = vector.y;
+					} if(typeOfElement == 5) {
+						if (detectElement(vector))
+							for (int i = 0; i < hazards.size(); i++)
+								if (hazards.get(i).x == vector.x && hazards.get(i).y == vector.y && hazards.get(i) != movingHazard) {
+									hazards.remove(hazards.get(i));
+								}
+						movingHazard.x = vector.x;
+						movingHazard.y = vector.y;
 					}
 
 					selectedWalls = null;
 					selectedEnemies = null;
 					selectedScreenWarps = null;
 					selectedTiles = null;
+					selectedHazards = null;
 					target.circle.circle.clear();
 					target = null;
 				}
 			}
-			if(mode == 1) {
+			if(mode == 1 || mode == 2) {
 				lastFrameX = auth.x;
 				lastFrameY = auth.y;
 			}
@@ -482,9 +585,9 @@ public class StageCreator {
 		float y = Gdx.graphics.getHeight()*.2f;
 		float size = Gdx.graphics.getHeight()*0.008f;
 		String mainTexture = action == 0 ? "Pencil" : action == 2 ? "Move" : action == 1 ? "Select" : "SWConfigure";
-		String texture = typeOfElement == 0 ? wallsTextures[typeOfSubElementWall] : typeOfElement == 1 ? enemiesTextures[typeOfSubElementEnemy] : typeOfElement == 2 ? "ScreenWarp" : stage.floorTexture;
-		float sizeX = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][0] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][0] : globalSize();
-		float sizeY = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][1] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][1] : globalSize();
+		String texture = typeOfElement == 0 ? wallsTextures[typeOfSubElementWall] : typeOfElement == 1 ? enemiesTextures[typeOfSubElementEnemy] : typeOfElement == 2 ? "ScreenWarp" : typeOfElement == 5 ? hazardsTextures[typeOfSubElementHazard] : stage.floorTexture;
+		float sizeX = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][0] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][0] : typeOfElement == 5 ? hazardsSize[typeOfSubElementHazard][0] : globalSize();
+		float sizeY = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][1] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][1] : typeOfElement == 5 ? hazardsSize[typeOfSubElementHazard][1] : globalSize();
 		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",x,y,1, 0,size,size,true));
 		fixatedDrawables.add(new TextureManager.DrawableObject( mainTexture, x,y,1,0, size,size,true));
 		if(action == 0) {
@@ -509,6 +612,8 @@ public class StageCreator {
 			setFloor();
 		else if (openInterface == 4)
 			setBG();
+		else if(openInterface == 5)
+			hazardSubElementSelector();
 
 		if(action==3){
 			if(actionConfirmJustPressed()){
@@ -656,19 +761,41 @@ public class StageCreator {
 		}
 	}
 
+	public void hazardSubElementSelector(){
+		float intX = Gdx.graphics.getWidth()*.9f;
+		float intY = Gdx.graphics.getHeight()*.35f;
+		float intSize = Gdx.graphics.getHeight()*0.006f;
+		for(int i = 0; i < Hazards.HazardNames.values().length; i++){
+			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
+					0,intSize,intSize,true));
+			fixatedDrawables.add(new TextureManager.DrawableObject(hazardsTextures[i]
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
+					0,intSize/hazardsSize[i][0]*32f*3/4,intSize/hazardsSize[i][1]*32f*3/4,true));
+		}
+		if(leftClickJustPressed()){
+			for(int i = 0; i < Hazards.HazardNames.values().length; i++){
+				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*16 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*16 ) {
+					typeOfSubElementHazard = (byte) (i);
+					openInterface = 0;
+					return;
+				}
+			}
+		}
+	}
+
 	public void interfaceOfTypes(){
 		float intX = Gdx.graphics.getWidth()*.9f;
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
-		for(int i = 0; i < 5; i++){
+		for(int i = 0; i < 6; i++){
 			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
 					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : "ConfigurationCog"
+			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : i == 4 ? "ConfigurationCog" : "Spikes"
 					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
 					0,intSize/globalSize()*32*3/4,intSize/globalSize()*32*3/4,true));
 		}
 		if(leftClickJustPressed()){
-			for(int i = 0; i < 5; i++){
+			for(int i = 0; i < 6; i++){
 				if(cursorX() >=intX-(intSize*16*(4-(i % 5))) && cursorX() <= intX-(intSize*16*(4-(i % 5))) + intSize*16 && cursorY() >= intY+floor((i/5f))*intSize*16 - intSize*16 && cursorY() <= intY+floor((i/5f))*intSize*16 ) {
 					typeOfElement = (byte) (i);
 					interfaceOfTypes = false;
@@ -750,6 +877,14 @@ public class StageCreator {
 		return false;
 	}
 
+	public boolean samePositionAsSelected(Hazards hazard){
+		if(!isSelected(hazard))
+			for(Hazards t : selectedHazards)
+				if(t.x == hazard.x && t.y == hazard.y)
+					return true;
+		return false;
+	}
+
 	public boolean isSelected(Wall wall){
 		for (Wall w : selectedWalls)
 			if (w == wall)
@@ -778,6 +913,13 @@ public class StageCreator {
 		return false;
 	}
 
+	public boolean isSelected(Hazards hazard){
+		for (Hazards h : selectedHazards)
+			if (h == hazard)
+				return true;
+		return false;
+	}
+
 	public boolean detectElement(Vector3 vector){
 		if(typeOfElement == 0)
 			for (Wall w : stage.walls)
@@ -797,6 +939,17 @@ public class StageCreator {
 					return true;
 		if(typeOfElement == 4)
 			return spawnPosition.x == vector.x && spawnPosition.y == vector.y;
+		if (typeOfElement == 5)
+			for (Hazards h : hazards)
+				if(h.x == vector.x && h.y == vector.y)
+					return true;
+		return false;
+	}
+
+	public boolean tipOfEarthCrack(Vector3 vector){
+		for (Hazards h : hazards)
+			if(h instanceof Hazards.EarthCrack && h.x == vector.x - h.base + globalSize() && h.y == vector.y)
+				return true;
 		return false;
 	}
 
@@ -825,6 +978,20 @@ public class StageCreator {
 		for (Tile t : stage.tileset)
 			if(t.x() == vector.x && t.y() == vector.y)
 				return t;
+		return null;
+	}
+
+	public Hazards getHazard(Vector3 vector){
+		for (Hazards h : hazards)
+			if(h.x == vector.x && h.y == vector.y)
+				return h;
+		return null;
+	}
+
+	public Hazards.EarthCrack getTipEarthCrack(Vector3 vector){
+		for (Hazards h : hazards)
+			if(h instanceof Hazards.EarthCrack && h.x == vector.x - h.base + globalSize() && h.y == vector.y)
+				return (Hazards.EarthCrack) h;
 		return null;
 	}
 

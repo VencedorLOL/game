@@ -2,6 +2,7 @@ package com.mygdx.game.items.stagecreatorelements;
 
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.Floor;
+import com.mygdx.game.items.Hazards;
 import com.mygdx.game.items.Stage;
 import com.mygdx.game.items.Tile;
 
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.StageCreatorScreen.*;
@@ -22,6 +24,10 @@ public class StageSaver {
 			"package com.mygdx.game.items.stages;\n" +
 					"\n" +
 			"import com.mygdx.game.items.Stage;\n"+
+			"import com.mygdx.game.items.Hazards;\n" +
+			"\n" +
+			"import static com.mygdx.game.Settings.globalSize;\n" +
+			"import static com.mygdx.game.items.Hazards.hazards;\n" +
 					"\n"+
 			"public class NAME_CLASS extends Stage {\n" +
 			"	public NAME_CLASS(){\n" +
@@ -52,6 +58,10 @@ public class StageSaver {
 			"	public void tilesetCleanup() {" +
 			"		TILESET_ALGORITHM" +
 			"\n	}\n"+
+			"\n" +
+			"	public void hazardSetter() {" +
+			"		HAZARDS" +
+			"\n }\n" +
 			"}\n";
 
 	Stage stage;
@@ -67,6 +77,7 @@ public class StageSaver {
 	ArrayList<String> destination;
 	String finalDestination;
 	String tileset;
+	String hazardsString;
 	public boolean waiter(ArrayList<String> destination){
 		if(escapePressed())
 			return true;
@@ -92,6 +103,7 @@ public class StageSaver {
 			emptyStage = emptyStage.replace("SCREEN_WARPS_DESTINATIONS",finalDestination);
 			emptyStage = emptyStage.replace("TILESET_ALGORITHM",tileset);
 			emptyStage = emptyStage.replace("BACKGROUND_VARIABLE",stage.bgTexture);
+			emptyStage = emptyStage.replace("HAZARDS",hazardsString);
 			try {
 				fixatedText("Was folder created? " + new File(Gdx.files.getExternalStoragePath() + "/Stages").mkdir(),200,100,300,40,255,255,255);
 				stageFile = new File(Gdx.files.getLocalStoragePath() + "Stages/"+info.string+".java");
@@ -157,10 +169,24 @@ public class StageSaver {
 			}
 		tileset = "";
 		for (Tile t : removables){
-			tileset = tileset + "\n			tileset.remove(getTile(" + t.x()/globalSize() + "," + t.y()/globalSize() + "));" ;
+			tileset = tileset + "\n			tileset.remove(getTile(" + t.x()/globalSize() + ", " + t.y()/globalSize() + "));" ;
 		}
 		for (Tile t : tilesetCopy){
-			tileset = tileset + "\n			tileset.add(createTile("+t.x()/globalSize() + "," +t.y()/globalSize() + "));";
+			tileset = tileset + "\n			tileset.add(createTile("+t.x()/globalSize() + ", " +t.y()/globalSize() + "));";
+		}
+		hazardsString = "";
+		for(Hazards h : hazards){
+			if(h instanceof Hazards.TriggerCharacter)
+				hazardsString = hazardsString + "\n		hazards.add(new Hazards.TriggerCharacter((float) ("+h.x/globalSize() + " * globalSize()), (float) ("+h.y/globalSize()+ " * globalSize())){" +
+						"\n			public void overrideOnStep() {" +
+						"\n				"+
+						"\n			}"+
+						"\n		});";
+			else if (h instanceof Hazards.EarthCrack)
+				hazardsString = hazardsString + "\n		hazards.add(Hazards.HazardNames.values()["+ Hazards.HazardNames.getType(h)+"].getHazard((float) ("+h.x/globalSize()+" * globalSize()), (float) ("+ h.y/globalSize()+" * globalSize()), (float) "+ ((Hazards.EarthCrack) h).segments.length +"));";
+			else
+				hazardsString = hazardsString + "\n		hazards.add(Hazards.HazardNames.values()["+ Hazards.HazardNames.getType(h)+"].getHazard((float) ("+h.x/globalSize()+" * globalSize()), (float) ("+ h.y/globalSize()+" * globalSize())));";
+
 		}
 
 	}

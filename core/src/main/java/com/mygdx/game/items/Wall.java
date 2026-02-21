@@ -92,13 +92,6 @@ public class Wall extends Entity {
             } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                      InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Wall(x, y);}
         }
-
-        public Wall getTexture(float x, float y){
-            try{
-                return wall.getConstructor(float.class,float.class).newInstance(x,y);
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                     InvocationTargetException ignored){printErr("Coudn't get a new wall!"); return new Wall(x, y);}
-        }
         public final Class<Wall> wall;
         Walls(Class<Wall> wall){
             this.wall = wall;

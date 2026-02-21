@@ -680,6 +680,9 @@ public class Character extends Actor {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_4)) {
 				addField(FieldEffects.FieldNames.CATACLYSM_ELECTRIC);
 			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_5)) {
+				addField(FieldEffects.FieldNames.ALERT_EARTHQUAKE);
+			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
 				classes.health = 1000000;
 				classes.currentHealth = 1000000;
