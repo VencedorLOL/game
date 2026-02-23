@@ -40,7 +40,7 @@ public class Ability{
 		text.render = false;
 		text.onScreenTime = 1;
 		text.realSize = 50;
-		text.setColor(new int[]{255,255,255});
+		text.setColor(255,255,255);
 		text.opacity = 1;
 		circle.set(Gdx.graphics.getWidth() * this.x + getCamara().getX(),
 				Gdx.graphics.getHeight() * this.y + getCamara().getY(),radius);
@@ -92,7 +92,7 @@ public class Ability{
 			text.onScreenTime = 1;
 			text.fakeNull = false;
 			text.render = true;
-			text.text = String.format("%.0f",( (float) cooldown - cooldownCounter));
+			text.updateText(String.format("%.0f",( (float) cooldown - cooldownCounter)));
 			text.x = coords[0] + (globalSize() - text.textSize() - text.realSize)/2f;
 			text.y = coords[1] + ((float) globalSize() /2) + 25;
 		}

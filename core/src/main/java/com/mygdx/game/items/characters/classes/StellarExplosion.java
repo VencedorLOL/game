@@ -93,7 +93,7 @@ public class StellarExplosion extends CharacterClasses {
 
 	TextureManager.Text text;
 	public void updateOverridable() {
-		text.text = manaPool+"";
+		text.updateText(manaPool+"");
 		targetProcessor.changeRadius(explosionRange);
 		abilitiesProcessor();
 

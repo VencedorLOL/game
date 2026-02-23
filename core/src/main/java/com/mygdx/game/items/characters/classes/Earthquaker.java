@@ -82,7 +82,7 @@ public class Earthquaker extends CharacterClasses {
 
 	Text text;
 	public void updateOverridable() {
-		text.text = manaPool+"";
+		text.updateText(manaPool+"");
 		targetProcessor.changeRadius(earthquakeSelectionRange);
 		earthquakeProcessor.changeRadius(earthquakeRadius);
 		if(isDecidingWhatToDo(character) && (character.attackMode || decidingEarthquake) && manaPool >= totalManaPerUse) {

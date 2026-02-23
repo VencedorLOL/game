@@ -11,6 +11,7 @@ Bogfixes: enemies trying (and failing) to attack through walls
 	camera remaining attached to path if path hasnt been walked yet
 Stage: conserve x or y position, relative to the screenwarps and spawn position
 Textbox: choose code implementation
+multiplayer.
 
 
 idea:

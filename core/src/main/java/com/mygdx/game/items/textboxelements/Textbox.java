@@ -174,7 +174,7 @@ public class Textbox extends GUI {
 		if (amountOfTextWritten != storedText.length()){
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
-				text.text = text.text + storedText.charAt(amountOfTextWritten++);
+				text.addToText(storedText.charAt(amountOfTextWritten++)+"");
 			}
 		}
 	}
@@ -187,7 +187,7 @@ public class Textbox extends GUI {
 	 @SuppressWarnings("all")
 	public void writeTheRestOfTheText(){
 		while(amountOfTextWritten < storedText.length())
-			text.text = text.text + storedText.charAt(amountOfTextWritten++);
+			text.addToText(storedText.charAt(amountOfTextWritten++)+"");
 	}
 
 

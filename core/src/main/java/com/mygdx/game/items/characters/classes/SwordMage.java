@@ -78,7 +78,7 @@ public class SwordMage extends CharacterClasses {
 	TextureManager.Text text;
 	public void updateOverridable() {
 		costAndDamage();
-		text.text = manaPool+"";
+		text.updateText(manaPool+"");
 		abilitiesProcessor();
 
 		if(totalDamage * finalDamageMultiplier * finalManaCost <= manaPool && abilities.get(0).isItActive) {

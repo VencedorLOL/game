@@ -179,13 +179,13 @@ public class Character extends Actor {
 	public void update(){
 		if(turnMode) {
 			if (classes.tempDefense <= 0)
-				text.text = classes.currentHealth + "/" + classes.totalHealth;
+				text.updateText(classes.currentHealth + "/" + classes.totalHealth);
 			else
-				text.text = classes.currentHealth + "/" + classes.totalHealth + " + " + classes.tempDefense;
+				text.updateText(classes.currentHealth + "/" + classes.totalHealth + " + " + classes.tempDefense);
 			classes.update();
 			statsUpdater();
 		} else
-			text.text = "";
+			text.updateText("");
 		onDeath();
 		path.getStats(x,y, classes.totalSpeed);
 

@@ -37,7 +37,7 @@ public class Mage extends CharacterClasses {
 
 	Text text;
 	protected void updateOverridable() {
-		text.text = manaPool+"";
+		text.updateText(manaPool+"");
 
 	}
 

@@ -450,10 +450,10 @@ public class TextureManager {
 
 	public static class Text {
 		public float x,y;
-		public String text;
+		private String text = "";
 		public int onScreenTime;
 		public boolean fakeNull = false;
-		int r,g,b;
+		int[] r,g,b;
 		public float opacity;
 		float vanishingThreshold;
 		public boolean render = true;
@@ -472,13 +472,17 @@ public class TextureManager {
 		public int[] timeTilStart;
 		public float maxVariation;
 		public int timeToReachMaxVar;
+		public boolean[] shakingException;
+		public boolean[] coloringException;
+		int rRbow,gRbow,bRbow;
+		int rDflt = -1, gDflt = -1, bDflt = -1;
 
 		public Text(String text, float x, float y, float realSize){
 			this.text = text;
 			this.x = x;
 			this. y = y;
 			onScreenTime = -1;
-			this.r = -1;
+			this.r = null;
 			this.realSize = realSize;
 			opacity = 1;
 
@@ -490,9 +494,7 @@ public class TextureManager {
 			this. y = y;
 			this.onScreenTime = onScreenTime;
 			this.vanishingThreshold = vanishingThreshold;
-			this.r = r;
-			this.g = g;
-			this.b = b;
+			setColor(r,g,b);
 			this.realSize = realSize;
 			opacity = 1;
 			maxVariation = yVariation;
@@ -515,9 +517,7 @@ public class TextureManager {
 			this.text = text;
 			this.x = x;
 			this. y = y;
-			this.r = 255;
-			this.g = 0;
-			this.b = 0;
+			setColor(255,255,255);
 			this.opacity = opacity;
 			this.vanishingThreshold = vanishingThreshold;
 			this.realSize = size;
@@ -537,9 +537,7 @@ public class TextureManager {
 			this.text = text;
 			this.x = x;
 			this. y = y;
-			this.r = r;
-			this.g = g;
-			this.b = b;
+			setColor(r,g,b);
 			this.opacity = opacity;
 			this.vanishingThreshold = vanishingThreshold;
 			this.realSize = size;
@@ -552,7 +550,7 @@ public class TextureManager {
 			this.x = x;
 			this. y = y;
 			this.entityToFollow = entityToFollow;
-			this.r = -1;
+			this.r = null;
 			realSize = size;
 			opacity = 1;
 		}
@@ -564,7 +562,7 @@ public class TextureManager {
 			this.x = x;
 			this. y = y;
 			onScreenTime = -1;
-			this.r = -1;
+			this.r = null;
 			this.realSize = size;
 			this.onScreenTime = timeOnScreen;
 			opacity = 1;
@@ -586,6 +584,7 @@ public class TextureManager {
 						return true;
 			return false;
 		}
+
 
 
 		/**<h5>For late shake initiation
@@ -624,9 +623,99 @@ public class TextureManager {
 			}
 			else
 				superFrames = 0;
-			r = 255;
-			g = 0;
-			b = 0;
+			rRbow = 255;
+			gRbow = 0;
+			bRbow = 0;
+		}
+
+		/**
+		 * @param attribute 0 is shake, 1 is rainbow, 2 is red, 3 is green, 4 is blue
+		 * @param from First String character is 0
+		 * @param to Self explanatory, preferably higher than {@code from} if you want this to do anything
+		 * @param newValue for {@code attribute} 0,1: {@code 0} = {@code false},  will do, {@code 1} = {@code true} won't do. Else, put a color (range: 0-255)
+		 */
+		public void changeAttribute(int attribute,int from, int to,boolean newValue){
+			updateText(text);
+			if(to <= shakingException.length) {
+				if (attribute == 0)
+					for (int i = from; i <= to; i++)
+						shakingException[i] = newValue;
+				else if (attribute == 1)
+					for (int i = from; i <= to; i++)
+						coloringException[i] = newValue;
+			}
+		}
+
+		/**
+		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
+		 * @param to Self explanatory, preferably higher than {@code -1} if you want this to do anything
+		 */
+		public void cancelAttribute(int attribute, int to){
+			changeAttribute(attribute,0,to, true);
+		}
+
+		/**
+		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
+		 */
+		public void cancelAttribute(int attribute){
+			changeAttribute(attribute,0,text.length(),true);
+		}
+
+		/**
+		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
+		 */
+		public void resetAttribute(int attribute){
+			changeAttribute(attribute,0,text.length(),false);
+		}
+
+		public void updateText(String newText){
+			text = newText;
+			boolean[] color = new boolean[text.length()];
+			boolean[] shake = new boolean[text.length()];
+			for(int i = 0; i < min(color.length, coloringException == null ? -1 : coloringException.length); i++)
+				color[i] = coloringException[i];
+			for(int i = 0; i < min(shake.length, shakingException == null ? -1 : shakingException.length); i++)
+				shake[i] = shakingException[i];
+			shakingException = shake;
+			coloringException = color;
+			int[] r = new int[text.length()];
+			int[] g = new int[text.length()];
+			int[] b = new int[text.length()];
+			for(int i = 0; i < text.length(); i++){
+				  if(this.r.length > i)
+					r[i] = this.r[i];
+				else {
+					if(rDflt != -1)
+						r[i] = rDflt;
+					else if (this.r.length > 0)
+						r[i] = this.r[0];
+				} if(this.g.length > i)
+					g[i] = this.g[i];
+				else {
+					if(gDflt != -1)
+						g[i] = gDflt;
+					else if (this.g.length > 0)
+						g[i] = this.g[0];
+				} if(this.b.length > i)
+					b[i] = this.b[i];
+				else {
+					if(bDflt != -1)
+						b[i] = bDflt;
+					else if (this.b.length > 0)
+						b[i] = this.b[0];
+				}
+			}
+			this.r = r;
+			this.g = g;
+			this.b = b;
+		}
+
+		public void addToText(String addition){
+			updateText(text+addition);
+		}
+
+		public String getText(){
+			return text;
 		}
 
 		public float[][] waveColors;
@@ -649,18 +738,19 @@ public class TextureManager {
 					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
 					continue;
 				}
+				boolean doesColor = letterMultiplicator != 0 && !coloringException[i];
 				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
-				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0)
+				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0 || shakingException[i])
 					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
 							isElementExcluded(i) ? 0 : opacity, false,false,0, realSize/charSize,realSize/charSize,
-							(letterMultiplicator != 0 ? waveColors[i][0]: r)/255,(letterMultiplicator != 0 ? waveColors[i][1]: g)/255,(letterMultiplicator != 0 ? waveColors[i][2]: b)/255,
+							(doesColor ? waveColors[i][0]: rRbow != -1 ? rRbow : r[i])/255,(doesColor ? waveColors[i][1]: gRbow != -1 ? gRbow : g[i])/255,(doesColor ? waveColors[i][2]: bRbow != -1 ? bRbow : b[i])/255,
 							true);
 				else {
 					processShake();
 					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
 							 isElementExcluded(i) ? 0 : opacity, false, false, 0, realSize / charSize, realSize / charSize,
-							(letterMultiplicator != 0 ? waveColors[i][0]: r)/255,(letterMultiplicator != 0 ? waveColors[i][1]: g)/255,(letterMultiplicator != 0 ? waveColors[i][2]: b)/255,
+							(doesColor ? waveColors[i][0]: rRbow != -1 ? rRbow :r[i])/255,(doesColor ? waveColors[i][1]: gRbow != -1 ? gRbow :g[i])/255,(doesColor ? waveColors[i][2]: bRbow != -1 ? bRbow : b[i])/255,
 							true);
 				}
 			}
@@ -680,9 +770,9 @@ public class TextureManager {
 			waveColors = new float[letters][3];
 			for(int i = 0; i < letters; i++){
 				if(i == 0){
-					waveColors[letters-1][0] = r;
-					waveColors[letters-1][1] = g;
-					waveColors[letters-1][2] = b;
+					waveColors[letters-1][0] = rRbow;
+					waveColors[letters-1][1] = gRbow;
+					waveColors[letters-1][2] = bRbow;
 				}
 				else
 					waveColors[letters - 1 - i] = toFloat(colorAdjustment((int) waveColors[letters - i][0],(int)waveColors[letters - i][1],(int)waveColors[letters - i][2],letterMultiplicator));
@@ -714,8 +804,8 @@ public class TextureManager {
 		}
 
 		private void thisColorAdjustment(){
-			int[] temp = colorAdjustment(r,g,b,1);
-			r = temp[0]; g = temp[1]; b = temp[2];
+			int[] temp = colorAdjustment(rRbow,gRbow,bRbow,1);
+			rRbow = temp[0]; gRbow = temp[1]; bRbow = temp[2];
 		}
 
 		public void processShake(){
@@ -920,8 +1010,8 @@ public class TextureManager {
 
 		public void draw(){
 			float functionalOpacity = opacity;
-			int r = this.r,g = this.g,b = this.b;
-			if (r != -1)
+			int[] r = this.r,g = this.g,b = this.b;
+			if (r != null)
 				functionalOpacity = vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity;
 			if(entityToFollow!=null && getRender())
 				drawAll(x + entityToFollow.x,y + entityToFollow.y,functionalOpacity);
@@ -938,8 +1028,8 @@ public class TextureManager {
 		public void drawStatic(){
 			Vector3 coords = GameScreen.getCamara().camara.unproject(new Vector3(x,y,0f));
 			float functionalOpacity = opacity;
-			int r = this.r,g = this.g,b = this.b;
-			if (r != -1 && vanishingThreshold > 0)
+			int[] r = this.r,g = this.g,b = this.b;
+			if (r != null && vanishingThreshold > 0)
 				functionalOpacity = vanishingThreshold >= onScreenTime && vanishingThreshold > 0 ? opacity * (1 - (vanishingThreshold - onScreenTime) / (vanishingThreshold)) : opacity;
 			if(getRender())
 				drawAll(coords.x,coords.y,functionalOpacity);
@@ -955,13 +1045,37 @@ public class TextureManager {
 
 
 		public void setColor(int... color){
-			this.r = color[0];
-			this.g = color[1];
-			this.b = color[2];
+			setDefaultColor(color);
+			r = new int[text.length()];
+			g = new int[text.length()];
+			b = new int[text.length()];
+			if(color.length >= 1)
+				for (int i = 0; i < r.length; i++)
+					r[i] = color[0];
+			if(color.length >= 2)
+				for (int i = 0; i < g.length; i++)
+					g[i] = color[1];
+			if(color.length >= 3)
+				for (int i = 0; i < b.length; i++)
+					b[i] = color[2];
+
 		}
 
-		public int[] getColor(){
-			return new int[]{r,g,b};
+		public int[] getColor(int character){
+			return new int[]{r[character],g[character],b[character]};
+		}
+
+		public int[] getDefaultColor(){
+			return new int[]{rDflt, gDflt, bDflt};
+		}
+
+		public void setDefaultColor(int... color){
+			if(color.length >= 1)
+				rDflt = color[0];
+			if(color.length >= 2)
+				gDflt = color[1];
+			if(color.length >= 3)
+				bDflt = color[2];
 		}
 
 	}

@@ -52,7 +52,7 @@ public class ItemsList  {
 			if(texts[i] == null){
 				texts[i] = dynamicFixatedText(weapons[i],0,0,-1,32);
 			}
-			texts[i].realSize = min(adequateSize(texts[i].text,size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
+			texts[i].realSize = min(adequateSize(texts[i].getText(),size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
 			texts[i].setColor(255,255,255);
 			texts[i].render = true;
 			texts[i].onScreenTime = 2;
@@ -74,7 +74,7 @@ public class ItemsList  {
 			if(texts[i+ weapons.length] == null){
 				texts[i+ weapons.length] = dynamicFixatedText(shields[i],0,0,-1,32);
 			}
-			texts[i+ weapons.length].realSize =min(adequateSize(texts[i + weapons.length].text,size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
+			texts[i+ weapons.length].realSize =min(adequateSize(texts[i + weapons.length].getText(),size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
 			texts[i+ weapons.length].setColor(255,255,255);
 			texts[i+ weapons.length].render = true;
 			texts[i+ weapons.length].onScreenTime = 2;
@@ -108,13 +108,13 @@ public class ItemsList  {
 
 	public void onTouch(int i){
 		if(i < weapons.length) {
-			if(getClIns(classs.name).getWeaponName() != null && getClIns(classs.name).getWeaponName().equals(texts[i].text))
+			if(getClIns(classs.name).getWeaponName() != null && getClIns(classs.name).getWeaponName().equals(texts[i].getText()))
 				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
 			else
 				getClIns(classs.name).setWeapon(classs.getWeapon(i, null));
 		}
 		else {
-			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(texts[i].text))
+			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(texts[i].getText()))
 				texts[i].initiateShake(intravalue(2,1f+texts[i].maxVariation,16),10);
 			else
 				getClIns(classs.name).setShield(classs.getShield(i - weapons.length, null));

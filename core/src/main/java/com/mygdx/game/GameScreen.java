@@ -74,7 +74,7 @@ public class GameScreen implements Screen{
 		//Gdx.graphics.setForegroundFPS(120);
 		delta = Gdx.graphics.getDeltaTime();
 		ScreenUtils.clear(colorConverter( /* red */ 0), colorConverter(/* green */ 0), colorConverter(/* blue */ 0), 1);
-		text.text = Gdx.graphics.getFramesPerSecond()+"";
+		text.updateText(Gdx.graphics.getFramesPerSecond()+"");
 		text.realSize = 30 * getCamara().zoom;
 		turnLogic();
 		fullscreenDetector();

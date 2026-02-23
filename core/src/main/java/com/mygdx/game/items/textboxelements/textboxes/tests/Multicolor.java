@@ -19,7 +19,7 @@ public class Multicolor extends Textbox {
 				text.initiateRainbow(200, 0);
 				initializedRainbow = true;
 			}
-			textColor = text.getColor();
+			textColor = text.getDefaultColor();
 		}
 	}
 
@@ -41,7 +41,7 @@ public class Multicolor extends Textbox {
 					text.initiateRainbow(200, 2f);
 					initializedRainbow = true;
 				}
-				textColor = text.getColor();
+				textColor = text.getDefaultColor();
 			}
 		}
 
@@ -63,7 +63,7 @@ public class Multicolor extends Textbox {
 					text.initiateRainbow(1000, 20);
 					initializedRainbow = true;
 				}
-				textColor = text.getColor();
+				textColor = text.getDefaultColor();
 			}
 		}
 
@@ -85,7 +85,7 @@ public class Multicolor extends Textbox {
 					text.initiateRainbow(76.5f, 1);
 					initializedRainbow = true;
 				}
-				textColor = text.getColor();
+				textColor = text.getDefaultColor();
 			}
 		}
 
@@ -110,7 +110,7 @@ public class Multicolor extends Textbox {
 					text.initiateRainbow(30, 1.5f);
 					initializedRainbow = true;
 				}
-				textColor = text.getColor();
+				textColor = text.getDefaultColor();
 			}
 			if(amountOfTextWritten == storedText.length())
 				finalizedInitializing = true;
@@ -137,7 +137,7 @@ public class Multicolor extends Textbox {
 					text.initiateRainbow(3060, 20);
 					initializedRainbow = true;
 				}
-				textColor = text.getColor();
+				textColor = text.getDefaultColor();
 			}
 			if(amountOfTextWritten == storedText.length())
 				finalizedInitializing = true;

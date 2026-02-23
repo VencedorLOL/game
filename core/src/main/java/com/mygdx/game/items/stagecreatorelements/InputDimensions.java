@@ -86,7 +86,7 @@ public class InputDimensions extends GUI {
 				storedText = storedText.replace("null","");
 			if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) && !storedText.isEmpty())
 				storedText = "";
-			text.text = storedText;
+			text.updateText(storedText);
 		}
 
 
