@@ -15,6 +15,7 @@ import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.Utils.intravalue;
 import static com.mygdx.game.Utils.toFloat;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
 import static java.lang.Math.*;
@@ -474,7 +475,7 @@ public class TextureManager {
 		public int timeToReachMaxVar;
 		public boolean[] shakingException;
 		public boolean[] coloringException;
-		int rRbow,gRbow,bRbow;
+		int rRbow = -1,gRbow = -1,bRbow = -1;
 		int rDflt = -1, gDflt = -1, bDflt = -1;
 
 		public Text(String text, float x, float y, float realSize){
@@ -623,9 +624,9 @@ public class TextureManager {
 			}
 			else
 				superFrames = 0;
-			rRbow = 255;
-			gRbow = 0;
-			bRbow = 0;
+			rRbow = rRbow == -1 ? 255 : rRbow;
+			gRbow = gRbow == -1 ? 0 : gRbow;
+			bRbow = bRbow == -1 ? 0 : bRbow;
 		}
 
 		/**
@@ -634,15 +635,25 @@ public class TextureManager {
 		 * @param to Self explanatory, preferably higher than {@code from} if you want this to do anything
 		 * @param newValue for {@code attribute} 0,1: {@code 0} = {@code false},  will do, {@code 1} = {@code true} won't do. Else, put a color (range: 0-255)
 		 */
-		public void changeAttribute(int attribute,int from, int to,boolean newValue){
+		public void changeAttribute(int attribute,int from, int to,int newValue){
 			updateText(text);
-			if(to <= shakingException.length) {
+			to = (int) intravalue(from,to, text.length()-1);
+			if(from < text.length()) {
 				if (attribute == 0)
 					for (int i = from; i <= to; i++)
-						shakingException[i] = newValue;
-				else if (attribute == 1)
+						shakingException[i] = newValue == 0 ? false : true;
+				if (attribute == 1)
 					for (int i = from; i <= to; i++)
-						coloringException[i] = newValue;
+						coloringException[i] = newValue == 0 ? false : true;
+				if (attribute == 2)
+					for (int i = from; i <= to; i++)
+						r[i] = newValue;
+				if (attribute == 3)
+					for (int i = from; i <= to; i++)
+						g[i] = newValue;
+				if (attribute == 4)
+					for (int i = from; i <= to; i++)
+						b[i] = newValue;
 			}
 		}
 
@@ -651,21 +662,21 @@ public class TextureManager {
 		 * @param to Self explanatory, preferably higher than {@code -1} if you want this to do anything
 		 */
 		public void cancelAttribute(int attribute, int to){
-			changeAttribute(attribute,0,to, true);
+			changeAttribute(attribute,0,to, 1);
 		}
 
 		/**
 		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
 		 */
 		public void cancelAttribute(int attribute){
-			changeAttribute(attribute,0,text.length(),true);
+			changeAttribute(attribute,0,text.length(),1);
 		}
 
 		/**
 		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
 		 */
 		public void resetAttribute(int attribute){
-			changeAttribute(attribute,0,text.length(),false);
+			changeAttribute(attribute,0,text.length(),0);
 		}
 
 		public void updateText(String newText){
@@ -738,19 +749,22 @@ public class TextureManager {
 					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
 					continue;
 				}
-				boolean doesColor = letterMultiplicator != 0 && !coloringException[i];
+				boolean doWave = letterMultiplicator != 0 && !coloringException[i];
+				boolean doRRbow = rRbow != -1 && !coloringException[i];
+				boolean doGRbow = rRbow != -1 && !coloringException[i];
+				boolean doBRbow = rRbow != -1 && !coloringException[i];
 				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
 				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0 || shakingException[i])
 					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
 							isElementExcluded(i) ? 0 : opacity, false,false,0, realSize/charSize,realSize/charSize,
-							(doesColor ? waveColors[i][0]: rRbow != -1 ? rRbow : r[i])/255,(doesColor ? waveColors[i][1]: gRbow != -1 ? gRbow : g[i])/255,(doesColor ? waveColors[i][2]: bRbow != -1 ? bRbow : b[i])/255,
+							(doWave ? waveColors[i][0]: doRRbow ? rRbow : r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow : g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b[i])/255,
 							true);
 				else {
 					processShake();
 					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
 							 isElementExcluded(i) ? 0 : opacity, false, false, 0, realSize / charSize, realSize / charSize,
-							(doesColor ? waveColors[i][0]: rRbow != -1 ? rRbow :r[i])/255,(doesColor ? waveColors[i][1]: gRbow != -1 ? gRbow :g[i])/255,(doesColor ? waveColors[i][2]: bRbow != -1 ? bRbow : b[i])/255,
+							(doWave ? waveColors[i][0]: doRRbow ? rRbow :r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow :g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b[i])/255,
 							true);
 				}
 			}

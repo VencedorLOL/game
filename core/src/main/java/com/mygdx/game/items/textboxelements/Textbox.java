@@ -164,10 +164,11 @@ public class Textbox extends GUI {
 		textInitialY = (startingY + thickness*16)*1.01f;
 		textJumpLine = finalX - thickness*.1f;
 
+		if(text == null) {
+			text = dynamicFixatedText("", textInitialX, textInitialY, -1, textSize);
+			text.setColor(textColor);
+		}
 		beforeTextOverridable();
-		if(text == null)
-			text = dynamicFixatedText("",textInitialX,textInitialY,-1,textSize);
-		text.setColor(textColor);
 		text.x = textInitialX;
 		text.y = textInitialY;
 		text.realSize = textSize;

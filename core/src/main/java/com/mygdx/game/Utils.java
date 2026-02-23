@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.Settings.print;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static java.lang.String.valueOf;
@@ -127,6 +128,12 @@ public class Utils {
 
 	public static float distance(float iX, float iY, float fX, float fY){
 		return (float) sqrt(pow((iX)-(fX),2)+pow((iY)-(fY),2));
+	}
+
+	public static void main(String... args){
+		String str1 = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do ";
+		String str2 = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do both.";
+		print("Start at: "+ (str1.length()-1) + ", end at: "+  (str2.length()-1));
 	}
 
 

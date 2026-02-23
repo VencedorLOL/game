@@ -20,9 +20,9 @@ public class TheEntrance extends Stage {
 		wallX			= new int[]{-1, -1, -1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 7, 7, 6, 5, 2, 7, 7, 6, 5, 7, 7, 2, 1, 0, 7, 7, 7, 18, 18, 18, 18, 18, 18, 19, 19, 18, 18, 18, 18, 18, 18, 18, 18, 19, 8, 8, 9, 9, 10, 8, 10, 10, 10, 9, 8, 9, 8, 9, 10, 11, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 13, 12, 14, 15, 6, 8, 9, 10, 14, 14, 17, 15, 15, 15, 15, 14, 18, 19, 19, 19, 19, 19, 19, 13, 19, 19, 19, 19, 19, 19, 20, 21, 22, 23, 24, 24, 24, 24, 24, 24, 24, 23, 22, 21, 20, 20, 21, 22, 23, 23, 22, 21, 20, 20, 21, 22, 23, 23, 22, 21, 21, 20, 20, 22, 23, 20, 21, 22, 23, 24, 24, 24, 24, 24, 24, 23, 22, 21, 20, 20, 21, 22, 23, 23, 22, 21, 20, 20, 21, 21, 22, 22, 23, 23, 24, 23, 24, 23, 22, 22, 21, 20, 20, 21, 20, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 1, 1, 2, 2, 0, -1, -1, -1, -1, -1, 0, 1, 2, 2, 1, 1, 0, 0, 0, 4, 5, 5, 5, 6, 6, 6, 6, 5, 6, 6, 7, 8, 8, 8, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 15, 14, 13, 12, 11, 10, 9, 10, 11, 9, 7, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 13, 14, 15, 12, 10, 9, 11, 12, 12, 13, 14, 15, 15, 14, 14, 13, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 		wallY			= new int[]{10, 11, 9, 15, 14, 13, 12, 9, 8, 7, 6, 5, 6, 5, 4, 3, 5, 4, 3, 2, 1, 0, 0, 1, 2, 4, 3, 3, 3, 3, 16, 17, 17, 17, 18, 19, 17, 17, 17, 2, 1, 0, 13, 14, 15, 16, 17, 18, 13, 9, 9, 8, 7, 6, 5, 4, 3, 2, 2, 2, 3, 3, 4, 4, 4, 3, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 2, 3, 4, 3, 2, 1, 1, 2, 2, 1, 0, 0, 0, 0, 0, 16, 16, 16, 4, 3, 4, 19, 18, 17, 16, 16, 19, 19, 18, 17, 16, 15, 14, 16, 8, 7, 6, 5, 4, 3, 13, 13, 13, 13, 13, 14, 15, 16, 17, 18, 19, 19, 19, 19, 19, 18, 18, 18, 18, 17, 17, 17, 17, 16, 16, 16, 16, 15, 15, 15, 14, 14, 15, 14, 14, 2, 2, 2, 2, 2, 5, 6, 7, 8, 9, 9, 9, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 5, 5, 6, 6, 5, 4, 4, 3, 3, 3, 4, 4, 4, 3, 3, 5, 12, 13, 14, 15, 16, 17, 18, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -1, -1, -2, -3, -3, -4, -2, -2, -3, -4, -5, -6, -6, -6, -6, -5, -5, -4, -4, -3, -5, -6, -6, -5, -4, -4, -3, -2, -1, -3, -5, -6, -5, -4, -3, -2, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2, -2, -2, -3, -3, -3, -3, -4, -6, -6, -5, -5, -4, -4, -5, -5, -4, -4, -4, -3, -3, -3, -3, -6, -6, -6, -6, -5, -5, -4, -4, -5, -6, -5, -6, -6, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29};
 		wallType		= new int[]{6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 7, 7, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
-		enemySpawnX		= new int[]{3, 3, 4, 4, 11, 12, 16, 17, 16, 15};
-		enemySpawnY 	= new int[]{3, 17, 17, 3, 16, 16, 16, 16, 4, 4};
-		enemyType		= new int[]{3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+		enemySpawnX		= new int[]{3, 4, 4, 11, 12, 16, 17, 16, 15};
+		enemySpawnY 	= new int[]{17, 17, 3, 16, 16, 16, 16, 4, 4};
+		enemyType		= new int[]{3, 3, 3, 3, 3, 3, 3, 3, 3};
 		screenWarpX 	= new int[]{24, 24, 24};
 		screenWarpY	= new int[]{12, 11, 10};
 		screenWarpDestinationSpecification = new byte[]{0, 0, 0};
@@ -171,11 +171,10 @@ public class TheEntrance extends Stage {
 			tileset.add(createTile(24.0,-1.0));
 	}
 
-	Soldier a,b;
+	Soldier a,b,c;
 	public boolean talkedTo = false;
 	public void customEnemySetter() {
 		a = new Soldier(7*globalSize(),10*globalSize()){
-
 			public void setAction() {
 				Enemy temp = this;
 				action = new Interactable(this){
@@ -217,8 +216,39 @@ public class TheEntrance extends Stage {
 								else
 									storedText = "SName Soldier: Got it, Anima.";
 							}};}};}};
+		c = new Soldier(3*globalSize(),3*globalSize()){
+			public void setAction() {
+				Enemy temp = this;
+				action = new Interactable(this){
+					public void onInteract(Character character) {
+						new Textbox(){
+							public void beforeRenderOverridable() {
+								paralyzeCharacter();
+							}
+
+							public void onRemoval() {
+								deparalyzeCharacter();
+							}
+
+							public void beforeTextOverridable() {
+								framesTilNextLetter = 5;
+								storedText = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do both.";
+								text.initiateRainbow(1000,20);
+								text.initiateShake(3,2);
+								text.setColor(255,255,255);
+								text.changeAttribute(0,0,text.getText().length(),1);
+								text.changeAttribute(1,0,text.getText().length(),1);
+								text.changeAttribute(0,68,73,0);
+								text.changeAttribute(1,108,115,0);
+								text.changeAttribute(1,130,135,0);
+								text.changeAttribute(2,40,52,255);
+								text.changeAttribute(3,40,52,0);
+								text.changeAttribute(4,40,52,0);
+								text.changeAttribute(0,130,135,0);
+							}};}};}};
 		enemy.add(a);
 		enemy.add(b);
+		enemy.add(c);
 	}
 
 	public void iniSoldiersWalking(){

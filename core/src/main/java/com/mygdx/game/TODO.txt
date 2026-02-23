@@ -12,6 +12,8 @@ Bogfixes: enemies trying (and failing) to attack through walls
 Stage: conserve x or y position, relative to the screenwarps and spawn position
 Textbox: choose code implementation
 multiplayer.
+Text: trailing colored text, rapidly disapearing and converting into its supposed real color
+	Text bugfix: fix the unintentional trailing colored text, the one rapidly disapearing and convering into its supposed real color
 
 
 idea:
