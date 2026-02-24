@@ -477,6 +477,8 @@ public class TextureManager {
 		public boolean[] coloringException;
 		int rRbow = -1,gRbow = -1,bRbow = -1;
 		int rDflt = -1, gDflt = -1, bDflt = -1;
+		boolean shakingDefault;
+		boolean coloringDefault;
 
 		public Text(String text, float x, float y, float realSize){
 			this.text = text;
@@ -636,24 +638,76 @@ public class TextureManager {
 		 * @param newValue for {@code attribute} 0,1: {@code 0} = {@code false},  will do, {@code 1} = {@code true} won't do. Else, put a color (range: 0-255)
 		 */
 		public void changeAttribute(int attribute,int from, int to,int newValue){
-			updateText(text);
-			to = (int) intravalue(from,to, text.length()-1);
-			if(from < text.length()) {
-				if (attribute == 0)
-					for (int i = from; i <= to; i++)
-						shakingException[i] = newValue == 0 ? false : true;
-				if (attribute == 1)
-					for (int i = from; i <= to; i++)
-						coloringException[i] = newValue == 0 ? false : true;
-				if (attribute == 2)
-					for (int i = from; i <= to; i++)
-						r[i] = newValue;
-				if (attribute == 3)
-					for (int i = from; i <= to; i++)
-						g[i] = newValue;
-				if (attribute == 4)
-					for (int i = from; i <= to; i++)
-						b[i] = newValue;
+			to = (int) intravalue(from,to,to);
+			if (attribute == 0) {
+				if(shakingException == null || shakingException.length <= to || shakingException.length < text.length()) {
+					boolean temp[] = new boolean[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (shakingException != null && shakingException.length > i)
+							temp[i] = shakingException[i];
+						else
+							temp[i] = shakingDefault;
+					}
+					shakingException = temp;
+				}
+				for (int i = from; i <= to; i++)
+					shakingException[i] = newValue == 0 ? false : true;
+			}
+			if (attribute == 1) {
+				if(coloringException == null || coloringException.length <= to || coloringException.length < text.length()) {
+					boolean temp[] = new boolean[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (coloringException != null && coloringException.length > i)
+							temp[i] = coloringException[i];
+						else
+							temp[i] = coloringDefault;
+					}
+					coloringException = temp;
+				}
+				for (int i = from; i <= to; i++)
+					coloringException[i] = newValue == 0 ? false : true;
+			}
+			if (attribute == 2) {
+				if(r == null || r.length <= to || r.length < text.length()) {
+					int temp[] = new int[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (r != null && r.length > i)
+							temp[i] = r[i];
+						else
+							temp[i] = rDflt;
+					}
+					r = temp;
+				}
+				for (int i = from; i <= to; i++)
+					r[i] = newValue;
+			}
+			if (attribute == 3) {
+				if(g == null || g.length <= to || g.length < text.length()) {
+					int temp[] = new int[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (g != null && g.length > i)
+							temp[i] = g[i];
+						else
+							temp[i] = gDflt;
+					}
+					g = temp;
+				}
+				for (int i = from; i <= to; i++)
+					g[i] = newValue;
+			}
+			if (attribute == 4) {
+				if(b == null || b.length <= to || b.length < text.length()) {
+					int temp[] = new int[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (b != null && b.length > i)
+							temp[i] = b[i];
+						else
+							temp[i] = bDflt;
+					}
+					b = temp;
+				}
+				for (int i = from; i <= to; i++)
+					b[i] = newValue;
 			}
 		}
 
@@ -681,44 +735,78 @@ public class TextureManager {
 
 		public void updateText(String newText){
 			text = newText;
-			boolean[] color = new boolean[text.length()];
-			boolean[] shake = new boolean[text.length()];
-			for(int i = 0; i < min(color.length, coloringException == null ? -1 : coloringException.length); i++)
-				color[i] = coloringException[i];
-			for(int i = 0; i < min(shake.length, shakingException == null ? -1 : shakingException.length); i++)
-				shake[i] = shakingException[i];
+			boolean[] color = new boolean[max(text.length(),coloringException != null ? coloringException.length : 0)];
+			boolean[] shake = new boolean[max(text.length(), shakingException != null ?  shakingException.length : 0)];
+			for(int i = 0; i < color.length; i++) {
+				if(coloringException != null && coloringException.length > i)
+					color[i] = coloringException[i];
+				else
+					color[i] = coloringDefault;
+			}
+			for(int i = 0; i < shake.length; i++) {
+				if(shakingException != null && shakingException.length > i)
+					shake[i] = shakingException[i];
+				else
+					shake[i] = shakingDefault;
+			}
 			shakingException = shake;
 			coloringException = color;
-			int[] r = new int[text.length()];
-			int[] g = new int[text.length()];
-			int[] b = new int[text.length()];
-			for(int i = 0; i < text.length(); i++){
-				  if(this.r.length > i)
+			int[] r = new int[max(text.length(),this.r != null ? this.r.length : 0)];
+			int[] g = new int[max(text.length(),this.g != null ? this.g.length : 0)];
+			int[] b = new int[max(text.length(),this.b != null ? this.b.length : 0)];
+			for(int i = 0; i < r.length; i++) {
+				if (this.r != null && this.r.length > i)
 					r[i] = this.r[i];
 				else {
-					if(rDflt != -1)
+					if (rDflt != -1)
 						r[i] = rDflt;
-					else if (this.r.length > 0)
+					else if (this.r != null && this.r.length > 0)
 						r[i] = this.r[0];
-				} if(this.g.length > i)
+				}
+			}
+			for(int i = 0; i < g.length; i++) {
+				if (this.g != null && this.g.length > i)
 					g[i] = this.g[i];
 				else {
-					if(gDflt != -1)
+					if (gDflt != -1)
 						g[i] = gDflt;
-					else if (this.g.length > 0)
+					else if (this.g != null && this.g.length > 0)
 						g[i] = this.g[0];
-				} if(this.b.length > i)
+				}
+			}
+			for(int i = 0; i < b.length; i++) {
+				if(this.b != null && this.b.length > i)
 					b[i] = this.b[i];
 				else {
 					if(bDflt != -1)
 						b[i] = bDflt;
-					else if (this.b.length > 0)
+					else if (this.b != null && this.b.length > 0)
 						b[i] = this.b[0];
 				}
 			}
 			this.r = r;
 			this.g = g;
 			this.b = b;
+			if(maxVariation != 0) {
+				float[] tempS = new float[text.length()];
+				int[] tempStart = new int[text.length()];
+				boolean[] tempUp = new boolean[text.length()];
+				for (int i = 0; i < tempS.length; i++) {
+					if (shiftedCoordinates.length > i)
+						tempS[i] = shiftedCoordinates[i];
+					if (timeTilStart.length > i)
+						tempStart[i] = timeTilStart[i];
+					else
+						tempStart[i] = (int) (timeToReachMaxVar * random());
+					if (isUp.length > i)
+						tempUp[i] = isUp[i];
+					else
+						tempUp[i] = random() < .5 ? false : true;
+				}
+				timeTilStart = tempStart;
+				shiftedCoordinates = tempS;
+				isUp = tempUp;
+			}
 		}
 
 		public void addToText(String addition){
@@ -981,7 +1069,7 @@ public class TextureManager {
 			}
 		}
 
-		enum Letters{
+		public enum Letters{
 			A("A",6),B("B",5),C("C",6),D("D",5),E("E",5),
 			F("F",5),G("G",6),H("H",4),I("I",5),
 			J("J",3),K("K",4),L("L",3),M("M",7),N("N",5),
@@ -1009,6 +1097,8 @@ public class TextureManager {
 			AND("Anderson",5),DIEU("DieresisU",5),
 			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0)
 			;
+
+			public int getSize(){return size;}
 
 			final int size;
 			final String texture;
@@ -1090,6 +1180,19 @@ public class TextureManager {
 				gDflt = color[1];
 			if(color.length >= 3)
 				bDflt = color[2];
+		}
+
+		public void setDefaultAttribute(int attribute, int value){
+			if(attribute == 0)
+				shakingDefault = value == 0 ? false : true;
+			if(attribute == 1)
+				coloringDefault = value == 0 ? false : true;
+			if(attribute == 2)
+				rDflt = value;
+			if(attribute == 3)
+				gDflt = value;
+			if(attribute == 4)
+				bDflt = value;
 		}
 
 	}

@@ -3,6 +3,11 @@ package com.mygdx.game.items;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.turnMode;
 
+//TODO: COMPLETELY CHANGE HOW THESE WORK:
+// Size: either minimum size (1px) or standard (globalSize() multiples). Will have a center to calculate the offset and
+// to tell the spawner from the next stage how much to offset Anima.
+// The coordinate is minimum size on the same coordinate that this offset is ignored (e.g.: if walking horizontally,
+// the offset is vertical, thus the 1xp size will have to be on the horizontal coordinate, AKA a 1px base.)
 public class ScreenWarp {
 	protected Stage stage;
 	protected int base, height;
@@ -39,6 +44,7 @@ public class ScreenWarp {
 			return x < chara.x + chara.base && x + base > chara.x && y < chara.y + chara.height && y + height > chara.y;
 		return chara.x == x && chara.y == y;
 	}
+
 
 
 

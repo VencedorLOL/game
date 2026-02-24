@@ -79,11 +79,11 @@ public class AttackTextProcessor {
 			int aid = 0;
 			for (TextDamageAndReason t : textDamageAndReason){
 				t.text.render = true;
+				t.text.setColor(t.reason.getColor());
 				t.text.updateText(String.format("%.2f", t.damage));
 				t.text.x = follow.x + (globalSize() - textSize(t.text.getText(),40))/2f;
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				t.text.realSize = 40;
-				t.text.setColor(t.reason.getColor());
 				t.text.opacity = 1;
 				addToList(t.reason.texture, t.text.x - 40, t.text.y - 22,1,0,t.reason.r,t.reason.g,t.reason.b,5,5);
 			}
