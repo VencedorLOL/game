@@ -16,9 +16,13 @@ public class PathForest extends Stage {
 		enemySpawnX		= new int[]{};
 		enemySpawnY 	= new int[]{};
 		enemyType		= new int[]{};
-		screenWarpX 	= new int[]{1, 0};
-		screenWarpY	= new int[]{12, 12};
-		screenWarpDestinationSpecification = new byte[]{0, 0};
+		screenWarpX 	= new int[]{0,0};
+		screenWarpY	= new int[]{12,0};
+		screenWarpIsHorizontal = new boolean[]{true,true};
+		screenWarpAlignment = new boolean[]{true,false};
+		screenWarpSize = new float[]{2,3};
+		screenWarpType = new int[]{2,1};
+		screenWarpDestinationSpecification = new byte[]{0, 1};
 		floorTexture = "Grass";
 		bgTexture = "tree";
 		staticCameraYmax = true;
@@ -28,6 +32,7 @@ public class PathForest extends Stage {
 
 	public void reStage() {		
 		screenWarpDestination.add(new CornerStart());
+		screenWarpDestination.add(new CraterStage());
 	}
 
 	public void tilesetCleanup() {		

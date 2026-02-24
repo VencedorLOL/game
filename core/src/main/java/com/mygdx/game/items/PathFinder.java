@@ -2,6 +2,8 @@ package com.mygdx.game.items;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.print;
@@ -108,7 +110,7 @@ public class PathFinder {
 		minimunDistance = POSITIVE_INFINITY;
 		solution = new ArrayList<>();
 		currentAnalizing = new ArrayList<>();
-		dumpList = new ArrayList<>();
+		dumpList = new HashSet<>();
 	}
 
 
@@ -141,16 +143,15 @@ public class PathFinder {
 	}
 
 	ArrayList<Tile> currentAnalizing = new ArrayList<>();
-	ArrayList<Tile> dumpList = new ArrayList<>();
+	HashSet<Tile> dumpList = new HashSet<>();
 	long time;
 	private boolean solve(ArrayList<Tile> currentGrid){
-		if(startAsPathfinding)
-			time = nanoTime();
 		if (!needsReset.bool) {
 			if (currentAnalize(startTile,currentGrid))
 				return true;
 			for (int i = 1; i <= grid.size(); i++) {
-				currentAnalizing = (ArrayList<Tile>) dumpList.clone();
+				currentAnalizing.clear();
+				currentAnalizing.addAll(dumpList);
 				dumpList.clear();
 				for (Tile t : currentAnalizing)
 					if (currentAnalize(t,currentGrid))
@@ -174,14 +175,7 @@ public class PathFinder {
 				if (t.generation == 0){
 					t.generation = (byte) (originalTile.generation + 1);
 				}
-				boolean temp = false;
-				if (!dumpList.isEmpty())
-					for (Tile tt : dumpList)
-						if (tt == t){
-							temp = true;
-							break;
-						}
-				if (!temp && t != objectiveTile)
+				if (t != objectiveTile)
 					dumpList.add(t);
 				t.parent.add(originalTile);
 				if (originalTile.distanceToStart + t.relativeModuleTo(originalTile) < t.distanceToStart || t.distanceToStart == 0)

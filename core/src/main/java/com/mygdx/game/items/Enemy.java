@@ -86,6 +86,7 @@ public class Enemy extends Actor {
 		path = new Path(x,y,speed,this);
 		permittedToAct = false;
 		enemies.add(this);
+		print("Ran throu the enemy constructor as " + this);
 	}
 
 	public Enemy(float x, float y) {
@@ -98,6 +99,7 @@ public class Enemy extends Actor {
 		permittedToAct = false;
 		enemies.add(this);
 		health = 20;
+		print("Ran throu the enemy constructor as " + this);
 	}
 	// Movement
 

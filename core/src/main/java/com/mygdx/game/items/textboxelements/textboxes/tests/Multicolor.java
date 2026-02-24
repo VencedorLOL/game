@@ -100,20 +100,16 @@ public class Multicolor extends Textbox {
 			storedText = "VERY FAST RAINBOW!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 		}
 
-		boolean finalizedInitializing = false;
 		boolean initializedRainbow = false;
 		public void beforeTextOverridable() {
 			if (text != null) {
-				if(!finalizedInitializing)
-					text.initiateShake(5,20);
 				if(!initializedRainbow) {
+					text.initiateShake(5,20);
 					text.initiateRainbow(30, 1.5f);
 					initializedRainbow = true;
 				}
 				textColor = text.getDefaultColor();
 			}
-			if(amountOfTextWritten == storedText.length())
-				finalizedInitializing = true;
 		}
 
 		public void onRemoval() {
@@ -128,19 +124,15 @@ public class Multicolor extends Textbox {
 		}
 
 		boolean initializedRainbow = false;
-		boolean finalizedInitializing = false;
 		public void beforeTextOverridable() {
 			if (text != null) {
-				if(!finalizedInitializing)
-					text.initiateShake(1,10);
 				if(!initializedRainbow) {
+					text.initiateShake(1,10);
 					text.initiateRainbow(3060, 20);
 					initializedRainbow = true;
 				}
 				textColor = text.getDefaultColor();
 			}
-			if(amountOfTextWritten == storedText.length())
-				finalizedInitializing = true;
 		}
 
 		public void onRemoval() {

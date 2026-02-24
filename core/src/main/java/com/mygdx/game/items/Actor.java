@@ -322,6 +322,10 @@ public class Actor extends Entity implements TurnManager.Turnable {
 
 	protected void enemyOnFreeMode(){}
 
+	//TODO: Fix potential de-aligment issue: if the character gets de-aligned, for example, the character's y position becomes "1", the character will not be able
+	// to recover the normal aligment, that is, in a position that % 8 == 0, when the character tries to go against a wall the movement will not be permitted
+	// thus the position of the character will remain constant.
+
 	protected void speedActuator(){
 		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;

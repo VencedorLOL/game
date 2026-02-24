@@ -8,7 +8,7 @@ public class Shields {
 	public String shieldName;
 	public float shieldHealth;
 	public float shieldDamage;
-	public byte shieldSpeed;
+	public int 	shieldSpeed;
 	public byte shieldAttackSpeed;
 	public float shieldDefense;
 	public float shieldRainbowDefense;

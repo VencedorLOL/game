@@ -12,9 +12,9 @@ import static com.mygdx.game.items.TurnManager.turnStopTimer;
 public class Path {
 	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());
 	ArrayList<PathStep> path;
-	byte steps;
+	int steps;
 	float entityX, entityY;
-	byte currentNumberOfPaths = 0;
+	int currentNumberOfPaths = 0;
 	boolean pathEnded;
 	OnVariousScenarios oVS;
 	Actor owner;
@@ -266,7 +266,7 @@ public class Path {
 
 
 	public void getStats(float x, float y, int speed){
-		steps = (byte) (speed / 2);
+		steps = (speed / 2);
 		if (steps <= 0)
 			steps = 1;
 		entityX = x;

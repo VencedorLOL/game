@@ -27,7 +27,7 @@ public class CharacterClasses {
 	public String name;
 	public float health;
 	public float damage;
-	public byte  speed;
+	public int   speed;
 	public byte  attackSpeed;
 	public float defense;
 	public float rainbowDefense;
@@ -46,7 +46,7 @@ public class CharacterClasses {
 
 	public float totalHealth;
 	public float totalDamage;
-	public byte  totalSpeed;
+	public int  totalSpeed;
 	public byte  totalAttackSpeed;
 	public float totalMana;
 	public float totalManaPerTurn;
@@ -134,7 +134,7 @@ public class CharacterClasses {
 		if (character != null) {
 			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0) + getAdditive(0)) * character.conditions.getMultiplier(0) *getMultiplier(0);
 			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1) + getAdditive(1)) * character.conditions.getMultiplier(1) *getMultiplier(1);
-			totalSpeed = (byte) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2) + getAdditive(2))  * character.conditions.getMultiplier(2)*getMultiplier(2));
+			totalSpeed = (int) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2) + getAdditive(2))  * character.conditions.getMultiplier(2)*getMultiplier(2));
 			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3) + getAdditive(3)) * character.conditions.getMultiplier(3)*getMultiplier(3));
 			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4) + getAdditive(4)) * character.conditions.getMultiplier(4)*getMultiplier(4);
 			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5) + getAdditive(5)) * character.conditions.getMultiplier(5)*getMultiplier(5));
@@ -150,7 +150,7 @@ public class CharacterClasses {
 		else {
 			totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
 			totalDamage = damage + shield.shieldDamage + weapon.weaponDamage;
-			totalSpeed = (byte) (speed + shield.shieldSpeed + weapon.weaponSpeed);
+			totalSpeed = (speed + shield.shieldSpeed + weapon.weaponSpeed);
 			totalAttackSpeed = (byte) (attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed);
 			totalDefense = defense + shield.shieldDefense + weapon.weaponDefense;
 			totalRange = range + shield.shieldRange + weapon.weaponRange;

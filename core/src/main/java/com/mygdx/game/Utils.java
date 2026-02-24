@@ -1,11 +1,14 @@
 package com.mygdx.game;
 
+import com.mygdx.game.items.TextureManager;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.items.TextureManager.Text.getTexture;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static java.lang.String.valueOf;
@@ -130,11 +133,57 @@ public class Utils {
 		return (float) sqrt(pow((iX)-(fX),2)+pow((iY)-(fY),2));
 	}
 
-	public static void main(String... args){
-		String str1 = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do ";
-		String str2 = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do both.";
-		print("Start at: "+ (str1.length()-1) + ", end at: "+  (str2.length()-1));
+	public static int indexBackClosestToTarget(char target, String string, int position){
+		position = string.length() - 1 - position;
+		string = new StringBuilder(string).reverse().toString();
+		int finalPos = -1;
+		for(int i = position; i < string.length(); i++)
+			if(string.charAt(i) == target) {
+				finalPos = i;
+				break;
+			}
+		return string.length() - 1 - finalPos;
 	}
+
+	public static String replaceCharAt(String original, char newChar, int index){
+		if(index > original.length())
+			return original;
+		char[] strBuilder = new char[original.length()];
+		for(int i = 0; i < original.length(); i++){
+			if(i != index)
+				strBuilder[i] = original.charAt(i);
+			else
+				strBuilder[i] = newChar;
+		}
+		return new String(strBuilder);
+	}
+
+	public static void main(String... args){
+		//algo word attributes
+		String str1 = "";
+		String str2 = "";
+		print("Start at: "+ (str1.length()-1) + ", end at: "+  (str2.length()-1));
+		//algo line breaks
+		//works like a charm
+		//TODO: implement this into the textboxes
+		String size = "hello world, this is a kinda long sentence kinda to test the new algorithm i made at detecting where line breaks should go.";
+		int limit = 203;
+		print("Final result: \n-----------------------------------------------------\n");
+		float counter = 0;
+		for(int i = 0; i < size.length(); i++) {
+			counter += getTexture(size.charAt(i)).getSize() + 1;
+			if(counter > limit){
+				//its ok for the for loop to i++ at the end, as we dont really care about "\n"'s size. furthermore, this skip is beneficial.
+				i = indexBackClosestToTarget(' ', size, i);
+				size = replaceCharAt(size,'\n',i);
+				counter = 0;
+			}
+		}
+		print(size);
+		print("\n-----------------------------------------------------\n");
+	}
+
+
 
 
 }

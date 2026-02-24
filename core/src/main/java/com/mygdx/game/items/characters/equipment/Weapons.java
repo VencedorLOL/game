@@ -10,7 +10,7 @@ public class Weapons {
 	public String weaponName;
 	public float weaponHealth;
 	public float weaponDamage;
-	public byte weaponSpeed;
+	public int weaponSpeed;
 	public byte weaponAttackSpeed;
 	public float weaponDefense;
 	public float weaponRainbowDefense;

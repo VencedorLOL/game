@@ -8,7 +8,6 @@ import java.util.Objects;
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.Utils.byteArraySearcherForScreenWarps;
 import static com.mygdx.game.items.Background.*;
 import static com.mygdx.game.items.FieldEffects.*;
 import static com.mygdx.game.items.Hazards.clearHazards;
@@ -34,6 +33,16 @@ public class Stage  {
 	public static boolean haveScreenWarpsBeenRendered;
 	public ArrayList<Stage> screenWarpDestination;
 	public byte[] screenWarpDestinationSpecification;
+	public int[] screenWarpType;
+	public float[] screenWarpSize;
+	public boolean[] screenWarpIsHorizontal;
+	// IF HORIZONTAL:
+	/// TRUE MEANS STICKED UP
+	// IF VERTICAL
+	/// TRUE MEANS STICKED LEFT
+	public boolean[] screenWarpAlignment;
+
+
 	public static boolean betweenStages = false;
 
 	public ArrayList<Floor> floor = new ArrayList<>();
@@ -113,8 +122,22 @@ public class Stage  {
 	}
 
 	public void screenWarpSetter(){
-		for (int i = 0; i < screenWarpX.length; i++)
-			screenWarp.add(new ScreenWarp(globalSize() * screenWarpX[i], globalSize() * screenWarpY[i], globalSize(), globalSize()));
+		if(screenWarpIsHorizontal == null || screenWarpAlignment == null || screenWarpSize == null || screenWarpType == null) {
+			printErr("Modern ScreenWarp elements not found. Resorting to old initialization methods.");
+			for (int i = 0; i < screenWarpX.length; i++) {
+				screenWarp.add(new ScreenWarp(globalSize() * screenWarpX[i], globalSize() * screenWarpY[i], globalSize(), globalSize()));
+			}
+		} else
+			for (int i = 0; i < screenWarpX.length; i++) {
+				if(screenWarpIsHorizontal[i])
+					screenWarp.add(new ScreenWarp(globalSize() * screenWarpX[i],
+							globalSize() * screenWarpY[i] + (screenWarpAlignment[i] ? globalSize()-1 : 0)
+							,screenWarpSize[i] * globalSize(), 1,screenWarpType[i]));
+				else
+					screenWarp.add(new ScreenWarp(globalSize() * screenWarpX[i] + (screenWarpAlignment[i] ? 0 : globalSize()-1),
+							globalSize() * screenWarpY[i]
+							,1, screenWarpSize[i] * globalSize(),screenWarpType[i]));
+			}
 		haveScreenWarpsBeenRendered = true;
 	}
 
@@ -220,15 +243,16 @@ public class Stage  {
 
 	public void stageRenderer(){
 		if (betweenStages){
+			print("Ran throu the BetweenStagesMethod");
 			clearBG();
 			ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
 			enemy.clear();
 			walls.clear();
 			tileset.clear();
 			screenWarp.clear();
+			wallSetter();
 			tilesetSetter();
 			border.updateCoords(this);
-			wallSetter();
 			enemySetter();
 			screenWarpSetter();
 			fieldSetter();
@@ -258,12 +282,28 @@ public class Stage  {
 	}
 
 	public void screenWarpTrigger(){
-		for(ScreenWarp s : screenWarp)
-			if (s.doesCharInteractWithMe(chara)) {
-				betweenStages = true;
-				int pos = screenWarpDestinationSpecification[byteArraySearcherForScreenWarps(screenWarpDestinationSpecification, s.ID)];
-				stage = getScreenWarpStage(pos);
+		for(int i = 0; i < screenWarp.size(); i++)
+			if (screenWarpDestinationSpecification[i] != -1 && screenWarp.get(i).doesCharInteractWithMe(chara)) {
+				//this is so java doesn't radomly forget about this class existing + convenience when typing
+				ScreenWarp tested = screenWarp.get(i);
+				stage = screenWarpDestination.get(screenWarpDestinationSpecification[i]);
+				float[] coordOffset = new float[]{chara.x-tested.x,chara.y-tested.y};
 				stage.reseter();
+				betweenStages = false;
+				//this modifies the coordinates of the character. We want reseter() modifying it first as a fallback for if no target destination screenWarp is found.
+				for (int j = 0; j < stage.screenWarp.size(); j++){
+					if(stage.screenWarp.get(j) != tested && stage.screenWarp.get(j).endOfColor == tested.endOfColor && stage.screenWarp.get(j).base >= tested.base && tested.height >= stage.screenWarp.get(j).height) {
+						if(stage.screenWarpIsHorizontal != null && stage.screenWarpIsHorizontal[j]){
+							chara.setX(stage.screenWarp.get(j).x + coordOffset[0]);
+							chara.setY(stage.screenWarp.get(j).y + (stage.screenWarpAlignment[j] ? -globalSize()-7 : 8));
+						} else if (stage.screenWarpIsHorizontal != null && !stage.screenWarpIsHorizontal[j]){
+							chara.setY(stage.screenWarp.get(j).y + coordOffset[1]);
+							chara.setX(stage.screenWarp.get(j).x + (stage.screenWarpAlignment[j] ? 8 : -7-globalSize()));
+						}
+						return;
+					}
+				}
+				return;
 			}
 	}
 
@@ -272,11 +312,25 @@ public class Stage  {
 		chara.setX(spawnX);
 		chara.setY(spawnY);
 		reStage();
+		clearBG();
+		ScreenUtils.clear(( /* red */ 0), ( /* green */ 0), ( /* blue */ 0), 1);
+		enemy.clear();
+		walls.clear();
+		tileset.clear();
+		screenWarp.clear();
+		wallSetter();
+		tilesetSetter();
+		border.updateCoords(this);
+		enemySetter();
+		screenWarpSetter();
+		fieldSetter();
+		hazardSetter();
+		betweenStages = false;
+		addBG(bgTexture);
 	}
 
 	public void reseterr(){
 		ScreenUtils.clear(( /* red */ 0), (/* green */ 0), (/* blue */ 0), 1);
-		betweenStages = true;
 		haveEnemiesBeenRendered = false;
 		haveWallsBeenRendered = false;
 		haveScreenWarpsBeenRendered = false;
@@ -299,9 +353,6 @@ public class Stage  {
 	 */
 	public void reStage(){}
 
-	public Stage getScreenWarpStage(int pos){
-		return screenWarpDestination.get(pos);
-	}
 
 	public Enemy enemyClass(int x, int y, int enemyType){
 		try {

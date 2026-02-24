@@ -16,9 +16,13 @@ public class CraterStage extends Stage {
 		enemySpawnX		= new int[]{};
 		enemySpawnY 	= new int[]{};
 		enemyType		= new int[]{};
-		screenWarpX 	= new int[]{4, 3, 2};
-		screenWarpY	= new int[]{25, 25, 25};
-		screenWarpDestinationSpecification = new byte[]{0, 0, 0};
+		screenWarpX 	= new int[]{2};
+		screenWarpY	= new int[]{25};
+		screenWarpIsHorizontal = new boolean[]{true};
+		screenWarpAlignment = new boolean[]{true};
+		screenWarpSize = new float[]{3};
+		screenWarpType = new int[]{1};
+		screenWarpDestinationSpecification = new byte[]{0};
 		floorTexture = "Grass";
 		bgTexture = "tree";
 		scale();
