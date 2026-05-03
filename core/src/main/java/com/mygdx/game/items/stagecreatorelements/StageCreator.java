@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.Background.addBG;
 import static com.mygdx.game.items.Background.clearBG;
 import static com.mygdx.game.items.ClickDetector.roundedClick;
@@ -77,11 +78,21 @@ public class StageCreator {
 			}
 		} else if(hasStageBeenCreated)
 			stage.stageRenderer();
-
+		if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
+			for(ScreenWarp s : stage.screenWarp){
+				print("X: " + s.x);
+				print("Y: " + s.y);
+				print("base: " + s.base);
+				print("height: " + s.height);
+			}
+		}
 
 	}
 
 	// 0 = draw		1 = select		2 = move
+	/**
+	0 = Draw  |   1 = Select  |   2 = Move  |   3 = SWDestination
+	 */
 	byte action;
 	byte mode = 0;
 	float startSelectionX, startSelectionY;
@@ -227,11 +238,16 @@ public class StageCreator {
 					stage.enemy.addAll(selectedEnemies);
 				}
 				if(typeOfElement == 2) {
-					for (ScreenWarp w : stage.screenWarp)
-						if (w.x >= min(startSelectionX, endSelectionX) && w.x <= max(startSelectionX, endSelectionX) &&
-								w.y >= min(startSelectionY, endSelectionY) && w.y <= max(startSelectionY, endSelectionY)) {
-							selectedScreenWarps.add(w);
-							target.circle.addToCircle(w.x, w.y);
+					for (ScreenWarp s : stage.screenWarp)
+						if (s.x >= min(startSelectionX, endSelectionX) && s.x <= max(startSelectionX, endSelectionX) &&
+								s.y >= min(startSelectionY, endSelectionY) && s.y <= max(startSelectionY, endSelectionY)) {
+							selectedScreenWarps.add(s);
+							if(s.x % globalSize() != 0)
+								target.circle.addToCircle(s.x - globalSize() + 1, s.y);
+							else if (s.y % globalSize() != 0)
+								target.circle.addToCircle(s.x, s.y - globalSize() + 1);
+							else
+								target.circle.addToCircle(s.x, s.y);
 						}
 					target.circle.circle.removeIf(Objects::isNull);
 					target.circle.detectCornersOfCircle(target.circle.circle);
@@ -329,7 +345,8 @@ public class StageCreator {
 		}
 		if(action == 2){
 			Vector3 auth = roundedClick(); //authenticClick();
-			if((selectedWalls != null || selectedEnemies != null || selectedScreenWarps != null || selectedHazards != null) && (!selectedWalls.isEmpty() || !selectedEnemies.isEmpty() || !selectedScreenWarps.isEmpty() || !selectedHazards.isEmpty())){
+			if((selectedWalls != null && !selectedWalls.isEmpty()) || (selectedEnemies != null && !selectedEnemies.isEmpty())
+					|| (selectedScreenWarps != null && !selectedScreenWarps.isEmpty()) || (selectedHazards != null && !selectedHazards.isEmpty())){
 				if(leftClickJustPressed()){
 					mode = 1;
 					startSelectionX = vector.x; startSelectionY = vector.y;
@@ -381,10 +398,15 @@ public class StageCreator {
 							target.circle.addToCircle(w.x, w.y);
 						}
 					} if(typeOfElement == 2) {
-						for (ScreenWarp w : selectedScreenWarps) {
-							w.x += auth.x - lastFrameX;
-							w.y += auth.y - lastFrameY;
-							target.circle.addToCircle(w.x, w.y);
+						for (ScreenWarp s : selectedScreenWarps) {
+							s.x += auth.x - lastFrameX;
+							s.y += auth.y - lastFrameY;
+							if(s.x % globalSize() != 0)
+								target.circle.addToCircle(s.x - globalSize() + 1, s.y);
+							else if (s.y % globalSize() != 0)
+								target.circle.addToCircle(s.x, s.y - globalSize() + 1);
+							else
+								target.circle.addToCircle(s.x, s.y);
 						}
 					} if(typeOfElement == 3) {
 						for (Tile t : selectedTiles) {
@@ -454,6 +476,22 @@ public class StageCreator {
 					}
 				}
 
+				if(typeOfElement == 2 && mode != 1) {
+					for(ScreenWarp s : stage.screenWarp){
+						if(s.base == s.height)
+							priorityDrawables.add(new DrawableObject("Ball",s.x+s.base-globalSize(),s.y,1,0,200,100,100));
+						else if (s.height == 1)
+							priorityDrawables.add(new DrawableObject("Ball",s.x+s.base-globalSize(),s.y,1,0,0,225,100));
+						else if (s.base == 1)
+							priorityDrawables.add(new DrawableObject("Ball",s.x,s.y+s.height-globalSize(),1,0,0,225,100));
+					}
+
+					if (mode == 0 && rightClickJustPressed() && tipOfScreenWarp(vector)) {
+						mode = -2;
+						movingScreenWarp = getTipScreenWarp(vector);
+					}
+				}
+
 				if(rightClickPressed() && mode == 2){
 					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,0,0,100,225));
 					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,180,0,100,225));
@@ -463,12 +501,70 @@ public class StageCreator {
 					}
 				}
 
+				if(rightClickPressed() && mode == -2){
+					if(movingScreenWarp.base == movingScreenWarp.height) {
+						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 0, 200, 100, 100));
+						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 180, 200, 100, 100));
+						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 90, 200, 100, 100));
+						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 270, 200, 100, 100));
+						if(vector.x != movingScreenWarp.x || vector.y != movingScreenWarp.y){
+							if(vector.x > movingScreenWarp.x){
+								mode = 0;
+								stage.screenWarp.remove(movingScreenWarp);
+								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								movingScreenWarp = null;
+							}
+							else if(vector.x < movingScreenWarp.x){
+								mode = 0;
+								stage.screenWarp.remove(movingScreenWarp);
+								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								movingScreenWarp = null;
+							}
+							else if(vector.y > movingScreenWarp.y){
+								mode = 0;
+								stage.screenWarp.remove(movingScreenWarp);
+								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								movingScreenWarp = null;
+							}
+							else if(vector.y < movingScreenWarp.y){
+								mode = 0;
+								stage.screenWarp.remove(movingScreenWarp);
+								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								movingScreenWarp = null;
+							}
+						}
+
+
+					}
+					else{
+						if(movingScreenWarp.height == 1) {
+							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 0, 0, 225, 100));
+							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 180, 0, 225, 100));
+							if (((vector.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize() != 0 && (movingScreenWarp).base / globalSize() + ((auth.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize() >= 1) {
+								(movingScreenWarp).base = ((movingScreenWarp.base / globalSize() + ((auth.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize())) * globalSize();
+							}
+						}
+						else if(movingScreenWarp.base == 1) {
+							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(), 1, 90, 0, 225, 100));
+							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(), 1, 270, 0, 225, 100));
+							if (((vector.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize() != 0 && movingScreenWarp.height / globalSize() + ((auth.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize() >= 1) {
+								movingScreenWarp.height = ((movingScreenWarp.height / globalSize() + ((auth.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize())) * globalSize();
+							}
+						}
+					}
+				}
+
 				if(rightClickReleased() && mode == 2){
 					movingHazard = null;
 					mode = 0;
 				}
 
-				if(leftClickJustPressed() && detectElement(vector) && mode != 2){
+				if(rightClickReleased() && mode == -2){
+					movingScreenWarp = null;
+					mode = 0;
+				}
+
+				if(leftClickJustPressed() && detectElement(vector) && mode != 2 && mode != -2){
 					mode = 1;
 					startSelectionX = vector.x; startSelectionY = vector.y;
 					lastFrameX = auth.x; lastFrameY = auth.y;
@@ -483,6 +579,9 @@ public class StageCreator {
 						stage.enemy.add(movingEnemy);
 					} if (typeOfElement == 2) {
 						movingScreenWarp = getScreenWarp(vector);
+						startSelectionX = movingScreenWarp.x;
+						startSelectionY = movingScreenWarp.y;
+						print("x " + startSelectionX + " y " + startSelectionY);
 						stage.screenWarp.remove(movingScreenWarp);
 						stage.screenWarp.add(movingScreenWarp);
 					} if (typeOfElement == 3) {
@@ -544,8 +643,6 @@ public class StageCreator {
 								if (stage.screenWarp.get(i).x == vector.x && stage.screenWarp.get(i).y == vector.y && stage.screenWarp.get(i) != movingScreenWarp) {
 									stage.screenWarp.remove(stage.screenWarp.get(i));
 								}
-						movingScreenWarp.x = vector.x;
-						movingScreenWarp.y = vector.y;
 					} if(typeOfElement == 3) {
 						if (detectElement(vector))
 							for (int i = 0; i < stage.tileset.size(); i++)
@@ -576,7 +673,9 @@ public class StageCreator {
 					target = null;
 				}
 			}
-			if(mode == 1 || mode == 2) {
+
+
+			if(mode == 1 || mode == 2 || mode == -2) {
 				lastFrameX = auth.x;
 				lastFrameY = auth.y;
 			}
@@ -861,10 +960,10 @@ public class StageCreator {
 		return false;
 	}
 
-	public boolean samePositionAsSelected(ScreenWarp wall){
-		if(!isSelected(wall))
-			for(ScreenWarp w : selectedScreenWarps)
-				if(w.x == wall.x && w.y == wall.y)
+	public boolean samePositionAsSelected(ScreenWarp vector){
+		if(!isSelected(vector))
+			for(ScreenWarp s : selectedScreenWarps)
+				if(vector.x < s.x + s.base && vector.x + vector.base > s.x && vector.y < s.y + s.height && vector.y + vector.base > s.y)
 					return true;
 		return false;
 	}
@@ -930,8 +1029,8 @@ public class StageCreator {
 				if(e.x == vector.x && e.y == vector.y)
 					return true;
 		if (typeOfElement == 2)
-			for (ScreenWarp w : stage.screenWarp)
-				if(w.x == vector.x && w.y == vector.y)
+			for (ScreenWarp s : stage.screenWarp)
+				if(vector.x < s.x + s.base && vector.x + globalSize() > s.x && vector.y < s.y + s.height && vector.y + globalSize() > s.y)
 					return true;
 		if (typeOfElement == 3)
 			for (Tile t : stage.tileset)
@@ -953,6 +1052,15 @@ public class StageCreator {
 		return false;
 	}
 
+	public boolean tipOfScreenWarp(Vector3 vector){
+		for (ScreenWarp s : stage.screenWarp)
+			if((s.base == 1 && ((s.x == vector.x - 1 + globalSize() && s.y == vector.y - s.height + globalSize()) || (s.x == vector.x && s.y == vector.y - s.height + globalSize()))) ||
+				(s.height == 1 && ((s.y == vector.y - 1 + globalSize() && s.x == vector.x - s.base + globalSize()) || (s.x == vector.x - s.base + globalSize() && s.y == vector.y) )) ||
+				(s.base == s.height && s.x == vector.x && s.y == vector.y))
+				return true;
+		return false;
+	}
+
 	public Wall getWall(Vector3 vector){
 		for (Wall w : stage.walls)
 			if(w.x == vector.x && w.y == vector.y)
@@ -967,10 +1075,11 @@ public class StageCreator {
 		return null;
 	}
 
+	// this doesnt want the peak of the sw therefore we use intersection w mouse pos
 	public ScreenWarp getScreenWarp(Vector3 vector){
-		for (ScreenWarp w : stage.screenWarp)
-			if(w.x == vector.x && w.y == vector.y)
-				return w;
+		for (ScreenWarp s : stage.screenWarp)
+			if(vector.x < s.x + s.base && vector.x + globalSize() > s.x && vector.y < s.y + s.height && vector.y + globalSize() > s.y)
+				return s;
 		return null;
 	}
 
@@ -992,6 +1101,15 @@ public class StageCreator {
 		for (Hazards h : hazards)
 			if(h instanceof Hazards.EarthCrack && h.x == vector.x - h.base + globalSize() && h.y == vector.y)
 				return (Hazards.EarthCrack) h;
+		return null;
+	}
+
+	public ScreenWarp getTipScreenWarp(Vector3 vector){
+		for (ScreenWarp s : stage.screenWarp)
+			if((s.base == 1 && ((s.x == vector.x - 1 + globalSize() && s.y == vector.y - s.height + globalSize()) || (s.x == vector.x && s.y == vector.y - s.height + globalSize()))) ||
+					(s.height == 1 && ((s.y == vector.y - 1 + globalSize() && s.x == vector.x - s.base + globalSize()) || (s.x == vector.x - s.base + globalSize() && s.y == vector.y) )) ||
+					(s.base == s.height && s.x == vector.x && s.y == vector.y))
+				return s;
 		return null;
 	}
 

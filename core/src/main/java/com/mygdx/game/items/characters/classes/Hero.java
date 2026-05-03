@@ -13,16 +13,16 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import java.util.ArrayList;
 
-public class Vencedor extends CharacterClasses {
+public class Hero extends CharacterClasses {
 
 
 	public boolean attackMode = false;
-	public boolean controlVenceSwordMode = false;
-	public ArrayList<VenceSword> venceSwordArray = new ArrayList<>();
+	public boolean controlHeroSwordMode = false;
+	public ArrayList<HeroSword> heroSwordArray = new ArrayList<>();
 
-	public Vencedor() {
+	public Hero() {
 		super();
-		name = "Vencedor";
+		name = "Her";
 		health = 40;
 		damage = 5;
 		speed = 30;
@@ -41,15 +41,15 @@ public class Vencedor extends CharacterClasses {
 	}
 
 	public void updateOverridable(){
-		VenceSword();
-		for (VenceSword v : venceSwordArray){
+		HeroSword();
+		for (HeroSword v : heroSwordArray){
 			v.render();
 		}
 		refresh();
 	}
 
 
-	public void VenceSword(){
+	public void HeroSword(){
 		if (isDecidingWhatToDo(character) && Gdx.input.isKeyJustPressed(Input.Keys.E) && !attackMode){
 			attackMode = true;
 			return;
@@ -63,26 +63,26 @@ public class Vencedor extends CharacterClasses {
 			if (touchDetect()) {
 				float x = roundedClick().x;
 				float y = roundedClick().y;
-				for (VenceSword v : venceSwordArray){
-					if (x == v.getX() && y == v.getY()) {
-						controlVenceSwordMode = !controlVenceSwordMode;
-						v.isBeingControlled = !v.isBeingControlled;
-						if(v.isBeingControlled)
+				for (HeroSword h : heroSwordArray){
+					if (x == h.getX() && y == h.getY()) {
+						controlHeroSwordMode = !controlHeroSwordMode;
+						h.isBeingControlled = !h.isBeingControlled;
+						if(h.isBeingControlled)
 							System.out.println("Sword at x " + x + " y " + y + " is being controlled." );
 						else
 							System.out.println("Sword at x " + x + " y " + y + " is no longer being controlled." );
 					}
-					if (controlVenceSwordMode && v.isBeingControlled && v.getX() != x && v.getY() != y){
-						v.setX(x);
-						v.setY(y);
-						controlVenceSwordMode = false;
-						v.isBeingControlled = false;
+					if (controlHeroSwordMode && h.isBeingControlled && h.getX() != x && h.getY() != y){
+						h.setX(x);
+						h.setY(y);
+						controlHeroSwordMode = false;
+						h.isBeingControlled = false;
 					}
 
 				}
 
-				if (venceSwordArray.size() <= 6)
-					venceSwordArray.add(new VenceSword(x, y));
+				if (heroSwordArray.size() <= 6)
+					heroSwordArray.add(new HeroSword(x, y));
 				else
 					System.out.println("Outta swords");
 			}
@@ -94,13 +94,13 @@ public class Vencedor extends CharacterClasses {
 
 
 
-	public static class VenceSword extends Entity {
+	public static class HeroSword extends Entity {
 		final float defense = POSITIVE_INFINITY;
 		boolean isBeingControlled = false;
 
 
-		public VenceSword(float x, float y){
-			super("VenceSword", x, y,128,128);
+		public HeroSword(float x, float y){
+			super("HeroSword", x, y,128,128);
 
 		}
 

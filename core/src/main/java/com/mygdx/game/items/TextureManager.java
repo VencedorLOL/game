@@ -602,6 +602,7 @@ public class TextureManager {
 			shiftedCoordinates = new float[text.length()];
 			timeTilStart = new int[text.length()];
 			isUp = new boolean[text.length()];
+			shakingException = new boolean[text.length()];
 			for(int i = 0; i < text.length(); i++) {
 				timeTilStart[i] = (int) (random() * time);
 				isUp[i] = random() < .5 ? false : true;

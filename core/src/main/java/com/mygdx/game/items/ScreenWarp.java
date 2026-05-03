@@ -9,7 +9,8 @@ import static com.mygdx.game.Settings.*;
 // the offset is vertical, thus the 1xp size will have to be on the horizontal coordinate, AKA a 1px base.)
 public class ScreenWarp {
 	protected Stage stage;
-	protected float base, height;
+	public float base;
+	public float height;
 	public float x;
 	public float y;
 	protected String screenWarpTexture = "ScreenWarp";

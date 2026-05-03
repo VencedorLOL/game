@@ -18,6 +18,7 @@ import static com.mygdx.game.items.Hazards.hazards;
 import static com.mygdx.game.items.InputHandler.escapePressed;
 import static com.mygdx.game.items.TextureManager.fixatedText;
 import static com.mygdx.game.StageCreatorScreen.*;
+import static java.lang.Math.max;
 
 public class StageSaver {
 	String emptyStage =
@@ -44,7 +45,11 @@ public class StageSaver {
 			"		enemySpawnY 	= ENEMYSPAWN_Y_VARIABLE;\n" +
 			"		enemyType		= ENEMYTYPE_VARIABLE;\n" +
 			"		screenWarpX 	= SCREENWARPX_VARIABLE;\n" +
-			"		screenWarpY	= SCREENWARPY_VARIABLE;\n" +
+			"		screenWarpY		= SCREENWARPY_VARIABLE;\n" +
+			"		screenWarpIsHorizontal	= SCREENWARPHORIZONTAL_VARIABLE;\n" +
+			"		screenWarpAlignment		= SCREENWARPALIGNMENT_VARIABLE;\n" +
+			"		screenWarpSize			= SCREENWARPSIZE_VARIABLE;\n" +
+			"		screenWarpType			= SCREENWARPTYPE_VARIABLE;\n" +
 			"		screenWarpDestinationSpecification = SCREENWARPDESTINATION_VARIABLE;\n" +
 			"		floorTexture = \"FLOOR_VARIABLE\";\n" +
 			"		bgTexture = \"BACKGROUND_VARIABLE\";\n" +
@@ -98,6 +103,10 @@ public class StageSaver {
 			emptyStage = emptyStage.replace("ENEMYTYPE_VARIABLE","new int[]" + Arrays.toString(stage.enemyType).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPX_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpX).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPY_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpY).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("SCREENWARPHORIZONTAL_VARIABLE","new boolean[]" + Arrays.toString(stage.screenWarpIsHorizontal).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("SCREENWARPALIGNMENT_VARIABLE","new boolean[]" + Arrays.toString(stage.screenWarpAlignment).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("SCREENWARPSIZE_VARIABLE","new float[]" + Arrays.toString(stage.screenWarpSize).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("SCREENWARPTYPE_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpType).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPDESTINATION_VARIABLE","new byte[]" + Arrays.toString(stage.screenWarpDestinationSpecification).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("FLOOR_VARIABLE",stage.floorTexture);
 			emptyStage = emptyStage.replace("SCREEN_WARPS_DESTINATIONS",finalDestination);
@@ -143,11 +152,21 @@ public class StageSaver {
 		stage.screenWarpX = new int[stage.screenWarp.size()];
 		stage.screenWarpY = new int[stage.screenWarp.size()];
 		stage.screenWarpDestinationSpecification = new byte[stage.screenWarp.size()];
+		stage.screenWarpIsHorizontal = new boolean[stage.screenWarp.size()];
+		stage.screenWarpAlignment = new boolean[stage.screenWarp.size()];
+		stage.screenWarpType = new int[stage.screenWarp.size()];
+		stage.screenWarpSize = new float[stage.screenWarp.size()];
+
 		for(int i = 0; i < stage.screenWarp.size(); i++){
 			stage.screenWarpX[i] = (int) (stage.screenWarp.get(i).x/globalSize());
 			stage.screenWarpY[i] = (int) (stage.screenWarp.get(i).y/globalSize());
 			stage.screenWarpDestinationSpecification[i] = (byte) stage.screenWarp.get(i).destination;
+			stage.screenWarpIsHorizontal[i] = stage.screenWarp.get(i).height == 1;
+			stage.screenWarpAlignment[i] =(stage.screenWarpIsHorizontal[i] && stage.screenWarp.get(i).y % globalSize() != 0) || (!stage.screenWarpIsHorizontal[i] && stage.screenWarp.get(i).x % globalSize() == 0);
+			stage.screenWarpSize[i] = max(stage.screenWarp.get(i).base,stage.screenWarp.get(i).height)/globalSize();
+			stage.screenWarpType[i] = stage.screenWarp.get(i).endOfColor;
 		}
+
 		finalDestination = "";
 		for(String s : destination){
 			finalDestination = finalDestination + "\n		screenWarpDestination.add(new " + s + "());";

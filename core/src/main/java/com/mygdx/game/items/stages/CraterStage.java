@@ -30,7 +30,7 @@ public class CraterStage extends Stage {
 	}
 
 	public void reStage() {		
-		screenWarpDestination.add(new PathForest());
+		screenWarpDestination.add(new Save1());
 	}
 
 	public void tilesetCleanup() {		

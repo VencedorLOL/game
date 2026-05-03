@@ -21,7 +21,7 @@ public class PathForest extends Stage {
 		screenWarpIsHorizontal = new boolean[]{true,true};
 		screenWarpAlignment = new boolean[]{true,false};
 		screenWarpSize = new float[]{2,3};
-		screenWarpType = new int[]{2,1};
+		screenWarpType = new int[]{1,0};
 		screenWarpDestinationSpecification = new byte[]{0, 1};
 		floorTexture = "Grass";
 		bgTexture = "tree";
@@ -32,7 +32,7 @@ public class PathForest extends Stage {
 
 	public void reStage() {		
 		screenWarpDestination.add(new CornerStart());
-		screenWarpDestination.add(new CraterStage());
+		screenWarpDestination.add(new Save1());
 	}
 
 	public void tilesetCleanup() {		
