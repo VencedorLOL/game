@@ -145,7 +145,10 @@ public class Stage  {
 		if (!haveScreenWarpsBeenRendered)
 			screenWarpSetter();
 		for (ScreenWarp s : screenWarp)
-			TextureManager.addToList(s.screenWarpTexture, s.x, s.y);
+			if(s.endOfColor < Type.values().length && s.endOfColor >= 0)
+				TextureManager.addToList(s.screenWarpTexture, s.x, s.y,1,0,ScreenWarp.Type.values()[s.endOfColor].r,ScreenWarp.Type.values()[s.endOfColor].g,ScreenWarp.Type.values()[s.endOfColor].b);
+			else
+				TextureManager.addToList(s.screenWarpTexture, s.x, s.y,1,0,ScreenWarp.Type.values()[Type.values().length-1].r,ScreenWarp.Type.values()[Type.values().length-1].g,ScreenWarp.Type.values()[Type.values().length-1].b);
 	}
 
 	public void enemySetter(){

@@ -13,10 +13,9 @@ public class ScreenWarp {
 	public float height;
 	public float x;
 	public float y;
-	protected String screenWarpTexture = "ScreenWarp";
+	protected String screenWarpTexture = "selectionIndicator";
 	public int ID;
 	public static int IDState = 0;
-	public Type color;
 	public int endOfColor = 0;
 	//only for stage creation
 	public int destination;
@@ -42,7 +41,7 @@ public class ScreenWarp {
 	}
 
 
-	public ScreenWarp(float x, float y, float base, float height, int destination,Type type, int... endOfColor) {
+	public ScreenWarp(float x, float y, float base, float height, int destination, int... endOfColor) {
 		this.x = x;
 		this.y = y;
 		this.base = base;
@@ -50,15 +49,10 @@ public class ScreenWarp {
 		this.destination = destination;
 		ID = IDState + 1;
 		IDState++;
-		color = type;
-		if (color == Type.END_OF_COLOR && endOfColor.length == 1)
+		if (endOfColor.length == 1)
 			this.endOfColor = endOfColor[0];
-		else if (color == Type.END_OF_COLOR && endOfColor.length == 0)
-			printErr("ERROR: END_OF_COLOR REQUESTED YET NOT SET. ERROR AT ScreenWarp 7-arg CONSTRUCTOR.");
-		else if (color == Type.END_OF_COLOR) {
-			printErr("ERROR: END_OF_COLOR HAS SOMEHOW MORE THAN ONE VALUE. PROCEEDING WITH THE FIRST VALUE. ERROR AT ScreenWarp 7-arg CONSTRUCTOR.");
-			this.endOfColor = endOfColor[0];
-		}
+		else if (endOfColor.length == 0)
+			printErr("ERROR: END_OF_COLOR REQUESTED YET NOT SET. ERROR AT ScreenWarp 6-arg CONSTRUCTOR.");
 	}
 
 	public ScreenWarp(float x, float y, int destination) {
@@ -87,8 +81,8 @@ public class ScreenWarp {
 	 @param color: Color of the object.
 	 @param endOfColor: In case of the object being colorless, set the number of the object.
 	*/
-	public static ScreenWarp createNewHorizontalSW(float x, float y, float width, boolean isTop, int destination, Type color, int... endOfColor){
-		return new ScreenWarp(x*globalSize(),y*globalSize() + (isTop ? globalSize() - 1 : 0),width * globalSize(),1,destination,color,endOfColor);
+	public static ScreenWarp createNewHorizontalSW(float x, float y, float width, boolean isTop, int destination, int... endOfColor){
+		return new ScreenWarp(x*globalSize(),y*globalSize() + (isTop ? globalSize() - 1 : 0),width * globalSize(),1,destination,endOfColor);
 	}
 	/**
 	 Usage:
@@ -99,18 +93,20 @@ public class ScreenWarp {
 	 @param color: Color of the object.
 	 @param endOfColor: In case of the object being colorless, set the number of the object.
 	 */
-	public static ScreenWarp createNewVerticalSW(float x, float y, float height,boolean isLeft,int destination, Type color, int... endOfColor){
-		return new ScreenWarp(x*globalSize() + (isLeft ? 0 : globalSize() - 1),y*globalSize(),1,height*globalSize(),destination,color,endOfColor);
+	public static ScreenWarp createNewVerticalSW(float x, float y, float height,boolean isLeft,int destination, int... endOfColor){
+		return new ScreenWarp(x*globalSize() + (isLeft ? 0 : globalSize() - 1),y*globalSize(),1,height*globalSize(),destination,endOfColor);
 	}
 
 
 	public enum Type{
-		RED(1),BLUE(2),GREEN(3),CYAN(4),PINK(5),PURPLE(6),WHITE(7),
-		BLACK(8),GREY(9),BROWN(10),ORANGE(11),DARK_BLUE(12),END_OF_COLOR(0);
+		RED(189,35,35),ORANGE(220,110,20),YELLOW(250,250,0),GREEN(35,189,35),CYAN(87,197,236),DARK_BLUE(35,35,189),PURPLE(150,50,200)
+		,PINK(231,173,173),BROWN(140,90,20), BLACK(20,20,20),WHITE(255,255,255),GREY(150,150,150),END_OF_COLOR(15,30,60);
 
-		int id;
-		Type(int id){
-			this.id = id;
+		public final int r,g,b;
+		Type(int r,int g, int b){
+			this.r = r;
+			this.g = g;
+			this.b = b;
 		}
 	}
 

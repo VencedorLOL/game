@@ -511,25 +511,25 @@ public class StageCreator {
 							if(vector.x > movingScreenWarp.x){
 								mode = 0;
 								stage.screenWarp.remove(movingScreenWarp);
-								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination, movingScreenWarp.endOfColor));
 								movingScreenWarp = null;
 							}
 							else if(vector.x < movingScreenWarp.x){
 								mode = 0;
 								stage.screenWarp.remove(movingScreenWarp);
-								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								stage.screenWarp.add(ScreenWarp.createNewVerticalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination, movingScreenWarp.endOfColor));
 								movingScreenWarp = null;
 							}
 							else if(vector.y > movingScreenWarp.y){
 								mode = 0;
 								stage.screenWarp.remove(movingScreenWarp);
-								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,true,movingScreenWarp.destination, movingScreenWarp.endOfColor));
 								movingScreenWarp = null;
 							}
 							else if(vector.y < movingScreenWarp.y){
 								mode = 0;
 								stage.screenWarp.remove(movingScreenWarp);
-								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination,movingScreenWarp.color, movingScreenWarp.endOfColor));
+								stage.screenWarp.add(ScreenWarp.createNewHorizontalSW(movingScreenWarp.x/globalSize(), movingScreenWarp.y/globalSize(), 1,false,movingScreenWarp.destination, movingScreenWarp.endOfColor));
 								movingScreenWarp = null;
 							}
 						}
@@ -713,13 +713,15 @@ public class StageCreator {
 			setBG();
 		else if(openInterface == 5)
 			hazardSubElementSelector();
+		else if (openInterface == 6)
+			colorsInterface();
 
 		if(action==3){
 			if(actionConfirmJustPressed()){
 				openInterface = 2;
 			}
 
-			if(openInterface == 0 && leftClickJustPressed() && (detectElement(vector) || (selectedScreenWarps != null && !selectedScreenWarps.isEmpty()))){
+			if(openInterface == 0 && mode != 2 && leftClickJustPressed() && (detectElement(vector) || (selectedScreenWarps != null && !selectedScreenWarps.isEmpty()))){
 				mode = 1;
 				if(selectedScreenWarps == null){
 					selectedScreenWarps = new ArrayList<>();
@@ -738,6 +740,12 @@ public class StageCreator {
 				}
 			}
 
+			if(openInterface == 0 && rightClickJustPressed() && (detectElement(vector)) && mode != 1){
+				mode = 2;
+				openInterface = 6;
+				selectedScreenWarps = new ArrayList<>();
+				selectedScreenWarps.add(getScreenWarp(vector));
+			}
 
 
 			for(ScreenWarp s : stage.screenWarp){
@@ -796,7 +804,7 @@ public class StageCreator {
 		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",boxX,intY,1,0,intSize,intSize,true));
 		fixatedDrawables.add(new TextureManager.DrawableObject("HealerIcon",boxX,intY,1,0,intSize,intSize,true));
 
-		if(leftClickJustPressed() && info == null){
+		if(leftClickReleased() && info == null){
 			for(int i = 0; i < sWDestStages.size(); i++){
 				if(cursorX() >= intX && cursorX() <= intX + intSize*16*8 && cursorY() <= intY+intSize*16*i && cursorY() >= intY+intSize*16*i - intSize*16) {
 					preferredSWDestination = i;
@@ -812,6 +820,41 @@ public class StageCreator {
 			preferredSWDestination = sWDestStages.size()-1;
 			nameOfStage = null;
 			info = null;
+		}
+	}
+
+	InputNumbers numberOfColor;
+	InputNumbers.InformationTransferer number;
+	public void colorsInterface(){
+		float intX = Gdx.graphics.getWidth()*.4f;
+		float intY = Gdx.graphics.getHeight()*.25f;
+		float intSize = Gdx.graphics.getHeight()*0.007f;
+		float boxX = Gdx.graphics.getWidth()*.5f;
+		for(int i = 0; i < ScreenWarp.Type.values().length - 1; i++){
+			fixatedDrawables.add(new TextureManager.DrawableObject("ColorBox",intX+intSize*16*(i%4), (float) (intY+intSize*16*floor(i/4f)),1,false,false,intSize,intSize,true,ScreenWarp.Type.values()[i].r,ScreenWarp.Type.values()[i].g,ScreenWarp.Type.values()[i].b));
+		}
+		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),1,0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject("HealerIcon",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),1,0,intSize,intSize,true));
+
+		if(leftClickJustPressed() && number == null){
+			for(int i = 0; i < ScreenWarp.Type.values().length - 1; i++){
+				if(cursorX() >= intX && cursorX() <=intX+intSize*16*(i%4) + intSize*16 && cursorY() <= (float) (intY+intSize*16*floor(i/4f)) && cursorY() >= (float) (intY+intSize*16*floor(i/4f)) - intSize*16) {
+					selectedScreenWarps.get(0).endOfColor = i;
+					selectedScreenWarps = null;
+					openInterface = 0;
+					return;
+				}
+			} if (cursorX() >= boxX && cursorX() <= boxX + intSize*16 && cursorY() <= (float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)) && cursorY() >=(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f))- intSize*16){
+				numberOfColor = new InputNumbers();
+				number = numberOfColor.getInfo();
+			}
+		} if (number != null && number.ready){
+			selectedScreenWarps.get(0).endOfColor = (int) (number.number+ScreenWarp.Type.values().length);
+			openInterface = 0;
+			selectedScreenWarps = null;
+			mode = 0;
+			numberOfColor = null;
+			number = null;
 		}
 	}
 

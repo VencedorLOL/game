@@ -66,9 +66,9 @@ public class InputNumbers extends GUI {
 
 		for (String k : keys) {
 			if (k.equals("0") || k.equals("1") || k.equals("2") || k.equals("3") || k.equals("4") || k.equals("5") || k.equals("6") || k.equals("7") ||
-					k.equals("8") || k.equals("9"))
+					k.equals("8") || k.equals("9") || k.equals("-") || k.equals("."))
 				storedText = storedText + k;
-			else if (!storedText.isEmpty() && k.toCharArray()[0] == 8 ){
+			else if (storedText != null && !storedText.isEmpty() && k.toCharArray()[0] == 8 ){
 				storedText = storedText.substring(0,storedText.length()-1);
 			}
 		}
