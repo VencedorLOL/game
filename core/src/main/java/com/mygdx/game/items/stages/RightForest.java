@@ -1,6 +1,10 @@
 package com.mygdx.game.items.stages;
 
 import com.mygdx.game.items.Stage;
+import com.mygdx.game.items.Hazards;
+
+import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.Hazards.hazards;
 
 public class RightForest extends Stage {
 	public RightForest(){
@@ -16,9 +20,13 @@ public class RightForest extends Stage {
 		enemySpawnX		= new int[]{};
 		enemySpawnY 	= new int[]{};
 		enemyType		= new int[]{};
-		screenWarpX 	= new int[]{30};
-		screenWarpY	= new int[]{0};
-		screenWarpDestinationSpecification = new byte[]{0};
+		screenWarpX 	= new int[]{0, 30};
+		screenWarpY		= new int[]{0, 0};
+		screenWarpIsHorizontal	= new boolean[]{false, false};
+		screenWarpAlignment		= new boolean[]{true, false};
+		screenWarpSize			= new float[]{3.0f, 1.0f};
+		screenWarpType			= new int[]{0, 1};
+		screenWarpDestinationSpecification = new byte[]{2, 3};
 		floorTexture = "Grass";
 		bgTexture = "tree";
 		staticCameraXmax = true;
@@ -26,38 +34,44 @@ public class RightForest extends Stage {
 		scale();
 	}
 
-	public void reStage() {
+	public void reStage() {		
+		screenWarpDestination.add(new RightForest());
+		screenWarpDestination.add(new PathForest());
+		screenWarpDestination.add(new CornerStart());
 		screenWarpDestination.add(new TheEntrance());
 	}
 
 	public void tilesetCleanup() {		
-			tileset.remove(getTile(14.0,2.0));
-			tileset.add(createTile(15.0,1.0));
-			tileset.add(createTile(15.0,0.0));
-			tileset.add(createTile(16.0,0.0));
-			tileset.add(createTile(16.0,1.0));
-			tileset.add(createTile(17.0,1.0));
-			tileset.add(createTile(17.0,0.0));
-			tileset.add(createTile(18.0,1.0));
-			tileset.add(createTile(18.0,0.0));
-			tileset.add(createTile(19.0,0.0));
-			tileset.add(createTile(19.0,1.0));
-			tileset.add(createTile(20.0,1.0));
-			tileset.add(createTile(21.0,1.0));
-			tileset.add(createTile(22.0,1.0));
-			tileset.add(createTile(22.0,0.0));
-			tileset.add(createTile(21.0,0.0));
-			tileset.add(createTile(20.0,0.0));
-			tileset.add(createTile(23.0,0.0));
-			tileset.add(createTile(23.0,1.0));
-			tileset.add(createTile(24.0,1.0));
-			tileset.add(createTile(25.0,1.0));
-			tileset.add(createTile(24.0,0.0));
-			tileset.add(createTile(25.0,0.0));
-			tileset.add(createTile(26.0,0.0));
-			tileset.add(createTile(27.0,0.0));
-			tileset.add(createTile(28.0,0.0));
-			tileset.add(createTile(29.0,0.0));
-			tileset.add(createTile(30.0,0.0));
+			tileset.remove(getTile(14.0, 2.0));
+			tileset.add(createTile(15.0, 1.0));
+			tileset.add(createTile(15.0, 0.0));
+			tileset.add(createTile(16.0, 0.0));
+			tileset.add(createTile(16.0, 1.0));
+			tileset.add(createTile(17.0, 1.0));
+			tileset.add(createTile(17.0, 0.0));
+			tileset.add(createTile(18.0, 1.0));
+			tileset.add(createTile(18.0, 0.0));
+			tileset.add(createTile(19.0, 0.0));
+			tileset.add(createTile(19.0, 1.0));
+			tileset.add(createTile(20.0, 1.0));
+			tileset.add(createTile(21.0, 1.0));
+			tileset.add(createTile(22.0, 1.0));
+			tileset.add(createTile(22.0, 0.0));
+			tileset.add(createTile(21.0, 0.0));
+			tileset.add(createTile(20.0, 0.0));
+			tileset.add(createTile(23.0, 0.0));
+			tileset.add(createTile(23.0, 1.0));
+			tileset.add(createTile(24.0, 1.0));
+			tileset.add(createTile(25.0, 1.0));
+			tileset.add(createTile(24.0, 0.0));
+			tileset.add(createTile(25.0, 0.0));
+			tileset.add(createTile(26.0, 0.0));
+			tileset.add(createTile(27.0, 0.0));
+			tileset.add(createTile(28.0, 0.0));
+			tileset.add(createTile(29.0, 0.0));
+			tileset.add(createTile(30.0, 0.0));
 	}
+
+	public void hazardSetter() {		
+ }
 }

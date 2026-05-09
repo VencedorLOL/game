@@ -109,7 +109,7 @@ public class StageCreator {
 	ScreenWarp movingScreenWarp;
 	Tile movingTile;
 	Hazards movingHazard;
-	// 0 = wall		1 = enemy 		2 = screen warp		3 = tiles		4 = configuration		5 = hazard
+	/** 0 = wall	|	1 = enemy 	|	2 = screen warp	|	3 = tiles	|	4 = configuration	|	5 = hazard */
 	byte typeOfElement = 0;
 	byte typeOfSubElementWall = 0;
 	byte typeOfSubElementEnemy = 0;
@@ -131,9 +131,9 @@ public class StageCreator {
 			spawnPosition.generalRender = true;
 			stage.spawnX = (int) spawnPosition.x;
 			stage.spawnY = (int) spawnPosition.y;
-			if(actionConfirmJustPressed() && openInterface == 0)
+			if(actionConfirmReleased() && openInterface == 0)
 				openInterface = 3;
-			if(attackModeJustPressed() && openInterface == 0)
+			if(attackModeReleased() && openInterface == 0)
 				openInterface = 4;
 		}
 		if(action == 0) {
@@ -959,7 +959,7 @@ public class StageCreator {
 			floorTexture = new InputText();
 			floorInfo = floorTexture.getInfo();
 		}
-		if (floorInfo != null && floorInfo.ready){
+		if (floorTexture != null && floorInfo.ready){
 			stage.floorTexture = floorInfo.string;
 			for(Tile t : stage.tileset)
 				t.texture.texture = floorInfo.string;

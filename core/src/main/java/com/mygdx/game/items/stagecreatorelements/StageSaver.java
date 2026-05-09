@@ -53,6 +53,10 @@ public class StageSaver {
 			"		screenWarpDestinationSpecification = SCREENWARPDESTINATION_VARIABLE;\n" +
 			"		floorTexture = \"FLOOR_VARIABLE\";\n" +
 			"		bgTexture = \"BACKGROUND_VARIABLE\";\n" +
+			"		staticCameraXmin = XMIN_VARIABLE;\n" +
+			"		staticCameraXmax = XMAX_VARIABLE;\n" +
+			"		staticCameraYmin = YMIN_VARIABLE;\n" +
+			"		staticCameraYmax = YMAX_VARIABLE;\n" +
 			"		scale();\n" +
 			"	}\n" +
 			"\n" +
@@ -105,9 +109,13 @@ public class StageSaver {
 			emptyStage = emptyStage.replace("SCREENWARPY_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpY).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPHORIZONTAL_VARIABLE","new boolean[]" + Arrays.toString(stage.screenWarpIsHorizontal).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPALIGNMENT_VARIABLE","new boolean[]" + Arrays.toString(stage.screenWarpAlignment).replace("[","{").replace("]","}"));
-			emptyStage = emptyStage.replace("SCREENWARPSIZE_VARIABLE","new float[]" + Arrays.toString(stage.screenWarpSize).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("SCREENWARPSIZE_VARIABLE","new float[]" + Arrays.toString(stage.screenWarpSize).replace("[","{").replace("]","}").replace(".0",""));
 			emptyStage = emptyStage.replace("SCREENWARPTYPE_VARIABLE","new int[]" + Arrays.toString(stage.screenWarpType).replace("[","{").replace("]","}"));
 			emptyStage = emptyStage.replace("SCREENWARPDESTINATION_VARIABLE","new byte[]" + Arrays.toString(stage.screenWarpDestinationSpecification).replace("[","{").replace("]","}"));
+			emptyStage = emptyStage.replace("XMIN_VARIABLE",stage.staticCameraXmin ? "true" : "false");
+			emptyStage = emptyStage.replace("XMAX_VARIABLE",stage.staticCameraXmax ? "true" : "false");
+			emptyStage = emptyStage.replace("YMIN_VARIABLE",stage.staticCameraYmin ? "true" : "false");
+			emptyStage = emptyStage.replace("YMAX_VARIABLE",stage.staticCameraYmax ? "true" : "false");
 			emptyStage = emptyStage.replace("FLOOR_VARIABLE",stage.floorTexture);
 			emptyStage = emptyStage.replace("SCREEN_WARPS_DESTINATIONS",finalDestination);
 			emptyStage = emptyStage.replace("TILESET_ALGORITHM",tileset);
