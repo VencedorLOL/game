@@ -135,6 +135,8 @@ public class StageCreator {
 				openInterface = 3;
 			if(attackModeReleased() && openInterface == 0)
 				openInterface = 4;
+			if(ability1Released() && openInterface == 0)
+				openInterface = 7;
 		}
 		if(action == 0) {
 			if(actionConfirmJustPressed() && (typeOfElement < 2 || typeOfElement == 5)) {
@@ -715,6 +717,8 @@ public class StageCreator {
 			hazardSubElementSelector();
 		else if (openInterface == 6)
 			colorsInterface();
+		else if (openInterface == 7)
+			cameraFixation();
 
 		if(action==3){
 			if(actionConfirmJustPressed()){
@@ -948,6 +952,42 @@ public class StageCreator {
 					return;
 				}
 			}
+		}
+	}
+
+	public void cameraFixation(){
+		float intSize = Gdx.graphics.getHeight()*0.006f;
+		float xUp = Gdx.graphics.getWidth()*.5f - intSize*8;
+		float yUp = Gdx.graphics.getHeight()*.7f;
+		float xDown = xUp;
+		float yDown = Gdx.graphics.getHeight()*.3f;
+		float xLeft = Gdx.graphics.getWidth()*.3f+ intSize*8;
+		float yLeft = Gdx.graphics.getHeight()*.5f;
+		float xRight = Gdx.graphics.getWidth()*.7f- intSize*24;
+		float yRight = yLeft;
+
+		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xLeft,yLeft,1,0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraXmin ? "EyeClosed" : "EyeOpen",xLeft,yLeft,1, 0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xRight,yRight,1,0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraXmax ? "EyeClosed" : "EyeOpen",xRight,yRight,1, 0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xDown,yDown,1,0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraYmin ? "EyeClosed" : "EyeOpen",xDown,yDown,1, 0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xUp,yUp,1,0,intSize,intSize,true));
+		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraYmax ? "EyeClosed" : "EyeOpen",xUp,yUp,1, 0,intSize,intSize,true));
+
+
+		if(leftClickJustPressed()){
+			if(cursorX() >=xLeft&& cursorX() <= xLeft + intSize*16 && cursorY() >= yLeft - intSize*16 && cursorY() <= yLeft)
+				stage.staticCameraXmin = !stage.staticCameraXmin;
+			else if(cursorX() >=xRight&& cursorX() <= xRight + intSize*16 && cursorY() >= yRight - intSize*16 && cursorY() <= yRight)
+				stage.staticCameraXmax = !stage.staticCameraXmax;
+			else if(cursorX() >=xDown&& cursorX() <= xDown + intSize*16 && cursorY() >= yDown - intSize*16 && cursorY() <= yDown)
+				stage.staticCameraYmin = !stage.staticCameraYmin;
+			else if(cursorX() >=xUp&& cursorX() <= xUp + intSize*16 && cursorY() >= yUp - intSize*16 && cursorY() <= yUp)
+				stage.staticCameraYmax = !stage.staticCameraYmax;
+		}
+		if(escapeReleased() || actionConfirmReleased()){
+			openInterface = 0;
 		}
 	}
 

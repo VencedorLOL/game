@@ -23,7 +23,6 @@ import static com.mygdx.game.items.Entity.generalRender;
 import static com.mygdx.game.items.GUI.renderGUI;
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnTick;
 import static com.mygdx.game.items.TextureManager.fixatedText;
-import static com.mygdx.game.items.TextureManager.text;
 
 @SuppressWarnings("all")
 public class StageCreatorScreen implements Screen{
