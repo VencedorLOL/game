@@ -958,9 +958,9 @@ public class StageCreator {
 	public void cameraFixation(){
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		float xUp = Gdx.graphics.getWidth()*.5f - intSize*8;
-		float yUp = Gdx.graphics.getHeight()*.7f;
+		float yUp = Gdx.graphics.getHeight()*.3f;
 		float xDown = xUp;
-		float yDown = Gdx.graphics.getHeight()*.3f;
+		float yDown = Gdx.graphics.getHeight()*.7f;
 		float xLeft = Gdx.graphics.getWidth()*.3f+ intSize*8;
 		float yLeft = Gdx.graphics.getHeight()*.5f;
 		float xRight = Gdx.graphics.getWidth()*.7f- intSize*24;
