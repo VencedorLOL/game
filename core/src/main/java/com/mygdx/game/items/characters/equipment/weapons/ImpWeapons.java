@@ -1,9 +1,6 @@
 package com.mygdx.game.items.characters.equipment.weapons;
 
-import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.Conditions;
-import com.mygdx.game.items.OnVariousScenarios;
-import com.mygdx.game.items.TextureManager;
+import com.mygdx.game.items.*;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Imp;
@@ -47,10 +44,11 @@ public class ImpWeapons extends Weapons{
 			aggro = 0;
 			if(effectiveInstantiation)
 				oVE = new OnVariousScenarios() {
-					public void onDamagedActor(Actor damagedActor) {
-						if (damagedActor.lastDamager == holder.character && damagedActor.conditions.hasStatus(Conditions.ConditionNames.DEMONIZED)) {
-							damagedActor.damageRecieved += Math.max(damagedActor.totalDefense * 0.25f,damagedActor.totalDefense > 4 ? 5 : damagedActor.totalDefense);
-
+					public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons reason) {
+						if(damagedActor instanceof Actor){
+							Actor victim = ((Actor)damagedActor);
+							if (victim.lastDamager == holder.character && victim.conditions.hasStatus(Conditions.ConditionNames.DEMONIZED))
+								victim.damageRecieved += Math.max(victim.totalDefense * 0.25f, victim.totalDefense > 4 ? 5 : victim.totalDefense);
 						}
 					}
 				};

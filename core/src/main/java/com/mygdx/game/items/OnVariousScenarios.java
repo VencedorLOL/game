@@ -66,12 +66,12 @@ public class OnVariousScenarios {
 	}
 
 
-	public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source){}
+	public void onDamaged(DamageReceiver damaged, AttackTextProcessor.DamageReasons source){}
 
-	public static void triggerOnDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
+	public static void triggerOnDamaged(DamageReceiver damaged, AttackTextProcessor.DamageReasons source) {
 		for (OnVariousScenarios o : onScenarios)
 			if(!o.queuedForDeletion)
-				o.onDamagedActor(damagedActor,source);
+				o.onDamaged(damaged,source);
 	}
 
 	public void onActorDeath(Actor deadActor){}

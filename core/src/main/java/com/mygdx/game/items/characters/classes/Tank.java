@@ -2,6 +2,7 @@ package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.AttackTextProcessor;
+import com.mygdx.game.items.DamageReceiver;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.CharacterClasses;
 
@@ -35,10 +36,10 @@ public class Tank extends CharacterClasses {
 	}
 
 	OnVariousScenarios oVE = new OnVariousScenarios() {
-			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
-				if (damagedActor.totalTeam == character.totalTeam && character.classes.name.equals("Tank") && damagedActor != character) {
-					damagedActor.damageRecieved *= 0.2f;
-					damage(damagedActor.damageRecieved * 4, AttackTextProcessor.DamageReasons.ABSORBED); //this is exactly 80% of the damage
+			public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons source) {
+				if (damagedActor.getTotalHealth() == character.totalTeam && character.classes.name.equals("Tank") && damagedActor != character && damagedActor instanceof Actor) {
+					((Actor)damagedActor).damageRecieved *= 0.2f;
+					damage(((Actor)damagedActor).damageRecieved * 4, AttackTextProcessor.DamageReasons.ABSORBED); //this is exactly 80% of the damage
 				}
 			}
 		};

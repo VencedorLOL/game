@@ -178,6 +178,7 @@ public class Friend extends Actor {
 
 	}
 
+	// TODO:: Adapt for DamageReceiver interface.
 	public void attackDetector(){
 		ArrayList<Actor> allMyFriends = new ArrayList<>(friend);
 		allMyFriends.add(chara);

@@ -10,6 +10,7 @@ import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.*;
 import static com.mygdx.game.items.AudioManager.quickPlay;
 import static com.mygdx.game.items.Conditions.ConditionNames.*;
+import static com.mygdx.game.items.DamageReceiver.damageReceivers;
 import static com.mygdx.game.items.Hazards.*;
 import static com.mygdx.game.items.Hazards.HazardNames.EARTH_CRACK;
 import static com.mygdx.game.items.Hazards.HazardNames.FIRE;
@@ -249,18 +250,18 @@ public class FieldEffects {
 					renderLightningLocation = false;
 					quickPlay("lightning");
 					for(float[] t : locations)
-						for(Actor a : actors){
-							if(t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.25f + 10, ELECTRIC, null);
+						for(DamageReceiver a : damageReceivers){
+							if(t[0] == a.getX() && t[1] == a.getY()) {
+								a.damage(a.getTotalHealth() * 0.25f + 10, ELECTRIC, null);
 							}
-							if( ( (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()) && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize()) ) ||
-									((t[0] == a.x + globalSize()*2 || t[0] == a.x - globalSize()*2) && t[1] == a.y )||
-									((t[1] == a.y + globalSize()*2 || t[1] == a.y - globalSize()*2) && t[0] == a.x ) ) {
-								a.damage(a.totalMaxHealth * 0.075f + 10, ELECTRIC, null);
+							if( ( (t[0] == a.getX() + globalSize() || t[0] == a.getX() - globalSize()) && (t[1] == a.getY() + globalSize() || t[1] == a.getY() - globalSize()) ) ||
+									((t[0] == a.getX() + globalSize()*2 || t[0] == a.getX() - globalSize()*2) && t[1] == a.getY() )||
+									((t[1] == a.getY() + globalSize()*2 || t[1] == a.getY() - globalSize()*2) && t[0] == a.getX() ) ) {
+								a.damage(a.getTotalHealth() * 0.075f + 10, ELECTRIC, null);
 							}
-							if((t[0] == a.x && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize())) ||
-									(t[1] == a.y && (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()))) {
-								a.damage(a.totalMaxHealth * 0.15f + 10, ELECTRIC, null);
+							if((t[0] == a.getX() && (t[1] == a.getY() + globalSize() || t[1] == a.getY() - globalSize())) ||
+									(t[1] == a.getY() && (t[0] == a.getX() + globalSize() || t[0] == a.getX() - globalSize()))) {
+								a.damage(a.getTotalHealth() * 0.15f + 10, ELECTRIC, null);
 							}
 						}
 					locations = null;
@@ -392,9 +393,9 @@ public class FieldEffects {
 					cooldownTurnsCounter = cooldownConstant;
 					warningTurnsCounter = 0;
 					for(float[] t : locations) {
-						for (Actor a : actors) {
-							if (t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.15f + 10, ICE_BALL, null);
+						for (DamageReceiver a : damageReceivers) {
+							if (t[0] == a.getX() && t[1] == a.getY() ) {
+								a.damage(a.getTotalHealth() * 0.15f + 10, ICE_BALL, null);
 							}
 						}
 						for (Hazards h : getHazard(FIRE, t[0], t[1])) {
@@ -553,10 +554,11 @@ public class FieldEffects {
 					cooldownTurnsCounter = cooldownConstant;
 					warningTurnsCounter = 0;
 					for(float[] t : locations) {
-						for (Actor a : actors) {
-							if (t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.15f + 20, BURNT, null);
-								a.conditions.status(BURNING);
+						for (DamageReceiver a : damageReceivers) {
+							if (t[0] == a.getX() && t[1] == a.getY() ) {
+								a.damage(a.getTotalHealth() * 0.15f + 20, BURNT, null);
+								if(a instanceof Actor)
+									((Actor) a).conditions.status(BURNING);
 							}
 						}
 						hazards.add(new Hazards.FireTile(t[0],t[1],4));
@@ -672,14 +674,16 @@ public class FieldEffects {
 					renderTsunamiLocation = false;
 //					quickPlay("lightning");
 					for(float[] t : locations) {
-						for (Actor a : actors) {
-							if (t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.8f + 50, PRESSURE, null);
-								a.conditions.remove(BURNING);
-								a.conditions.remove(BURNING_BRIGHT);
-								a.conditions.remove(MELTING);
-								a.conditions.remove(HYPERTHERMIA);
-								a.conditions.remove(SUBLIMATING);
+						for (DamageReceiver a : damageReceivers) {
+							if (t[0] == a.getX() && t[1] == a.getY() ) {
+								a.damage(a.getTotalHealth() * 0.8f + 50, PRESSURE, null);
+								if(a instanceof Actor) {
+									((Actor) a).conditions.remove(BURNING);
+									((Actor) a).conditions.remove(BURNING_BRIGHT);
+									((Actor) a).conditions.remove(MELTING);
+									((Actor) a).conditions.remove(HYPERTHERMIA);
+									((Actor) a).conditions.remove(SUBLIMATING);
+								}
 							}
 						}
 						for (Hazards h : getHazard(FIRE, t[0], t[1])) {
@@ -817,9 +821,9 @@ public class FieldEffects {
 					addCustomHazard(EARTH_CRACK,locations.get(0)[0],locations.get(0)[1],(float) earthquakeLenght);
 //					quickPlay("");
 //					for(float[] t : locations) {
-//						for (Actor a : actors) {
-//							if (t[0] == a.x && t[1] == a.y) {
-//								a.damage(a.totalMaxHealth * 0.8f + 50, PRESSURE, null);
+//						for (DamageReceiver a : damageReceivers) {
+//							if (t[0] == a.getX() && t[1] == a.y) {
+//								a.damage(a.getTotalHealth() * 0.8f + 50, PRESSURE, null);
 //								a.conditions.remove(BURNING);
 //								a.conditions.remove(BURNING_BRIGHT);
 //								a.conditions.remove(MELTING);
@@ -916,15 +920,17 @@ public class FieldEffects {
 
 		public void update() {
 			if(canFieldAct){
-				for(Actor a : actors){
-					a.damage(max(a.totalMaxHealth * 0.05f, 0.1f), ELECTRIC,null);
-					if (random() >= 0.85)
-						if(!a.conditions.hasStatus(STUNNED)) {
-							a.conditions.condition(STUNNED);
-							a.conditions.getStatus(STUNNED).setTurns(1);
-						}
-					if (random() >= 0.95)
-						a.conditions.status(BURNING);
+				for(DamageReceiver a : damageReceivers){
+					a.damage(max(a.getTotalHealth() * 0.05f, 0.1f), ELECTRIC,null);
+					if(a instanceof Actor) {
+						if (random() >= 0.85)
+							if (!((Actor) a).conditions.hasStatus(STUNNED)) {
+								((Actor) a).conditions.condition(STUNNED);
+								((Actor) a).conditions.getStatus(STUNNED).setTurns(1);
+							}
+						if (random() >= 0.95)
+							((Actor) a).conditions.status(BURNING);
+					}
 				}
 				finishedActing();
 			}
@@ -947,7 +953,7 @@ public class FieldEffects {
 		public void update() {
 			if(canFieldAct){
 				if(++turnCount > 9)
-					for(Actor a : actors)
+					for(DamageReceiver a : damageReceivers)
 						a.damage(1+(float) (10*(floor(turnCount/10f)-1)), AttackTextProcessor.DamageReasons.FROSTBITE,null);
 				finishedActing();
 			}
@@ -969,16 +975,18 @@ public class FieldEffects {
 		public void update() {
 			if(canFieldAct){
 				if(++turnCount > 4)
-					for(Actor a : actors) {
-						a.damage(a.totalMaxHealth * .1f, RADIATION, null);
-						if(turnCount > 19)
-							a.conditions.status(BURNING);
-						if(turnCount > 49)
-							a.conditions.status(BURNING_BRIGHT);
-						if(turnCount > 74)
-							a.conditions.status(MELTING);
-						if(turnCount > 99)
-							a.conditions.status(SUBLIMATING);
+					for(DamageReceiver a : damageReceivers) {
+						a.damage(a.getTotalHealth() * .1f, RADIATION, null);
+						if(a instanceof Actor) {
+							if (turnCount > 19)
+								((Actor) a).conditions.status(BURNING);
+							if (turnCount > 49)
+								((Actor) a).conditions.status(BURNING_BRIGHT);
+							if (turnCount > 74)
+								((Actor) a).conditions.status(MELTING);
+							if (turnCount > 99)
+								((Actor) a).conditions.status(SUBLIMATING);
+						}
 					}
 				finishedActing();
 			}
@@ -1065,18 +1073,18 @@ public class FieldEffects {
 					renderLightningLocation = false;
 					quickPlay("lightning");
 					for(float[] t : locations)
-						for(Actor a : actors){
-							if(t[0] == a.x && t[1] == a.y) {
-								a.damage(a.totalMaxHealth * 0.25f + 10, ELECTRIC, null);
+						for(DamageReceiver a : damageReceivers){
+							if(t[0] == a.getX() && t[1] == a.getY() ) {
+								a.damage(a.getTotalHealth() * 0.25f + 10, ELECTRIC, null);
 							}
-							if( ( (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()) && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize()) ) ||
-									((t[0] == a.x + globalSize()*2 || t[0] == a.x - globalSize()*2) && t[1] == a.y )||
-									((t[1] == a.y + globalSize()*2 || t[1] == a.y - globalSize()*2) && t[0] == a.x ) ) {
-								a.damage(a.totalMaxHealth * 0.075f + 10, ELECTRIC, null);
+							if( ( (t[0] == a.getX() + globalSize() || t[0] == a.getX() - globalSize()) && (t[1] == a.getY() + globalSize() || t[1] == a.getY() - globalSize()) ) ||
+									((t[0] == a.getX() + globalSize()*2 || t[0] == a.getX() - globalSize()*2) && t[1] == a.getY() )||
+									((t[1] == a.getY() + globalSize()*2 || t[1] == a.getY() - globalSize()*2) && t[0] == a.getX() ) ) {
+								a.damage(a.getTotalHealth() * 0.075f + 10, ELECTRIC, null);
 							}
-							if((t[0] == a.x && (t[1] == a.y + globalSize() || t[1] == a.y - globalSize())) ||
-									(t[1] == a.y && (t[0] == a.x + globalSize() || t[0] == a.x - globalSize()))) {
-								a.damage(a.totalMaxHealth * 0.15f + 10, ELECTRIC, null);
+							if((t[0] == a.getX() && (t[1] == a.getY() + globalSize() || t[1] == a.getY() - globalSize())) ||
+									(t[1] == a.getY() && (t[0] == a.getX() + globalSize() || t[0] == a.getX() - globalSize()))) {
+								a.damage(a.getTotalHealth() * 0.15f + 10, ELECTRIC, null);
 							}
 						}
 					locations = null;
@@ -1148,8 +1156,8 @@ public class FieldEffects {
 
 		public void update() {
 			if(canFieldAct){
-					for(Actor a : actors)
-						a.damage(max(a.totalMaxHealth * .05f,0.1f), PRESSURE, null);
+					for(DamageReceiver a : damageReceivers)
+						a.damage(max(a.getTotalHealth() * .05f,0.1f), PRESSURE, null);
 				finishedActing();
 			}
 		}
@@ -1170,11 +1178,13 @@ public class FieldEffects {
 
 		public void update() {
 			if(canFieldAct){
-					for(Actor a : actors) {
-						a.conditions.status(BURNING);
+					for(DamageReceiver a : damageReceivers) {
+						if(a instanceof Actor)
+							((Actor) a).conditions.status(BURNING);
 						if(++turnCount > 4) {
-							a.damage(max(a.health * .2f, 0.1f), BURNT, null);
-							a.conditions.status(BURNING_BRIGHT);
+							a.damage(max(a.getHealth() * .2f, 0.1f), BURNT, null);
+							if(a instanceof Actor)
+								((Actor) a).conditions.status(BURNING_BRIGHT);
 						}
 					}
 				finishedActing();

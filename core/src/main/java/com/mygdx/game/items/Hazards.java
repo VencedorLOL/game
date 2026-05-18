@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.items.characters.classes.Trapper;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
@@ -128,6 +130,13 @@ public class Hazards {
 	}
 
 	public void destroyHazard(){}
+
+	public float getX() {return x;}
+	public float getY() {return y;}
+	public float[] getPos() {return new float[]{x,y};}
+	public float getBase() {return base;}
+	public float getHeight() {return height;}
+	public float[] getSize() {return new float[]{base,height};}
 
 
 	//---------------------------------------------------
@@ -339,6 +348,7 @@ public class Hazards {
 		FIRE((Class<Hazards>) new Hazards.HazardConst<FireTile>().getHazard()),
 		EARTH_CRACK((Class<Hazards>) new Hazards.HazardConst<EarthCrack>().getHazard()),
 		TRIGGER((Class<Hazards>) new Hazards.HazardConst<TriggerCharacter>().getHazard()),
+		TRAP((Class<Hazards>) new Hazards.HazardConst<Trapper.Trap>().getHazard()),
 		;
 
 		public static int listDifference(){

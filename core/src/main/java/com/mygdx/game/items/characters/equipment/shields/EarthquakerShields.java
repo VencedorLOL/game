@@ -2,6 +2,7 @@ package com.mygdx.game.items.characters.equipment.shields;
 
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.AttackTextProcessor;
+import com.mygdx.game.items.DamageReceiver;
 import com.mygdx.game.items.OnVariousScenarios;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.equipment.Shields;
@@ -40,11 +41,11 @@ public class EarthquakerShields extends Shields {
 			if(effectiveInstantiation)
 				oVE = new OnVariousScenarios(){
 				@Override
-				public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
-						if(holder.shield instanceof StablePlatform && damagedActor.totalTeam == holder.character.totalTeam && source == AttackTextProcessor.DamageReasons.EARTHQUAKE
-								&&  damagedActor.dC(holder.character.x,holder.character.y) <= 7*globalSize()
+				public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons source) {
+						if(holder.shield instanceof StablePlatform && damagedActor instanceof Actor && ((Actor)damagedActor).totalTeam == holder.character.totalTeam && source == AttackTextProcessor.DamageReasons.EARTHQUAKE
+								&&  ((Actor)damagedActor).dC(holder.character.x,holder.character.y) <= 7*globalSize()
 								)
-							damagedActor.damageRecieved = 0;
+							((Actor)damagedActor).damageRecieved = 0;
 					}
 				};
 		}

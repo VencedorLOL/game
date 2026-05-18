@@ -1,4 +1,4 @@
-Catapult,StellarExplosion,Imp
+Catapult,Summoner,Imp
 0,0
 0,0
 1,0

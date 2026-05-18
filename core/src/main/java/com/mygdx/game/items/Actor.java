@@ -14,8 +14,7 @@ import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.FieldEffects.getAdditive;
 import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.Friend.friend;
-import static com.mygdx.game.items.OnVariousScenarios.triggerOnActorDeath;
-import static com.mygdx.game.items.OnVariousScenarios.triggerOnDamagedActor;
+import static com.mygdx.game.items.OnVariousScenarios.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TextureManager.animations;
@@ -24,7 +23,7 @@ import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static com.mygdx.game.items.TurnManager.turnables;
 import static java.lang.Math.*;
 
-public class Actor extends Entity implements TurnManager.Turnable {
+public class Actor extends Entity implements TurnManager.Turnable, DamageReceiver {
 	public float maxHealth;
 	public float health = 20;
 	public float damage;
@@ -79,6 +78,8 @@ public class Actor extends Entity implements TurnManager.Turnable {
 	public ConditionsManager conditions = new ConditionsManager(this);
 
 	public boolean movementLock = false;
+
+	public AttackTextProcessor.DamageReasons[] immunities;
 
 	@Override
 	public float getSpeed() {
@@ -135,6 +136,7 @@ public class Actor extends Entity implements TurnManager.Turnable {
 		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
 		turnables.add(this);
+		damageReceivers.add(this);
 	}
 
 	public void statsUpdater(){
@@ -162,23 +164,31 @@ public class Actor extends Entity implements TurnManager.Turnable {
 		this.lastDamager = lastDamager;
 		damageRecieved = damage;
 		conditions.onDamaged(damageReason);
-		triggerOnDamagedActor(this,damageReason);
+		triggerOnDamaged(this,damageReason);
 		damageOverridable(damageRecieved,damageReason);
 	}
 
+	@Override
+	public float[] getPos() {return new float[]{x,y};}
+	@Override
+	public float[] getSize() {return new float[]{base,height};}
+	@Override
+	public float getTotalHealth(){return totalMaxHealth;}
+	@Override
+	public byte totalTeam(){return totalTeam;}
+	@Override
+	public float getHealth(){return health;}
+
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
-		if(damageReason != ELECTRIC && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
-				&& damageReason !=  EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
-				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE && damageReason !=  AttackTextProcessor.DamageReasons.PRESSURE
-				&& damageReason !=  AttackTextProcessor.DamageReasons.RADIATION)
-			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
+		if(DamageReceiver.damageIgnoresDef(damageReason))
+			if(DamageReceiver.damageHalvesDef(damageReason))
 				damagedFor = max(damage - (totalDefense/2),0);
 			else
 				damagedFor = max(damage - totalDefense,0);
 		else
 			damagedFor = damage;
-		if((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && airborn)
+		if(((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && airborn ) || DamageReceiver.checkImmunities(damageReason,immunities))
 			damagedFor = 0;
 		return damagedFor;
 	}

@@ -14,6 +14,8 @@ import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.AttackTextProcessor.addAttackText;
+import static com.mygdx.game.items.DamageReceiver.damageHalvesDef;
+import static com.mygdx.game.items.DamageReceiver.damageIgnoresDef;
 import static com.mygdx.game.items.FieldEffects.getAdditive;
 import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
@@ -84,7 +86,7 @@ public class CharacterClasses {
 			public void onTurnPass(){
 				turnHasPassed();
 			}
-			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
+			public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);
 				}
@@ -102,7 +104,7 @@ public class CharacterClasses {
 			}
 			// Detecting damage this way so damage can be manipulated before damage() method is run
 			@Override
-			public void onDamagedActor(Actor damagedActor, AttackTextProcessor.DamageReasons source) {
+			public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor == character){
 					onHurt(source);
 				}
@@ -210,17 +212,14 @@ public class CharacterClasses {
 
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
-		if(damageReason != AttackTextProcessor.DamageReasons.ELECTRIC && damageReason !=  AttackTextProcessor.DamageReasons.BURNT
-				&& damageReason !=  AttackTextProcessor.DamageReasons.EARTHQUAKE && damageReason !=  AttackTextProcessor.DamageReasons.UNIVERSAL
-				&& damageReason !=  AttackTextProcessor.DamageReasons.FROSTBITE && damageReason !=  AttackTextProcessor.DamageReasons.PRESSURE
-				&& damageReason !=  AttackTextProcessor.DamageReasons.RADIATION)
-			if(damageReason ==  AttackTextProcessor.DamageReasons.PIERCING)
+		if(damageIgnoresDef(damageReason))
+			if(damageHalvesDef(damageReason))
 				damagedFor = max(damage - (totalDefense/2),0);
 			else
 				damagedFor = max(damage - totalDefense,0);
 		else
 			damagedFor = damage;
-		if((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && character.airborn)
+		if(((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && character.airborn) || DamageReceiver.checkImmunities(damageReason))
 			damagedFor = 0;
 		return damagedFor;
 	}
