@@ -14,6 +14,18 @@ Bogfixes: enemies trying (and failing) to attack through walls
 Textbox: choose code implementation
 multiplayer.
 Text: trailing colored text, rapidly disapearing and converting into its supposed real color
+GUI in the class selection part that describes classes and weapons when hovering over them and equipping them (fill the blanks when ckicling an ability and over the weapon
+and shield icons to give those voids a purpose)
+implement text supporting custom symbols embedded in text with custom notation (eg.: <sword> draws a sword)
 
 idea:
 path indicator having same theme as ambient
+
+
+Cntl + Shift + Num: Assign a keybind
+KEYBINDS:
+Cntl + 1: Class info in ClassesCards
+Cntl + 2: Class info in ClassStoredInformation
+Cntl + 3: Class And Equipment Text in CAEText
+Cntl + 4: Text Checker
+Cntl + 5: KEYBINDS in HERE!!!

@@ -59,6 +59,7 @@ public interface DamageReceiver {
 	float getTotalHealth();
 	float getHealth();
 	byte totalTeam();
+	boolean getIsDead();
 
 	/**
 	 * @return: Returns true if there's an immunity on the given list that coincides with the damage reason given.

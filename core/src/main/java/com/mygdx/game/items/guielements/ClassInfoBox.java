@@ -3,32 +3,32 @@ package com.mygdx.game.items.guielements;
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
+import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.Utils.intravalue;
 import static com.mygdx.game.items.InputHandler.*;
-import static com.mygdx.game.items.TextureManager.*;
+import static com.mygdx.game.items.InputHandler.cursorY;
 import static com.mygdx.game.items.TextureManager.Text.adequateSize;
+import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
+import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.getClIns;
 import static java.lang.Math.min;
 
-public class ItemsList  {
-	Character chara;
+public class ClassInfoBox extends GUI {
 	ClassAndEquipmentChanger.ClassObject classs;
-	String[] weapons;
-	String[] shields;
-	TextureManager.Text[] texts;
+	TextureManager.Text text;
 
 	String texture = "TextBar";
 	float size, x, y, x2;
 	int hovered = -1;
 	boolean canHover = true;
 
-	public ItemsList(ClassAndEquipmentChanger.ClassObject clsCardObj, Character chara){
+	public ClassInfoBox(ClassAndEquipmentChanger.ClassObject clsCardObj, Character chara){
 		classs = clsCardObj;
 		this.chara = chara;
 		nameExtractor();
-		texts = new TextureManager.Text[weapons.length + shields.length];
+		text = new TextureManager.Text();
 
 	}
 
@@ -44,14 +44,14 @@ public class ItemsList  {
 			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x , yIni + (size*11*i), 1, 0, size, size,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(getClIns(classs.name).getWeaponName() != null && getClIns(classs.name).getWeaponName().equals(weapons[i])){
-				fixatedDrawables.add(new DrawableObject("WeaponMiniIconEquipped", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(new TextureManager.DrawableObject("WeaponMiniIconEquipped", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			} else
-				fixatedDrawables.add(new DrawableObject("WeaponMiniIcon", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(new TextureManager.DrawableObject("WeaponMiniIcon", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 
 			if(texts[i] == null){
 				texts[i] = dynamicFixatedText(weapons[i],0,0,-1,32);
 			}
-			texts[i].realSize = min(adequateSize(texts[i].getText(),size*32*.9f),40*Gdx.graphics.getHeight()/1080f);
+			texts[i].realSize = min(adequateSize(texts[i].getText(),size*32*.9f),40* Gdx.graphics.getHeight()/1080f);
 			texts[i].setColor(255,255,255);
 			texts[i].render = true;
 			texts[i].onScreenTime = 2;
@@ -67,9 +67,9 @@ public class ItemsList  {
 			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x2 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(shields[i])){
-				fixatedDrawables.add(new DrawableObject("ShieldMiniIconEquipped", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(new TextureManager.DrawableObject("ShieldMiniIconEquipped", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			} else
-				fixatedDrawables.add(new DrawableObject("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(new TextureManager.DrawableObject("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
 			if(texts[i+ weapons.length] == null){
 				texts[i+ weapons.length] = dynamicFixatedText(shields[i],0,0,-1,32);
 			}
@@ -186,5 +186,8 @@ public class ItemsList  {
 		for(int i = 0; i < shields.length; i++)
 			shields[i] = classs.getShieldName(i,chara);
 	}
+
+}
+
 
 }

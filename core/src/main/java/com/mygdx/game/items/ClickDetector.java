@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.Actor.actors;
+import static com.mygdx.game.items.DamageReceiver.damageReceivers;
 import static com.mygdx.game.items.InputHandler.cursorX;
 import static com.mygdx.game.items.InputHandler.cursorY;
 import static com.mygdx.game.items.Wall.walls;
@@ -39,7 +40,7 @@ public class ClickDetector  {
 	}
 
 
-	public static ArrayList<Actor> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<Actor> entityToIgnore, boolean pierces, Entity runFrom) {
+	public static ArrayList<Actor> rayCastingA(float fromX, float fromY, float toX, float toY, ArrayList<Actor> entityToIgnore, boolean pierces, Entity runFrom) {
 		ArrayList<Actor> piercesEnemyArrayOfTargets = new ArrayList<>();
 		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
 //		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
@@ -87,10 +88,10 @@ public class ClickDetector  {
 			for (Ray r : rayCheckerList) {
 				if (r.x == toX + halfSize && r.y == toY + halfSize && !pierces) {
 					if (!r.getEnemiesThatGotHit().isEmpty())
-						for (ActorAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32) {
+						for (DamageReceiverAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32 && en.getActor() instanceof Actor) {
 								ArrayList<Actor> temporal = new ArrayList<>();
-								temporal.add(en.getActor());
+								temporal.add((Actor) en.getActor());
 							//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
 								if (entityToIgnore != null)
 									for (Actor a : entityToIgnore)
@@ -109,18 +110,18 @@ public class ClickDetector  {
 
 			if (pierces)
 				for (Ray r : rayCheckerList) {
-					for (ActorAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)) {
-						if (!valueSearcher(piercesEnemyArrayOfTargets,en.objective))
-							piercesEnemyArrayOfTargets.add(en.getActor());
+					for (DamageReceiverAndTimesTheRayTouchedIt en : r.enemyRayCheck(entityToIgnore)) {
+						if (en.getActor() instanceof Actor && !valueSearcher(piercesEnemyArrayOfTargets, (Actor) en.objective) )
+							piercesEnemyArrayOfTargets.add((Actor)en.getActor());
 					}
 				}
 			else for (Ray r : rayCheckerList) {
 					r.enemyRayCheck(entityToIgnore);
 					if (!r.getEnemiesThatGotHit().isEmpty())
-						for (ActorAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
-							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32) {
+						for (DamageReceiverAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32  && en.getActor() instanceof Actor) {
 								ArrayList<Actor> temporal = new ArrayList<>();
-								temporal.add(en.getActor());
+								temporal.add((Actor) en.getActor() );
 							//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
 								if (entityToIgnore != null)
 									for (Actor a : entityToIgnore)
@@ -155,13 +156,129 @@ public class ClickDetector  {
 
 	}
 
+	public static ArrayList<DamageReceiver> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<DamageReceiver> entityToIgnore, boolean pierces, Entity runFrom) {
+		ArrayList<DamageReceiver> piercesEnemyArrayOfTargets = new ArrayList<>();
+		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
+//		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
+//		Ray rayCheckerDownRight = new Ray(fromX + globalSize() - 1, fromY + 1,pierces);
+//		Ray rayCheckerUpLeft = new Ray(fromX + 1, fromY + globalSize() - 1,pierces);
+//		Ray rayCheckerUpRight = new Ray(fromX + globalSize() - 1, fromY + globalSize() - 1,pierces);
+		ArrayList<Ray> rayCheckerList = new ArrayList<>();
+		rayCheckerList.add(rayCheckerCenter);
+//		rayCheckerList.add(rayCheckerDownLeft);
+//		rayCheckerList.add(rayCheckerDownRight);
+//		rayCheckerList.add(rayCheckerUpLeft);
+//		rayCheckerList.add(rayCheckerUpRight);
+
+		float rect = ((toY + halfSize) - (fromY + halfSize)) / ((toX + halfSize) - (fromX + halfSize));
+
+		int sign = 1;
+		if (toX < fromX)
+			sign = -1;
+		if (rect == POSITIVE_INFINITY || rect == NEGATIVE_INFINITY)
+			sign = 0;
+
+		for (int i = 0; i < Utils.pickValueAUnlessEqualsZeroThenPickB(abs(toX - fromX), abs(toY - fromY)); i++) {
+			for (Entity r : rayCheckerList)
+				r.x += sign;
+			if (sign != 0) {
+				for (Entity r : rayCheckerList)
+					r.y += rect * sign;
+
+			} else if (rect == POSITIVE_INFINITY) {
+				for (Entity r : rayCheckerList)
+					r.y++;
+
+			} else if (rect == NEGATIVE_INFINITY) {
+				for (Entity r : rayCheckerList)
+					r.y--;
+			}
+			for (Ray r : rayCheckerList)
+				r.wallRayCheck();
+
+			if ((rayCheckerCenter.timesRayTouchedWall /* + rayCheckerUpLeft.timesRayTouchedWall +
+							//rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
+							/*rayCheckerDownRight.timesRayTouchedWall*/) >= globalSize() / 3)
+				return null;
+
+			for (Ray r : rayCheckerList) {
+				if (r.x == toX + halfSize && r.y == toY + halfSize && !pierces) {
+					if (!r.getEnemiesThatGotHit().isEmpty())
+						for (DamageReceiverAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+							if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32) {
+								ArrayList<DamageReceiver> temporal = new ArrayList<>();
+								temporal.add(en.getActor());
+								//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
+								if (entityToIgnore != null)
+									for (DamageReceiver a : entityToIgnore)
+										temporal.removeIf(actor -> actor == a);
+
+								return temporal.isEmpty() ? null : temporal;
+							}
+					return null;
+				}
+			}
+
+			if (isDevMode())
+				for (Entity r : rayCheckerList)
+					r.render();
+
+
+			if (pierces)
+				for (Ray r : rayCheckerList) {
+					for (DamageReceiverAndTimesTheRayTouchedIt en : r.damageRayCheck(entityToIgnore)) {
+						if (!dRvalueSearcher(piercesEnemyArrayOfTargets,en.objective))
+							piercesEnemyArrayOfTargets.add(en.getActor());
+					}
+				}
+			else for (Ray r : rayCheckerList) {
+				r.damageRayCheck(entityToIgnore);
+				if (!r.getEnemiesThatGotHit().isEmpty())
+					for (DamageReceiverAndTimesTheRayTouchedIt en : r.getEnemiesThatGotHit())
+						if (en.getTimesTheRayTouchedTheActor() >= globalSize() / 32) {
+							ArrayList<DamageReceiver> temporal = new ArrayList<>();
+							temporal.add(en.getActor());
+							//	print("returned temporal. Enemy X is: " + en.getActor().x + " Enemy Y is : " + en.getActor().y);
+							if (entityToIgnore != null)
+								for (DamageReceiver a : entityToIgnore)
+									temporal.removeIf(actor -> actor == a);
+							if (!temporal.isEmpty())
+								return temporal;
+						}
+			}
+
+			for (Ray r : rayCheckerList) {
+				if (r.x == toX + halfSize && r.y == toY + halfSize && pierces) {
+					if (!piercesEnemyArrayOfTargets.isEmpty()) {
+						if (entityToIgnore != null)
+							for (DamageReceiver a : entityToIgnore)
+								piercesEnemyArrayOfTargets.removeIf(actor -> actor == a);
+						return piercesEnemyArrayOfTargets.isEmpty() ? null : piercesEnemyArrayOfTargets;
+					}
+				}
+			}
+
+
+
+		}
+		if (!piercesEnemyArrayOfTargets.isEmpty()) {
+			if (entityToIgnore != null)
+				for (DamageReceiver a : entityToIgnore)
+					piercesEnemyArrayOfTargets.removeIf(actor -> actor == a);
+			return piercesEnemyArrayOfTargets.isEmpty() ? null : piercesEnemyArrayOfTargets;
+		}
+
+		return null;
+
+	}
+
 	// lmao ure now useless dw ill find a use for u later
 	public static ArrayList<Actor> clickAndRayCasting(float fromX, float fromY, ArrayList<Actor> entityToIgnore, boolean phases){
 		Vector3 utilVector = roundedClick();
 		float toX = utilVector.x;
 		float toY = utilVector.y;
 
-		return rayCasting(fromX,fromY,toX,toY,entityToIgnore, phases,null);
+		return rayCastingA(fromX,fromY,toX,toY,entityToIgnore, phases,null);
 	}
 
 	public static boolean clickAndRayCastingButOnlyForWallsAndNowReturnsBoolean(float fromX, float fromY){
@@ -226,13 +343,21 @@ public class ClickDetector  {
 		return false;
 	}
 
+	private static boolean dRvalueSearcher(ArrayList<DamageReceiver> theListInQuestion, DamageReceiver theValueInQuestion){
+		for (DamageReceiver l : theListInQuestion){
+			if(l == theValueInQuestion)
+				return true;
+		}
+		return false;
+	}
+
 
 
 	private static class Ray extends Entity {
 		short timesRayTouchedWall = 0, timesRayTouchedOtherEnemy = 0;
 		boolean phases;
-		ArrayList<ActorAndTimesTheRayTouchedIt> hitEnemies;
-		ArrayList<ActorAndTimesTheRayTouchedIt> enemiesThatGotHit;
+		ArrayList<DamageReceiverAndTimesTheRayTouchedIt> hitEnemies;
+		ArrayList<DamageReceiverAndTimesTheRayTouchedIt> enemiesThatGotHit;
 
 
 		public Ray(String texture,float x, float y, float base, float height, boolean phases){
@@ -274,17 +399,17 @@ public class ClickDetector  {
 			}
 		}
 
-		public ArrayList<ActorAndTimesTheRayTouchedIt> enemyRayCheck(ArrayList<Actor> enemiesToIgnore) {
+		public ArrayList<DamageReceiverAndTimesTheRayTouchedIt> enemyRayCheck(ArrayList<Actor> enemiesToIgnore) {
 			if (enemiesToIgnore != null)
 				for (Entity e : enemiesToIgnore)
 					for (Actor en : actors) {
 						if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead && en != e) {
 							if (phases) {
 								timesRayTouchedOtherEnemy++;
-								hitEnemies.add(new ActorAndTimesTheRayTouchedIt(en));
+								hitEnemies.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
 							} else {
 								if (!isEnemyAlreadyOnHashSet(en))
-									enemiesThatGotHit.add(new ActorAndTimesTheRayTouchedIt(en));
+									enemiesThatGotHit.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
 								enemySearcher(en).touch();
 							}
 						}
@@ -294,10 +419,43 @@ public class ClickDetector  {
 					if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead) {
 						if (phases) {
 							timesRayTouchedOtherEnemy++;
-							hitEnemies.add(new ActorAndTimesTheRayTouchedIt(en));
+							hitEnemies.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
 						} else {
 							if (!isEnemyAlreadyOnHashSet(en))
-								enemiesThatGotHit.add(new ActorAndTimesTheRayTouchedIt(en));
+								enemiesThatGotHit.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
+							enemySearcher(en).touch();
+						}
+					}
+			if (phases)
+				return hitEnemies;
+			else
+				return enemiesThatGotHit;
+		}
+
+		public ArrayList<DamageReceiverAndTimesTheRayTouchedIt> damageRayCheck(ArrayList<DamageReceiver> enemiesToIgnore) {
+			if (enemiesToIgnore != null)
+				for (DamageReceiver e : enemiesToIgnore)
+					for (DamageReceiver en : damageReceivers) {
+						if (x < en.getX() + globalSize() && x + 1 > en.getX() && y < en.getY() + globalSize() && y + 1 > en.getY() && !en.getIsDead() && en != e) {
+							if (phases) {
+								timesRayTouchedOtherEnemy++;
+								hitEnemies.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
+							} else {
+								if (!isDRAlreadyOnHashSet(en))
+									enemiesThatGotHit.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
+								damageSearcher(en).touch();
+							}
+						}
+					}
+			else
+				for (Actor en : actors)
+					if (x < en.x + globalSize() && x + 1 > en.x && y < en.y + globalSize() && y + 1 > en.y && !en.isDead) {
+						if (phases) {
+							timesRayTouchedOtherEnemy++;
+							hitEnemies.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
+						} else {
+							if (!isEnemyAlreadyOnHashSet(en))
+								enemiesThatGotHit.add(new DamageReceiverAndTimesTheRayTouchedIt(en));
 							enemySearcher(en).touch();
 						}
 					}
@@ -308,45 +466,59 @@ public class ClickDetector  {
 		}
 
 		private boolean isEnemyAlreadyOnHashSet(Actor enemy){
-			for(ActorAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+			for(DamageReceiverAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+				if (e.getActor() == enemy)
+					return true;
+			return false;
+		}
+
+		private boolean isDRAlreadyOnHashSet(DamageReceiver enemy){
+			for(DamageReceiverAndTimesTheRayTouchedIt e : enemiesThatGotHit)
 				if (e.getActor() == enemy)
 					return true;
 			return false;
 		}
 
 		private boolean isEnemyAlreadyOnArrayList(Actor enemy){
-			for(ActorAndTimesTheRayTouchedIt e : hitEnemies)
+			for(DamageReceiverAndTimesTheRayTouchedIt e : hitEnemies)
 				if (e.getActor() == enemy)
 					return true;
 			return false;
 		}
 
-		private ActorAndTimesTheRayTouchedIt enemySearcher(Actor enemy){
-			for(ActorAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+		private DamageReceiverAndTimesTheRayTouchedIt enemySearcher(Actor enemy){
+			for(DamageReceiverAndTimesTheRayTouchedIt e : enemiesThatGotHit)
 				if (e.getActor() == enemy)
 					return e;
 			return null;
 		}
 
-		public ArrayList<ActorAndTimesTheRayTouchedIt> getEnemiesThatGotHit(){
+		private DamageReceiverAndTimesTheRayTouchedIt damageSearcher(DamageReceiver enemy){
+			for(DamageReceiverAndTimesTheRayTouchedIt e : enemiesThatGotHit)
+				if (e.getActor() == enemy)
+					return e;
+			return null;
+		}
+
+		public ArrayList<DamageReceiverAndTimesTheRayTouchedIt> getEnemiesThatGotHit(){
 			return enemiesThatGotHit;
 		}
 
 	}
 
 
-	private static class ActorAndTimesTheRayTouchedIt{
-		Actor objective;
+	private static class DamageReceiverAndTimesTheRayTouchedIt {
+		DamageReceiver objective;
 		int timesTheRayTouchedTheEnemy;
 
-		public ActorAndTimesTheRayTouchedIt(Actor objective){
+		public DamageReceiverAndTimesTheRayTouchedIt(DamageReceiver objective){
 			this.objective = objective;
 			timesTheRayTouchedTheEnemy = 0;
 		}
 
 		public void touch(){timesTheRayTouchedTheEnemy++;}
 
-		public Actor getActor(){
+		public DamageReceiver getActor(){
 			return objective;
 		}
 

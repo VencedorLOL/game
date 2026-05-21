@@ -602,12 +602,12 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	}
 
 	public void attackDetector(){
-		ArrayList<Actor> actuallyEnemies = new ArrayList<>(enemies);
-		actuallyEnemies.removeIf(e -> e.totalTeam != -1);
-		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
+		ArrayList<DamageReceiver> actuallyEnemies = new ArrayList<>(enemies);
+		actuallyEnemies.removeIf(e -> e.totalTeam() != -1);
+		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
 		if (list != null) {
-			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.totalTeam != totalTeam) {
+			for (DamageReceiver e : list)
+				if ((float) sqrt(pow(e.getX() - x, 2) + pow(e.getY() - y, 2)) / globalSize() <= totalRange && e.totalTeam() != totalTeam) {
 					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;

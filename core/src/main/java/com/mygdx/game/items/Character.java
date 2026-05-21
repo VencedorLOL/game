@@ -319,12 +319,12 @@ public class Character extends Actor {
 
 
 	public void attackDetector(){
-		ArrayList<Actor> temp = new ArrayList<>();
+		ArrayList<DamageReceiver> temp = new ArrayList<>();
 		temp.add(this);
 		classes.runAttack();
-		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
+		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
 		if (list != null)
-			for (Actor aa : list) {
+			for (DamageReceiver aa : list) {
 				aa.damage(classes.outgoingDamage(), classes.damageReason,this);
 				if (!classes.pierces)
 					break;

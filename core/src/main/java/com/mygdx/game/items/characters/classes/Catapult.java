@@ -172,13 +172,15 @@ public class Catapult extends CharacterClasses {
 				oVS2 = new OnVariousScenarios.CounterObject(60){
 					@Override
 					public void onCounterFinish() {
-						ArrayList<Actor> chara = new ArrayList<>();
+						ArrayList<DamageReceiver> chara = new ArrayList<>();
 						chara.add(character);
-						ArrayList<Actor> list = rayCasting(charX, charY, chargeCoords[0], chargeCoords[1], (chara), true, character);
+						ArrayList<DamageReceiver> list = rayCasting(charX, charY, chargeCoords[0], chargeCoords[1], (chara), true, character);
 						if (list != null)
-							for (Actor l : list) {
-								l.conditions.status(Conditions.ConditionNames.STUNNED);
-								l.conditions.getStatus(Conditions.ConditionNames.STUNNED).setTurns(4);
+							for (DamageReceiver l : list) {
+								if(l instanceof Actor) {
+									((Actor)l).conditions.status(Conditions.ConditionNames.STUNNED);
+									((Actor)l).conditions.getStatus(Conditions.ConditionNames.STUNNED).setTurns(4);
+								}
 								l.damage(damage, AttackTextProcessor.DamageReasons.MELEE, character);
 							}
 						character.softlockOverridable(true);

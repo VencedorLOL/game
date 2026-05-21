@@ -161,11 +161,11 @@ public class ControllableFriend extends Friend {
 	}
 
 	public void attackDetector(){
-		ArrayList<Actor> temp = new ArrayList<>(friend);
+		ArrayList<DamageReceiver> temp = new ArrayList<>(friend);
 		temp.add(this);
-		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, pierces,this);
+		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, pierces,this);
 		if (list != null)
-			for (Actor aa : list) {
+			for (DamageReceiver aa : list) {
 				aa.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 				if (!pierces)
 					break;

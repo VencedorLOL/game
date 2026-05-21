@@ -180,13 +180,13 @@ public class Friend extends Actor {
 
 	// TODO:: Adapt for DamageReceiver interface.
 	public void attackDetector(){
-		ArrayList<Actor> allMyFriends = new ArrayList<>(friend);
+		ArrayList<DamageReceiver> allMyFriends = new ArrayList<>(friend);
 		allMyFriends.add(chara);
-		allMyFriends.removeIf(e -> e.totalTeam != 1);
-		ArrayList<Actor> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
+		allMyFriends.removeIf(e -> e.totalTeam() != 1);
+		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
 		if (list != null) {
-			for (Actor e : list)
-				if ((float) sqrt(pow(e.x - x, 2) + pow(e.y - y, 2)) / globalSize() <= totalRange && e.totalTeam != totalTeam) {
+			for (DamageReceiver e : list)
+				if ((float) sqrt(pow(e.getX() - x, 2) + pow(e.getY() - y, 2)) / globalSize() <= totalRange && e.totalTeam() != totalTeam) {
 					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
 					if (!pierces)
 						break;
