@@ -1,4 +1,4 @@
-package com.mygdx.game.items.guielements;
+/*package com.mygdx.game.items.guielements;
 
 import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.Character;
@@ -190,4 +190,4 @@ public class ClassInfoBox extends GUI {
 }
 
 
-}
+}*/

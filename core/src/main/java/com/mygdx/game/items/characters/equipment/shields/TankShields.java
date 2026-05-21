@@ -15,12 +15,12 @@ public class TankShields extends Shields {
 	public static class TankShield extends TankShields {
 		public TankShield(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			shieldName = "Big shield";
-			shieldHealth = 100;
+			shieldName = "Shield";
+			shieldHealth = 30;
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 20;
+			shieldDefense = 3;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;

@@ -13,13 +13,13 @@ public class MageWeapons extends Weapons{
 	public static class BasicWand extends MageWeapons {
 		public BasicWand(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Basic wand";
+			weaponName = "Makeshift wand";
 			weaponHealth = 0;
 			weaponDamage = 5;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 5;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

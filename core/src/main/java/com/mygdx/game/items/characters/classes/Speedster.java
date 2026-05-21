@@ -24,7 +24,7 @@ public class Speedster extends CharacterClasses {
 		speed = 7;
 		attackSpeed = 8;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

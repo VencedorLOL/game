@@ -16,13 +16,13 @@ public class Mage extends CharacterClasses {
 		speed = 3;
 		attackSpeed = 4;
 		defense = 0;
-		range = 50;
+		range = 5;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 100;
 		magicDefense = 0;
 		magicDamage = 20;
-		manaPerTurn = 50;
+		manaPerTurn = 40;
 		manaPerUse = 0;
 		magicHealing = 0;
 		aggro = 0;
@@ -31,7 +31,7 @@ public class Mage extends CharacterClasses {
 		currentHealth = totalHealth;
 		manaPool = mana;
 		text = dynamicFixatedText(manaPool+"",100,400,-1,30);
-		text.setColor(new int[]{157,216,242});
+		text.setColor(157,216,242);
 		damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
 	}
 
@@ -49,7 +49,8 @@ public class Mage extends CharacterClasses {
 			return true;
 		}
 		character.cancelAttackMode();
-		text("Out Of Mana!",0,150,200, 40,character);
+		if(manaPool - (totalManaPerUse/2) < 0 + totalManaPerTurn)
+			text("Out Of Mana!",0,150,200, 40,character);
 		return false;
 	}
 

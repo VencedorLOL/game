@@ -274,6 +274,12 @@ public class Trapper extends CharacterClasses {
 		public float getTotalHealth(){return maxHp;}
 		@Override
 		public byte totalTeam(){return team;}
+
+		@Override
+		public boolean getIsDead() {
+			return hp <= 0;
+		}
+
 		@Override
 		public float getHealth(){return hp;}
 

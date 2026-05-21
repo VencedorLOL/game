@@ -14,13 +14,13 @@ public class SwordMageWeapons extends Weapons{
 	public static class SwordWand extends SwordMageWeapons {
 		public SwordWand(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Sword-wand";
+			weaponName = "Hard-wand";
 			weaponHealth = 0;
 			weaponDamage = 30;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 10;
 			weaponMagicDefense = 0;

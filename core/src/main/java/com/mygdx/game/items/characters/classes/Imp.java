@@ -39,7 +39,7 @@ public class Imp extends CharacterClasses {
 		speed = 3;
 		attackSpeed = 7;
 		defense = 0;
-		range = 3;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

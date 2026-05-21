@@ -19,7 +19,7 @@ public class Tank extends CharacterClasses {
 		speed = 2;
 		attackSpeed = 2;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

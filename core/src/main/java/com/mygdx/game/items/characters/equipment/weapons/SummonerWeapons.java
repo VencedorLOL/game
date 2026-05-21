@@ -22,7 +22,7 @@ public class SummonerWeapons extends Weapons{
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -36,7 +36,7 @@ public class SummonerWeapons extends Weapons{
 	}
 
 	public void update() {
-		if(!Summoner.summons.isEmpty()){
+		if(Summoner.summons != null && !Summoner.summons.isEmpty()){
 			weaponDamage = 10;
 			for (Summon s : Summoner.summons)
 				s.conditions.status(Conditions.ConditionNames.POWERED);

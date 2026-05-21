@@ -32,7 +32,7 @@ public class Healer extends CharacterClasses {
 		speed = 2;
 		attackSpeed = 3;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

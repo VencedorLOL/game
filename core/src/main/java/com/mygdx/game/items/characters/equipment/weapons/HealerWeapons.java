@@ -13,13 +13,13 @@ public class HealerWeapons extends Weapons {
 	public static class BlessedSword extends HealerWeapons {
 		public BlessedSword(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Blessed sword";
+			weaponName = "Blessed stick";
 			weaponHealth = 0;
 			weaponDamage = 10;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -38,13 +38,13 @@ public class HealerWeapons extends Weapons {
 	public static class BestHealerSword extends HealerWeapons {
 		public BestHealerSword(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "BestSword";
+			weaponName = "Holy Sword";
 			weaponHealth = 0;
 			weaponDamage = 100;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

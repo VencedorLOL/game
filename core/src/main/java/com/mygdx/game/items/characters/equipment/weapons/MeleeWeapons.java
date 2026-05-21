@@ -18,7 +18,7 @@ public class MeleeWeapons extends Weapons{
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

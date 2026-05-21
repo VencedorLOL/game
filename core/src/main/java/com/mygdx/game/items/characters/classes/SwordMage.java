@@ -16,7 +16,7 @@ import static com.mygdx.game.items.TextureManager.text;
 
 public class SwordMage extends CharacterClasses {
 
-	public float manaCost = 1.5f;
+	public float manaCost = 2f;
 	public float damageMultiplier = 1.25f;
 	public float finalManaCost;
 	public float finalDamageMultiplier;
@@ -30,7 +30,7 @@ public class SwordMage extends CharacterClasses {
 		speed = 3;
 		attackSpeed = 6;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 100;

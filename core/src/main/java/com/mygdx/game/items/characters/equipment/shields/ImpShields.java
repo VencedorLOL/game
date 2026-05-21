@@ -47,7 +47,7 @@ public class ImpShields extends Shields {
 				if(a.conditions.hasStatus(Conditions.ConditionNames.DEMONIZED))
 					counter++;
 			}
-			shieldDefense = counter * 10;
+			shieldDefense = counter;
 			holder.refresh();
 		}
 	}
@@ -76,7 +76,7 @@ public class ImpShields extends Shields {
 		@Override
 		public void update() {
 			if(holder.character.conditions.hasStatus(RITUAL))
-				shieldDefense = 12;
+				shieldDefense = 3;
 			holder.refresh();
 		}
 	}
@@ -131,7 +131,7 @@ public class ImpShields extends Shields {
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 66;
+			shieldDefense = 33;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;

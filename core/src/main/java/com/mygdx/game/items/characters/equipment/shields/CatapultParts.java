@@ -20,7 +20,7 @@ public class CatapultParts extends Shields {
 			shieldDamage = 5;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 25;
+			shieldDefense = 5;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;

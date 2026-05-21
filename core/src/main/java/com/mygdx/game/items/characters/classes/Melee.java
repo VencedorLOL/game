@@ -24,7 +24,7 @@ public class Melee extends CharacterClasses {
 		speed = 3;
 		attackSpeed = 2;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

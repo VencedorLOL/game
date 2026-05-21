@@ -20,7 +20,7 @@ public class MeleeShields extends Shields {
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 5;
+			shieldDefense = 1;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;

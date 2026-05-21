@@ -18,8 +18,8 @@ public class TankWeapons extends Weapons{
 			weaponDamage = 15;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
-			weaponDefense = 10;
-			weaponRange = 0;
+			weaponDefense = 1;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

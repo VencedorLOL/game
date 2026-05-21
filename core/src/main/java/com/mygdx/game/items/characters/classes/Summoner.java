@@ -31,7 +31,7 @@ public class Summoner extends CharacterClasses {
 		speed = 5;
 		attackSpeed = 6;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

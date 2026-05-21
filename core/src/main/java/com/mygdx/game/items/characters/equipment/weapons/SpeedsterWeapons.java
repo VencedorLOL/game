@@ -12,13 +12,13 @@ public class SpeedsterWeapons extends Weapons{
 	public static class SpeedsterDagger extends SpeedsterWeapons {
 		public SpeedsterDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Small dagger";
+			weaponName = "Knife";
 			weaponHealth = 0;
 			weaponDamage = 10;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

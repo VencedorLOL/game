@@ -32,7 +32,7 @@ public class ImpWeapons extends Weapons{
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -62,13 +62,13 @@ public class ImpWeapons extends Weapons{
 	public static class ImpHastyDagger extends ImpWeapons {
 		public ImpHastyDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Hasty dagger";
+			weaponName = "Light dagger";
 			weaponHealth = 0;
 			weaponDamage = 12;
 			weaponSpeed = 2;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;
@@ -93,13 +93,13 @@ public class ImpWeapons extends Weapons{
 	public static class MassDemonizeDagger extends ImpWeapons {
 		public MassDemonizeDagger(CharacterClasses holder, boolean effectiveInstantiation) {
 			super(holder, effectiveInstantiation);
-			weaponName = "Mass demonize dagger";
+			weaponName = "Damaging Ritual dagger";
 			weaponHealth = 0;
 			weaponDamage = 60;
 			weaponSpeed = 0;
 			weaponAttackSpeed = 0;
 			weaponDefense = 0;
-			weaponRange = 0;
+			weaponRange = 1;
 			weaponRainbowDefense = 0;
 			weaponMana = 0;
 			weaponMagicDefense = 0;

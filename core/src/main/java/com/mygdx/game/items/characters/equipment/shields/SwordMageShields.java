@@ -21,13 +21,13 @@ public class SwordMageShields extends Shields {
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 5;
+			shieldDefense = 1;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 140;
 			shieldMagicDefense = 0;
 			shieldMagicDamage = 0;
-			shieldManaPerTurn = 0;
+			shieldManaPerTurn = 15;
 			shieldManaPerUse = 0;
 			shieldMagicHealing = 0;
 			equippableBy = "SwordMage";

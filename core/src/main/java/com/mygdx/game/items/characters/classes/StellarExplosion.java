@@ -30,7 +30,7 @@ public class StellarExplosion extends CharacterClasses {
 		speed = 6;
 		attackSpeed = 6;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 250;

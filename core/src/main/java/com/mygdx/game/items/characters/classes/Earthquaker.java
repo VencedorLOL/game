@@ -29,11 +29,11 @@ public class Earthquaker extends CharacterClasses {
 		super();
 		name = "Earthquaker";
 		health = 40;
-		damage = 20;
+		damage = 15;
 		speed = 2;
 		attackSpeed = 1;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 150;

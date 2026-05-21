@@ -9,11 +9,11 @@ public class Classless extends CharacterClasses {
 		super();
 		name = "Classless";
 		health = 40;
-		damage = 5;
-		speed = 1000;
+		damage = 20;
+		speed = 4;
 		attackSpeed = 2;
 		defense = 0;
-		range = 2;
+		range = 1;
 		tempDefense = 0;
 		rainbowDefense = 0;
 		mana = 0;

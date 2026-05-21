@@ -20,7 +20,7 @@ public class SummonerShields extends Shields {
 			shieldDamage = 0;
 			shieldSpeed = 0;
 			shieldAttackSpeed = 0;
-			shieldDefense = 5;
+			shieldDefense = 1;
 			shieldRange = 0;
 			shieldRainbowDefense = 0;
 			shieldMana = 0;
@@ -35,8 +35,8 @@ public class SummonerShields extends Shields {
 
 		@Override
 		public void update() {
-			if(!Summoner.summons.isEmpty()){
-				shieldDefense = 5 + Summoner.summons.size()*2;
+			if(Summoner.summons != null && !Summoner.summons.isEmpty()){
+				shieldDefense = 1 + Summoner.summons.size();
 			}
 		}
 	}
