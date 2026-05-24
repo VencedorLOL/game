@@ -509,8 +509,10 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 		friend.clear();
 		enemies.clear();
 		turnables.clear();
+		damageReceivers.clear();
 		actors.add(chara);
 		turnables.add(chara);
+		damageReceivers.add(chara);
 	}
 
 

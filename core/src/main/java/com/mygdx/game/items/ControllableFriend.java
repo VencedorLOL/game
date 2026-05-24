@@ -185,6 +185,7 @@ public class ControllableFriend extends Friend {
 			controllableCharacters.remove(this);
 			actorsThatAttack.remove(this);
 			turnables.remove(this);
+			damageReceivers.remove(this);
 		}
 	}
 /*	protected void turnSpeedActuator(){

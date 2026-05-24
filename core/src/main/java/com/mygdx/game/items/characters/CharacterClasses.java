@@ -219,8 +219,9 @@ public class CharacterClasses {
 				damagedFor = max(damage - totalDefense,0);
 		else
 			damagedFor = damage;
-		if(((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && character.airborn) || DamageReceiver.checkImmunities(damageReason))
+		if(((damageReason == ELECTRIC || damageReason == EARTHQUAKE) && character.airborn) || DamageReceiver.checkImmunities(damageReason)) {
 			damagedFor = 0;
+		}
 		return damagedFor;
 	}
 

@@ -171,6 +171,7 @@ public class Enemy extends Actor {
 		enemies.remove(this);
 		entityList.remove(this);
 		turnables.remove(this);
+		damageReceivers.remove(this);
 		destroyOverridable();
 	}
 
