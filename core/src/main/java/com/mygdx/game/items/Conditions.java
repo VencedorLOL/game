@@ -294,7 +294,7 @@ public class Conditions {
 			};
 		}
 
-		float getDamageMultiplier() {return 1.33f;}
+		float getDamageMultiplier() {return (1 + 1/3f);}
 		public float speed = 2;
 		float getSpeedAdditive() {return speed;}
 		public float actingSpeed = 2;

@@ -46,6 +46,7 @@ public class Speedster extends CharacterClasses {
 			public void cancelActivation() {
 				isItActive = false;
 				character.cancelAttackMode();
+				attackState = 0;
 				character.conditions.remove(Conditions.ConditionNames.EVEN_FASTER);
 			}
 		});

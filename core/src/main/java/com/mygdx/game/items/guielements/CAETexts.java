@@ -7,60 +7,102 @@ public class CAETexts {
 
 
 	public enum Classes{
-		CLASSLESS("Default class." +
+		CLASSLESS( "Default",
+				"Default class." +
 				"\n HP: 40 - Damage: 20" +
 				"\n Movement: 2 (4) - Speed: 2" +
-				"\n Range: 1"),
-		MELEE("A class that focuses on close-combat and shredding your enemies hitting hard!" +
+				"\n Range: 1",
+				new String[]{"None"}),
+		MELEE("Melee",
+				"A class that focuses on close-combat and shredding your enemies hitting hard!" +
 				"\nDefault stats:" +
 				"\n HP: 40 - Damage: 40" +
 				"\n Movement: 1.5 (3) - Speed: 2" +
-				"\n Range: 1"),
-		SPEEDSTER("Outrun everything and everyone! Hit as fast as you can imagine!" +
+				"\n Range: 1",
+				new String[]{"One for All: When activated, you will be able to aim a heavy attack" +
+						"that deals x6 your damage."}),
+		SPEEDSTER("Speedster","Outrun everything and everyone! Hit as fast as you can imagine!" +
 				"\n Default stats:" +
 				"\n HP: 40 - Damage: 10" +
 				"\n Movement: 3.5 (7) - Speed: 8" +
-				"\n Range: 1"),
-		HEALER("The healer class is albe to redirect the damage inflicted as healing for your teammates!" +
+				"\n Range: 1",
+				new String[]{"Even faster: Gain, for that round, one Movement range, one Speed and the ability to aim 7 attacks in that turn!" +
+						"This ability doesn't end your turn."}),
+		HEALER("Healer","The healer class is albe to redirect the damage inflicted as healing for your teammates!" +
 				"\n HP: 40 - Damage: 5" +
 				"\n Movement: 1 (2) - Speed: 3" +
-				"\n Range: 1"),
-		TANK("Are your teammates taking too much damage? No worries, the tank comes to redirect most of the damage they take!" +
+				"\n Range: 1",
+				new String[]{"Redirect healing: Target any entity. The last targeted entity by this ability gets the healing from your attacks." +
+						"This ability can be casted as many times as you want in a turn."}),
+		TANK("Tank","Are your teammates taking too much damage? No worries, the tank comes to redirect most of the damage they take!" +
 				"\n HP: 80 - Damage: 10" +
 				"\n Movement: 1 (2) - Speed: 2" +
-				"\n Range: 1"),
-		MAGE("Use mana to destroy your enemies from a safe distance!" +
+				"\n Range: 1",
+				new String[]{"Passive: All allies take 20% of the incomming damage, but you take the other 80% instead."}),
+		MAGE("Mage","Use mana to destroy your enemies from a safe distance!" +
 				"\n HP: 30 - Magic Damage: 20" +
 				"\n Mov: 1.5 (3) - Sp: 4 - Mana: 100" +
-				"\n Mana Regen: 40 - Range: 5"),
-		SWORD_MAGE("This melee class uses mana to extend the power of its abilities!" +
+				"\n Mana Regen: 40 - Range: 5",
+				new String[]{"This character uses mana to attack.",
+						"Passive: All mana abilities cost half the mana to cast."}),
+		SWORD_MAGE("Melee Mage","This melee class uses mana to extend the power of its abilities!" +
 				"\n HP: 30 - Damage: 20" +
 				"\n Mov: 1.5 (3) - Sp: 6 - Mana: 100" +
-				"\n Mana Regen: 50 - Range: 1"),
-		SUMMONER("Loney? No worries! With the summoner, you'll have all the friends you'll ever need!" +
+				"\n Mana Regen: 50 - Range: 1",
+				new String[]{"Magical Infusion: Toggleable. While active, all your attacks deal 125% its normal damage" +
+						"and get +2 Range, but they cost x2 times its damage in mana to cast." +
+						"This ability can be casted as many times as you want in a turn."}),
+		SUMMONER("Summoner","Loney? No worries! With the summoner, you'll have all the friends you'll ever need!" +
 				"\n HP: 40 - Damage: 20" +
 				"\n Movement: 2.5 (5) - Speed: 6" +
-				"\n Range: 1"),
-		IMP("The imp will fulfill your darkest desires! If those desires are to either curse enemies or to enhance your allies, of course." +
+				"\n Range: 1",
+				new String[]{"Summon: Summons a summon in the selected tile." ,
+						"Heal Summon (only if there are 5 summons in the arena): Heals the most damaged summon and teleports it" +
+						"to the selected tile or heals a selected summon." ,
+						"Command: Command your summons to move towards a tile, to attack a specific enemy or to follow you " +
+						"(this triggers their normal behaviour) This ability can be casted as many times as you want in a turn."}),
+		IMP("Imp","The imp will fulfill your darkest desires! If those desires are to either curse enemies or to enhance your allies, of course." +
 				"\n HP: 30 - Damage: 40" +
 				"\n Movement: 1.5 (3) - Speed: 7" +
-				"\n Range: 1"),
-		CATAPULT("Snipe your enemies! Snipe yourself! With the catapult, no one is safe from your flying rocks!" +
+				"\n Range: 1",
+				new String[]{"Ritual: Gives you and all your allies a x1.33 damage multiplier, 1 Movement, 2 Speed" +
+						" and 2 Range for 6 turns. This ability consumes your turn when used." ,
+						"Demonize: Select a tile. In your turn, if anything is standing on that tile, it will be demonized," +
+						"taking x1.66 the damage, dealing x0.75 the damage, having x0.75 the defense and -0.5 Movement for 6 turns." ,
+						"After using either Demonize or Ritual, the other ability will enter in cooldown."}),
+		CATAPULT("Catapult","Snipe your enemies! Snipe yourself! With the catapult, no one is safe from your flying rocks!" +
 				"\n HP: 30 - Damage: 20 [200]" +
 				"\n Movement: 1.5 (3) - Speed: 1" +
-				"\n Range: 8 [30]"),
-		STELLAR_EXPLOSION("Channel the power of the stars through yourself! At a price..." +
+				"\n Range: 8 [30]",
+				new String[]{"Charge the Catapult: Your next attack will throw a giant rock at the targeted tile." +
+						"This rock will take a number of turns to fall. The further you aim, the faster it falls." +
+						"These ranges are indicated when selecting the rock. This will take your turn." ,
+						"Charge!!: Select a targetable location. Gain 6 Speed. In your turn, you will" +
+						"dash towards that tile, stunning any entity you ram in the way, and dealing damage."}),
+		STELLAR_EXPLOSION("Stellar Explosion","Channel the power of the stars through yourself! At a price..." +
 				"\n HP: 15 - Magic Damage: 125" +
 				"\n Mov: 3 (6) - Sp: 6 - Mana: 250" +
-				"\n Mana Regen: 50 - Range: 1 [3] - Mana per Use: 300"),
-		EARTHQUAKER("BROOMMM! Crack the [Planet name]! Be careful not to hurt your allies!" +
+				"\n Mana Regen: 50 - Range: 1 [3] - Mana per Use: 300",
+				new String[]{"Passive: Your attack, if you have enough mana, will hit all enemies on a 3-tile radius," +
+						"dealing massive magic damage." ,
+						"Emergency Implosion: When casted, in your turn, you gain +100 Temporal defense." +
+						"This ability consumes x2 your maximum mana, but it can be used without any mana requirement." +
+						"However, your mana will be negative, not being able to attack until it is regenerated."}),
+		EARTHQUAKER("Earthquaker","BROOMMM! Crack the [Planet name]! Be careful not to hurt your allies!" +
 				"\n HP: 40 - Magic Damage: 35" +
 				"\n Mov: 1 (2) - Sp: 1 - Mana: 150" +
-				"\n Mana Regen: 15 - Range: 1 [7]")
+				"\n Mana Regen: 15 - Range: 1 [7]",
+				new String[]{"Passive: Your main attack consumes mana and creates an earthquake with radius 7." +
+						"The direction of this earthquake is slightly customizable. This earthquake deals magic damage" +
+						"and pierces defense, also destroying all Temporal defense."})
 		;
 		public final String text;
-		Classes(String text){
+		public final String name;
+		public final String[] abilities;
+		Classes(String name, String text, String[] abilities){
 			this.text = text;
+			this.name = name;
+			this.abilities = abilities;
 		}
 
 	}
