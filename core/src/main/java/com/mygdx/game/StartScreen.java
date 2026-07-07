@@ -23,10 +23,9 @@ public class StartScreen implements Screen {
 	BitmapFont font;
 	String[] tips = new String[]{
 			"Press F11 to toggle fullscreen (once you start the game)",
-			"Press F1, F2, or F3 to swap between different characters!",
+			"Press E to swap between different characters!",
 			"Press R to reset your path.",
 			"You can always walk your path backwards to undo the last step!",
-			"Press 4 to equip a melee weapon (only for F2 character) \nand 5 to equip a very powerful sword (only for F3 character).",
 			"The key \"I\" gives lots of debug information of the characer.",
 			"Press T to switch between attack and movement mode!",
 			"Press L to switch between free and grid movement!",
@@ -34,10 +33,12 @@ public class StartScreen implements Screen {
 			"Dummies will let you test your damage!",
 			"Use B or L if you ever get stuck midturn... \nand report the developer how did you get into that situation...",
 			"Press K before entering attack mode to toggle \non or off your selecting area reaching into tiles you cannot hit (due to walls)",
-			"Press G to deal universal damage to all enemies on command \n(this is a debug command)",
+			"Press G to deal universal damage to all enemies on command \n(this is a debug command and WILL kill your character if in attack mode)",
 			"Press the left or right arrow to decrease or increase \nvolume respectively, or M to toggle mute altogether.",
 			"You can move the crosshair with WASD keys! \nYou can also click on a location in the grid to create a path to that location!",
-			"Combat in this game is turn-based, you can only give orders during your turn.\nThe character moves when the turn reaches their acting speed bracket,\nthe higher the acting speed the earlier you move!"
+			"Combat in this game is turn-based, you can only give orders during your turn.\nThe character moves when the turn reaches their speed bracket,\nthe higher the speed the earlier you move!",
+			"Movement speed and speed are two different stats. The former increases the amount of tiles\nyou can move in a turn, while the latter makes you do your turn sooner.",
+			"Press AltF4 to enter the stage creator menu."
 	};
 	int tipSelected;
 	public static boolean startAsPathfinding;
@@ -61,7 +62,7 @@ public class StartScreen implements Screen {
 		screenSizeChangeDetector();
 		menuScreenBatch.begin();
 		font.draw(menuScreenBatch, "Java version: " + System.getProperty("java.version"), 100, 175);
-		font.draw(menuScreenBatch, "Game Version: vC.1", 100, 150);
+		font.draw(menuScreenBatch, "Game Version: vC.2", 100, 150);
 		font.draw(menuScreenBatch, "Click to Start", 100, 125);
 		font.draw(menuScreenBatch, "Tip: " + tips[tipSelected], 100, 100);
 		menuScreenBatch.end();
