@@ -6,12 +6,11 @@ import com.mygdx.game.items.TextureManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.Utils.stringSplitter;
-import static com.mygdx.game.Utils.stringSuperSplitter;
+import static com.mygdx.game.Utils.*;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.Text.adequateSize;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
@@ -24,11 +23,11 @@ public class ClassInfoBox extends GUI {
 	TextureManager.Text title;
 	TextureManager.Text[] text;
 	ArrayList<String> rawText;
-	TextureManager.Text abilities;
 	Box titleBox;
 	Box textBox;
+	Box sliderBox;
 
-	float sSize;
+	float totalYSpace;
 	boolean sTouched;
 	boolean sSelected;
 	float sYCursor;
@@ -47,15 +46,22 @@ public class ClassInfoBox extends GUI {
 
 	float propConst;
 
+	public static final float FONT_SIZE_CONSTANT = 24;
+
 	public ClassInfoBox(CAETexts.Classes clsCardObj,boolean aumentedVersion){
 		classs = clsCardObj;
 		//nameExtractor();
 		rawText = new ArrayList<>();
-		Collections.addAll(rawText, stringSplitter(classs.text,112,' '));
-		Collections.addAll(rawText, stringSuperSplitter(classs.abilities,112,' '));
-		Collections.reverse(rawText);
+		String[] abTx = classs.abilities.clone();
+		for (int i = 0; i < abTx.length; i++){
+			abTx[i] = "\n■\n" + abTx[i];
+		}
+		Collections.addAll(rawText, stringSplitter(classs.text, (int) (112 * 32 / FONT_SIZE_CONSTANT),' '));
+		Collections.addAll(rawText, stringSuperSplitter(abTx,(int) (112 * 32 / FONT_SIZE_CONSTANT),' '));
+		ArrayList<String> temp = (ArrayList<String>) rawText.clone();
+		rawText.clear();
+		Collections.addAll(rawText, emptyPurger(temp.toArray(new String[0])));
 		text = new TextureManager.Text[rawText.size()];
-		abilities = new TextureManager.Text();
 		this.aumentedVersion = aumentedVersion;
 		titleBox = new Box(true);
 		titleBox.color((byte)109,(byte)109,(byte)109);
@@ -63,7 +69,10 @@ public class ClassInfoBox extends GUI {
 		textBox = new Box(true);
 		textBox.color((byte)109,(byte)109,(byte)109);
 		textBox.colorBg((byte)36,(byte)36,(byte)36);
-
+		sliderBox = new Box(true);
+		sliderBox.colorBg();
+		sliderBox.colorBg();
+		sliderBox.aBg = .3f;
 	}
 
 
@@ -73,6 +82,7 @@ public class ClassInfoBox extends GUI {
 		this.x = x;
 		this.y = yIni;
 		propConst = Gdx.graphics.getHeight()/1080f;
+		totalYSpace = 1;
 		renderTextBox(x,y,size*1.5f,size,height);
 		renderTitleBox(x,y,size * 1.5f,size);
 
@@ -110,34 +120,32 @@ public class ClassInfoBox extends GUI {
 			if (text[i] == null) {
 				text[i] = dynamicFixatedText(rawText.get(i), 0, 0, -1, 32);
 			}
-			text[i].realSize =  32 * propConst;
+			if(Objects.equals(rawText.get(i), "■")){
+				text[i].render = false;
+				fixatedDrawables.add(new TextureManager.DrawableObject("BackgroundTextbox",x, y - propConst * 172 + (FONT_SIZE_CONSTANT * propConst)*1.25f*i - (FONT_SIZE_CONSTANT * propConst),1,false,false,width,(FONT_SIZE_CONSTANT * propConst)/32,true,109,109,109));
+				continue;
+			}
+
+			text[i].realSize =  FONT_SIZE_CONSTANT * propConst;
 			text[i].setColor(255, 255, 255);
 			text[i].render = true;
 			text[i].onScreenTime = 2;
 			text[i].fakeNull = false;
 			text[i].x = x + 24 * propConst;
-			text[i].y = y - propConst * 264 - text[i].realSize*1.25f*i + text[i].realSize*text.length*1.25f;
+			text[i].y = y - propConst * 200 + text[i].realSize*1.25f*i - text[i].realSize;
 		}
 
 	}
 
 
 
-	public void renderSlider(float x, float y, float width, float height, float heigtness, float totalXSpace){
+	public void renderSlider(float x, float y, float width, float height, float heigtness, float totalXSpace, float endY){
+		float startX = x + width*32;
+		sliderBox.render(startX, endY, startX+128*propConst, y - height*19,height/24);
 		this.size = heigtness /6;
 		sWasTouched = sTouched;
 		sTouched = false;
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerA",x,y,1,0,size,size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideAB",x,y-size*32,1,0,size,(height/32-size*2),true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerB",x,y-size*32-(height/32-size*2)*32,1,0,size,size,true));
 
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideBC",x+size*32,y-size*32-(height/32-size*2)*32,1,0,(width/32-size*2),size,true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerC",x+size*32+(width/32-size*2)*32,y-size*32-(height/32-size*2)*32,1,0,size,size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideCD",x+size*32+(width/32-size*2)*32,y-size*32,1,0,size,(height/32-size*2),true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerD",x+size*32+(width/32-size*2)*32,y,1,0,size,size,true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideDA",x+size*32,y,1,0,(width/32-size*2),size,true));
 		sRealHeight = (size*3/2+height/32-size*2)*32;
 		sBarHeight = totalXSpace>= Gdx.graphics.getWidth() ?  Gdx.graphics.getWidth()*sRealHeight/totalXSpace : sRealHeight;
 		onTouchDetect(x+size*8,y-size*8-sYCursor,(height/globalSize()-size/(globalSize()/128f*8))*globalSize(),sBarHeight);

@@ -1072,7 +1072,7 @@ public class TextureManager {
 				case '&': return Letters.AND;
 				case 'ü': return Letters.DIEU;
 				case '$': return Letters.DOLL;
-				case '­': return Letters.FAKE_SPACE;
+				case ' ': return Letters.NB_SPACE;
 				default : return Letters.BLANK;
 			}
 		}
@@ -1103,7 +1103,7 @@ public class TextureManager {
 			BKO("BracketOpen",3),BKC("BracketClose",3),CBKO("CurlyBracketOpen",4),
 			CBKC("CurlyBracketClose",4),MOI("MascOrdIndicator",3),FOI("FemOrdIndicator",3),
 			AND("Anderson",5),DIEU("DieresisU",5),
-			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0),FAKE_SPACE("Space",4),
+			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0),NB_SPACE("Space",4),
 			;
 
 			public int getSize(){return size;}

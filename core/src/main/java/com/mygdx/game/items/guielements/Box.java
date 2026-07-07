@@ -10,11 +10,12 @@ public class Box extends GUI {
 	byte r = (byte) 255;
 	byte g = (byte) 255;
 	byte b = (byte) 255;
+	float a = 1;
 
 	byte rBg = (byte) 255;
 	byte gBg = (byte) 255;
 	byte bBg = (byte) 255;
-
+	float aBg = 1;
 
 	public String defaultTx = "BackgroundTextbox";
 

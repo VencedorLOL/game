@@ -217,4 +217,31 @@ public class Utils {
 		return finalIsh.toArray(new String[0]);
 	}
 
+	public static int characterCounter(String string, char character){
+		int counter = 0;
+		for (int i = 0; i < string.length(); i++){
+			if (string.charAt(i) == character)
+				counter++;
+		}
+		return counter;
+	}
+
+	public static int characterCounter(String[] string, char character){
+		int counter = 0;
+		for (int i = 0; i < string.length; i++){
+			counter += characterCounter(string[i],character);
+		}
+		return counter;
+	}
+
+
+	public static String[] emptyPurger(String[] string){
+		ArrayList<String> mewArray = new ArrayList<>();
+		for (int i = 0; i < string.length; i++){
+			if(string[i] != "")
+				mewArray.add(string[i]);
+		}
+		return mewArray.toArray(new String[0]);
+	}
+
 }
