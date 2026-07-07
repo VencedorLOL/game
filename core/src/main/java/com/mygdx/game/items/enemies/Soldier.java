@@ -34,7 +34,7 @@ public class Soldier extends Enemy {
 					}
 
 					public void beforeTextOverridable() {
-						storedText = "This is the default textbox for the \nsoldier class.";
+						setText("This is the default textbox for the \nsoldier class.");
 					}
 				};
 			}

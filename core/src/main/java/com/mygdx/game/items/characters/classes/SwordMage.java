@@ -56,8 +56,7 @@ public class SwordMage extends CharacterClasses {
 				character.conditions.remove(Conditions.ConditionNames.MANA_HIT);
 			}
 		});
-		@SuppressWarnings("all")
-		OnVariousScenarios oVSce = new OnVariousScenarios(){
+		oVSce = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass() {
 				refresh();
@@ -73,6 +72,8 @@ public class SwordMage extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = totalMana;
+
+		character.idleTexture="animaSwordMage";
 	}
 
 	TextureManager.Text text;
@@ -82,10 +83,15 @@ public class SwordMage extends CharacterClasses {
 		abilitiesProcessor();
 
 		if(totalDamage * finalDamageMultiplier * finalManaCost <= manaPool && abilities.get(0).isItActive) {
-			if (damageReason != AttackTextProcessor.DamageReasons.MAGICAL)
-				damageReason = AttackTextProcessor.DamageReasons.MAGICAL;}
-		else if (damageReason != AttackTextProcessor.DamageReasons.MELEE)
+			if (damageReason != AttackTextProcessor.DamageReasons.MAGICAL) {
+				damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
+				character.idleTexture="animaSwordMageActive";
+			}
+		}
+		else if (damageReason != AttackTextProcessor.DamageReasons.MELEE) {
 			damageReason = AttackTextProcessor.DamageReasons.MELEE;
+			character.idleTexture="animaSwordMage";
+		}
 	}
 
 

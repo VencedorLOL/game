@@ -33,6 +33,8 @@ public class Mage extends CharacterClasses {
 		text = dynamicFixatedText(manaPool+"",100,400,-1,30);
 		text.setColor(157,216,242);
 		damageReason = AttackTextProcessor.DamageReasons.MAGICAL;
+
+		character.idleTexture="animaMageShoddy";
 	}
 
 	Text text;

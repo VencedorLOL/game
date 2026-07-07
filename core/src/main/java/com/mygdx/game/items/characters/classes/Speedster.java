@@ -65,6 +65,7 @@ public class Speedster extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
+		character.idleTexture="animaSpeedster";
 	}
 
 	public void resetClassesState() {

@@ -8,6 +8,7 @@ import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.stages.CraterStage;
 import com.mygdx.game.items.stages.Labitynth;
+import com.mygdx.game.items.stages.StageOne;
 import com.mygdx.game.items.stages.StagePathfinding;
 
 import static com.mygdx.game.MainClass.currentStage;
@@ -45,7 +46,7 @@ public class GameScreen implements Screen{
 		camaraZoom = 1;
 		camara.zoom = 1;
 		camara.camaraStarter(camaraZoom);
-		stage = startAsPathfinding ? new Labitynth() : new CraterStage();
+		stage = startAsPathfinding ? new Labitynth() : new StageOne();
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();

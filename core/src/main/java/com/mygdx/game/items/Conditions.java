@@ -101,6 +101,12 @@ public class Conditions {
 			}
 		}
 
+		float getSpeedAdditive(){return 1;}
+
+
+		float getActingSpeedAdditive(){return 1;}
+
+
 		@Override
 		protected void onTurn() {
 			damaged = false;

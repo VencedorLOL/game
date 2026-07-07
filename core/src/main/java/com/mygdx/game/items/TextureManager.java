@@ -278,6 +278,8 @@ public class TextureManager {
 		for (TextureManager.Text t : fixatedText){
 			if (!t.fakeNull && t.render) {
 				t.drawStatic();
+				if(t.text == "HIHELLOTHISISAVERYLARGETEXTTOTESTIFITRENDERSSOMEWHERE")
+					print("gottem");
 			}
 		}
 		fixatedText.removeIf(tex -> tex.fakeNull);
@@ -810,6 +812,10 @@ public class TextureManager {
 			}
 		}
 
+		public int length(){
+			return text.length();
+		}
+
 		public void addToText(String addition){
 			updateText(text+addition);
 		}
@@ -1057,8 +1063,8 @@ public class TextureManager {
 				case '<': return Letters.INCO;
 				case '#': return Letters.PO;
 				case '·': return Letters.MUAR;
-				case '[': return Letters.BKC;
-				case ']': return Letters.BKO;
+				case '[': return Letters.BKO;
+				case ']': return Letters.BKC;
 				case '{': return Letters.CBKO;
 				case '}': return Letters.CBKC;
 				case 'º': return Letters.MOI;
@@ -1066,6 +1072,7 @@ public class TextureManager {
 				case '&': return Letters.AND;
 				case 'ü': return Letters.DIEU;
 				case '$': return Letters.DOLL;
+				case '­': return Letters.FAKE_SPACE;
 				default : return Letters.BLANK;
 			}
 		}
@@ -1096,7 +1103,7 @@ public class TextureManager {
 			BKO("BracketOpen",3),BKC("BracketClose",3),CBKO("CurlyBracketOpen",4),
 			CBKC("CurlyBracketClose",4),MOI("MascOrdIndicator",3),FOI("FemOrdIndicator",3),
 			AND("Anderson",5),DIEU("DieresisU",5),
-			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0)
+			DIV("Division",3),DOLL("Dollar",5),BLANK(null,0),FAKE_SPACE("Space",4),
 			;
 
 			public int getSize(){return size;}

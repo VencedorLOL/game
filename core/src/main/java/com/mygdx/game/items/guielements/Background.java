@@ -23,6 +23,7 @@ public class Background extends GUI {
 
 	boolean renderr = false;
 	float sizeX, sizeY;
+	/**Horizontal or vertical limits*/
 	float spaceX, spaceY, endSX, endSY;
 	String texture = "GUIBackground";
 
@@ -31,28 +32,44 @@ public class Background extends GUI {
 	boolean delete = false;
 
 	SelectionButton[] selButtons;
+	/** Selection buttons for classes if there is no class selected*/
 	float selGapX, selIniGapX, selGapY, selSize;
+	/** Selection buttons for classes if there is a class selected*/
 	float selGapXB, selIniGapXB, selGapYB, selSizeB;
 
 
 	Slider slider;
+	/** Variables of the slider*/
 	float sliGapX, sliGapY, sliThickness, sliWidth, sliHeight;
 	float totalXSpace;
 
 	ClassesCards[] classesCards;
+	/**Variables for non-selected cards*/
 	float cardsSize, cardsY, cardsIniGapX, cardsGapX;
+	/**Variables for selected cards*/
 	float cardSizeB, cardYB, cardIniGapXB;
 
+	/**The selected element*/
 	byte selectedOne = -1;
+	/**Records the last selected selection box*/
 	byte lastBox = -1;
+	/**Records the last selected class card*/
 	byte lastCard = -1;
 	byte lastMode = -1;
+	/**Current hovered element*/
 	byte elementHovered = -2;
+	/**Whether to persevere the hover through frames and, if so, what element to hover*/
 	byte persevereHover = -1;
 
 
 	SelectionButton[] modeSelector;
 	float modeGapX, modeIniGapX, modeGapY, modeSize;
+	/**
+	 * MODES:
+	 * 0: Initial (Select either classes or weapons)
+	 * 1: Classes
+	 * 2: Equipment
+	 */
 	byte modes = 0;
 
 	SelectionButton weaponHolder, shieldHolder;
@@ -61,6 +78,8 @@ public class Background extends GUI {
 	ItemsList items;
 	float itemsIniGapX, itemsGapX, itemsY, itemsSize;
 
+	ClassInfoBox activeInfo;
+	float amplifiedX, amplifiedY, amplifiedSize, amplifiedBoxHeight;
 
 	int counter;
 
@@ -271,8 +290,14 @@ public class Background extends GUI {
 				if (!existsSelCard())
 					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
 
-				if (existsSelCard() && getSelCard() != -1)
-					classesCards[getSelCard()].render(cardSizeB / 32, cardIniGapXB, cardYB,false);
+				if (existsSelCard() && getSelCard() != -1) {
+					classesCards[getSelCard()].render(cardSizeB / 32, cardIniGapXB, cardYB, false);
+					if(activeInfo == null)
+						activeInfo = new ClassInfoBox(CAETexts.Classes.values()[getSelCard()+1],true);
+					activeInfo.render(amplifiedSize,amplifiedX,amplifiedY,true,amplifiedBoxHeight);
+
+
+				}
 				else
 					for (int i = 0; i < classesCards.length; i++)
 						classesCards[i].render(cardsSize / 32, cardsIniGapX + i * (cardsGapX + cardsSize) - slider.xCursor * totalXSpace / slider.realWidth, cardsY, counter <= 0);
@@ -321,6 +346,8 @@ public class Background extends GUI {
 		for(ClassesCards c : classesCards)
 			c.hovered = false;
 		if (items != null) items.canHover = false;
+		if(!existsSelCard())
+			activeInfo = null;
 	}
 
 	int counterR = 0, counterL = 0, counterU, counterD;
@@ -769,9 +796,15 @@ public class Background extends GUI {
 
 			cardSizeB = sizeY * 32 * 1.1f;
 			cardYB = endSY + Gdx.graphics.getHeight() * .78f;
-			cardIniGapXB = (Gdx.graphics.getWidth() - cardSizeB) / 2f;
+			cardIniGapXB = (Gdx.graphics.getWidth() - cardSizeB) / 4f;
 
 			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2 + cardsSize * classesCards.length;
+
+			amplifiedSize = sizeY*0.8f;
+			amplifiedX = Gdx.graphics.getWidth() - amplifiedSize*32 - spaceX*4f;
+			amplifiedY = selGapYB + amplifiedSize*32*1.05f;
+
+			amplifiedBoxHeight = spaceY*0.95f;
 		}
 
 		else if (modes == 2){

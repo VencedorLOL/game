@@ -95,6 +95,7 @@ public class Melee extends CharacterClasses {
 
 		currentHealth = totalHealth;
 		manaPool = mana;
+		character.idleTexture="animaMelee";
 	}
 
 	public void resetClassesState() {

@@ -18,6 +18,8 @@ GUI in the class selection part that describes classes and weapons when hovering
 and shield icons to give those voids a purpose)
 implement text supporting custom symbols embedded in text with custom notation (eg.: <sword> draws a sword)
 
+ParticleManager: redo its entire logic its rubbish and laggy as of rn
+
 idea:
 path indicator having same theme as ambient
 

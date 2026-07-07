@@ -193,9 +193,9 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
-									storedText = "Anima: Returning from the mission";
+									setText("Anima: Returning from the mission");
 								else
-									storedText = "SName Soldier: Understood, Anima.";
+									setText("SName Soldier: Understood, Anima.");
 							}};}};}};
 		b = new Soldier(7*globalSize(),11*globalSize()){
 			public void setAction() {
@@ -214,9 +214,9 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
-									storedText = "Anima: Returning from the mission";
+									setText("Anima: Returning from the mission");
 								else
-									storedText = "SName Soldier: Got it, Anima.";
+									setText("SName Soldier: Got it, Anima.");
 							}};}};}};
 		c = new Soldier(3*globalSize(),3*globalSize()){
 			public void setAction() {
@@ -235,14 +235,14 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								if(!init) {
 									framesTilNextLetter = 5;
-									storedText = "SpecilTest: You see, I have special text\nqualities... Sometimes, It shakes.\nOther times, I choose to tint it rainbow.\nRarely, I do both.";
+									setText("SpecilTest: You see, I have special text qualities... Sometimes, It shakes. Other times, I choose to tint it rainbow. Rarely, I do both.");
 									text.initiateRainbow(1000, 20);
 									text.initiateShake(3, 2);
 									text.setDefaultAttribute(0, 1);
 									text.setDefaultAttribute(1, 1);
 									text.setColor(255, 255, 255);
-									text.changeAttribute(0, 0, storedText.length(), 1);
-									text.changeAttribute(1, 0, storedText.length(), 1);
+									text.changeAttribute(0, 0, getText().length(), 1);
+									text.changeAttribute(1, 0, getText().length(), 1);
 									text.changeAttribute(1, 108, 115, 0);
 									text.changeAttribute(0, 130, 135, 0);
 									text.changeAttribute(0, 68, 73, 0);
@@ -270,9 +270,9 @@ public class TheEntrance extends Stage {
 							public void beforeTextOverridable() {
 								if(!init) {
 									framesTilNextLetter = 0;
-									storedText = "hello world, this is a kinda long sentence\n" +
-											"kinda to test the new algorithm i made at\n" +
-											"detecting where line breaks should go.";
+									setText("hello world, this is a kinda long sentence " +
+											"kinda to test the new algorithm i made at" +
+											"detecting where line breaks should go.");
 									init = true;
 								}
 							}};}};}};

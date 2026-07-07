@@ -10,6 +10,7 @@ import static com.mygdx.game.items.OnVariousScenarios.destroyListener;
 
 public class Tank extends CharacterClasses {
 
+	OnVariousScenarios oVE;
 
 	public Tank(){
 		super();
@@ -33,9 +34,8 @@ public class Tank extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		manaPool = mana;
-	}
-
-	OnVariousScenarios oVE = new OnVariousScenarios() {
+		character.idleTexture="animaTankShoddy";
+		oVE = new OnVariousScenarios() {
 			public void onDamaged(DamageReceiver damagedActor, AttackTextProcessor.DamageReasons source) {
 				if (damagedActor.getTotalHealth() == character.totalTeam && character.classes.name.equals("Tank") && damagedActor != character && damagedActor instanceof Actor) {
 					((Actor)damagedActor).damageRecieved *= 0.2f;
@@ -43,6 +43,7 @@ public class Tank extends CharacterClasses {
 				}
 			}
 		};
+	}
 
 	@Override
 	protected void destroyOverridable() {

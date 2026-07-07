@@ -9,7 +9,7 @@ public class Multicolor extends Textbox {
 
 	public Multicolor(){
 		paralyzeCharacter();
-		storedText = "The Rainbow Text";
+		setText("The Rainbow Text");
 	}
 
 	boolean initializedRainbow = false;
@@ -31,7 +31,7 @@ public class Multicolor extends Textbox {
 
 		public RainbowWave(){
 			framesTilNextLetter = 5;
-			storedText = "THE RAINBOW WAVEEEEEEE!!!!!\n!!!!!!!!!!!";
+			setText("THE RAINBOW WAVEEEEEEE!!!!!!!!!!!!!!!!");
 		}
 
 		boolean initializedRainbow = false;
@@ -53,7 +53,7 @@ public class Multicolor extends Textbox {
 	public static class SlowRainbow extends Textbox{
 		public SlowRainbow(){
 			framesTilNextLetter = 20;
-			storedText = "slow... rainbow............................\n...................................................\n...................................................";
+			setText("slow... rainbow............................\n...................................................\n...................................................");
 		}
 
 		boolean initializedRainbow = false;
@@ -75,7 +75,7 @@ public class Multicolor extends Textbox {
 	public static class FAST_RAINBOW extends Textbox{
 		public FAST_RAINBOW(){
 			framesTilNextLetter = 3;
-			storedText = "FAST RAINBOW!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+			setText("FAST RAINBOW!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
 		boolean initializedRainbow = false;
@@ -97,7 +97,7 @@ public class Multicolor extends Textbox {
 	public static class VERY_FAST_RAINBOW extends Textbox{
 		public VERY_FAST_RAINBOW(){
 			framesTilNextLetter = 1;
-			storedText = "VERY FAST RAINBOW!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+			setText("VERY FAST RAINBOW!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
 		boolean initializedRainbow = false;
@@ -120,7 +120,7 @@ public class Multicolor extends Textbox {
 	public static class very_slow_rainbow extends Textbox{
 		public very_slow_rainbow(){
 			framesTilNextLetter = 30;
-			storedText = "very... slow... rainbow................\n...................................................\n...................................................";
+			setText("very... slow... rainbow................\n...................................................\n...................................................");
 		}
 
 		boolean initializedRainbow = false;

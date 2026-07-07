@@ -41,7 +41,7 @@ public class Settings {
 	static boolean fastMode;
 	static float volume = 100;
 	static boolean mute = false;
-	public static boolean turnMode = true;
+	public static boolean turnMode = false;
 
 	static final boolean releaseVersion = true;
 

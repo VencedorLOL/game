@@ -108,6 +108,7 @@ public class Summoner extends CharacterClasses {
 		reset();
 		currentHealth = totalHealth;
 		targetProcessor = new TargetProcessor(character,summonRange,true,false,"SummonDirection","AnimaSummonDirection");
+		character.idleTexture="animaSummoner";
 	}
 
 	public void resetClassesState() {

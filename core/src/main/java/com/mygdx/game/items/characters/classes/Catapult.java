@@ -143,6 +143,9 @@ public class Catapult extends CharacterClasses {
 		getEquipment();
 		reset();
 		currentHealth = totalHealth;
+
+
+		character.idleTexture="animaCatapult";
 	}
 
 

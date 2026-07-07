@@ -87,6 +87,8 @@ public class Healer extends CharacterClasses {
 		getEquipment();
 		reset();
 		targetProcessor = new TargetProcessor(character,healRange,true,false,"healTarget","AnimahealTarget");
+
+		character.idleTexture="animaHealer";
 	}
 
 	@Override

@@ -1,13 +1,13 @@
 package com.mygdx.game.items.textboxelements;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
+import com.mygdx.game.items.guielements.Box;
 
+import static com.mygdx.game.Utils.stringCutter;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
-import static com.mygdx.game.items.TextureManager.fixatedDrawables;
 
 public class Textbox extends GUI {
 
@@ -15,7 +15,7 @@ public class Textbox extends GUI {
 	public int[] interiorColor;
 	public int[] textColor;
 	public TextureManager.Text text;
-	public String storedText;
+	private String storedText;
 	public String cornerTexture;
 	public String sideTexture;
 	public String sideWaysTexture;
@@ -49,6 +49,8 @@ public class Textbox extends GUI {
 
 	public final static float szTxtr = 32;
 
+	public Box box;
+
 
 	/**
 	 * <h1>
@@ -58,7 +60,8 @@ public class Textbox extends GUI {
 	 *     Initialize {@code AT LEAST} this variable:
 	 * </h3>
 	 * <ul>
-	 *     <li>{@code storedText} (remember to break the lines and that each textbox can only have 3 breaklines)</li>
+	 *     <li>{@code storedText} (remember to break the lines and that each textbox can only have 3 breaklines)
+	 *     WARNING, {@code storedText} IS GOTTA BE INITIALIZED THROUGH setText(String text)!!!!</li>
 	 * </ul>
 	 *
 	 * <h4>
@@ -92,6 +95,8 @@ public class Textbox extends GUI {
 		textColor = new int[]{255,255,255};
 		framesTilNextLetter = 10;
 		storedText = "NULL TEXTBOX";
+
+		box = new Box(true);
 	}
 
 	public void beforeRenderOverridable(){}
@@ -100,7 +105,9 @@ public class Textbox extends GUI {
 		beforeRenderOverridable();
 		fastText();
 		mathCalculator();
-		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, startingX,startingY,1,false,false,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
+		box.render(startingX,startingY,finalX,finalY,thickness,(byte) exteriorColor[0],(byte) exteriorColor[1],(byte) exteriorColor[2],(byte) interiorColor[0],(byte) interiorColor[1],(byte) interiorColor[2]);
+
+/*		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, startingX,startingY,1,false,false,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, finalX,startingY,1,true,false,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, startingX,finalY,1,false,true,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerTexture, finalX,finalY,1,true,true,thickness,thickness,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
@@ -111,7 +118,7 @@ public class Textbox extends GUI {
 		fixatedDrawables.add(new TextureManager.DrawableObject(sideWaysTexture, finalX,sideFinalY,1,true,false,thickness,heightSide,true,exteriorColor[0],exteriorColor[1],exteriorColor[2]));
 
 		fixatedDrawables.add(new TextureManager.DrawableObject(backgroundTexture, sideStartingX,sideFinalY,1,false,false,widthSide,heightSide,true,interiorColor[0],interiorColor[1],interiorColor[2]));
-
+*/
 		closeMechanism();
 
 	}
@@ -165,10 +172,12 @@ public class Textbox extends GUI {
 		textJumpLine = finalX - thickness*.1f;
 
 		if(text == null) {
+			storedText = stringCutter(storedText,203,' ');
 			text = dynamicFixatedText("", textInitialX, textInitialY, -1, textSize);
 			text.setColor(textColor);
 		}
 		beforeTextOverridable();
+		stringCutter(storedText,203,' ');
 		text.x = textInitialX;
 		text.y = textInitialY;
 		text.realSize = textSize;
@@ -178,6 +187,14 @@ public class Textbox extends GUI {
 				text.addToText(storedText.charAt(amountOfTextWritten++)+"");
 			}
 		}
+	}
+
+	public void setText(String text){
+		storedText = stringCutter(text,203,' ');
+	}
+
+	public String getText(){
+		return storedText;
 	}
 
 	public void fastText(){

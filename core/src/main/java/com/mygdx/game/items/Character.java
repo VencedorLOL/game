@@ -259,6 +259,7 @@ public class Character extends Actor {
 	}
 
 	public void leaveTurnMode(){
+		idleTexture="anima";
 		lockClass = true;
 		getCamara().smoothAttachment(this,20);
 		cancelAttackMode();

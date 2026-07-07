@@ -4,6 +4,7 @@ import com.mygdx.game.items.TextureManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -167,15 +168,18 @@ public class Utils {
 		//works like a charm
 		//TODO: implement this into the textboxes
 		String size = "hello world, this is a kinda long sentence kinda to test the new algorithm i made at detecting where line breaks should go.";
-		int limit = 203;
 		print("Final result: \n-----------------------------------------------------\n");
+		int limit = 203;
 		float counter = 0;
 		for(int i = 0; i < size.length(); i++) {
+			if (size.charAt(i) == '\n' ){
+				counter = 0;
+				continue;
+			}
 			counter += getTexture(size.charAt(i)).getSize() + 1;
 			if(counter > limit){
-				//its ok for the for loop to i++ at the end, as we dont really care about "\n"'s size. furthermore, this skip is beneficial.
-				i = indexBackClosestToTarget(' ', size, i);
-				size = replaceCharAt(size,'\n',i);
+				int index = indexBackClosestToTarget(' ', size, i);
+				size = replaceCharAt(size,'\n',index);
 				counter = 0;
 			}
 		}
@@ -183,7 +187,34 @@ public class Utils {
 		print("\n-----------------------------------------------------\n");
 	}
 
+	public static String stringCutter(String string, int pxLimit,char sepChar) {
+		float counter = 0;
+		for (int i = 0; i < string.length(); i++) {
+			if (string.charAt(i) == '\n') {
+				counter = 0;
+				continue;
+			}
+			counter += getTexture(string.charAt(i)).getSize() + 1;
+			if (counter > pxLimit) {
+				int index = indexBackClosestToTarget(sepChar, string, i);
+				string = replaceCharAt(string, '\n', index);
+				counter = 0;
+			}
+		}
+		return string;
+	}
+
+	public static String[] stringSplitter(String string, int pxLimit,char sepChar) {
+		return stringCutter(string,pxLimit,sepChar).split("\n");
+	}
 
 
+	public static String[] stringSuperSplitter(String[] string, int pxLimit,char sepChar) {
+		ArrayList<String> finalIsh = new ArrayList<>();
+		for(int i = 0; i < string.length; i++) {
+			Collections.addAll(finalIsh,stringSplitter(string[i],pxLimit,sepChar));
+		}
+		return finalIsh.toArray(new String[0]);
+	}
 
 }

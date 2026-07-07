@@ -30,7 +30,7 @@ public class Dummy extends Enemy {
 					}
 
 					public void beforeTextOverridable() {
-						storedText = "Hi, I am a dummy!";
+						setText("Hi, I am a dummy!");
 					}
 				};
 			}

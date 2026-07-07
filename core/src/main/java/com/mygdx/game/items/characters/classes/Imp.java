@@ -112,6 +112,8 @@ public class Imp extends CharacterClasses {
 		currentHealth = totalHealth;
 		manaPool = mana;
 		targetProcessor = new TargetProcessor(character,markRange,false,false,"DemonMark","notarget");
+
+		character.idleTexture="animaImp3";
 	}
 
 	public void resetClassesState() {

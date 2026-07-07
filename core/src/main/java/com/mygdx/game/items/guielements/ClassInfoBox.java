@@ -4,18 +4,29 @@ import com.badlogic.gdx.Gdx;
 import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Utils.stringSplitter;
+import static com.mygdx.game.Utils.stringSuperSplitter;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.Text.adequateSize;
+import static com.mygdx.game.items.TextureManager.Text.textSize;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedDrawables;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 
 public class ClassInfoBox extends GUI {
 	CAETexts.Classes classs;
 	TextureManager.Text title;
-	TextureManager.Text text;
+	TextureManager.Text[] text;
+	ArrayList<String> rawText;
 	TextureManager.Text abilities;
+	Box titleBox;
+	Box textBox;
 
 	float sSize;
 	boolean sTouched;
@@ -34,75 +45,86 @@ public class ClassInfoBox extends GUI {
 
 	boolean aumentedVersion;
 
-	public ClassInfoBox(CAETexts.Classes clsCardObj){
+	float propConst;
+
+	public ClassInfoBox(CAETexts.Classes clsCardObj,boolean aumentedVersion){
 		classs = clsCardObj;
 		//nameExtractor();
-		title = new TextureManager.Text();
-		text = new TextureManager.Text();
+		rawText = new ArrayList<>();
+		Collections.addAll(rawText, stringSplitter(classs.text,112,' '));
+		Collections.addAll(rawText, stringSuperSplitter(classs.abilities,112,' '));
+		Collections.reverse(rawText);
+		text = new TextureManager.Text[rawText.size()];
 		abilities = new TextureManager.Text();
+		this.aumentedVersion = aumentedVersion;
+		titleBox = new Box(true);
+		titleBox.color((byte)109,(byte)109,(byte)109);
+		titleBox.colorBg((byte)36,(byte)36,(byte)36);
+		textBox = new Box(true);
+		textBox.color((byte)109,(byte)109,(byte)109);
+		textBox.colorBg((byte)36,(byte)36,(byte)36);
 
 	}
 
 
 
-	public void render(float size,float x, float yIni,boolean touch){
+	public void render(float size,float x, float yIni,boolean touch,float height){
 		this.size = size;
 		this.x = x;
 		this.y = yIni;
-		renderTitleBox(x,y,size,size);
-		renderTextBox(x,yIni-size+sYCursor*totalHeightOfTextbox / sRealHeight,size,totalHeightOfTextbox);
-		//renderSlider(x,y,);
+		propConst = Gdx.graphics.getHeight()/1080f;
+		renderTextBox(x,y,size*1.5f,size,height);
+		renderTitleBox(x,y,size * 1.5f,size);
 
+		//renderSlider(x,y,);
+		
 
 		//onTouchDetect(touch);
 	}
 
+	//yIni-size+sYCursor*totalHeightOfTextbox / sRealHeight
+
 	public void renderTitleBox(float x, float y, float width, float height){
-		fixatedDrawables.add(new TextureManager.DrawableObject("TextBar", x , y , 1, 0, width, height,true));
+		titleBox.render(x,y - height*31,x + width*32 - height/24*32,y - height*19,height/24);
+	//	fixatedDrawables.add(new TextureManager.DrawableObject("TextBar", x , y , 1, 0, width, height,true));
 		if(title == null){
 			title = dynamicFixatedText(classs.name,0,0,-1,32);
 		}
-		title.realSize = min(adequateSize(title.getText(),size*32*.9f),40* Gdx.graphics.getHeight()/1080f);
+		title.realSize = min(adequateSize(title.getText(),size*32*.9f*1.5f),90* propConst);
 		title.setColor(255,255,255);
 		title.render = true;
 		title.onScreenTime = 2;
 		title.fakeNull = false;
-		title.x = x + size*2 + (title.realSize - 20*Gdx.graphics.getHeight()/1080f)*.2f*Gdx.graphics.getHeight()/1080;
-		title.y = y + (size*11)	- size*27.75f  + (20*Gdx.graphics.getHeight()/1080f - title.realSize)*.55f*Gdx.graphics.getHeight()/1080;
+//		title.x = x + size*2 + (title.realSize - 20*Gdx.graphics.getHeight()/1080f)*.2f*Gdx.graphics.getHeight()/1080;
+		title.x = x + max((width*28f - textSize(title.getText(),title.realSize))/2,width*2f);
+
+		//title.y = y - size*27.75f  + (20*Gdx.graphics.getHeight()/1080f - title.realSize)*.45f*Gdx.graphics.getHeight()/1080;
+		title.y = y - 351 * propConst;
 	}
 
 
-	public void renderTextBox(float x, float y, float width, float height){
-		fixatedDrawables.add(new TextureManager.DrawableObject("default",x,y,1,0,(width/32-size*2),(height/32-size*2),true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerA",x,y,1,0,size,size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideAB",x,y-size*32,1,0,size,(height/32-size*2),true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerB",x,y-size*32-(height/32-size*2)*32,1,0,size,size,true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideBC",x+size*32,y-size*32-(height/32-size*2)*32,1,0,(width/32-size*2),size,true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerC",x+size*32+(width/32-size*2)*32,y-size*32-(height/32-size*2)*32,1,0,size,size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideCD",x+size*32+(width/32-size*2)*32,y-size*32,1,0,size,(height/32-size*2),true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerD",x+size*32+(width/32-size*2)*32,y,1,0,size,size,true));
-
-		fixatedDrawables.add(new TextureManager.DrawableObject("SideDA",x+size*32,y,1,0,(width/32-size*2),size,true));
-
-		if(text == null){
-			text = dynamicFixatedText(classs.name,0,0,-1,32);
+	public void renderTextBox(float x, float y, float width, float height,float endY){
+		float upY = y - height*19.5f;
+		textBox.render(x,endY,x + width*32 - height/24*32,upY,height/24);
+		for(int i = 0; i < text.length; i++) {
+			if (text[i] == null) {
+				text[i] = dynamicFixatedText(rawText.get(i), 0, 0, -1, 32);
+			}
+			text[i].realSize =  32 * propConst;
+			text[i].setColor(255, 255, 255);
+			text[i].render = true;
+			text[i].onScreenTime = 2;
+			text[i].fakeNull = false;
+			text[i].x = x + 24 * propConst;
+			text[i].y = y - propConst * 264 - text[i].realSize*1.25f*i + text[i].realSize*text.length*1.25f;
 		}
-		text.realSize = min(adequateSize(text.getText(),size*32*.9f),40* Gdx.graphics.getHeight()/1080f);
-		text.setColor(255,255,255);
-		text.render = true;
-		text.onScreenTime = 2;
-		text.fakeNull = false;
-		text.x = x + size*2 + (text.realSize - 20*Gdx.graphics.getHeight()/1080f)*.2f*Gdx.graphics.getHeight()/1080;
-		text.y = y + (size*11)	- size*27.75f  + (20*Gdx.graphics.getHeight()/1080f - text.realSize)*.55f*Gdx.graphics.getHeight()/1080;
 
 	}
 
 
-	public void renderSlider(float x, float y,float width, float height,float widthness,float totalXSpace){
-		this.size = widthness/6;
+
+	public void renderSlider(float x, float y, float width, float height, float heigtness, float totalXSpace){
+		this.size = heigtness /6;
 		sWasTouched = sTouched;
 		sTouched = false;
 		fixatedDrawables.add(new TextureManager.DrawableObject("CornerA",x,y,1,0,size,size,true));

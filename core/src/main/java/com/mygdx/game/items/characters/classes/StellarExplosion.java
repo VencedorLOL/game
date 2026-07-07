@@ -82,6 +82,7 @@ public class StellarExplosion extends CharacterClasses {
 				}
 			}
 		};
+		character.idleTexture="animaStellarExplosion";
 	}
 
 	public void resetClassesState() {

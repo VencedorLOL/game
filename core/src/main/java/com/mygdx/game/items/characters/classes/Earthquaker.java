@@ -72,10 +72,14 @@ public class Earthquaker extends CharacterClasses {
 				}
 			}
 		};
+
+
+		character.idleTexture="animaEarthquaker";
 	}
 
 	public void resetClassesState() {
 		targetProcessor.reset();
+		earthquakeProcessor.reset();
 		decidingEarthquake = false;
 		earthquake = false;
 	}
@@ -139,6 +143,10 @@ public class Earthquaker extends CharacterClasses {
 
 */	}
 
+	public void onMove(){
+		targetProcessor.reset();
+		earthquakeProcessor.reset();
+	}
 
 	public void destroyOverridable(){
 		text.onScreenTime = 1;
