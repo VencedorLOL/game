@@ -63,16 +63,16 @@ public class ClassInfoBox extends GUI {
 		Collections.addAll(rawText, emptyPurger(temp.toArray(new String[0])));
 		text = new TextureManager.Text[rawText.size()];
 		this.aumentedVersion = aumentedVersion;
-		titleBox = new Box(true);
+		titleBox = new Box(1);
 		titleBox.color((byte)109,(byte)109,(byte)109);
 		titleBox.colorBg((byte)36,(byte)36,(byte)36);
-		textBox = new Box(true);
+		textBox = new Box(1);
 		textBox.color((byte)109,(byte)109,(byte)109);
 		textBox.colorBg((byte)36,(byte)36,(byte)36);
-		sliderBox = new Box(true);
+		sliderBox = new Box(2);
 		sliderBox.colorBg();
 		sliderBox.colorBg();
-		sliderBox.aBg = .3f;
+		sliderBox.aBg = 0f;
 	}
 
 

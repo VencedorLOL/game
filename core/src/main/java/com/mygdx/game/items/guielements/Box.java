@@ -31,10 +31,19 @@ public class Box extends GUI {
 
 	public String sideDA = "SideDA";
 
+	int config;
+
 	Box(){}
 
-	public Box(boolean changeToTextboxConfiguration){
-		if(changeToTextboxConfiguration){
+	/***
+	 *
+	 * @param changeConfig: Default: Nothing
+	 *                    1: Textbox
+	 *                    2: Slider
+	 */
+	public Box(int changeConfig){
+		config = changeConfig;
+		if(changeConfig == 1){
 			sideAB = "BackgroundTextbox";
 			sideBC = "BackgroundTextbox";
 			sideCD = "BackgroundTextbox";
@@ -99,11 +108,12 @@ public class Box extends GUI {
 
 
 	public void render(float x, float y, float width, float height, float size,byte r,byte g, byte b, byte rBg, byte gBg, byte bBg){
-		float sideStartingX = x + size *szTxtr;
-		float sideFinalY = height - size *szTxtr;
+		if (config != 2) {
+			float sideStartingX = x + size * szTxtr;
+			float sideFinalY = height - size * szTxtr;
 
-		float widthSide = (width - sideStartingX)/szTxtr;
-		float heightSide = (sideFinalY - y)/szTxtr;
+			float widthSide = (width - sideStartingX) / szTxtr;
+			float heightSide = (sideFinalY - y) / szTxtr;
 /*		fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx,x,y,1,false,false,(width/32-size*2),(height/32-size*2),true,(float) (rBg & 0xFF),(float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
 		fixatedDrawables.add(new TextureManager.DrawableObject(cornerA,x,y,1,false,false,size,size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
@@ -118,19 +128,43 @@ public class Box extends GUI {
 
 		fixatedDrawables.add(new TextureManager.DrawableObject(sideDA,x+size*32,y,1,false,false,(width/32-size*2),size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
 */
-		fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX,sideFinalY,1,false,false,widthSide,heightSide,true,(float) (rBg & 0xFF),(float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, sideFinalY, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
-		fixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y,1,false,false, size, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y,1,!true,false, size, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height,1,false,!true, size, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height,1,!true,!true, size, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
-		fixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y,1,false,false,widthSide, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height,1,false,!true,widthSide, size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x,sideFinalY,1,false,false, size,heightSide,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
-		fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width,sideFinalY,1,!true,false, size,heightSide,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideFinalY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideFinalY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+		} else{
+			float sideStartingX = x + size * szTxtr;
+			float sideStartingY = y + size * szTxtr;
+			float sideFinalY = height + size * szTxtr;
+
+			float widthSide = (width - sideStartingX) / szTxtr;
+			float heightSide = (sideFinalY - sideStartingX) / szTxtr;
 
 
+
+			fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, sideFinalY, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, sideStartingY, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideFinalY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideFinalY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+
+
+		}
 
 	}
 

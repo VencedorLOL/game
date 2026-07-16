@@ -17,14 +17,18 @@ public class Slider extends GUI {
 	float xCursor;
 	float realWidth;
 	float barWidth;
+	Box slider = new Box();
 
-	public Slider(){}
+
+	public Slider(){slider.aBg = 0;}
 
 	public void render(float x, float y,float width, float height,float widthness,float totalXSpace){
 		this.size = widthness/6;
 		wasTouched = touched;
 		touched = false;
-		fixatedDrawables.add(new TextureManager.DrawableObject("CornerA",x,y,1,0,size,size,true));
+		slider.aBg = 0;
+		slider.render(x,y,x+size*32+(width/32-size*2)*32,y-size*32-(height/32-size*2)*32,size);
+	/*	fixatedDrawables.add(new TextureManager.DrawableObject("CornerA",x,y,1,0,size,size,true));
 		fixatedDrawables.add(new TextureManager.DrawableObject("SideAB",x,y-size*32,1,0,size,(height/32-size*2),true));
 		fixatedDrawables.add(new TextureManager.DrawableObject("CornerB",x,y-size*32-(height/32-size*2)*32,1,0,size,size,true));
 
@@ -35,7 +39,7 @@ public class Slider extends GUI {
 		fixatedDrawables.add(new TextureManager.DrawableObject("CornerD",x+size*32+(width/32-size*2)*32,y,1,0,size,size,true));
 
 		fixatedDrawables.add(new TextureManager.DrawableObject("SideDA",x+size*32,y,1,0,(width/32-size*2),size,true));
-		realWidth = (size*3/2+width/32-size*2)*32;
+	*/	realWidth = (size*3/2+width/32-size*2)*32;
 		barWidth = totalXSpace>= Gdx.graphics.getWidth() ?  Gdx.graphics.getWidth()*realWidth/totalXSpace : realWidth;
 		onTouchDetect(x+size*8+ xCursor,y-size*8,barWidth,(height/128-size/8)*globalSize());
 

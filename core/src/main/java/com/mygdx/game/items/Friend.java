@@ -163,6 +163,7 @@ public class Friend extends Actor {
 			entityList.remove(this);
 			actorsThatAttack.remove(this);
 			turnables.remove(this);
+			damageReceivers.remove(this);
 		}
 	}
 

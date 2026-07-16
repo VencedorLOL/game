@@ -1,4 +1,4 @@
-StellarExplosion,Earthquaker,SwordMage
+StellarExplosion,Earthquaker,Imp
 0,0
 0,0
 1,0

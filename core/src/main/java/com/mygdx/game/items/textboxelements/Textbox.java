@@ -96,7 +96,7 @@ public class Textbox extends GUI {
 		framesTilNextLetter = 10;
 		storedText = "NULL TEXTBOX";
 
-		box = new Box(true);
+		box = new Box(1);
 	}
 
 	public void beforeRenderOverridable(){}
