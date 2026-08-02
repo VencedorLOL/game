@@ -65,6 +65,11 @@ public class Enemy extends Actor {
 		return (float) (globalSize() * round(coordinate / globalSize()));
 	}
 
+	{
+		enemies.add(this);
+	}
+	
+	
 	public Enemy(float x, float y, String texture, float health) {
 		super(texture, x, y, globalSize(), globalSize());
 		aggro = 1;
@@ -85,7 +90,7 @@ public class Enemy extends Actor {
 		this.texture = texture;
 		path = new Path(x,y,speed,this);
 		permittedToAct = false;
-		enemies.add(this);
+		//enemies.add(this);
 		print("Ran throu the enemy constructor as " + this);
 	}
 
@@ -97,7 +102,7 @@ public class Enemy extends Actor {
 		path = new Path(x,y,speed,this);
 		team = -1;
 		permittedToAct = false;
-		enemies.add(this);
+		//enemies.add(this);
 		health = 20;
 		print("Ran throu the enemy constructor as " + this);
 	}
