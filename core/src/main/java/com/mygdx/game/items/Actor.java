@@ -554,7 +554,8 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public static class Attack{
 		Actor owner;
-		float targetX, targetY;
+		public float targetX;
+		public float targetY;
 		boolean render = true;
 		boolean isBeingExecuted = false;
 		public Attack(float x, float y,Actor owner){

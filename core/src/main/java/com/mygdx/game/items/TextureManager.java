@@ -1244,7 +1244,7 @@ public class TextureManager {
 		public Animation(String file, float x, float y){
 			name = file;
 			try {
-				this.file = new File("Animations//" + file + ".ani");
+				this.file = Gdx.files.internal("Animations//" + file + ".ani").file();
 				fileReader = new Scanner(new FileReader(this.file));
 				startX = x;startY = y;this.x = x;this.y = y;
 				read();
@@ -1258,7 +1258,7 @@ public class TextureManager {
 			name = file;
 			try {
 				this.entityToFollow = entityToFollow;
-				this.file = new File("Animations//" + file + ".ani");
+				this.file = Gdx.files.internal("Animations//" + file + ".ani").file();
 				fileReader = new Scanner(new FileReader(this.file));
 				this.x = entityToFollow.x;this.y = entityToFollow.y;
 				read();

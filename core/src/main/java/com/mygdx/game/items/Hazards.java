@@ -81,6 +81,16 @@ public class Hazards {
 //		Hazards.hazards.removeIf(h -> h.name.equals(hazards.name) && h.x == x && h.y == y);
 	}
 
+	@SuppressWarnings("all")
+	public static void deleteHazard(Hazards hazards){
+		for(Hazards h : Hazards.hazards)
+			if(h == hazards) {
+				h.destroyHazard();
+				h.queuedForDeletion = true;
+			}
+//		Hazards.hazards.removeIf(h -> h.name.equals(hazards.name) && h.x == x && h.y == y);
+	}
+
 	public static ArrayList<Hazards> getHazard(HazardNames name,float x, float y){
 		ArrayList<Hazards> list = new ArrayList<>();
 		for (Hazards h : hazards){
