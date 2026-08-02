@@ -244,4 +244,20 @@ public class Utils {
 		return mewArray.toArray(new String[0]);
 	}
 
+	public static int charCount(char chara, String string){
+		int count = 0;
+		for(int i = 0; i < string.length(); i++)
+			if(string.charAt(i)==chara)
+				count++;
+		return count;
+	}
+
+	public static int charCount(char chara, String... string){
+		int count = 0;
+		for(String s : string)
+			count += charCount(chara,s);
+		return count;
+
+	}
+
 }

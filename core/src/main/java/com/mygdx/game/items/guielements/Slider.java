@@ -17,7 +17,7 @@ public class Slider extends GUI {
 	float xCursor;
 	float realWidth;
 	float barWidth;
-	Box slider = new Box();
+	Box slider = new Box(2);
 
 
 	public Slider(){slider.aBg = 0;}
@@ -48,6 +48,7 @@ public class Slider extends GUI {
 		fixatedDrawables.add(grabber);
 	}
 
+	private boolean hasBeenTouchedBefore = false;
 	public void onTouchDetect(float x, float y,float w, float h){
 		if(leftClickPressed() || (wasTouched && !leftClickReleased()))
 			if ((cursorX() >= x && cursorX() <= x + w &&
@@ -56,9 +57,14 @@ public class Slider extends GUI {
 				selected = true;
 					if (wasTouched && xCursor + cursorX() - cursorLastX >= 0 && xCursor + cursorX() - cursorLastX + w <= realWidth)
 						xCursor += (cursorX() - cursorLastX);
-				cursorLastX = cursorX();
+					else if(xCursor + cursorX() - cursorLastX < 0 && hasBeenTouchedBefore && cursorX() - cursorLastX != 0)
+						xCursor = 0;
+					else if ( xCursor + cursorX() - cursorLastX + w > realWidth && hasBeenTouchedBefore && cursorX() - cursorLastX != 0 )
+						xCursor = (realWidth - w);
+				hasBeenTouchedBefore = true;
 				onTouchOverridable();
 			}
+		cursorLastX = cursorX();
 		if(selected){
 			if(leftPressed()){
 				if(xCursor - 2*Gdx.graphics.getWidth()/640f >= 0)

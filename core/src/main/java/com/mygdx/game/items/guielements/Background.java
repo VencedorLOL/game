@@ -293,7 +293,11 @@ public class Background extends GUI {
 				if (existsSelCard() && getSelCard() != -1) {
 					classesCards[getSelCard()].render(cardSizeB / 32, cardIniGapXB, cardYB, false);
 					if(activeInfo == null)
-						activeInfo = new ClassInfoBox(CAETexts.Classes.values()[getSelCard()+1],true);
+						activeInfo = new ClassInfoBox(CAETexts.Classes.values()[getSelCard()+1],true){
+							public void onTouchOverridable() {
+								elementHovered = -3;
+							}
+						};
 					activeInfo.render(amplifiedSize,amplifiedX,amplifiedY,true,amplifiedBoxHeight);
 
 
@@ -339,6 +343,8 @@ public class Background extends GUI {
 	}
 
 	private void dehover(){
+		if(activeInfo != null)
+			activeInfo.sSelected = false;
 		slider.selected = false;
 		close.hovered = false;
 		for(SelectionButton s : selButtons)
@@ -356,390 +362,441 @@ public class Background extends GUI {
 
 	private void hoverCheck(){
 		if(modes == 0){
-			if(elementHovered == -1){
-				if(downJustPressed()){
-					elementHovered = lastMode != -1 ? lastMode : 0;
-					modeSelector[0].hovered = elementHovered == 0;
-					modeSelector[1].hovered = elementHovered != 0;
-
-					close.hovered = false;
-				}
-			}
-			else {
-				if (rightJustPressed()) {
-					elementHovered = 1;
-					lastMode = 1;
-					close.hovered = false;
-					modeSelector[1].hovered = true;
-					modeSelector[0].hovered = false;
-				} else if (leftJustPressed()) {
-					elementHovered = 0;
-					lastMode = 1;
-					close.hovered = false;
-					modeSelector[0].hovered = true;
-					modeSelector[1].hovered = false;
-				}
-				else if (upJustPressed()){
-					lastMode = elementHovered;
-					elementHovered = -1;
-					modeSelector[1].hovered = false;
-					modeSelector[0].hovered = false;
-					close.hovered = true;
-				}
-			}
-
+			hoverInitial();
 		}
 		if(modes == 1) {
-			if (elementHovered != -2) {
-				if (upJustPressed()) {
-					if (elementHovered > -1 && elementHovered < classSlots.length) {
-						lastBox = elementHovered;
-						elementHovered = -1;
-					} else if (elementHovered >= classSlots.length) {
-						lastCard = elementHovered;
-						elementHovered = lastBox != -1 ? lastBox : 1;
-					} else if (elementHovered == -3) {
-						slider.selected = false;
-						elementHovered = (byte) (getElement() + selButtons.length);
-					}
-					persevereHover = 1;
-				}
-				if (downJustPressed()) {
-					if (elementHovered == -1) {
-						elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
-					} else if (elementHovered < classSlots.length && !existsSelCard() && elementHovered != -3) {
-						lastBox = elementHovered;
-						elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
-					} else if (!existsSelCard() && elementHovered != -3) {
-						lastCard = elementHovered;
-						elementHovered = -3;
-					}
-					persevereHover = 1;
-				}
-				if (leftJustPressed()) {
-					if (elementHovered > 0 && elementHovered < classSlots.length) {
-						lastBox = --elementHovered;
-					} else if (elementHovered > classSlots.length) {
-						lastCard = --elementHovered;
-						counterStateL = 0;
-					}
-					persevereHover = 1;
-				} else if (leftPressed() && elementHovered > classSlots.length && counterStateL != -1) {
-					if (counterL++ > times[counterStateL]) {
-						lastCard = --elementHovered;
-						counterStateL += counterStateL < times.length - 1 ? 1 : 0;
-						counterL = 0;
-					}
-				} else {
-					counterL = 0;
-					counterStateL = -1;
-				}
-				if (rightJustPressed()) {
-					if (elementHovered > -1 && elementHovered < classSlots.length - 1)
-						lastBox = ++elementHovered;
-					else if (elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1)) {
-						lastCard = ++elementHovered;
-						counterStateR = 0;
-					}
-					persevereHover = 1;
-				} else if (rightPressed() && elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1) && counterStateR != -1) {
-					if (counterR++ > times[counterStateR]) {
-						lastCard = ++elementHovered;
-						counterStateR += counterStateR < times.length - 1 ? 1 : 0;
-						counterR = 0;
-					}
-				} else {
-					counterR = 0;
-					counterStateR = -1;
-				}
-			} else {
-				if (upJustPressed()) {
-					elementHovered = -1;
-					persevereHover = 1;
-				}
-				if (downJustPressed()) {
-					elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
-					persevereHover = 1;
-				}
-				if (leftJustPressed()) {
-					elementHovered = lastBox != -1 ? lastBox : (byte) (floor(classSlots.length / 2d) - 1);
-					persevereHover = 1;
-				}
-				if (rightJustPressed()) {
-					elementHovered = lastBox != -1 ? lastBox : (byte) ((classSlots.length / 2) + 1);
-					persevereHover = 1;
-				}
+			hoverClasses();
+		} else if (modes == 2){
+			hoverEquipment();
+		}
+
+	}
+
+	private void hoverInitial(){
+		if(elementHovered == -1){
+			if(downJustPressed()){
+				elementHovered = lastMode != -1 ? lastMode : 0;
+				modeSelector[0].hovered = elementHovered == 0;
+				modeSelector[1].hovered = elementHovered != 0;
+
+				close.hovered = false;
 			}
-			if (persevereHover != 1) {
-				dehover();
+		}
+		else {
+			if (rightJustPressed()) {
+				elementHovered = 1;
+				lastMode = 1;
+				close.hovered = false;
+				modeSelector[1].hovered = true;
+				modeSelector[0].hovered = false;
+			} else if (leftJustPressed()) {
+				elementHovered = 0;
+				lastMode = 1;
+				close.hovered = false;
+				modeSelector[0].hovered = true;
+				modeSelector[1].hovered = false;
 			}
-			if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
-					cursorY() >= 0 && cursorY() <= endSY) {
+			else if (upJustPressed()){
+				lastMode = elementHovered;
 				elementHovered = -1;
-				persevereHover = -1;
+				modeSelector[1].hovered = false;
+				modeSelector[0].hovered = false;
+				close.hovered = true;
 			}
-			for (int i = 0; i < selButtons.length; i++)
-				if (cursorX() >= selButtons[i].x && cursorX() <= selButtons[i].x + selButtons[i].size &&
-						cursorY() >= selButtons[i].y - selButtons[i].size && cursorY() <= selButtons[i].y) {
-					elementHovered = (byte) i;
-					persevereHover = -1;
+		}
+	}
+
+	private void hoverClasses(){
+		if (elementHovered != -2) {
+			hoverCSelected();
+		} else {
+			hoverCNotSelected();
+		}
+		if (persevereHover != 1) {
+			dehover();
+		}
+		if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+				cursorY() >= 0 && cursorY() <= endSY) {
+			elementHovered = -1;
+			persevereHover = -1;
+		}
+		for (int i = 0; i < selButtons.length; i++)
+			if (cursorX() >= selButtons[i].x && cursorX() <= selButtons[i].x + selButtons[i].size &&
+					cursorY() >= selButtons[i].y - selButtons[i].size && cursorY() <= selButtons[i].y) {
+				elementHovered = (byte) i;
+				persevereHover = -1;
+				break;
+			}
+		if (!existsSelCard())
+			for (int i = 0; i < classesCards.length; i++) {
+				if (cursorX() >= classesCards[i].x && cursorX()
+						<= classesCards[i].x + cardsSize &&
+						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
+					dehover();
+					elementHovered = (byte) (i + selButtons.length);
+					persevereHover = 1;
 					break;
 				}
-			if (!existsSelCard())
-				for (int i = 0; i < classesCards.length; i++) {
-					if (cursorX() >= classesCards[i].x && cursorX()
-							<= classesCards[i].x + cardsSize &&
-							cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
-						dehover();
-						elementHovered = (byte) (i + selButtons.length);
-						persevereHover = 1;
-						break;
-					}
-				}
-			if (persevereHover != 0) {
-				if (elementHovered == -1) {
-					dehover();
-					close.hovered = true;
-					persevereHover = persevereHover == 1 ? persevereHover : 0;
-				} else if (elementHovered != -2 && elementHovered != -3) {
-					dehover();
-					for (int i = 0; i < selButtons.length; i++)
-						if (i == elementHovered) {
-							selButtons[i].hovered = true;
-							persevereHover = persevereHover == 1 ? persevereHover : 0;
-						}
-					for (int i = 0; i < classesCards.length; i++)
-						if (i + selButtons.length == elementHovered) {
-							classesCards[i].hovered = true;
-							persevereHover = persevereHover == 1 ? persevereHover : 0;
-							if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
-								slider.xCursor += Gdx.graphics.getWidth() / 640f;
-
-							} else if (classesCards[i].x - cardsIniGapX < 0)
-								slider.xCursor -= Gdx.graphics.getWidth() / 640f;
-						}
-				} else if (elementHovered == -3) {
-					dehover();
-					slider.selected = true;
-				}
 			}
-		} else if (modes == 2){
-			if(!existsSelCard()) {
-				if (elementHovered != -2) {
-					if (upJustPressed()) {
-						if (elementHovered > -1 && elementHovered < classesCards.length) {
-							lastCard = elementHovered;
-							elementHovered = -1;
-						} else if (elementHovered == -3) {
-							slider.selected = false;
-							elementHovered = (byte) (getElement());
-							lastCard = elementHovered;
-						}
-						persevereHover = 1;
-					}
-					if (downJustPressed()) {
-						if (elementHovered == -1) {
-							elementHovered = (byte) getElement();
-							lastCard = elementHovered;
-						} else if (!existsSelCard() && elementHovered != -3) {
-							lastCard = elementHovered;
-							elementHovered = -3;
-						}
-						persevereHover = 1;
-					}
-					if (leftJustPressed()) {
-						if (elementHovered > 0) {
-							lastCard = --elementHovered;
-							counterStateL = 0;
-						}
-						persevereHover = 1;
-					} else if (leftPressed() && elementHovered > 0 && counterStateL != -1) {
-						if (counterL++ > times[counterStateL]) {
-							lastCard = --elementHovered;
-							counterStateL += counterStateL < times.length - 1 ? 1 : 0;
-							counterL = 0;
-						}
-					} else {
-						counterL = 0;
-						counterStateL = -1;
-					}
-					if (rightJustPressed()) {
-						if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
-							lastCard = ++elementHovered;
-							counterStateR = 0;
-						}
-						persevereHover = 1;
-					} else if (rightPressed() && elementHovered >= 0 && elementHovered < classesCards.length - 1 && counterStateR != -1) {
-						if (counterR++ > times[counterStateR]) {
-							lastCard = ++elementHovered;
-							counterStateR += counterStateR < times.length - 1 ? 1 : 0;
-							counterR = 0;
-						}
-					} else {
-						counterR = 0;
-						counterStateR = -1;
-					}
-				} else {
-					if (upJustPressed()) {
-						elementHovered = -1;
-						persevereHover = 1;
-					}
-					if (downJustPressed()) {
-						elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
-						persevereHover = 1;
-					}
-					if (leftJustPressed()) {
-						elementHovered = (byte) max((getElement() - 1), 0);
-						persevereHover = 1;
-					}
-					if (rightJustPressed()) {
-						elementHovered = (byte) (getElement() + 1);
-						persevereHover = 1;
-					}
-				}
-				if (persevereHover != 1) {
-					dehover();
-				}
-				if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
-						cursorY() >= 0 && cursorY() <= endSY) {
-					elementHovered = -1;
-					persevereHover = -1;
-				}
-				if (!existsSelCard())
-					for (int i = 0; i < classesCards.length; i++) {
-						if (cursorX() >= classesCards[i].x && cursorX()
-								<= classesCards[i].x + cardsSize &&
-								cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
-							dehover();
-							elementHovered = (byte) i;
-							persevereHover = 1;
-							break;
-						}
-					}
-				if (persevereHover != 0) {
-					if (elementHovered == -1) {
-						dehover();
-						close.hovered = true;
+		if (persevereHover != 0) {
+			if (elementHovered == -1) {
+				dehover();
+				close.hovered = true;
+				persevereHover = persevereHover == 1 ? persevereHover : 0;
+			} else if (elementHovered != -2 && elementHovered != -3) {
+				dehover();
+				for (int i = 0; i < selButtons.length; i++)
+					if (i == elementHovered) {
+						selButtons[i].hovered = true;
 						persevereHover = persevereHover == 1 ? persevereHover : 0;
-					} else if (elementHovered != -2 && elementHovered != -3) {
-						dehover();
-						for (int i = 0; i < classesCards.length; i++)
-							if (i == elementHovered) {
-								classesCards[i].hovered = true;
-								persevereHover = persevereHover == 1 ? persevereHover : 0;
-								if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
-									slider.xCursor += Gdx.graphics.getWidth() / 640f;
-
-								} else if (classesCards[i].x - cardsIniGapX < 0)
-									slider.xCursor -= Gdx.graphics.getWidth() / 640f;
-							}
-					} else if (elementHovered == -3) {
-						dehover();
-						slider.selected = true;
 					}
+				for (int i = 0; i < classesCards.length; i++)
+					if (i + selButtons.length == elementHovered) {
+						classesCards[i].hovered = true;
+						persevereHover = persevereHover == 1 ? persevereHover : 0;
+						if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
+							slider.xCursor += Gdx.graphics.getWidth() / 640f;
+
+						} else if (classesCards[i].x - cardsIniGapX < 0)
+							slider.xCursor -= Gdx.graphics.getWidth() / 640f;
+					}
+			} else if (elementHovered == -3 && !existsSelCard()) {
+				dehover();
+				slider.selected = true;
+			} else if (elementHovered == -3){
+				dehover();
+				activeInfo.sSelected = true;
+			}
+		}
+	}
+
+	private void hoverCSelected(){
+		if (upJustPressed()) {
+			if (elementHovered > -1 && elementHovered < classSlots.length) {
+				lastBox = elementHovered;
+				elementHovered = -1;
+			} else if (elementHovered >= classSlots.length) {
+				lastCard = elementHovered;
+				elementHovered = lastBox != -1 ? lastBox : 1;
+			} else if (elementHovered == -3 && !existsSelCard()) {
+				slider.selected = false;
+				elementHovered = (byte) (getElement() + selButtons.length);
+			} else if (elementHovered == -3 && activeInfo != null && activeInfo.sYCursor == 0){
+				activeInfo.sSelected = false;
+				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
+			}
+			persevereHover = 1;
+		}
+		if (downJustPressed()) {
+			if (elementHovered == -1) {
+				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
+			} else if (elementHovered < classSlots.length && !existsSelCard() && elementHovered != -3) {
+				lastBox = elementHovered;
+				elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
+			} else if (!existsSelCard() && elementHovered != -3) {
+				lastCard = elementHovered;
+				elementHovered = -3;
+			} else if (existsSelCard() && elementHovered != -3) {
+				lastBox = elementHovered < classSlots.length ? elementHovered : -1;
+				elementHovered = -3;
+			}
+			persevereHover = 1;
+		}
+		if (leftJustPressed()) {
+			if (elementHovered > 0 && elementHovered < classSlots.length) {
+				lastBox = --elementHovered;
+			} else if (elementHovered > classSlots.length) {
+				lastCard = --elementHovered;
+				counterStateL = 0;
+			} else if (existsSelCard() && elementHovered == -3) {
+				if(activeInfo != null)
+					activeInfo.sSelected = false;
+				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
+			}
+			persevereHover = 1;
+		} else if (leftPressed() && elementHovered > classSlots.length && counterStateL != -1) {
+			if (counterL++ > times[counterStateL]) {
+				lastCard = --elementHovered;
+				counterStateL += counterStateL < times.length - 1 ? 1 : 0;
+				counterL = 0;
+			}
+		} else {
+			counterL = 0;
+			counterStateL = -1;
+		}
+		if (rightJustPressed()) {
+			if (elementHovered > -1 && elementHovered < classSlots.length - 1)
+				lastBox = ++elementHovered;
+			else if (elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1)) {
+				lastCard = ++elementHovered;
+				counterStateR = 0;
+			}
+			else if (existsSelCard()){
+				lastBox = elementHovered < classSlots.length ? elementHovered : -1;
+				elementHovered = -3;
+			}
+			persevereHover = 1;
+		} else if (rightPressed() && elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1) && counterStateR != -1) {
+			if (counterR++ > times[counterStateR]) {
+				lastCard = ++elementHovered;
+				counterStateR += counterStateR < times.length - 1 ? 1 : 0;
+				counterR = 0;
+			}
+		} else {
+			counterR = 0;
+			counterStateR = -1;
+		}
+	}
+
+
+	private void hoverCNotSelected(){
+		if (upJustPressed()) {
+			elementHovered = -1;
+			persevereHover = 1;
+		}
+		if (downJustPressed()) {
+			elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
+			persevereHover = 1;
+		}
+		if (leftJustPressed()) {
+			elementHovered = lastBox != -1 ? lastBox : (byte) (floor(classSlots.length / 2d) - 1);
+			persevereHover = 1;
+		}
+		if (rightJustPressed()) {
+			elementHovered = lastBox != -1 ? lastBox : (byte) ((classSlots.length / 2) + 1);
+			persevereHover = 1;
+		}
+	}
+
+
+	private void hoverEquipment(){
+		if(!existsSelCard()) {
+			hoverEMenu();
+		} else {
+			hoverEInside();
+		}
+	}
+
+	private void hoverEMenu(){
+		if (elementHovered != -2) {
+			if (upJustPressed()) {
+				if (elementHovered > -1 && elementHovered < classesCards.length) {
+					lastCard = elementHovered;
+					elementHovered = -1;
+				} else if (elementHovered == -3) {
+					slider.selected = false;
+					elementHovered = (byte) (getElement());
+					lastCard = elementHovered;
+				}
+				persevereHover = 1;
+			}
+			if (downJustPressed()) {
+				if (elementHovered == -1) {
+					elementHovered = (byte) getElement();
+					lastCard = elementHovered;
+				} else if (!existsSelCard() && elementHovered != -3) {
+					lastCard = elementHovered;
+					elementHovered = -3;
+				}
+				persevereHover = 1;
+			}
+			if (leftJustPressed()) {
+				if (elementHovered > 0) {
+					lastCard = --elementHovered;
+					counterStateL = 0;
+				}
+				persevereHover = 1;
+			} else if (leftPressed() && elementHovered > 0 && counterStateL != -1) {
+				if (counterL++ > times[counterStateL]) {
+					lastCard = --elementHovered;
+					counterStateL += counterStateL < times.length - 1 ? 1 : 0;
+					counterL = 0;
 				}
 			} else {
-				if (elementHovered != -2) {
-					if (upJustPressed()) {
-						if (elementHovered == 0) {
-							if(items.processUp())
-								elementHovered = -1;
-							else
-								counterStateU = 0;
-						}
-						persevereHover = 1;
-					} else if (upPressed() && elementHovered == 0 && counterStateU != -1) {
-						if (counterU++ > times[counterStateU]) {
-							counterStateU += counterStateU < times.length - 1 ? 1 : 0;
-							counterU = 0;
-							if (items.processUp()) {
-								elementHovered = -1;
-								counterStateU = -1;
-							}
-						}
-					} else {
-						counterU = 0;
-						counterStateU = -1;
-					}
-					if (downJustPressed()) {
-						elementHovered = 0;
-						items.processDown();
-						counterStateD = 0;
-						persevereHover = 1;
-					} else if (downPressed() && elementHovered == 0 && counterStateD != -1) {
-						if (counterD++ > times[counterStateD]) {
-							counterStateD += counterStateD < times.length - 1 ? 1 : 0;
-							counterD = 0;
-							if (items.processDown()) {
-								counterStateD = -1;
-							}
-						}
-					} else {
-						counterD = 0;
-						counterStateD = -1;
-					}
-
-					if (leftJustPressed()) {
-						if (elementHovered == 0) {
-							items.processLeft();
-						}
-						persevereHover = 1;
-					}
-					if (rightJustPressed()) {
-						if (elementHovered == 0) {
-							items.processRight();
-						}
-						persevereHover = 1;
-					}
-				} else {
-					if (upJustPressed()) {
-						if(items.processUp())
-							elementHovered = -1;
-						persevereHover = 1;
-					}
-					if (downJustPressed()) {
-						items.processDown();
-						elementHovered = 0;
-						persevereHover = 1;
-					}
-					if (leftJustPressed()) {
-						items.processLeft();
-						persevereHover = 1;
-					}
-					if (rightJustPressed()) {
-						items.processRight();
-						persevereHover = 1;
-					}
+				counterL = 0;
+				counterStateL = -1;
+			}
+			if (rightJustPressed()) {
+				if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
+					lastCard = ++elementHovered;
+					counterStateR = 0;
 				}
-				if (persevereHover != 1) {
+				persevereHover = 1;
+			} else if (rightPressed() && elementHovered >= 0 && elementHovered < classesCards.length - 1 && counterStateR != -1) {
+				if (counterR++ > times[counterStateR]) {
+					lastCard = ++elementHovered;
+					counterStateR += counterStateR < times.length - 1 ? 1 : 0;
+					counterR = 0;
+				}
+			} else {
+				counterR = 0;
+				counterStateR = -1;
+			}
+		} else {
+			if (upJustPressed()) {
+				elementHovered = -1;
+				persevereHover = 1;
+			}
+			if (downJustPressed()) {
+				elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
+				persevereHover = 1;
+			}
+			if (leftJustPressed()) {
+				elementHovered = (byte) max((getElement() - 1), 0);
+				persevereHover = 1;
+			}
+			if (rightJustPressed()) {
+				elementHovered = (byte) (getElement() + 1);
+				persevereHover = 1;
+			}
+		}
+		if (persevereHover != 1) {
+			dehover();
+		}
+		if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+				cursorY() >= 0 && cursorY() <= endSY) {
+			elementHovered = -1;
+			persevereHover = -1;
+		}
+		if (!existsSelCard())
+			for (int i = 0; i < classesCards.length; i++) {
+				if (cursorX() >= classesCards[i].x && cursorX()
+						<= classesCards[i].x + cardsSize &&
+						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
 					dehover();
-				}
-				if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
-						cursorY() >= 0 && cursorY() <= endSY) {
-					elementHovered = -1;
-					persevereHover = -1;
-				}
-				if(items.processCursor() && cursorMoved()){
-					items.saveCursor();
-					elementHovered = 0;
+					elementHovered = (byte) i;
 					persevereHover = 1;
+					break;
 				}
-				if (persevereHover != 0) {
-					if (elementHovered == -1) {
-						dehover();
-						close.hovered = true;
+			}
+		if (persevereHover != 0) {
+			if (elementHovered == -1) {
+				dehover();
+				close.hovered = true;
+				persevereHover = persevereHover == 1 ? persevereHover : 0;
+			} else if (elementHovered != -2 && elementHovered != -3) {
+				dehover();
+				for (int i = 0; i < classesCards.length; i++)
+					if (i == elementHovered) {
+						classesCards[i].hovered = true;
 						persevereHover = persevereHover == 1 ? persevereHover : 0;
-					} else if (elementHovered == 0) {
-						dehover();
-						items.processHover();
-						persevereHover = persevereHover == 1 ? persevereHover : 0;
-					}
-				}
+						if (classesCards[i].x + cardsSize + cardsIniGapX > Gdx.graphics.getWidth()) {
+							slider.xCursor += Gdx.graphics.getWidth() / 640f;
 
+						} else if (classesCards[i].x - cardsIniGapX < 0)
+							slider.xCursor -= Gdx.graphics.getWidth() / 640f;
+					}
+			} else if (elementHovered == -3) {
+				dehover();
+				slider.selected = true;
 			}
 		}
 
 	}
+
+	private void hoverEInside(){
+		if (elementHovered != -2) {
+			if (upJustPressed()) {
+				if (elementHovered == 0) {
+					if(items.processUp())
+						elementHovered = -1;
+					else
+						counterStateU = 0;
+				}
+				persevereHover = 1;
+			} else if (upPressed() && elementHovered == 0 && counterStateU != -1) {
+				if (counterU++ > times[counterStateU]) {
+					counterStateU += counterStateU < times.length - 1 ? 1 : 0;
+					counterU = 0;
+					if (items.processUp()) {
+						elementHovered = -1;
+						counterStateU = -1;
+					}
+				}
+			} else {
+				counterU = 0;
+				counterStateU = -1;
+			}
+			if (downJustPressed()) {
+				elementHovered = 0;
+				items.processDown();
+				counterStateD = 0;
+				persevereHover = 1;
+			} else if (downPressed() && elementHovered == 0 && counterStateD != -1) {
+				if (counterD++ > times[counterStateD]) {
+					counterStateD += counterStateD < times.length - 1 ? 1 : 0;
+					counterD = 0;
+					if (items.processDown()) {
+						counterStateD = -1;
+					}
+				}
+			} else {
+				counterD = 0;
+				counterStateD = -1;
+			}
+
+			if (leftJustPressed()) {
+				if (elementHovered == 0) {
+					items.processLeft();
+				}
+				persevereHover = 1;
+			}
+			if (rightJustPressed()) {
+				if (elementHovered == 0) {
+					items.processRight();
+				}
+				persevereHover = 1;
+			}
+		} else {
+			if (upJustPressed()) {
+				if(items.processUp())
+					elementHovered = -1;
+				persevereHover = 1;
+			}
+			if (downJustPressed()) {
+				items.processDown();
+				elementHovered = 0;
+				persevereHover = 1;
+			}
+			if (leftJustPressed()) {
+				items.processLeft();
+				persevereHover = 1;
+			}
+			if (rightJustPressed()) {
+				items.processRight();
+				persevereHover = 1;
+			}
+		}
+		if (persevereHover != 1) {
+			dehover();
+		}
+		if (cursorX() >= endSX && cursorX() <= endSX + endSY &&
+				cursorY() >= 0 && cursorY() <= endSY) {
+			elementHovered = -1;
+			persevereHover = -1;
+		}
+		if(items.processCursor() && cursorMoved()){
+			items.saveCursor();
+			elementHovered = 0;
+			persevereHover = 1;
+		}
+		if (persevereHover != 0) {
+			if (elementHovered == -1) {
+				dehover();
+				close.hovered = true;
+				persevereHover = persevereHover == 1 ? persevereHover : 0;
+			} else if (elementHovered == 0) {
+				dehover();
+				items.processHover();
+				persevereHover = persevereHover == 1 ? persevereHover : 0;
+			}
+		}
+
+	}
+
+
+
+
 
 	@SuppressWarnings("all")
 	private int getElement() {

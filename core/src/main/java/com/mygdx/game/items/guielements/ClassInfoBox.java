@@ -36,15 +36,12 @@ public class ClassInfoBox extends GUI {
 	boolean sWasTouched = false;
 	float sCursorLastY;
 
-	//TODO: this
-	// and..... well, the rest of the class too.
-	float totalHeightOfTextbox;
-
 	float size, x, y;
 
 	boolean aumentedVersion;
 
 	float propConst;
+	float minPropConst;
 
 	public static final float FONT_SIZE_CONSTANT = 24;
 
@@ -56,8 +53,8 @@ public class ClassInfoBox extends GUI {
 		for (int i = 0; i < abTx.length; i++){
 			abTx[i] = "\n■\n" + abTx[i];
 		}
-		Collections.addAll(rawText, stringSplitter(classs.text, (int) (112 * 32 / FONT_SIZE_CONSTANT),' '));
-		Collections.addAll(rawText, stringSuperSplitter(abTx,(int) (112 * 32 / FONT_SIZE_CONSTANT),' '));
+		Collections.addAll(rawText, stringSplitter(classs.text, (int) (110 * 32 / FONT_SIZE_CONSTANT),' '));
+		Collections.addAll(rawText, stringSuperSplitter(abTx,(int) (110 * 32 / FONT_SIZE_CONSTANT),' '));
 		ArrayList<String> temp = (ArrayList<String>) rawText.clone();
 		rawText.clear();
 		Collections.addAll(rawText, emptyPurger(temp.toArray(new String[0])));
@@ -82,14 +79,19 @@ public class ClassInfoBox extends GUI {
 		this.x = x;
 		this.y = yIni;
 		propConst = Gdx.graphics.getHeight()/1080f;
-		totalYSpace = 1;
-		renderTextBox(x,y,size*1.5f,size,height);
+		minPropConst = min(Gdx.graphics.getWidth()/1920f,propConst);
+		ySpace();
+		renderSlider(x,y,size*1.5f,size,height);
 		renderTitleBox(x,y,size * 1.5f,size);
+		renderTextBox(x,y,size*1.5f,size,height);
 
-		//renderSlider(x,y,);
 		
 
 		//onTouchDetect(touch);
+	}
+	public void ySpace(){
+		totalYSpace = 0;
+		totalYSpace += FONT_SIZE_CONSTANT*propConst*text.length*1.25f;
 	}
 
 	//yIni-size+sYCursor*totalHeightOfTextbox / sRealHeight
@@ -122,43 +124,57 @@ public class ClassInfoBox extends GUI {
 			}
 			if(Objects.equals(rawText.get(i), "■")){
 				text[i].render = false;
-				fixatedDrawables.add(new TextureManager.DrawableObject("BackgroundTextbox",x, y - propConst * 172 + (FONT_SIZE_CONSTANT * propConst)*1.25f*i - (FONT_SIZE_CONSTANT * propConst),1,false,false,width,(FONT_SIZE_CONSTANT * propConst)/32,true,109,109,109));
+				float barY = y - propConst * 172 + (FONT_SIZE_CONSTANT * propConst)*1.25f*i - (FONT_SIZE_CONSTANT * propConst) - sYCursor * totalYSpace / sRealHeight;
+				if(barY >= y - propConst * 198 - text[i].realSize && barY < 870*propConst)
+					fixatedDrawables.add(new TextureManager.DrawableObject("BackgroundTextbox",x, barY,1,false,false,width,(FONT_SIZE_CONSTANT * propConst)/32,true,109,109,109));
 				continue;
 			}
 
 			text[i].realSize =  FONT_SIZE_CONSTANT * propConst;
 			text[i].setColor(255, 255, 255);
-			text[i].render = true;
 			text[i].onScreenTime = 2;
 			text[i].fakeNull = false;
 			text[i].x = x + 24 * propConst;
-			text[i].y = y - propConst * 200 + text[i].realSize*1.25f*i - text[i].realSize;
+			text[i].y = y - propConst * 200 + text[i].realSize*1.25f*i - text[i].realSize - sYCursor * totalYSpace / sRealHeight;
+
+			text[i].render = text[i].y >= y - propConst * 210 - text[i].realSize && text[i].y < 870*propConst;
 		}
 
 	}
 
 
 
-	public void renderSlider(float x, float y, float width, float height, float heigtness, float totalXSpace, float endY){
-		float startX = x + width*32;
-		sliderBox.render(startX, endY, startX+128*propConst, y - height*19,height/24);
-		this.size = heigtness /6;
+	public void renderSlider(float x, float y, float width, float height, float endY){
+		float startX = x + width * 32;
+		if(totalYSpace > 360*propConst)
+			sliderBox.render(startX, endY, startX + 64 * propConst, y - height * 24.3f, 3f * minPropConst);
 		sWasTouched = sTouched;
 		sTouched = false;
-
-		sRealHeight = (size*3/2+height/32-size*2)*32;
-		sBarHeight = totalXSpace>= Gdx.graphics.getWidth() ?  Gdx.graphics.getWidth()*sRealHeight/totalXSpace : sRealHeight;
-		onTouchDetect(x+size*8,y-size*8-sYCursor,(height/globalSize()-size/(globalSize()/128f*8))*globalSize(),sBarHeight);
-
-		TextureManager.DrawableObject grabber = new TextureManager.DrawableObject("selectionIndicator",x+size*8,y-size*8-sYCursor,1,0,(height/globalSize()-size/(globalSize()/128f*8)),sBarHeight/globalSize(),true);
-		grabber.r = sTouched || sSelected ? 1 : .8f; grabber.g = sTouched || sSelected ? 1 : .8f; grabber.b = sTouched || sSelected ? 1 : .8f;
-		fixatedDrawables.add(grabber);
+		sRealHeight = (endY - y + height * 24.3f - (3 * minPropConst) * -16);
+		if (leftClickJustPressed()) {
+			print("X: " + cursorX() + " y: " + cursorY());
+			print("realheight " + sRealHeight);
+			print("yh " + totalYSpace);
+		}
+		sBarHeight = totalYSpace >= 360 * propConst ? 360 * propConst * sRealHeight / totalYSpace : sRealHeight;
+		float sX = startX + 3 * minPropConst * 8;
+		float sY = y - height * 24.3f - 3 * minPropConst * 24f + sYCursor + sBarHeight;
+		float sWidth = (64 * propConst - 8 * minPropConst)*2;
+		float sHeight = sBarHeight;
+		onTouchDetect(sX, sY, sWidth, sHeight);
+		if(totalYSpace > 360*propConst) {
+			TextureManager.DrawableObject grabber = new TextureManager.DrawableObject("selectionIndicator", sX, sY, 1, 0, sWidth / globalSize(), sHeight / globalSize(), true);
+			grabber.r = sTouched || sSelected ? 1 : .8f;
+			grabber.g = sTouched || sSelected ? 1 : .8f;
+			grabber.b = sTouched || sSelected ? 1 : .8f;
+			fixatedDrawables.add(grabber);
+		}
 	}
 
 
 
 
-
+	private boolean touchedBefore = false;
 	public void onTouchDetect(float x, float y,float w, float h){
 		if(leftClickPressed() || (sWasTouched && !leftClickReleased()))
 			if ((cursorX() >= x && cursorX() <= x + w &&
@@ -167,9 +183,14 @@ public class ClassInfoBox extends GUI {
 				sSelected = true;
 				if (sWasTouched && sYCursor + cursorY() - sCursorLastY >= 0 && sYCursor + cursorY() - sCursorLastY + h <= sRealHeight)
 					sYCursor += (cursorY() - sCursorLastY);
-				sCursorLastY = cursorY();
+				else if (cursorY() - sCursorLastY != 0 && sYCursor + cursorY() - sCursorLastY + h > sRealHeight && touchedBefore)
+					sYCursor = (sRealHeight - h);
+				else if (cursorY() - sCursorLastY != 0 && sWasTouched && sYCursor + cursorY() - sCursorLastY < 0 && touchedBefore)
+					sYCursor = 0;
+				touchedBefore = true;
 				onTouchOverridable();
 			}
+		sCursorLastY = cursorY();
 		if(sSelected){
 			if(upPressed()){
 				if(sYCursor - 2*Gdx.graphics.getHeight()/640f >= 0)
