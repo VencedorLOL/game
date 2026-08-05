@@ -248,6 +248,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	}
 
 
+	boolean spareFrame = false;
 	public void movement(){
 		lastTimeTilLastMovement++;
 		testCollision.x = x;
@@ -262,6 +263,11 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 					turnSpeedActuator();
 
 				if (speedLeft[0] == 0 && speedLeft[1] == 0 && path.pathEnded) {
+					if(!spareFrame || !getTrapsTick()){
+						spareFrame = true;
+						return;
+					}
+					spareFrame = false;
 					softlockOverridable(false);
 					finalizedTurn();
 					if (this instanceof Character)

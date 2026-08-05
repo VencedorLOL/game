@@ -105,8 +105,6 @@ public class Hazards {
 
 //--------------------------------------------
 
-	// TODO: Make hazards deal damage ON the damageable's turn, not before. This requires implementing a method for trap detection inside all damageable objects
-
 	public float x,y,base,height;
 	public boolean didHazardAct;
 	public boolean canHazardAct;
@@ -151,6 +149,11 @@ public class Hazards {
 	public float[] getSize() {return new float[]{base,height};}
 
 
+	// The isGliding part is to get a character damaged if it just suffered knockback, since I'll probably implement knockback with the gliding mechanic.
+	public final boolean actorVerification(Actor victim){
+		return victim.isPermittedToAct() || !getTrapsTick() || victim.isGliding;
+	}
+
 	//---------------------------------------------------
 
 
@@ -170,7 +173,7 @@ public class Hazards {
 				triggered = new ArrayList<>();
 				finishedActing();
 			}
-			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim)) {
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim) && actorVerification(victim)) {
 				victim.damage(damage, AttackTextProcessor.DamageReasons.PIERCING, null);
 				triggered.add(victim);
 			}
@@ -212,7 +215,7 @@ public class Hazards {
 				time--;
 				finishedActing();
 			}
-			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0)
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && actorVerification(victim))
 				victim.conditions.status(Conditions.ConditionNames.BURNING);
 		}
 
@@ -271,7 +274,7 @@ public class Hazards {
 			}
 			if(finishedAnimation) {
 				Actor victim = stepTrigger();
-				if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim)) {
+				if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim) && actorVerification(victim)) {
 					victim.damage(victim.totalMaxHealth * 0.70f + victim.totalDefense * 0.1f + 5, AttackTextProcessor.DamageReasons.EARTHQUAKE, null);
 					triggered.add(victim);
 				}

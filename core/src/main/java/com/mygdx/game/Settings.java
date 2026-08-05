@@ -55,6 +55,9 @@ public class Settings {
 		}
 	};
 
+	private static boolean trapsTickOnActorTurn = true;
+
+	public static boolean getTrapsTick(){return trapsTickOnActorTurn;}
 	public static void setRender(boolean renderr){render = renderr;}
 	public static boolean getRender(){return render;}
 	public static float getDesiredGUISize(){return desiredGUISize;}

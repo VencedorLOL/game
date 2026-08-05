@@ -93,7 +93,7 @@ public class Trapper extends CharacterClasses {
 				triggered = new ArrayList<>();
 				finishedActing();
 			}
-			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim)) {
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim) && actorVerification(victim)) {
 				victim.damage(damage, AttackTextProcessor.DamageReasons.PIERCING, null);
 				triggered.add(victim);
 			}
@@ -149,7 +149,7 @@ public class Trapper extends CharacterClasses {
 			}
 		}
 
-		public void updateOverridable(){}
+		public void updateOverridable(){super.update();}
 
 		@Override
 		public void destroyHazard() {damageReceivers.remove(this);}
