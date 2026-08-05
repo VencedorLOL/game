@@ -16,7 +16,7 @@ public abstract class TrapperWeapons extends Weapons{
 
 	public abstract Trapper.Trap throwTrap(float x, float y, float damage,Entity character);
 
-
+	public abstract boolean willTrap();
 
 	public TrapperWeapons(CharacterClasses holder, boolean effectiveInstantiation) {
 		super(holder, effectiveInstantiation);
@@ -27,7 +27,12 @@ public abstract class TrapperWeapons extends Weapons{
 
 		@Override
 		public Trapper.Trap throwTrap(float x, float y,float damage,Entity character) {
-			return null;
+			return new PStones(x,y,damage,character);
+		}
+
+		@Override
+		public boolean willTrap() {
+			return true;
 		}
 
 		public PrickyStones(CharacterClasses holder, boolean effectiveInstantiation) {
@@ -57,7 +62,7 @@ public abstract class TrapperWeapons extends Weapons{
 			public PStones(float x, float y, float damage, Entity owner) {
 				super(x, y, damage, owner);
 				name = "PrickyStones";
-				texture = "";
+				texture = "PrickyStones";
 			}
 
 			int pricked;
@@ -83,6 +88,74 @@ public abstract class TrapperWeapons extends Weapons{
 
 	}
 
+
+	public static class Thorns extends TrapperWeapons {
+
+
+		@Override
+		public Trapper.Trap throwTrap(float x, float y,float damage,Entity character) {
+			return new ThornsTrap(x,y,damage,character);
+		}
+
+		@Override
+		public boolean willTrap() {
+			return true;
+		}
+
+		public Thorns(CharacterClasses holder, boolean effectiveInstantiation) {
+			super(holder, effectiveInstantiation);
+			weaponName = "Thorns";
+			weaponHealth = 0;
+			weaponDamage = 10;
+			weaponSpeed = 0;
+			weaponAttackSpeed = 0;
+			weaponDefense = 0;
+			weaponRange = 1;
+			weaponRainbowDefense = 0;
+			weaponMana = 0;
+			weaponMagicDefense = 0;
+			weaponMagicDamage = 0;
+			weaponManaPerTurn = 0;
+			weaponManaPerUse = 0;
+			weaponMagicHealing = 0;
+			equippableBy = "Trapper";
+			aggro = 0;
+
+		}
+
+
+		public static class ThornsTrap extends Trapper.DamagableTrap {
+
+			private static final float HEALTH = 1;
+			public ThornsTrap(float x, float y, float damage, Entity owner) {
+				super(x, y, damage, owner,HEALTH);
+				name = "Thorns";
+				texture = "Thorns";
+
+			}
+
+			int pricked;
+			public void updateOverridable() {
+				Actor victim = stepTrigger();
+				if(canHazardAct){
+					triggered = new ArrayList<>();
+					finishedActing();
+				}
+				if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && !triggered.contains(victim)) {
+					victim.damage(damage, AttackTextProcessor.DamageReasons.PIERCING, null);
+					triggered.add(victim);
+					pricked++;
+				}
+				if(pricked >= 3){
+					deleteHazard(this);
+				}
+			}
+
+		}
+
+
+
+	}
 
 
 

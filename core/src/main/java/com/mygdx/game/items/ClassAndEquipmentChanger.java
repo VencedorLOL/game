@@ -370,6 +370,26 @@ public class ClassAndEquipmentChanger {
 		}
 	}
 
+	public static class Trapper extends ClassObject{
+
+		public Trapper(){
+			name = "Trapper";
+			texture = "TrapperIcon";
+		}
+
+		@SuppressWarnings("all")
+		public void helperMaker(){
+			weaponer.add(new Weaponer<TrapperWeapons.PrickyStones>());
+			weaponer.add(new Weaponer<TrapperWeapons.Thorns>());
+			shielder.add(new Shielder<TrapperShields.TestShield>());
+		}
+
+		public void activate(Character character){
+			character.classes.destroy();
+			character.classes = new com.mygdx.game.items.characters.classes.Trapper();
+		}
+	}
+
 	public static class Weaponer<T extends Weapons>{
 		Class<?> weapon;
 		/**

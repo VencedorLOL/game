@@ -57,6 +57,8 @@ public class ClassesCards extends GUI {
 		CATAPULT("CatapultCard",new ClassAndEquipmentChanger.Catapult()),
 		STELLAR_EXPLOSION("StellarExplosionCard",new ClassAndEquipmentChanger.StellarExplosion()),
 		EARTHQUAKER("EarthquakerCard",new ClassAndEquipmentChanger.Earthquaker()),
+		TRAPPER("TrapperCard",new ClassAndEquipmentChanger.Trapper()),
+
 		;
 
 		public final String texture;

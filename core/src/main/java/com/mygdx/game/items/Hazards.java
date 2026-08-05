@@ -105,6 +105,8 @@ public class Hazards {
 
 //--------------------------------------------
 
+	// TODO: Make hazards deal damage ON the damageable's turn, not before. This requires implementing a method for trap detection inside all damageable objects
+
 	public float x,y,base,height;
 	public boolean didHazardAct;
 	public boolean canHazardAct;

@@ -15,13 +15,11 @@ public class Trapper extends CharacterClasses {
 
 	public boolean willTrap;
 
-	OnVariousScenarios oVS;
-	TargetProcessor targetProcessor;
 	public Trapper() {
 		super();
 		name = "Trapper";
 		health = 25;
-		damage = 20;
+		damage = 5;
 		speed = 6;
 		attackSpeed = 7;
 		defense = 0;
@@ -43,18 +41,24 @@ public class Trapper extends CharacterClasses {
 
 
 	public boolean onAttackDecided() {
-		willTrap = true;
+		willTrap = weapon == null || !(weapon instanceof TrapperWeapons) || ((TrapperWeapons) weapon).willTrap();
 		return true;
 	}
 
 	public void updateOverridable() {
-		if(willTrap && character.permittedToAct){
-			if(weapon != null && weapon instanceof TrapperWeapons)
-				hazards.add(((TrapperWeapons) weapon).throwTrap(character.attacks.get(0).targetX,character.attacks.get(0).targetY,totalDamage,character));
-			else
-				hazards.add(new Trap(character.attacks.get(0).targetX,character.attacks.get(0).targetY,max(totalDamage-15,1),character));
-
-
+		if(willTrap && character.permittedToAct && !character.attacks.isEmpty()){
+			if(weapon != null && weapon instanceof TrapperWeapons) {
+				Trap trap = ((TrapperWeapons) weapon).throwTrap(character.attacks.get(0).targetX, character.attacks.get(0).targetY, totalDamage, character);
+				if(trap != null) {
+					hazards.add(trap);
+					character.finalizedTurn();
+				}
+			}
+			else {
+				hazards.add(new Trap(character.attacks.get(0).targetX, character.attacks.get(0).targetY, max(totalDamage - 15, 1), character));
+				character.finalizedTurn();
+			}
+			willTrap = false;
 		}
 
 
@@ -62,13 +66,6 @@ public class Trapper extends CharacterClasses {
 	}
 
 
-
-
-	@Override
-	protected void destroyOverridable() {
-		destroyListener(oVS);
-		character.conditions.remove(Conditions.ConditionNames.COMING_THROUGH);
-	}
 
 	public static class Trap extends Hazards {
 		public float damage;
@@ -126,8 +123,10 @@ public class Trapper extends CharacterClasses {
 			immunities = new AttackTextProcessor.DamageReasons[]{};
 		}
 
-		public DamagableTrap(float x, float y, float damage, Entity owner){
+		public DamagableTrap(float x, float y, float damage, Entity owner,float health){
 			super(x,y);
+			maxHp = health;
+			hp = health;
 			name = "DamagableTrap";
 			texture = "Spikes";
 			this.owner = owner;
@@ -135,6 +134,22 @@ public class Trapper extends CharacterClasses {
 			immunities = new AttackTextProcessor.DamageReasons[]{};
 		}
 
+		// All checks are neccesary: we don't want the trap ticking if it's dead, thus we check if it is at the beggining of the method.
+		// The trap may die inside updateOverridable(), thus we need to check if it's still alive once it has finished.
+		public final void update(){
+			if(hp <= 0){
+				destroyHazard();
+				queuedForDeletion = true;
+				return;
+			}
+			updateOverridable();
+			if (hp <= 0) {
+				destroyHazard();
+				queuedForDeletion = true;
+			}
+		}
+
+		public void updateOverridable(){}
 
 		@Override
 		public void destroyHazard() {damageReceivers.remove(this);}
@@ -144,10 +159,6 @@ public class Trapper extends CharacterClasses {
 			triggerOnDamaged(this,damageReason);
 			if(damage > 0 && !DamageReceiver.checkImmunities(damageReason,immunities))
 				hp -= damage;
-			if(hp < 0){
-				destroyHazard();
-				queuedForDeletion = true;
-			}
 
 		}
 		@Override

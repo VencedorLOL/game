@@ -89,7 +89,13 @@ public class CAETexts {
 				"\nMana Regen: 15 - Range: 1 [7]",
 				new String[]{"Passive: Your main attack consumes mana and creates an earthquake with radius 7." +
 						" The direction of this earthquake is slightly customizable. This earthquake deals magic damage" +
-						" and pierces defense, also destroying all Temporal defense."})
+						" and pierces defense, also destroying all Temporal defense."}),
+		TRAPPER( "Trapper",
+				"Watch your step! With this class you will trap your enemies." +
+						"\n HP: 25 - Damage: 20" +
+						"\n Movement: 3 (6) - Speed: 7" +
+						"\n Range: 3",
+				new String[]{"Passive: Your main attack throws whatever trap you got equipped as weapon."})
 		;
 		public final String text;
 		public final String name;

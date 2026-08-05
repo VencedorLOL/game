@@ -24,7 +24,7 @@ public class ClassStoredInformation {
 		static{
 			classes = new ClassInstance[]{
 					new Classless(), new Melee(), new Speedster(), new Healer() ,new Tank() ,new Mage(), new SwordMage(), new Summoner(), new Imp(), new Catapult(), new StellarExplosion(),
-					new Earthquaker()
+					new Earthquaker(), new Trapper(),
 			};
 
 		}
@@ -86,5 +86,6 @@ public class ClassStoredInformation {
 
 	public static class Earthquaker extends ClassInstance{}
 
+	public static class Trapper extends ClassInstance{}
 
 }

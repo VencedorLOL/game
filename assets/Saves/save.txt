@@ -1,7 +1,7 @@
-StellarExplosion,Earthquaker,Imp
+Trapper,Speedster,Healer
 0,0
 0,0
-1,0
+0,0
 0,0
 0,0
 0,0
@@ -10,3 +10,4 @@ StellarExplosion,Earthquaker,Imp
 3,0
 0,0
 0,0
+1,0
