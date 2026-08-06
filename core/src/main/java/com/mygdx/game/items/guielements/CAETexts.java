@@ -97,12 +97,12 @@ public class CAETexts {
 						"\n Range: 3",
 				new String[]{"Passive: Your main attack throws whatever trap you got equipped as weapon."})
 		;
-		public final String text;
 		public final String name;
+		public final String text;
 		public final String[] abilities;
 		Classes(String name, String text, String[] abilities){
-			this.text = text;
 			this.name = name;
+			this.text = text;
 			this.abilities = abilities;
 		}
 

@@ -81,6 +81,9 @@ public class Background extends GUI {
 	ClassInfoBox activeInfo;
 	float amplifiedX, amplifiedY, amplifiedSize, amplifiedBoxHeight;
 
+	ClassInfoBox cursorInfo;
+	float cursorInfoX, cursorInfoY, cursorInfoSize, cursorInfoBoxHeight;
+
 	int counter;
 
 	public Background(Character chara){
@@ -298,7 +301,7 @@ public class Background extends GUI {
 								elementHovered = -3;
 							}
 						};
-					activeInfo.render(amplifiedSize,amplifiedX,amplifiedY,true,amplifiedBoxHeight);
+					activeInfo.render(amplifiedSize,amplifiedX,amplifiedY,amplifiedBoxHeight);
 
 
 				}
@@ -309,6 +312,7 @@ public class Background extends GUI {
 				if (existsSelCard() && existsSelBox()) {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
+				renderCursorInfo();
 			} else if (modes == 2){
 				if (!existsSelCard())
 					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
@@ -332,8 +336,9 @@ public class Background extends GUI {
 				if (existsSelCard() && existsSelBox()) {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
+				renderCursorInfo();
 			}
-			fixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
+			priorityFixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
 			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
 
 
@@ -341,6 +346,24 @@ public class Background extends GUI {
 				delete(this);
 		}
 	}
+
+	/**
+	 * @param card: 0 is Melee
+	 */
+	private void createCursorInfo(int card){
+		if((elementHovered - classSlots.length == card && modes == 1) || (elementHovered == card && modes == 2) && persevereHover == 1){
+			if(cursorInfo == null || cursorInfo.classs != CAETexts.Classes.values()[card+1])
+				cursorInfo =  new ClassInfoBox(CAETexts.Classes.values()[card+1],false);
+		} else
+			cursorInfo = null;
+
+	}
+
+	private void renderCursorInfo(){
+		if(cursorInfo != null)
+			cursorInfo.render(cursorInfoSize,cursorInfoX,cursorInfoY,cursorInfoBoxHeight);
+	}
+
 
 	private void dehover(){
 		if(activeInfo != null)
@@ -427,17 +450,25 @@ public class Background extends GUI {
 				persevereHover = -1;
 				break;
 			}
-		if (!existsSelCard())
+		if (!existsSelCard()) {
+			boolean loop = false;
 			for (int i = 0; i < classesCards.length; i++) {
 				if (cursorX() >= classesCards[i].x && cursorX()
 						<= classesCards[i].x + cardsSize &&
-						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
-					dehover();
-					elementHovered = (byte) (i + selButtons.length);
-					persevereHover = 1;
-					break;
+						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y) {
+					createCursorInfo(i);
+					loop = true;
+					if (cursorMoved()) {
+						dehover();
+						elementHovered = (byte) (i + selButtons.length);
+						persevereHover = 1;
+						break;
+					}
 				}
 			}
+			if(!loop)
+				cursorInfo = null;
+		}
 		if (persevereHover != 0) {
 			if (elementHovered == -1) {
 				dehover();
@@ -471,6 +502,7 @@ public class Background extends GUI {
 	}
 
 	private void hoverCSelected(){
+		cursorInfo = null;
 		if (upJustPressed()) {
 			if (elementHovered > -1 && elementHovered < classSlots.length) {
 				lastBox = elementHovered;
@@ -658,17 +690,25 @@ public class Background extends GUI {
 			elementHovered = -1;
 			persevereHover = -1;
 		}
-		if (!existsSelCard())
+		if (!existsSelCard()){
+			boolean loop = false;
 			for (int i = 0; i < classesCards.length; i++) {
 				if (cursorX() >= classesCards[i].x && cursorX()
 						<= classesCards[i].x + cardsSize &&
-						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y && cursorMoved()) {
+						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y) {
+					createCursorInfo(i);
+					loop = true;
+					if(cursorMoved()){
 					dehover();
 					elementHovered = (byte) i;
 					persevereHover = 1;
 					break;
+					}
 				}
-			}
+			} if (!loop)
+				cursorInfo = null;
+		}
+
 		if (persevereHover != 0) {
 			if (elementHovered == -1) {
 				dehover();
@@ -695,6 +735,7 @@ public class Background extends GUI {
 	}
 
 	private void hoverEInside(){
+		cursorInfo = null;
 		if (elementHovered != -2) {
 			if (upJustPressed()) {
 				if (elementHovered == 0) {
@@ -855,7 +896,7 @@ public class Background extends GUI {
 			cardYB = endSY + Gdx.graphics.getHeight() * .78f;
 			cardIniGapXB = (Gdx.graphics.getWidth() - cardSizeB) / 4f;
 
-			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2 + cardsSize * classesCards.length;
+			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2.1f + cardsSize * classesCards.length;
 
 			amplifiedSize = sizeY*0.8f;
 			amplifiedX = Gdx.graphics.getWidth() - amplifiedSize*32 - spaceX*4f;
@@ -885,7 +926,7 @@ public class Background extends GUI {
 			shieldGapX = Gdx.graphics.getWidth() * .76f;
 			holderGapY = cardYB - (holderSize)/(2*.3f);
 
-			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2 + cardsSize * classesCards.length;
+			totalXSpace = cardsGapX * (classesCards.length - 1) + cardsIniGapX * 2.1f + cardsSize * classesCards.length;
 
 			itemsGapX = shieldGapX;
 			itemsIniGapX = weaponGapX;
@@ -893,6 +934,11 @@ public class Background extends GUI {
 			itemsSize = holderSize * 1.3f;
 
 		}
+
+		cursorInfoX = cursorX();
+		cursorInfoY = cursorY();
+		cursorInfoSize = sizeY*.5f;
+		cursorInfoBoxHeight = cursorInfo == null ? cursorInfoY : cursorInfoY + cursorInfo.ySpace()*.55f - sizeY*7.2f;
 
 	}
 

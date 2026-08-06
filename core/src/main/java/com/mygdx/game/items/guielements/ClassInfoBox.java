@@ -49,15 +49,20 @@ public class ClassInfoBox extends GUI {
 		classs = clsCardObj;
 		//nameExtractor();
 		rawText = new ArrayList<>();
-		String[] abTx = classs.abilities.clone();
-		for (int i = 0; i < abTx.length; i++){
-			abTx[i] = "\n■\n" + abTx[i];
+		if(aumentedVersion) {
+			String[] abTx = classs.abilities.clone();
+			for (int i = 0; i < abTx.length; i++) {
+				abTx[i] = "\n■\n" + abTx[i];
+			}
+
+			Collections.addAll(rawText, stringSplitter(classs.text, (int) (110 * 32 / FONT_SIZE_CONSTANT), ' '));
+			Collections.addAll(rawText, stringSuperSplitter(abTx, (int) (110 * 32 / FONT_SIZE_CONSTANT), ' '));
+			ArrayList<String> temp = (ArrayList<String>) rawText.clone();
+			rawText.clear();
+			Collections.addAll(rawText, emptyPurger(temp.toArray(new String[0])));
+		} else {
+			Collections.addAll(rawText, stringSplitter(classs.text, (int) (110 * 32 / FONT_SIZE_CONSTANT), ' '));
 		}
-		Collections.addAll(rawText, stringSplitter(classs.text, (int) (110 * 32 / FONT_SIZE_CONSTANT),' '));
-		Collections.addAll(rawText, stringSuperSplitter(abTx,(int) (110 * 32 / FONT_SIZE_CONSTANT),' '));
-		ArrayList<String> temp = (ArrayList<String>) rawText.clone();
-		rawText.clear();
-		Collections.addAll(rawText, emptyPurger(temp.toArray(new String[0])));
 		text = new TextureManager.Text[rawText.size()];
 		this.aumentedVersion = aumentedVersion;
 		titleBox = new Box(1);
@@ -74,14 +79,15 @@ public class ClassInfoBox extends GUI {
 
 
 
-	public void render(float size,float x, float yIni,boolean touch,float height){
+	public void render(float size,float x, float yIni,float height){
 		this.size = size;
 		this.x = x;
 		this.y = yIni;
 		propConst = Gdx.graphics.getHeight()/1080f;
 		minPropConst = min(Gdx.graphics.getWidth()/1920f,propConst);
-		ySpace();
-		renderSlider(x,y,size*1.5f,size,height);
+		totalYSpace = ySpace();
+		if(aumentedVersion)
+			renderSlider(x,y,size*1.5f,size,height);
 		renderTitleBox(x,y,size * 1.5f,size);
 		renderTextBox(x,y,size*1.5f,size,height);
 
@@ -89,9 +95,8 @@ public class ClassInfoBox extends GUI {
 
 		//onTouchDetect(touch);
 	}
-	public void ySpace(){
-		totalYSpace = 0;
-		totalYSpace += FONT_SIZE_CONSTANT*propConst*text.length*1.25f;
+	public float ySpace(){
+		return FONT_SIZE_CONSTANT*propConst*text.length*1.25f;
 	}
 
 	//yIni-size+sYCursor*totalHeightOfTextbox / sRealHeight
@@ -102,7 +107,7 @@ public class ClassInfoBox extends GUI {
 		if(title == null){
 			title = dynamicFixatedText(classs.name,0,0,-1,32);
 		}
-		title.realSize = min(adequateSize(title.getText(),size*32*.9f*1.5f),90* propConst);
+		title.realSize = min(adequateSize(title.getText(),size*32*.9f*1.5f),90* height/12);
 		title.setColor(255,255,255);
 		title.render = true;
 		title.onScreenTime = 2;
@@ -111,7 +116,7 @@ public class ClassInfoBox extends GUI {
 		title.x = x + max((width*28f - textSize(title.getText(),title.realSize))/2,width*2f);
 
 		//title.y = y - size*27.75f  + (20*Gdx.graphics.getHeight()/1080f - title.realSize)*.45f*Gdx.graphics.getHeight()/1080;
-		title.y = y - 351 * propConst;
+		title.y = y - 351 * height/12;
 	}
 
 
@@ -130,14 +135,14 @@ public class ClassInfoBox extends GUI {
 				continue;
 			}
 
-			text[i].realSize =  FONT_SIZE_CONSTANT * propConst;
+			text[i].realSize =  FONT_SIZE_CONSTANT * height / 12;
 			text[i].setColor(255, 255, 255);
 			text[i].onScreenTime = 2;
 			text[i].fakeNull = false;
-			text[i].x = x + 24 * propConst;
-			text[i].y = y - propConst * 200 + text[i].realSize*1.25f*i - text[i].realSize - sYCursor * totalYSpace / sRealHeight;
+			text[i].x = x + 2 * height;
+			text[i].y = y - height / 12 * 200 + text[i].realSize*1.25f*i - text[i].realSize - (aumentedVersion ? sYCursor * totalYSpace / sRealHeight : 0);
 
-			text[i].render = text[i].y >= y - propConst * 210 - text[i].realSize && text[i].y < 870*propConst;
+			text[i].render = text[i].y >= y - height *17.5f - text[i].realSize && text[i].y < 72.5f*height || !aumentedVersion;
 		}
 
 	}

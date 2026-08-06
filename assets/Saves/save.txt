@@ -1,4 +1,4 @@
-Trapper,Speedster,Healer
+StellarExplosion,Earthquaker,Trapper
 0,0
 0,0
 0,0
@@ -10,4 +10,4 @@ Trapper,Speedster,Healer
 3,0
 0,0
 0,0
-1,0
+0,0

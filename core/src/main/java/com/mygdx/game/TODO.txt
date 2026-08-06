@@ -1,5 +1,5 @@
 TODO:
-Motor: differnt ramming target sprite perchance.
+Engine: differnt ramming target sprite perchance.
 Character: Code the +80 characters :D.
 Game: The rest of the game.
 Char.Class idea: Psyquic shot: controll a proyectile. The proyectile has infinite reach. It moves 10 tiles per act. turn subdivision. If it didnt end on the first turn, on the
@@ -17,7 +17,7 @@ Text: trailing colored text, rapidly disapearing and converting into its suppose
 GUI in the class selection part that describes classes and weapons when hovering over them and equipping them (fill the blanks when ckicling an ability and over the weapon
 and shield icons to give those voids a purpose)
 implement text supporting custom symbols embedded in text with custom notation (eg.: <sword> draws a sword)
-
+Camera: Shake effect and impact frames (dramatic but subtle zoom)
 ParticleManager: redo its entire logic its rubbish and laggy as of rn
 
 idea:

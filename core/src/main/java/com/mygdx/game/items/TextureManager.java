@@ -32,6 +32,7 @@ public class TextureManager {
 	public static ArrayList<DrawableObject> drawables;
 	public static ArrayList<DrawableObject> priorityDrawables;
 	public static ArrayList<DrawableObject> fixatedDrawables;
+	public static ArrayList<DrawableObject> priorityFixatedDrawables;
 	public static ArrayList<Animation> animations;
 	public static ArrayList<Animation> fixatedAnimations;
 	static ArrayList<AtlasAndName> atlases;
@@ -49,6 +50,7 @@ public class TextureManager {
 		drawables = new ArrayList<>();
 		priorityDrawables = new ArrayList<>();
 		fixatedDrawables = new ArrayList<>();
+		priorityFixatedDrawables = new ArrayList<>();
 		text = new ArrayList<>();
 		fixatedText = new ArrayList<>();
 		batch = new SpriteBatch();
@@ -283,6 +285,18 @@ public class TextureManager {
 			}
 		}
 		fixatedText.removeIf(tex -> tex.fakeNull);
+
+		//Priority fixated drawables
+
+		for (TextureManager.DrawableObject d : priorityFixatedDrawables){
+			if (d.texture != null)
+				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero,d.xPercentage,d.flipX,d.flipY);
+		}
+		priorityFixatedDrawables.clear();
+
+
+
+
 
 		//Video reserved
 
