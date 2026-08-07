@@ -84,6 +84,9 @@ public class Background extends GUI {
 	ClassInfoBox cursorInfo;
 	float cursorInfoX, cursorInfoY, cursorInfoSize, cursorInfoBoxHeight;
 
+	EquipmentInfoBox cursorEquipment;
+	float equipX, equipY, equipSize, equipInfoBoxHeight;
+
 	int counter;
 
 	public Background(Character chara){
@@ -337,6 +340,7 @@ public class Background extends GUI {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
 				renderCursorInfo();
+				renderEquipmentInfo();
 			}
 			priorityFixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
 			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
@@ -362,6 +366,21 @@ public class Background extends GUI {
 	private void renderCursorInfo(){
 		if(cursorInfo != null)
 			cursorInfo.render(cursorInfoSize,cursorInfoX,cursorInfoY,cursorInfoBoxHeight);
+	}
+
+	/**
+	 * @param equip: 0 is Melee
+	 */
+	private void createEquipmentInfo(int equip,CAETexts.EquipmentUnifier equipment){
+		if(cursorEquipment == null || cursorEquipment.element != equip || cursorEquipment.equipment != equipment)
+			cursorEquipment =  new EquipmentInfoBox(equipment,equip);
+
+
+	}
+
+	private void renderEquipmentInfo(){
+		if(cursorEquipment != null)
+			cursorEquipment.render(equipSize,equipX,equipY,equipInfoBoxHeight);
 	}
 
 
@@ -456,9 +475,9 @@ public class Background extends GUI {
 				if (cursorX() >= classesCards[i].x && cursorX()
 						<= classesCards[i].x + cardsSize &&
 						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y) {
-					createCursorInfo(i);
 					loop = true;
 					if (cursorMoved()) {
+						createCursorInfo(i);
 						dehover();
 						elementHovered = (byte) (i + selButtons.length);
 						persevereHover = 1;
@@ -502,18 +521,20 @@ public class Background extends GUI {
 	}
 
 	private void hoverCSelected(){
-		cursorInfo = null;
 		if (upJustPressed()) {
 			if (elementHovered > -1 && elementHovered < classSlots.length) {
 				lastBox = elementHovered;
 				elementHovered = -1;
 			} else if (elementHovered >= classSlots.length) {
+				cursorInfo = null;
 				lastCard = elementHovered;
 				elementHovered = lastBox != -1 ? lastBox : 1;
 			} else if (elementHovered == -3 && !existsSelCard()) {
+				cursorInfo = null;
 				slider.selected = false;
 				elementHovered = (byte) (getElement() + selButtons.length);
 			} else if (elementHovered == -3 && activeInfo != null && activeInfo.sYCursor == 0){
+				cursorInfo = null;
 				activeInfo.sSelected = false;
 				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
 			}
@@ -523,12 +544,15 @@ public class Background extends GUI {
 			if (elementHovered == -1) {
 				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
 			} else if (elementHovered < classSlots.length && !existsSelCard() && elementHovered != -3) {
+				cursorInfo = null;
 				lastBox = elementHovered;
 				elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
 			} else if (!existsSelCard() && elementHovered != -3) {
+				cursorInfo = null;
 				lastCard = elementHovered;
 				elementHovered = -3;
 			} else if (existsSelCard() && elementHovered != -3) {
+				cursorInfo = null;
 				lastBox = elementHovered < classSlots.length ? elementHovered : -1;
 				elementHovered = -3;
 			}
@@ -538,9 +562,11 @@ public class Background extends GUI {
 			if (elementHovered > 0 && elementHovered < classSlots.length) {
 				lastBox = --elementHovered;
 			} else if (elementHovered > classSlots.length) {
+				cursorInfo = null;
 				lastCard = --elementHovered;
 				counterStateL = 0;
 			} else if (existsSelCard() && elementHovered == -3) {
+				cursorInfo = null;
 				if(activeInfo != null)
 					activeInfo.sSelected = false;
 				elementHovered = lastBox != -1 ? lastBox : (byte) (classSlots.length - 1);
@@ -548,6 +574,7 @@ public class Background extends GUI {
 			persevereHover = 1;
 		} else if (leftPressed() && elementHovered > classSlots.length && counterStateL != -1) {
 			if (counterL++ > times[counterStateL]) {
+				cursorInfo = null;
 				lastCard = --elementHovered;
 				counterStateL += counterStateL < times.length - 1 ? 1 : 0;
 				counterL = 0;
@@ -560,16 +587,19 @@ public class Background extends GUI {
 			if (elementHovered > -1 && elementHovered < classSlots.length - 1)
 				lastBox = ++elementHovered;
 			else if (elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1)) {
+				cursorInfo = null;
 				lastCard = ++elementHovered;
 				counterStateR = 0;
 			}
 			else if (existsSelCard()){
+				cursorInfo = null;
 				lastBox = elementHovered < classSlots.length ? elementHovered : -1;
 				elementHovered = -3;
 			}
 			persevereHover = 1;
 		} else if (rightPressed() && elementHovered >= classSlots.length && elementHovered < (classesCards.length + classSlots.length - 1) && counterStateR != -1) {
 			if (counterR++ > times[counterStateR]) {
+				cursorInfo = null;
 				lastCard = ++elementHovered;
 				counterStateR += counterStateR < times.length - 1 ? 1 : 0;
 				counterR = 0;
@@ -583,18 +613,22 @@ public class Background extends GUI {
 
 	private void hoverCNotSelected(){
 		if (upJustPressed()) {
+			cursorInfo = null;
 			elementHovered = -1;
 			persevereHover = 1;
 		}
 		if (downJustPressed()) {
+			cursorInfo = null;
 			elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
 			persevereHover = 1;
 		}
 		if (leftJustPressed()) {
+			cursorInfo = null;
 			elementHovered = lastBox != -1 ? lastBox : (byte) (floor(classSlots.length / 2d) - 1);
 			persevereHover = 1;
 		}
 		if (rightJustPressed()) {
+			cursorInfo = null;
 			elementHovered = lastBox != -1 ? lastBox : (byte) ((classSlots.length / 2) + 1);
 			persevereHover = 1;
 		}
@@ -610,8 +644,10 @@ public class Background extends GUI {
 	}
 
 	private void hoverEMenu(){
+		cursorEquipment = null;
 		if (elementHovered != -2) {
 			if (upJustPressed()) {
+				cursorInfo = null;
 				if (elementHovered > -1 && elementHovered < classesCards.length) {
 					lastCard = elementHovered;
 					elementHovered = -1;
@@ -623,6 +659,7 @@ public class Background extends GUI {
 				persevereHover = 1;
 			}
 			if (downJustPressed()) {
+				cursorInfo = null;
 				if (elementHovered == -1) {
 					elementHovered = (byte) getElement();
 					lastCard = elementHovered;
@@ -633,6 +670,7 @@ public class Background extends GUI {
 				persevereHover = 1;
 			}
 			if (leftJustPressed()) {
+				cursorInfo = null;
 				if (elementHovered > 0) {
 					lastCard = --elementHovered;
 					counterStateL = 0;
@@ -649,6 +687,7 @@ public class Background extends GUI {
 				counterStateL = -1;
 			}
 			if (rightJustPressed()) {
+				cursorInfo = null;
 				if (elementHovered > -1 && elementHovered < classesCards.length - 1) {
 					lastCard = ++elementHovered;
 					counterStateR = 0;
@@ -666,18 +705,22 @@ public class Background extends GUI {
 			}
 		} else {
 			if (upJustPressed()) {
+				cursorInfo = null;
 				elementHovered = -1;
 				persevereHover = 1;
 			}
 			if (downJustPressed()) {
+				cursorInfo = null;
 				elementHovered = lastCard != -1 ? lastCard : (byte) classSlots.length;
 				persevereHover = 1;
 			}
 			if (leftJustPressed()) {
+				cursorInfo = null;
 				elementHovered = (byte) max((getElement() - 1), 0);
 				persevereHover = 1;
 			}
 			if (rightJustPressed()) {
+				cursorInfo = null;
 				elementHovered = (byte) (getElement() + 1);
 				persevereHover = 1;
 			}
@@ -696,13 +739,13 @@ public class Background extends GUI {
 				if (cursorX() >= classesCards[i].x && cursorX()
 						<= classesCards[i].x + cardsSize &&
 						cursorY() >= classesCards[i].y - cardsSize && cursorY() <= classesCards[i].y) {
-					createCursorInfo(i);
 					loop = true;
 					if(cursorMoved()){
-					dehover();
-					elementHovered = (byte) i;
-					persevereHover = 1;
-					break;
+						createCursorInfo(i);
+						dehover();
+						elementHovered = (byte) i;
+						persevereHover = 1;
+						break;
 					}
 				}
 			} if (!loop)
@@ -738,6 +781,7 @@ public class Background extends GUI {
 		cursorInfo = null;
 		if (elementHovered != -2) {
 			if (upJustPressed()) {
+				cursorEquipment = null;
 				if (elementHovered == 0) {
 					if(items.processUp())
 						elementHovered = -1;
@@ -759,6 +803,7 @@ public class Background extends GUI {
 				counterStateU = -1;
 			}
 			if (downJustPressed()) {
+				cursorEquipment = null;
 				elementHovered = 0;
 				items.processDown();
 				counterStateD = 0;
@@ -777,12 +822,14 @@ public class Background extends GUI {
 			}
 
 			if (leftJustPressed()) {
+				cursorEquipment = null;
 				if (elementHovered == 0) {
 					items.processLeft();
 				}
 				persevereHover = 1;
 			}
 			if (rightJustPressed()) {
+				cursorEquipment = null;
 				if (elementHovered == 0) {
 					items.processRight();
 				}
@@ -790,20 +837,24 @@ public class Background extends GUI {
 			}
 		} else {
 			if (upJustPressed()) {
+				cursorEquipment = null;
 				if(items.processUp())
 					elementHovered = -1;
 				persevereHover = 1;
 			}
 			if (downJustPressed()) {
+				cursorEquipment = null;
 				items.processDown();
 				elementHovered = 0;
 				persevereHover = 1;
 			}
 			if (leftJustPressed()) {
+				cursorEquipment = null;
 				items.processLeft();
 				persevereHover = 1;
 			}
 			if (rightJustPressed()) {
+				cursorEquipment = null;
 				items.processRight();
 				persevereHover = 1;
 			}
@@ -817,10 +868,12 @@ public class Background extends GUI {
 			persevereHover = -1;
 		}
 		if(items.processCursor() && cursorMoved()){
-			items.saveCursor();
+			int intt = items.saveCursor();
+			createEquipmentInfo(intt >= items.weapons.length ? intt-items.weapons.length : intt,intt >= items.weapons.length ? items.classs.getShieldText() : items.classs.getWeaponText());
 			elementHovered = 0;
 			persevereHover = 1;
-		}
+		} else if (!items.processCursor())
+			cursorEquipment = null;
 		if (persevereHover != 0) {
 			if (elementHovered == -1) {
 				dehover();
@@ -939,6 +992,11 @@ public class Background extends GUI {
 		cursorInfoY = cursorY();
 		cursorInfoSize = sizeY*.5f;
 		cursorInfoBoxHeight = cursorInfo == null ? cursorInfoY : cursorInfoY + cursorInfo.ySpace()*.55f - sizeY*7.2f;
+
+		equipSize = sizeY*.5f;
+		equipInfoBoxHeight = cursorEquipment == null ? equipY : equipY + cursorEquipment.ySpace()*.55f - sizeY*7.2f;
+		equipX = cursorX() - equipSize*32*1.5f + equipSize/24*32;
+		equipY = cursorY() + sizeY*2;
 
 	}
 

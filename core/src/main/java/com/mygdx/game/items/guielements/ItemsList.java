@@ -5,6 +5,7 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.TextureManager;
 
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.intravalue;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;
@@ -164,13 +165,14 @@ public class ItemsList  {
 		return false;
 	}
 
-	public void saveCursor(){
+	public int saveCursor(){
 		for(int i = 0; i < weapons.length; i++)
 			if((cursorX() >= x - size*11 && cursorX() <= x + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20 ))
 				hovered = i;
 		for(int i = 0; i < shields.length; i++)
 			if((cursorX() >= x2 - size*11 && cursorX() <= x2 + size*32 && cursorY() >= y - size*32 + (size*11*i) && cursorY() <= y + (size*11*i) - size*20))
 				hovered = i + weapons.length;
+		return hovered;
 	}
 
 	public void processHover(){

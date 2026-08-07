@@ -6,6 +6,7 @@ import com.mygdx.game.items.characters.equipment.Shields;
 import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.characters.equipment.shields.*;
 import com.mygdx.game.items.characters.equipment.weapons.*;
+import com.mygdx.game.items.guielements.CAETexts;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -106,6 +107,8 @@ public class ClassAndEquipmentChanger {
 		public String texture;
 		public ArrayList weaponer = new ArrayList<Weaponer<?>>();
 		public ArrayList shielder = new ArrayList<Shielder<?>>();
+		public CAETexts.Weapons weapons;
+		public CAETexts.Shields shields;
 
 
 		public void activate(Character character){}
@@ -148,6 +151,13 @@ public class ClassAndEquipmentChanger {
 
 		public void helperMaker(){}
 
+		public CAETexts.Weapons getWeaponText(){
+			return weapons;
+		}
+
+		public CAETexts.Shields getShieldText(){
+			return shields;
+		}
 
 	}
 
@@ -156,6 +166,8 @@ public class ClassAndEquipmentChanger {
 		public Melee(){
 			name = "Melee";
 			texture = "MeleeIcon";
+			weapons = CAETexts.Weapons.MELEE;
+			shields = CAETexts.Shields.MELEE;
 		}
 
 		@SuppressWarnings("all")
@@ -175,6 +187,8 @@ public class ClassAndEquipmentChanger {
 		public Speedster(){
 			name = "Speedster";
 			texture = "SpeedsterIcon";
+			weapons = CAETexts.Weapons.SPEEDSTER;
+			shields = CAETexts.Shields.SPEEDSTER;
 		}
 
 		@SuppressWarnings("all")
@@ -194,6 +208,8 @@ public class ClassAndEquipmentChanger {
 		public Healer(){
 			name = "Healer";
 			texture = "HealerIcon";
+			weapons = CAETexts.Weapons.HEALER;
+			shields = CAETexts.Shields.HEALER;
 		}
 
 		@SuppressWarnings("all")
@@ -214,6 +230,8 @@ public class ClassAndEquipmentChanger {
 		public Tank(){
 			name = "Tank";
 			texture = "TankIcon";
+			weapons = CAETexts.Weapons.TANK;
+			shields = CAETexts.Shields.TANK;
 		}
 
 		@SuppressWarnings("all")
@@ -233,6 +251,8 @@ public class ClassAndEquipmentChanger {
 		public Mage(){
 			name = "Mage";
 			texture = "MageIcon";
+			weapons = CAETexts.Weapons.MAGE;
+			shields = CAETexts.Shields.MAGE;
 		}
 
 		@SuppressWarnings("all")
@@ -252,6 +272,8 @@ public class ClassAndEquipmentChanger {
 		public SwordMage(){
 			name = "SwordMage";
 			texture = "SwordMageIcon";
+			weapons = CAETexts.Weapons.SWORD_MAGE;
+			shields = CAETexts.Shields.SWORD_MAGE;
 		}
 
 		@SuppressWarnings("all")
@@ -271,6 +293,8 @@ public class ClassAndEquipmentChanger {
 		public Summoner(){
 			name = "Summoner";
 			texture = "SummonerIcon";
+			weapons = CAETexts.Weapons.SUMMONER;
+			shields = CAETexts.Shields.SUMMONER;
 		}
 
 		@SuppressWarnings("all")
@@ -291,6 +315,8 @@ public class ClassAndEquipmentChanger {
 		public Imp(){
 			name = "Imp";
 			texture = "ImpIcon";
+			weapons = CAETexts.Weapons.IMP;
+			shields = CAETexts.Shields.IMP;
 		}
 
 		@SuppressWarnings("all")
@@ -315,6 +341,8 @@ public class ClassAndEquipmentChanger {
 		public Catapult(){
 			name = "Catapult";
 			texture = "CatapultIcon";
+			weapons = CAETexts.Weapons.CATAPULT;
+			shields = CAETexts.Shields.CATAPULT;
 		}
 
 		@SuppressWarnings("all")
@@ -337,6 +365,8 @@ public class ClassAndEquipmentChanger {
 		public StellarExplosion(){
 			name = "StellarExplosion";
 			texture = "StellarExplosionIcon";
+			weapons = CAETexts.Weapons.STELLAR_EXPLOSION;
+			shields = CAETexts.Shields.STELLAR_EXPLOSION;
 		}
 
 		@SuppressWarnings("all")
@@ -356,6 +386,8 @@ public class ClassAndEquipmentChanger {
 		public Earthquaker(){
 			name = "Earthquaker";
 			texture = "EarthquakerIcon";
+			weapons = CAETexts.Weapons.EARTHQUAKER;
+			shields = CAETexts.Shields.EARTHQUAKER;
 		}
 
 		@SuppressWarnings("all")
@@ -375,6 +407,8 @@ public class ClassAndEquipmentChanger {
 		public Trapper(){
 			name = "Trapper";
 			texture = "TrapperIcon";
+			weapons = CAETexts.Weapons.TRAPPER;
+			shields = CAETexts.Shields.TRAPPER;
 		}
 
 		@SuppressWarnings("all")

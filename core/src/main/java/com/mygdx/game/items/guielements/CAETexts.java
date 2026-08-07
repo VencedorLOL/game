@@ -1,4 +1,5 @@
 package com.mygdx.game.items.guielements;
+
 @SuppressWarnings("all")
 /**
  * Stands for: "Class And Equipment Texts", but it was too long to be convenient
@@ -109,274 +110,511 @@ public class CAETexts {
 	}
 
 
-	public enum MeleeWeapons{
+	public interface EquipmentUnifier{
+		public EquipmentInfo[] getElement();
+	}
+
+
+	public enum Weapons implements EquipmentUnifier{
+		MELEE(MeleeWeapons.values()),
+		SPEEDSTER(SpeedsterWeapons.values()),
+		HEALER(HealerWeapons.values()),
+		TANK(TankWeapons.values()),
+		MAGE(MageWeapons.values()),
+		SWORD_MAGE(SwordMageWeapons.values()),
+		SUMMONER(SummonerWeapons.values()),
+		IMP(ImpWeapons.values()),
+		CATAPULT(CatapultWeapons.values()),
+		STELLAR_EXPLOSION(StellarExplosionWeapons.values()),
+		EARTHQUAKER(EarthquakerWeapons.values()),
+		TRAPPER(TrapperWeapons.values()),;
+
+		public final EquipmentInfo[] weapons;
+		Weapons(EquipmentInfo[] weapons){
+			this.weapons = weapons;
+		}
+
+		public EquipmentInfo[] getElement() {
+			return weapons;
+		}
+	}
+
+
+	public enum Shields implements EquipmentUnifier{
+		MELEE(MeleeShields.values()),
+		SPEEDSTER(SpeedsterShields.values()),
+		HEALER(HealerShields.values()),
+		TANK(TankShields.values()),
+		MAGE(MageShields.values()),
+		SWORD_MAGE(SwordMageShields.values()),
+		SUMMONER(SummonerShields.values()),
+		IMP(ImpShields.values()),
+		CATAPULT(CatapultShields.values()),
+		STELLAR_EXPLOSION(StellarExplosionShields.values()),
+		EARTHQUAKER(EarthquakerShields.values()),
+		TRAPPER(TrapperShields.values()),;
+
+		public final EquipmentInfo[] shields;
+		Shields(EquipmentInfo[] shields){
+			this.shields = shields;
+		}
+
+
+		public EquipmentInfo[] getElement() {
+			return shields;
+		}
+
+	}
+
+
+	public interface EquipmentInfo{
+		public String getText();
+		public String getName();
+	}
+
+	public enum MeleeWeapons implements EquipmentInfo {
 		aBat("Strike your enemies!" +
 				"\n +40 Damage" +
-				"\n +1 Range");
+				"\n +1 Range",
+				"A Bat");
 		public final String text;
-		MeleeWeapons(String text){
+		public final String name;
+		MeleeWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum MeleeShields{
+	public enum MeleeShields implements EquipmentInfo{
 		WoodShield("Well, this wooden makeshift of a shield will at least block some attacks..." +
 				"\n +20 HP" +
-				"\n +1 Defense");
+				"\n +1 Defense",
+				"Wood Shield");
 		public final String text;
-		MeleeShields(String text){
+		public final String name;
+		MeleeShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum SpeedsterWeapons{
+	public enum SpeedsterWeapons implements EquipmentInfo {
 		Knife("Stab! Stab! Stab!" +
-				"\n +10 Damage");
+				"\n +10 Damage",
+				"Knife");
 		public final String text;
-		SpeedsterWeapons(String text){
+		public final String name;
+		SpeedsterWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum SpeedsterShields{
+	public enum SpeedsterShields implements EquipmentInfo {
 		InsignificantShield("...... Ok....." +
 				"\n +10 HP" +
-				"\n +0.5 Defense");
+				"\n +0.5 Defense",
+				"Insignificant Shield");
 		public final String text;
-		SpeedsterShields(String text){
+		public final String name;
+		SpeedsterShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum HealerWeapons {
+	public enum HealerWeapons implements EquipmentInfo {
 		BlessedStick("Holy Heal!" +
 				"\n +10 Damage" +
-				"\n +1 Range"),
+				"\n +1 Range",
+				"Blessed Stick"),
 		HolySword("Healing Crusade!!" +
 				"\n +100 Damage" +
 				"\n + 1 Range" +
-				"\n x6 Healing!!");
+				"\n x6 Healing!!",
+				"Holy Sword");
 		public final String text;
-		HealerWeapons(String text){
+		public final String name;
+		HealerWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum HealerShields {
+	public enum HealerShields implements EquipmentInfo {
 		BlessedShield("Divine Defense" +
 				"\n +30 HP" +
-				"\n +5 Health Regeneration");
+				"\n +5 Health Regeneration",
+				"Blessed Shield");
 		public final String text;
-		HealerShields(String text){
+		public final String name;
+		HealerShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum TankWeapons {
+	public enum TankWeapons implements EquipmentInfo {
 		BulkyStone("The best defense is a good defense! With some offensive, of course!" +
 				"\n +10 HP" +
 				"\n +15 Damage" +
 				"\n +1 Defense" +
-				"\n +1 Range");
+				"\n +1 Range",
+				"Bulky Stone");
 		public final String text;
-		TankWeapons(String text){
+		public final String name;
+		TankWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum TankShields {
+	public enum TankShields implements EquipmentInfo {
 		Shield("Reduces all incoming damage, except redirected damage, by 20%!" +
 				"\n +30 HP" +
-				"\n +3 Defense");
+				"\n +3 Defense",
+				"Shield");
 		public final String text;
-		TankShields(String text){
+		public final String name;
+		TankShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum MageWeapons {
+	public enum MageWeapons implements EquipmentInfo {
 		MakeshiftWand("It's made out of plastic??!!" +
 				"\n +5 Damage" +
 				"\n +5 Range" +
 				"\n +30 Magic Damage" +
-				"\n Mana Per Use: 150 (Halved due to Mage's innate ability)");
+				"\n Mana Per Use: 150 (Halved due to Mage's innate ability)",
+				"Makeshift Wand");
 		public final String text;
-		MageWeapons(String text){
+		public final String name;
+		MageWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum MageShields {
+	public enum MageShields implements EquipmentInfo {
 		RandomCrystal("Is this it?? Just a random crystal??" +
 				"\n +75 Mana" +
 				"\n +20 Magic Damage" +
-				"\n +15 Mana Regeneration");
+				"\n +15 Mana Regeneration",
+				"Random Crystal");
 		public final String text;
-		MageShields(String text){
+		public final String name;
+		MageShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum SwordMageWeapons {
+	public enum SwordMageWeapons implements EquipmentInfo {
 		HardWand("It's made out of metal!" +
 				"\n +30 Damage" +
 				"\n +1 Range" +
 				"\n +10 Mana" +
-				"\n +0.5 Ability Damage (This is added to the ability damage multiplicator)");
+				"\n +0.5 Ability Damage (This is added to the ability damage multiplicator)",
+				"Hard Wand");
 		public final String text;
-		SwordMageWeapons(String text){
+		public final String name;
+		SwordMageWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum SwordMageShields {
+	public enum SwordMageShields implements EquipmentInfo {
 		CrystalizedShield("It greately reduces the cost of your ability!" +
 				"\n +30 HP" +
 				"\n +1 Defense" +
 				"\n +140 Mana" +
 				"\n +15 Mana Regeneration" +
-				"\n -0.75 Ability Cost (This is added to the ability cost multiplicator)");
+				"\n -0.75 Ability Cost (This is added to the ability cost multiplicator)",
+				"Crystalized Shield");
 		public final String text;
-		SwordMageShields(String text){
+		public final String name;
+		SwordMageShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum SummonerWeapons {
+	public enum SummonerWeapons implements EquipmentInfo {
 		Instrument("Attack, summons!!" +
 				"\n +20 Damage" +
 				"\n +1 Range" +
-				"\n This weapon loses 10 damage if there's any alive summon, but your summons gain +10 Damage!");
+				"\n This weapon loses 10 damage if there's any alive summon, but your summons gain +10 Damage!",
+				"Instrument");
 		public final String text;
-		SummonerWeapons(String text){
+		public final String name;
+		SummonerWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum SummonerShields {
+	public enum SummonerShields implements EquipmentInfo {
 		FlagOfTheLeader("Follow the leader!" +
 				"\n +15 HP" +
 				"\n +1 Defense" +
-				"\n This weapon gains 1 defense per alive summon!");
+				"\n This weapon gains 1 defense per alive summon!",
+				"Flag Of The Leader");
 		public final String text;
-		SummonerShields(String text){
+		public final String name;
+		SummonerShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum ImpWeapons {
+	public enum ImpWeapons implements EquipmentInfo {
 		DevilishDagger("Demonic! This weapon pierces either 25% of a demonized objective's defense or 5 defense, whatever is bigger!" +
 				"\n +12 Damage" +
-				"\n +1 Range"),
+				"\n +1 Range",
+				"Devilish Dagger"),
 		LightDagger("This very light dagger gives everyone under the ritual 1.3 (3) movement and 3 speed!" +
 				"\n +12 Damage" +
 				"\n +2 Movement" +
-				"\n +1 Range"),
+				"\n +1 Range",
+				"Light Dagger"),
 		MassDemonizeDagger("This dagger uses the ritual's power to be able to inflict demonize on every single enemy." +
 				"\n +60 Damage" +
-				"\n +1 Range");
+				"\n +1 Range",
+				"Mass Demonize Dagger");
 		public final String text;
-		ImpWeapons(String text){
+		public final String name;
+		ImpWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum ImpShields {
+	public enum ImpShields implements EquipmentInfo {
 		RitualShield("This shield gains 3 defense if under the ritual." +
-				"\n +22 HP"),
+				"\n +22 HP",
+				"Ritual Shield"),
 		DemonicShield("This shield gains 1 defense per demonized being." +
-				"\n +40 HP"),
+				"\n +40 HP",
+				"Demonic Shield"),
 		DarkWings("They are beautiful... The user is airborn, and so is everyone under the ritual! They also gain +1.5 (3) movement!" +
-				"\n +66 HP"),
+				"\n +66 HP",
+				"Dark Wings"),
 		Daredevil("A trinket filled with malevolent energy." +
 				"\nWhen used, this shield loses most of its HP and defense, but gives the user and its allies permanent Ritual status." +
 				"\n +333 HP" +
-				"\n +33 Defense");
+				"\n +33 Defense",
+				"Daredevil");
 		public final String text;
-		ImpShields(String text){
+		public final String name;
+		ImpShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum CatapultWeapons {
-		Rock("It's not a stone, it's a rock!"),
+	public enum CatapultWeapons implements EquipmentInfo {
+		Rock("It's not a stone, it's a rock!","Rock"),
 		RockOnFire("With the power of... magic, we managed to light the rock ablaze!" +
 				"\n +1 Damage" +
-				"\n Leaves a fire where it lands."),
+				"\n Leaves a fire where it lands.","Rock on Fire"),
 		HomingRock("This SmartRock will aim for you! Just don't aim yourself." +
 				"\n +10 Damage" +
-				"\n Takes ALWAYS 5 turns to fall."),
+				"\n Takes ALWAYS 5 turns to fall.","Homing Rock"),
 		ClusterRock("Cluster Rock not only rocks your enemies, it also rocks your rocks. And yourself, if you're not careful." +
-				"\n +50 Damage");
+				"\n +50 Damage","Cluster Rock");
 		public final String text;
-		CatapultWeapons(String text){
+		public final String name;
+		CatapultWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum CatapultShields {
+	public enum CatapultShields implements EquipmentInfo {
 		MetalBucket("For better throwing." +
 				"\n +10 HP" +
 				"\n +5 Damage" +
-				"\n +5 Defense");
+				"\n +5 Defense","Metal Bucket");
 		public final String text;
-		CatapultShields(String text){
+		public final String name;
+		CatapultShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum StellarExplosionWeapons {
+	public enum StellarExplosionWeapons implements EquipmentInfo {
 		EnergyCondensator("Will give you 5 temporal defense per enemy hit. Max. 50." +
 				"\n +75 Magic Damage" +
-				"\n +25 Mana Regeneration");
+				"\n +25 Mana Regeneration","Energy Condensator");
 		public final String text;
-		StellarExplosionWeapons(String text){
+		public final String name;
+		StellarExplosionWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum StellarExplosionShields {
+	public enum StellarExplosionShields implements EquipmentInfo{
 		EnergyAccelerator("It just accelerates the rate in which you gain energy, not yourself." +
 				"\n +5 Defense" +
 				"\n +50 Mana" +
-				"\n +25 Mana Regeneration");
+				"\n +25 Mana Regeneration","Energy Accelerator");
 		public final String text;
-		StellarExplosionShields(String text){
+		public final String name;
+		StellarExplosionShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
-	public enum EarthquakerWeapons {
+	public enum EarthquakerWeapons implements EquipmentInfo{
 		GroundStomper("Use directly above you for +30 Magic Damage." +
 				"\n +5 Damage" +
 				"\n +1 Range" +
 				"\n +50 Mana" +
-				"\n +15 Magic Damage");
+				"\n +15 Magic Damage","Ground Stomper");
 		public final String text;
-		EarthquakerWeapons(String text){
+		public final String name;
+		EarthquakerWeapons(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
 
 
-	public enum EarthquakerShields {
+	public enum EarthquakerShields implements EquipmentInfo{
 		StablePlatform("This platform protects your allies in a radius of 7 tiles from your attacks." +
 				"\n +20 HP" +
-				"\n +25 Mana Regeneration");
+				"\n +25 Mana Regeneration",
+				"Stable Platform");
 		public final String text;
-		EarthquakerShields(String text){
+		public final String name;
+		EarthquakerShields(String text, String name){
 			this.text = text;
+			this.name = name;
 		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
 	}
+
+
+	public enum TrapperWeapons implements EquipmentInfo {
+		pStones("Stones may hurt their bones! Only twice tho." +
+				"\n +10 Damage",
+				"Pricky Stones"),
+		Thorns("Spiky",
+				"Thorns");
+		public final String text;
+		public final String name;
+		TrapperWeapons(String text, String name){
+			this.text = text;
+			this.name = name;
+		}
+
+		public String getText(){return text;}
+		public String getName(){return name;}
+	}
+
+
+	public enum TrapperShields implements EquipmentInfo{
+		WoodShield("Temporal description for a temporal item" +
+				"\n +20 HP iirc?" +
+				"\n +1 Defense",
+				"Idc this is just a temporal name really");
+		public final String text;
+		public final String name;
+		TrapperShields(String text, String name){
+			this.text = text;
+			this.name = name;
+		}
+		public String getText(){return text;}
+		public String getName(){return name;}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -4,7 +4,7 @@ import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 
 import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.TextureManager.fixatedDrawables;
+import static com.mygdx.game.items.TextureManager.*;
 import static java.lang.Math.abs;
 
 public class Box extends GUI {
@@ -163,6 +163,57 @@ public class Box extends GUI {
 			fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 			fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideStartingY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 			fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideStartingY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+
+
+		}
+
+	}
+
+	public void gigaRender(float x, float y, float width, float height, float size){
+		gigaRender(x,y,width,height,size,r,g,b,rBg,gBg,bBg);
+	}
+
+	public void gigaRender(float x, float y, float width, float height, float size,byte r,byte g, byte b, byte rBg, byte gBg, byte bBg){
+		if (config != 2) {
+			float sideStartingX = x + size * szTxtr;
+			float sideFinalY = height - size * szTxtr;
+
+			float widthSide = (width - sideStartingX) / szTxtr;
+			float heightSide = (sideFinalY - y) / szTxtr;
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, sideFinalY, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideFinalY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideFinalY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+		} else{
+			float sideStartingX = x + size * szTxtr;
+			float sideStartingY = y - size * szTxtr;
+
+			float widthSide = (width - sideStartingX) / szTxtr;
+			float heightSide = abs((height - sideStartingY) / szTxtr);
+
+
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, height, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideStartingY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideStartingY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
 
 

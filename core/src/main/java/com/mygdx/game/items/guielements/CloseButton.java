@@ -21,7 +21,7 @@ public class CloseButton extends GUI {
 		this.size = size;
 		priorityFixatedDrawables.add(new DrawableObject(texture, x, y, 1, 0, size, size,true));
 		if(hovered)
-			fixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size*4, size*4,true));
+			priorityFixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size*4, size*4,true));
 		onTouchDetect(x ,y,touch);
 	}
 

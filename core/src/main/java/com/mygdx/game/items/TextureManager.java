@@ -29,6 +29,7 @@ public class TextureManager {
 	public static ArrayList<Text> text;
 	public static ArrayList<Text> priorityText;
 	static ArrayList<Text> fixatedText;
+	static ArrayList<Text> priorityFixatedText;
 	public static ArrayList<DrawableObject> drawables;
 	public static ArrayList<DrawableObject> priorityDrawables;
 	public static ArrayList<DrawableObject> fixatedDrawables;
@@ -53,6 +54,7 @@ public class TextureManager {
 		priorityFixatedDrawables = new ArrayList<>();
 		text = new ArrayList<>();
 		fixatedText = new ArrayList<>();
+		priorityFixatedText = new ArrayList<>();
 		batch = new SpriteBatch();
 		animations = new ArrayList<>();
 		fixatedAnimations = new ArrayList<>();
@@ -294,7 +296,14 @@ public class TextureManager {
 		}
 		priorityFixatedDrawables.clear();
 
+		// Priority fixated text
 
+		for (TextureManager.Text t : priorityFixatedText){
+			if (!t.fakeNull && t.render) {
+				t.drawStatic();
+			}
+		}
+		priorityFixatedText.removeIf(tex -> tex.fakeNull);
 
 
 
@@ -318,6 +327,12 @@ public class TextureManager {
 	public static Text dynamicFixatedText(String text, float x, float y, int timeOnScreen, float size){
 		Text text1 = new Text(text,x,y,size,timeOnScreen);
 		TextureManager.fixatedText.add(text1);
+		return text1;
+	}
+
+	public static Text dynamicPriorityFixatedText(String text, float x, float y, int timeOnScreen, float size){
+		Text text1 = new Text(text,x,y,size,timeOnScreen);
+		TextureManager.priorityFixatedText.add(text1);
 		return text1;
 	}
 
