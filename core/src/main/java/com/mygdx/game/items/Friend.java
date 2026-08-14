@@ -20,6 +20,38 @@ import static java.lang.Math.*;
 public class Friend extends Actor {
 	public int[] color;
 
+	{
+		aggro = 1;
+		team = 1;
+		testCollision.x = x;
+		testCollision.y = y;
+		testCollision.base = base;
+		testCollision.height = height;
+		path = new Path(x,y,speed,this);
+		permittedToAct = false;
+		friend.add(this);
+		actorsThatAttack.add(this);
+		if(color == null)
+			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
+	}
+
+	public Friend(float x, float y, String texture, float health) {
+		super(texture, x, y, globalSize(), globalSize());
+		pierces = false;
+		speed = 3;
+		range = 2;
+		damage = 20;
+		actingSpeed = random(1, 7);
+		print("acting speed of this friend is of " + totalActingSpeed);
+		this.maxHealth = health;
+		this.health = health;
+		this.texture = texture;
+	}
+
+	@SuppressWarnings("all")
+	public Friend(float x, float y) {
+		super("animaWithMustacheAndSurprisedWtfDidIJustDo",x,y,globalSize(),globalSize());
+	}
 
 	@SuppressWarnings("all")
 	public static OnVariousScenarios oVSc = new OnVariousScenarios(){
@@ -81,45 +113,6 @@ public class Friend extends Actor {
 		return (float) (globalSize() * round(coordinate / globalSize()));
 	}
 
-	public Friend(float x, float y, String texture, float health) {
-		super(texture, x, y, globalSize(), globalSize());
-		aggro = 1;
-		pierces = false;
-		team = 1;
-		speed = 3;
-		range = 2;
-		damage = 20;
-		actingSpeed = random(1, 7);
-		print("acting speed of this friend is of " + totalActingSpeed);
-		this.maxHealth = health;
-		this.health = health;
-		testCollision.x = x;
-		testCollision.y = y;
-		testCollision.base = base;
-		testCollision.height = height;
-		this.texture = texture;
-		path = new Path(x,y,speed,this);
-		permittedToAct = false;
-		friend.add(this);
-		actorsThatAttack.add(this);
-		if(color == null)
-			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
-	}
-
-	@SuppressWarnings("all")
-	public Friend(float x, float y) {
-		super("animaWithMustacheAndSurprisedWtfDidIJustDo",x,y,globalSize(),globalSize());
-		aggro = 1;
-		testCollision.x = x;
-		testCollision.y = y;
-		path = new Path(x,y,speed,this);
-		team = 1;
-		permittedToAct = false;
-		friend.add(this);
-		actorsThatAttack.add(this);
-		if(color == null)
-			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
-	}
 
 	protected void isOnTheGrid(){
 		if (speedLeft[0] == 0 && speedLeft[1] == 0 && !isDead) {
@@ -141,6 +134,8 @@ public class Friend extends Actor {
 			path.getStats(x,y,totalSpeed);
 			loop();
 			onDeath();
+			if(isDead)
+				return;
 			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
 			if (targetActor != null && !targetActor.isDead && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))

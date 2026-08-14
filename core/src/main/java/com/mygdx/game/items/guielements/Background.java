@@ -293,8 +293,10 @@ public class Background extends GUI {
 						selButtons[i].render(selSizeB, selIniGapXB + i * (selGapXB + selSizeB * 32), selGapYB,true);
 				}
 
-				if (!existsSelCard())
+				if (!existsSelCard()) {
 					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
+					renderCursorInfo();
+				}
 
 				if (existsSelCard() && getSelCard() != -1) {
 					classesCards[getSelCard()].render(cardSizeB / 32, cardIniGapXB, cardYB, false);
@@ -315,7 +317,7 @@ public class Background extends GUI {
 				if (existsSelCard() && existsSelBox()) {
 					cardFunctionality(classesCards[getSelCard()]);
 				}
-				renderCursorInfo();
+
 			} else if (modes == 2){
 				if (!existsSelCard())
 					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);

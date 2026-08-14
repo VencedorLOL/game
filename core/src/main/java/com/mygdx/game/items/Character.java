@@ -654,7 +654,7 @@ public class Character extends Actor {
 				print("is cam moving " + getCamara().isCamaraMoving());
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-				fixatedText("Version: B", 400, 200, 100, 40);
+				getCamara().initShake(10,10,1,500,false,true);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
 				classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;

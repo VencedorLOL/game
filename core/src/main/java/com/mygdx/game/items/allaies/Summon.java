@@ -2,6 +2,7 @@ package com.mygdx.game.items.allaies;
 
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.Friend;
+import com.mygdx.game.items.TextureManager;
 import com.mygdx.game.items.Tile;
 
 import static com.mygdx.game.GameScreen.chara;
@@ -55,6 +56,8 @@ public class Summon extends Friend {
 			path.getStats(this.getX(),this.getY(),totalSpeed);
 			loop();
 			onDeath();
+			if(getIsDead())
+				return;
 			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
 				attack();
 			else
@@ -64,6 +67,11 @@ public class Summon extends Friend {
 //	*		if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();
 		}
+	}
+
+	public void render(){
+		if(render)
+			TextureManager.addToList(getTexture(),x,y,z,color);
 	}
 
 	public void setTarget(float x, float y){

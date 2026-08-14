@@ -168,6 +168,16 @@ public class TextureManager {
 		addToList(texture, x, y,opacity,rotationDegrees,256,256,256);
 	}
 
+	public static void addToList(String texture, float x, float y,float z,int[] color){
+		DrawableObject draw = new DrawableObject(texture, x, y,z);
+		draw.r = color[0]/255f; draw.g = color[1]/255f; draw.b = color[2]/255f;
+		drawables.add(draw);
+	}
+
+	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,int[] color){
+		addToList(texture, x, y,opacity,rotationDegrees,color[0],color[1],color[2]);
+	}
+
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees,boolean flipX, boolean flipY){
 		drawables.add(new DrawableObject(texture, x, y,opacity,rotationDegrees,flipX,flipY));
 	}

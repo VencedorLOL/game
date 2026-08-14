@@ -151,7 +151,8 @@ public class Enemy extends Actor {
 			path.getStats(x,y,totalSpeed);
 			loop();
 			onDeath();
-			if(!isDead){
+			if(isDead)
+				return;
 			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
 			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
@@ -160,7 +161,6 @@ public class Enemy extends Actor {
 				movement();
 			conditions.render();
 			glideProcess();
-		}
 		}
 	}
 

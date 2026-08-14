@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
+import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.StartScreen.startAsPathfinding;
@@ -105,7 +106,21 @@ public class Camara {
 				x = x > maxX ? maxX : x;
 			}
 		}
-		camara.position.set(x,y,0);
+		if(isShaking){
+			difX = doRecovery && difX != 0 ? 0 : random(-intensityX,intensityX);
+			difY = doRecovery && difY != 0 ? 0 : random(-intensityY,intensityY);
+			camara.rotate(-lastRotation);
+			if(timeOfRotation-- > 0){
+				lastRotation = random(-maxRotationDeg,maxRotationDeg);
+				camara.rotate(lastRotation);
+			} else {
+				isShaking = false;
+				difX = 0;
+				difY = 0;
+				lastRotation = 0;
+			}
+		}
+		camara.position.set(x+difX,y+difY,0);
 		if(Gdx.input.isKeyJustPressed(Input.Keys.T))
 			print("cam x is " + x + " cam y is " + y + "\ncam base is " + base + " cam height is " + height);
 		camara.update();
@@ -155,6 +170,23 @@ public class Camara {
 		camara.position.set(x,y,0);
 		camara.update();
 	}
+
+	boolean isShaking;
+	float intensityX, intensityY;
+	float maxRotationDeg, lastRotation;
+	int timeOfRotation;
+	boolean reduceTime;
+	float difX, difY;
+	boolean doRecovery;
+	public void initShake(float intensityX, float intensityY, float maxRotationDeg,int frameTime, boolean reduceOverTime,boolean doRecovery){
+		isShaking = true;
+		this.intensityX = intensityX; this.intensityY = intensityY;
+		this.maxRotationDeg = maxRotationDeg;
+		timeOfRotation = frameTime;
+		reduceTime = reduceOverTime;
+		this.doRecovery = doRecovery;
+	}
+
 
 	public void fixedUpdater(){
 		camara.update();
