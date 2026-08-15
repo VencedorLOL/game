@@ -155,7 +155,7 @@ public class Enemy extends Actor {
 				return;
 			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
 				targetFinder();
-			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
 				attack();
 			else
 				movement();

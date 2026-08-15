@@ -327,6 +327,9 @@ public class Character extends Actor {
 		if (list != null)
 			for (DamageReceiver aa : list) {
 				aa.damage(classes.outgoingDamage(), classes.damageReason,this);
+				//Impact frames:
+			//	controlOfCamara = false; new OnVariousScenarios.CounterObject(30){public void onCounterFinish() {controlOfCamara = true;}};
+			//	ImpactFrame.startImpact(x,y,aa.getX(),aa.getY());
 				if (!classes.pierces)
 					break;
 			}
@@ -654,7 +657,7 @@ public class Character extends Actor {
 				print("is cam moving " + getCamara().isCamaraMoving());
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-				getCamara().initShake(10,10,1,500,false,true);
+				getCamara().shake(10,10,1,500,false,true);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
 				classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;

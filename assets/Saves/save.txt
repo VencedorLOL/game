@@ -1,4 +1,4 @@
-Imp,Summoner,Trapper
+Melee,Earthquaker,Trapper
 0,0
 0,0
 0,0

@@ -1,5 +1,5 @@
 TODO:
-Engine: differnt ramming target sprite perchance.
+spritework: differnt ramming target sprite perchance.
 Character: Code the +80 characters :D.
 Game: The rest of the game.
 Char.Class idea: Psyquic shot: controll a proyectile. The proyectile has infinite reach. It moves 10 tiles per act. turn subdivision. If it didnt end on the first turn, on the
@@ -9,15 +9,11 @@ next turn you cant decide what to do, you will keep moving the ball.
 	A weapon that knocksback enemies so they fall into traps
 Text: add custom text gradients and text wave and text bounce
 
-Bogfixes: enemies trying (and failing) to attack through walls
 	camera remaining attached to path if path hasnt been walked yet
-Textbox: choose code implementation
 multiplayer.
 Text: trailing colored text, rapidly disapearing and converting into its supposed real color
-GUI in the class selection part that describes classes and weapons when hovering over them and equipping them (fill the blanks when ckicling an ability and over the weapon
-and shield icons to give those voids a purpose)
 implement text supporting custom symbols embedded in text with custom notation (eg.: <sword> draws a sword)
-Camera: Shake effect and impact frames (dramatic but subtle zoom)C
+Camera: impact frames (dramatic but subtle zoom)
 ParticleManager: redo its entire logic its rubbish and laggy as of rn
 
 idea:

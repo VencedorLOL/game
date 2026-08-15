@@ -81,6 +81,8 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public AttackTextProcessor.DamageReasons[] immunities;
 
+	boolean phasingAttack;
+
 	@Override
 	public float getSpeed() {
 		return totalActingSpeed*100 + totalSpeed;
@@ -656,5 +658,18 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public void onKillOverridable(){}
 
 	public void onDeathOverridable(){}
+
+	public boolean attackHitsTarget(){
+		if(phasingAttack)
+			return true;
+		ArrayList<DamageReceiver> actorss = rayCasting(x,y,targetActor.x,targetActor.y,pierces,this,this);
+		if(actorss != null)
+			for(DamageReceiver d : actorss)
+				if(d==targetActor)
+					return true;
+		return false;
+	}
+
+
 
 }

@@ -178,7 +178,7 @@ public class Camara {
 	boolean reduceTime;
 	float difX, difY;
 	boolean doRecovery;
-	public void initShake(float intensityX, float intensityY, float maxRotationDeg,int frameTime, boolean reduceOverTime,boolean doRecovery){
+	public void shake(float intensityX, float intensityY, float maxRotationDeg, int frameTime, boolean reduceOverTime, boolean doRecovery){
 		isShaking = true;
 		this.intensityX = intensityX; this.intensityY = intensityY;
 		this.maxRotationDeg = maxRotationDeg;

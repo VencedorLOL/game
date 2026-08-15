@@ -122,34 +122,4 @@ public class ParticleGenerator {
 
 	}
 
-
-
-/* Useless, but it is so precious...
-	public static int fileLifeGetter(String fileDirectory){
-		try {
-			FileReader file = new FileReader(fileDirectory);
-			Scanner scanner = new Scanner(file);
-			while (scanner.hasNextLine()) {
-				if (scanner.nextLine().contains("- Life -")) {
-					scanner.nextLine();
-					scanner.nextLine();
-					String life = scanner.nextLine();
-					if (life.contains("highMin")){
-						System.out.println(life);
-						life = life.replace("highMin: ","");
-						float temporalFloatToStoreLifeValue = Float.parseFloat(life);
-						return (int) temporalFloatToStoreLifeValue;
-					}
-				}
-			}
-		}
-		catch (FileNotFoundException e){
-			System.err.println("File to read a texture's life value not found.");
-			System.err.println("This error comes from fileLifeGetter method from ParticleGenerator class.");
-			System.err.println("Path not found was this one:" + fileDirectory);
-			e.printStackTrace();
-		}
-		return -1;
-	}
-*/
 }

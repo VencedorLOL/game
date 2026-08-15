@@ -156,7 +156,11 @@ public class ClickDetector  {
 
 	}
 
-	public static ArrayList<DamageReceiver> rayCasting(float fromX, float fromY, float toX, float toY, ArrayList<DamageReceiver> entityToIgnore, boolean pierces, Entity runFrom) {
+	public static ArrayList<DamageReceiver> rayCasting(float fromX, float fromY, float toX, float toY,ArrayList<DamageReceiver> entityToIgnore, boolean pierces, Entity runFrom){
+		return rayCasting(fromX,fromY,toX,toY,pierces,runFrom,entityToIgnore.toArray(new DamageReceiver[0]));
+	}
+
+	public static ArrayList<DamageReceiver> rayCasting(float fromX, float fromY, float toX, float toY, boolean pierces, Entity runFrom, DamageReceiver... entityToIgnore) {
 		ArrayList<DamageReceiver> piercesEnemyArrayOfTargets = new ArrayList<>();
 		Ray rayCheckerCenter = new Ray(fromX + halfSize, fromY + halfSize, pierces);
 //		Ray rayCheckerDownLeft = new Ray(fromX + 1, fromY + 1,pierces);
@@ -432,7 +436,7 @@ public class ClickDetector  {
 				return enemiesThatGotHit;
 		}
 
-		public ArrayList<DamageReceiverAndTimesTheRayTouchedIt> damageRayCheck(ArrayList<DamageReceiver> enemiesToIgnore) {
+		public ArrayList<DamageReceiverAndTimesTheRayTouchedIt> damageRayCheck(DamageReceiver[] enemiesToIgnore) {
 			if (enemiesToIgnore != null)
 				for (DamageReceiver e : enemiesToIgnore)
 					for (DamageReceiver en : damageReceivers) {

@@ -7,6 +7,7 @@ import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.TargetProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 
+import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.items.Actor.actors;
 import static com.mygdx.game.items.InputHandler.actionConfirmJustPressed;
@@ -113,6 +114,7 @@ public class Earthquaker extends CharacterClasses {
 			runAttack();
 			playingAnimation = true;
 			character.lockClass = true;
+			getCamara().shake(10,10,1,120,false,true);
 			for (TargetProcessor.Circle.CircleTile t : earthquakeProcessor.circle.circle) {
 				if(!(t.x == earthquakeProcessor.circle.center.x() && t.y == earthquakeProcessor.circle.center.y()))
 					animationToList("earthquake",t.x,t.y);

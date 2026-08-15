@@ -58,7 +58,7 @@ public class Summon extends Friend {
 			onDeath();
 			if(getIsDead())
 				return;
-			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct))
+			if (targetActor != null && !targetActor.getIsDead() && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.getX() - this.getX(),2) + pow(targetActor.getY() - this.getY(),2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
 				attack();
 			else
 				movement();
