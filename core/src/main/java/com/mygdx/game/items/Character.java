@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
+import com.mygdx.game.Settings;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
@@ -690,6 +691,15 @@ public class Character extends Actor {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
 				classes.health = 1000000;
 				classes.currentHealth = 1000000;
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+				Settings.getConfig().setForegroundFPS(10);
+				print("is app null? " + (Settings.getConfig() == null));
+			}
+			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+				for(int i = 0; i < 10000; i++){
+					addToList(null,0,0);
+				}
 			}
 		}
 

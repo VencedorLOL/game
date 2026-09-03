@@ -467,7 +467,7 @@ public class StageCreator {
 					for(Hazards h : hazards){
 						if(!(h instanceof Hazards.EarthCrack))
 							continue;
-						priorityDrawables.add(new DrawableObject("Ball",h.x+h.base-globalSize()*1.5f,h.y,1,0,0,100,225));
+						priorityDrawables.add(getDrawable("Ball",h.x+h.base-globalSize()*1.5f,h.y,0,1,0,false,false,1,1,true,0,100,225));
 					}
 
 					if (mode == 0 && rightClickJustPressed() && tipOfEarthCrack(vector)) {
@@ -481,11 +481,11 @@ public class StageCreator {
 				if(typeOfElement == 2 && mode != 1) {
 					for(ScreenWarp s : stage.screenWarp){
 						if(s.base == s.height)
-							priorityDrawables.add(new DrawableObject("Ball",s.x+s.base-globalSize(),s.y,1,0,200,100,100));
+							priorityDrawables.add(getDrawable("Ball",s.x+s.base-globalSize(),s.y,0,1,0,false,false,1,1,true,200,100,100));
 						else if (s.height == 1)
-							priorityDrawables.add(new DrawableObject("Ball",s.x+s.base-globalSize(),s.y,1,0,0,225,100));
+							priorityDrawables.add(getDrawable("Ball",s.x+s.base-globalSize(),s.y,0,1,0,false,false,1,1,true,0,225,100));
 						else if (s.base == 1)
-							priorityDrawables.add(new DrawableObject("Ball",s.x,s.y+s.height-globalSize(),1,0,0,225,100));
+							priorityDrawables.add(getDrawable("Ball",s.x,s.y+s.height-globalSize(),0,1,0,false,false,1,1,true,0,225,100));
 					}
 
 					if (mode == 0 && rightClickJustPressed() && tipOfScreenWarp(vector)) {
@@ -495,8 +495,8 @@ public class StageCreator {
 				}
 
 				if(rightClickPressed() && mode == 2){
-					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,0,0,100,225));
-					priorityDrawables.add(new DrawableObject("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,1,180,0,100,225));
+					priorityDrawables.add(getDrawable("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,0,1,0,false,false,1,1,true,0,100,225));
+					priorityDrawables.add(getDrawable("Arrow",movingHazard.x+movingHazard.base-globalSize()*1.5f,movingHazard.y,0,1,180,false,false,1,1,false,0,100,225));
 					if(((vector.x - movingHazard.base+globalSize()) - movingHazard.x)/globalSize() != 0 && ((Hazards.EarthCrack) movingHazard).segments.length + ((auth.x - movingHazard.base+globalSize()) - movingHazard.x)/globalSize() > 1) {
 						((Hazards.EarthCrack) movingHazard).segments = new boolean[(int)(((Hazards.EarthCrack) movingHazard).segments.length + ((auth.x - movingHazard.base+globalSize()) - movingHazard.x) / globalSize())];
 						movingHazard.base = ((Hazards.EarthCrack) movingHazard).segments.length * globalSize();
@@ -505,10 +505,10 @@ public class StageCreator {
 
 				if(rightClickPressed() && mode == -2){
 					if(movingScreenWarp.base == movingScreenWarp.height) {
-						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 0, 200, 100, 100));
-						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 180, 200, 100, 100));
-						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 90, 200, 100, 100));
-						priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 270, 200, 100, 100));
+						priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 0,false,false,1,1,false, 200, 100, 100));
+						priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 180,false,false,1,1,false, 200, 100, 100));
+						priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 90,false,false,1,1,false, 200, 100, 100));
+						priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 270,false,false,1,1,false, 200, 100, 100));
 						if(vector.x != movingScreenWarp.x || vector.y != movingScreenWarp.y){
 							if(vector.x > movingScreenWarp.x){
 								mode = 0;
@@ -540,15 +540,15 @@ public class StageCreator {
 					}
 					else{
 						if(movingScreenWarp.height == 1) {
-							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 0, 0, 225, 100));
-							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y, 1, 180, 0, 225, 100));
+							priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 0,false,false,1,1,false, 0, 225, 100));
+							priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x + movingScreenWarp.base - globalSize(), movingScreenWarp.y,0, 1, 180,false,false,1,1,false, 0, 225, 100));
 							if (((vector.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize() != 0 && (movingScreenWarp).base / globalSize() + ((auth.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize() >= 1) {
 								(movingScreenWarp).base = ((movingScreenWarp.base / globalSize() + ((auth.x - movingScreenWarp.base + globalSize()) - movingScreenWarp.x) / globalSize())) * globalSize();
 							}
 						}
 						else if(movingScreenWarp.base == 1) {
-							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(), 1, 90, 0, 225, 100));
-							priorityDrawables.add(new DrawableObject("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(), 1, 270, 0, 225, 100));
+							priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(),0, 1, 90,false,false,1,1, false,0, 225, 100));
+							priorityDrawables.add(getDrawable("Arrow", movingScreenWarp.x, movingScreenWarp.y  + movingScreenWarp.height - globalSize(),0, 1, 270,false,false,1,1,false, 0, 225, 100));
 							if (((vector.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize() != 0 && movingScreenWarp.height / globalSize() + ((auth.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize() >= 1) {
 								movingScreenWarp.height = ((movingScreenWarp.height / globalSize() + ((auth.y - movingScreenWarp.height + globalSize()) - movingScreenWarp.y) / globalSize())) * globalSize();
 							}
@@ -689,15 +689,15 @@ public class StageCreator {
 		String texture = typeOfElement == 0 ? wallsTextures[typeOfSubElementWall] : typeOfElement == 1 ? enemiesTextures[typeOfSubElementEnemy] : typeOfElement == 2 ? "ScreenWarp" : typeOfElement == 5 ? hazardsTextures[typeOfSubElementHazard] : stage.floorTexture;
 		float sizeX = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][0] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][0] : typeOfElement == 5 ? hazardsSize[typeOfSubElementHazard][0] : globalSize();
 		float sizeY = typeOfElement == 0 ? wallsSize[typeOfSubElementWall][1] : typeOfElement == 1 ? enemiesSize[typeOfSubElementEnemy][1] : typeOfElement == 5 ? hazardsSize[typeOfSubElementHazard][1] : globalSize();
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",x,y,1, 0,size,size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject( mainTexture, x,y,1,0, size,size,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",x,y,0,1, 0,false,false,size,size,true));
+		fixatedDrawables.add(getDrawable( mainTexture, x,y,0,1,0,false,false,size,size,true));
 		if(action == 0) {
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",x - size*16,y,1, 0,size,size,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture
-					,x - size*16 + 2*size, y - 2*size,1,
-					0,size/sizeX*32f*3/4,size/sizeY*32f*3/4,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",x - size*16,y,0,1, 0,false,false,size,size,true));
+			fixatedDrawables.add(getDrawable(texture
+					,x - size*16 + 2*size, y - 2*size,0,1,
+					0,false,false,size/sizeX*32f*3/4,size/sizeY*32f*3/4,true));
 		} if(action == 3){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",x - size*16,y,1, 0,size,size,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",x - size*16,y,0,1, 0,false,false,size,size,true));
 			fixatedText(preferredSWDestination+"",x - size*10,y-size*12,1, size*16,255,255,255);
 		}
 
@@ -766,13 +766,13 @@ public class StageCreator {
 		float intSize = Gdx.graphics.getHeight()*0.007f;
 		if(info == null) {
 			for (int i = 0; i < sWDestStages.size(); i++) {
-				fixatedDrawables.add(new TextureManager.DrawableObject("TextBar", intX, intY+intSize*16*i+intSize*18, 1, 0, intSize * 8, intSize * 2, true));
-				fixatedText(sWDestStages.get(i), intX + intSize * 16 * 1 / 4, intY + intSize * 16 * i - intSize * 14.5f, 1, intSize * 16, 255, 255, 255);
-				fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox", intX + intSize * 128, intY + intSize * 16 * i, 1, 0, intSize, intSize, true));
-				fixatedText(i + "", intX + intSize * 128 + intSize * 16 * 1 / 4, intY + intSize * 16 * i - intSize * 10, 1, intSize * 16, 255, 255, 255);
+				fixatedDrawables.add(getDrawable("TextBar", intX, intY+intSize*16*i+intSize*18,0, 1, 0,false,false, intSize * 8, intSize * 2, true));
+				fixatedText(sWDestStages.get(i), intX + intSize * 16 * 1 / 4, intY + intSize * 16 * i - intSize * 14.5f, 1, intSize * 16);
+				fixatedDrawables.add(getDrawable("SelectionBox", intX + intSize * 128, intY + intSize * 16 * i, 0,1, 0,false,false, intSize, intSize, true));
+				fixatedText(i + "", intX + intSize * 128 + intSize * 16 * 1 / 4, intY + intSize * 16 * i - intSize * 10, 1, intSize * 16);
 			}
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox", boxX, intY, 1, 0, intSize, intSize, true));
-			fixatedDrawables.add(new TextureManager.DrawableObject("HealerIcon", boxX, intY, 1, 0, intSize, intSize, true));
+			fixatedDrawables.add(getDrawable("SelectionBox", boxX, intY,0, 1, 0,false,false, intSize, intSize, true));
+			fixatedDrawables.add(getDrawable("HealerIcon", boxX, intY,0, 1, 0,false,false, intSize, intSize, true));
 		}
 		if(leftClickJustPressed() && info == null){
 			for(int i = 0; i < sWDestStages.size(); i++){
@@ -800,13 +800,13 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.25f;
 		float intSize = Gdx.graphics.getHeight()*0.007f;
 		for(int i = 0; i < sWDestStages.size(); i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("TextBar",intX,intY+intSize*16*i+intSize*18,1,0,intSize*8,intSize*2,true));
+			fixatedDrawables.add(getDrawable("TextBar",intX,intY+intSize*16*i+intSize*18,0,1,0,false,false,intSize*8,intSize*2,true,255,255,255));
 			fixatedText(sWDestStages.get(i),intX+intSize*16*1/4,intY+intSize*16*i-intSize*14.f,1,intSize*16,255,255,255);
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX+intSize*128,intY+intSize*16*i,1,0,intSize,intSize,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",intX+intSize*128,intY+intSize*16*i,0,1,0,false,false,intSize,intSize,true,255,255,255));
 			fixatedText(i+"",intX+intSize*128+intSize*16*1/4,intY+intSize*16*i-intSize*10,1,intSize*16,255,255,255);
 		}
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",boxX,intY,1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("HealerIcon",boxX,intY,1,0,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",boxX,intY,0,1,0,false,false,intSize,intSize,true,255,255,255));
+		fixatedDrawables.add(getDrawable("HealerIcon",boxX,intY,0,1,0,false,false,intSize,intSize,true,255,255,255));
 
 		if(leftClickReleased() && info == null){
 			for(int i = 0; i < sWDestStages.size(); i++){
@@ -835,10 +835,10 @@ public class StageCreator {
 		float intSize = Gdx.graphics.getHeight()*0.007f;
 		float boxX = Gdx.graphics.getWidth()*.5f;
 		for(int i = 0; i < ScreenWarp.Type.values().length - 1; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("ColorBox",intX+intSize*16*(i%4), (float) (intY+intSize*16*floor(i/4f)),1,false,false,intSize,intSize,true,ScreenWarp.Type.values()[i].r,ScreenWarp.Type.values()[i].g,ScreenWarp.Type.values()[i].b));
+			fixatedDrawables.add(getDrawable("ColorBox",intX+intSize*16*(i%4), (float) (intY+intSize*16*floor(i/4f)),0,1,0,false,false,intSize,intSize,true,ScreenWarp.Type.values()[i].r,ScreenWarp.Type.values()[i].g,ScreenWarp.Type.values()[i].b));
 		}
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("HealerIcon",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),1,0,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),0,1,0,false,false,intSize,intSize,true,255,255,255));
+		fixatedDrawables.add(getDrawable("HealerIcon",boxX,(float) (intY+intSize*16*floor(ScreenWarp.Type.values().length/4f)),0,1,0,false,false,intSize,intSize,true,255,255,255));
 
 		if(leftClickJustPressed() && number == null){
 			for(int i = 0; i < ScreenWarp.Type.values().length - 1; i++){
@@ -868,11 +868,11 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < Wall.Walls.values().length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
-					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(wallsTextures[i]
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
-					0,intSize/wallsSize[i][0]*32f*3/4,intSize/wallsSize[i][1]*32f*3/4,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),0,1,
+					0,false,false,intSize,intSize,true));
+			fixatedDrawables.add(getDrawable(wallsTextures[i]
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,0,1,
+					0,false,false,intSize/wallsSize[i][0]*32f*3/4,intSize/wallsSize[i][1]*32f*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < Wall.Walls.values().length; i++){
@@ -890,11 +890,11 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < Enemy.Enemies.values().length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
-					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(enemiesTextures[i]
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
-					0,intSize/enemiesSize[i][0]*32f*3/4,intSize/enemiesSize[i][1]*32f*3/4,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),0,1,
+					0,false,false,intSize,intSize,true));
+			fixatedDrawables.add(getDrawable(enemiesTextures[i]
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,0,1,
+					0,false,false,intSize/enemiesSize[i][0]*32f*3/4,intSize/enemiesSize[i][1]*32f*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < Enemy.Enemies.values().length; i++){
@@ -912,11 +912,11 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < Hazards.HazardNames.values().length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
-					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(hazardsTextures[i]
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
-					0,intSize/hazardsSize[i][0]*32f*3/4,intSize/hazardsSize[i][1]*32f*3/4,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),0,1,
+					0,false,false,intSize,intSize,true));
+			fixatedDrawables.add(getDrawable(hazardsTextures[i]
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,0,1,
+					0,false,false,intSize/hazardsSize[i][0]*32f*3/4,intSize/hazardsSize[i][1]*32f*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < Hazards.HazardNames.values().length; i++){
@@ -934,11 +934,11 @@ public class StageCreator {
 		float intY = Gdx.graphics.getHeight()*.35f;
 		float intSize = Gdx.graphics.getHeight()*0.006f;
 		for(int i = 0; i < 6; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),1,
-					0,intSize,intSize,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : i == 4 ? "ConfigurationCog" : "Spikes"
-					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,1,
-					0,intSize/globalSize()*32*3/4,intSize/globalSize()*32*3/4,true));
+			fixatedDrawables.add(getDrawable("SelectionBox",intX-(intSize*16*(4-(i % 5))), (float) (intY+floor((i/5f))*intSize*16),0,1,
+					0,false,false,intSize,intSize,true));
+			fixatedDrawables.add(getDrawable(i == 0 ? "Rock" : i == 1 ? "EvilGuy" : i == 2 ? "ScreenWarp" : i == 3 ? stage.floorTexture : i == 4 ? "ConfigurationCog" : "Spikes"
+					,intX-(intSize*16*(4-(i % 5))) + 2*intSize, (float) (intY+floor((i/5f))*intSize*16) - 2*intSize,0,1,
+					0,false,false,intSize/globalSize()*32*3/4,intSize/globalSize()*32*3/4,true));
 		}
 		if(leftClickJustPressed()){
 			for(int i = 0; i < 6; i++){
@@ -966,14 +966,14 @@ public class StageCreator {
 		float xRight = Gdx.graphics.getWidth()*.7f- intSize*24;
 		float yRight = yLeft;
 
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xLeft,yLeft,1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraXmin ? "EyeClosed" : "EyeOpen",xLeft,yLeft,1, 0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xRight,yRight,1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraXmax ? "EyeClosed" : "EyeOpen",xRight,yRight,1, 0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xDown,yDown,1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraYmin ? "EyeClosed" : "EyeOpen",xDown,yDown,1, 0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject("SelectionBox",xUp,yUp,1,0,intSize,intSize,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(stage.staticCameraYmax ? "EyeClosed" : "EyeOpen",xUp,yUp,1, 0,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",xLeft,yLeft,0,1,0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable(stage.staticCameraXmin ? "EyeClosed" : "EyeOpen",xLeft,yLeft,0,1, 0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",xRight,yRight,0,1,0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable(stage.staticCameraXmax ? "EyeClosed" : "EyeOpen",xRight,yRight,0,1, 0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",xDown,yDown,0,1,0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable(stage.staticCameraYmin ? "EyeClosed" : "EyeOpen",xDown,yDown,0,1, 0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable("SelectionBox",xUp,yUp,0,1,0,false,false,intSize,intSize,true));
+		fixatedDrawables.add(getDrawable(stage.staticCameraYmax ? "EyeClosed" : "EyeOpen",xUp,yUp,0,1, 0,false,false,intSize,intSize,true));
 
 
 		if(leftClickJustPressed()){

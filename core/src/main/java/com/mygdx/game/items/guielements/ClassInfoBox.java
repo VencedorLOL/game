@@ -131,7 +131,7 @@ public class ClassInfoBox extends GUI {
 				text[i].render = false;
 				float barY = y - propConst * 172 + (FONT_SIZE_CONSTANT * propConst)*1.25f*i - (FONT_SIZE_CONSTANT * propConst) - sYCursor * totalYSpace / sRealHeight;
 				if(barY >= y - propConst * 198 - text[i].realSize && barY < 870*propConst)
-					fixatedDrawables.add(new TextureManager.DrawableObject("BackgroundTextbox",x, barY,1,false,false,width,(FONT_SIZE_CONSTANT * propConst)/32,true,109,109,109));
+					fixatedDrawables.add(TextureManager.getDrawable("BackgroundTextbox",x, barY,0,1,0,false,false,width,(FONT_SIZE_CONSTANT * propConst)/32,true,109,109,109));
 				continue;
 			}
 
@@ -168,7 +168,7 @@ public class ClassInfoBox extends GUI {
 		float sHeight = sBarHeight;
 		onTouchDetect(sX, sY, sWidth, sHeight);
 		if(totalYSpace > 360*propConst) {
-			TextureManager.DrawableObject grabber = new TextureManager.DrawableObject("selectionIndicator", sX, sY, 1, 0, sWidth / globalSize(), sHeight / globalSize(), true);
+			TextureManager.DrawableObject grabber = TextureManager.getDrawable("selectionIndicator", sX, sY,0, 1, 0,false,false, sWidth / globalSize(), sHeight / globalSize(), true);
 			grabber.r = sTouched || sSelected ? 1 : .8f;
 			grabber.g = sTouched || sSelected ? 1 : .8f;
 			grabber.b = sTouched || sSelected ? 1 : .8f;

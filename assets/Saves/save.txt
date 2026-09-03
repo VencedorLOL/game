@@ -1,4 +1,4 @@
-Melee,Earthquaker,Trapper
+Speedster,Earthquaker,Trapper
 0,0
 0,0
 0,0

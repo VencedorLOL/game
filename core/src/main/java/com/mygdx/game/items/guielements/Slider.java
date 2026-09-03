@@ -43,7 +43,7 @@ public class Slider extends GUI {
 		barWidth = totalXSpace>= Gdx.graphics.getWidth() ?  Gdx.graphics.getWidth()*realWidth/totalXSpace : realWidth;
 		onTouchDetect(x+size*8+ xCursor,y-size*8,barWidth,(height/128-size/8)*globalSize());
 
-		TextureManager.DrawableObject grabber = new TextureManager.DrawableObject("selectionIndicator",x+size*8+ xCursor,y-size*8,1,0,barWidth/128,(height/128-size/8),true);
+		TextureManager.DrawableObject grabber = TextureManager.getDrawable("selectionIndicator",x+size*8+ xCursor,y-size*8,0,1,0,false,false,barWidth/128,(height/128-size/8),true);
 		grabber.r = touched || selected ? 1 : .8f; grabber.g = touched || selected ? 1 : .8f; grabber.b = touched || selected ? 1 : .8f;
 		fixatedDrawables.add(grabber);
 	}

@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.mygdx.game.items.Camara;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 
 import static com.mygdx.game.GameScreen.getCamara;
 
@@ -11,7 +12,9 @@ public class MainClass extends Game implements ApplicationListener {
 	BitmapFont font;
 	GameScreen gameScreen;
 	Camara camara = new Camara();
+
 	public static String currentStage;
+
 
 	@Override
 	public void create () {
@@ -19,8 +22,6 @@ public class MainClass extends Game implements ApplicationListener {
 		camara.camaraStarter(getCamara().zoom);
 		this.setStartScreen();
 		font = new BitmapFont();
-		
-
 	}
 	public void setStartScreen() {
 		StartScreen startScreen = new StartScreen(this);

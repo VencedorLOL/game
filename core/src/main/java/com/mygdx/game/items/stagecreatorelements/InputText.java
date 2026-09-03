@@ -42,7 +42,7 @@ public class InputText extends GUI {
 	public void render(){
 		if(!spareFrame) {
 			mathCalculator();
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture, startingX, startingY, 1, false, false, size * 2, size, true, 255, 255, 255));
+			fixatedDrawables.add(TextureManager.getDrawable(texture, startingX, startingY,0, 1,0, false, false, size * 2, size, true));
 			if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()) {
 				info.string = storedText;
 				info.ready = true;

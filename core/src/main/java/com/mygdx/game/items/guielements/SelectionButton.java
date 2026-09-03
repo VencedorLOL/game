@@ -4,8 +4,7 @@ import com.mygdx.game.items.GUI;
 
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.InputHandler.cursorY;
-import static com.mygdx.game.items.TextureManager.DrawableObject;
-import static com.mygdx.game.items.TextureManager.fixatedDrawables;
+import static com.mygdx.game.items.TextureManager.*;
 
 public class SelectionButton extends GUI {
 	float size,x,y;
@@ -20,12 +19,12 @@ public class SelectionButton extends GUI {
 		this.size = size*32;
 		this.x = x;
 		this.y = y;
-		fixatedDrawables.add(new DrawableObject(texture, x , y, 1, 0, size, size,true));
-		fixatedDrawables.add(new DrawableObject(secTexture, x , y, 1, 0, size, size,true));
+		fixatedDrawables.add(getDrawable(texture, x , y,0, 1, 0,false,false, size, size,true));
+		fixatedDrawables.add(getDrawable(secTexture, x , y,0, 1, 0,false,false, size, size,true));
 		if(selected)
-			fixatedDrawables.add(new DrawableObject("SelectedSelection", x , y, 0.7f, 0, size, size,true));
+			fixatedDrawables.add(getDrawable("SelectedSelection", x , y,0, 0.7f, 0,false,false, size, size,true));
 		else if(hovered)
-			fixatedDrawables.add(new DrawableObject("HoveringSelection", x , y, 0.7f, 0, size, size,true));
+			fixatedDrawables.add(getDrawable("HoveringSelection", x , y,0, 0.7f, 0,false,false, size, size,true));
 		onTouchDetect(x,y,touch);
 	}
 

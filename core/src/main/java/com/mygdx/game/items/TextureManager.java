@@ -167,7 +167,7 @@ public class TextureManager {
 	}
 
 	public static void addToList(String texture, float x, float y,float opacity,float rotationDegrees){
-		addToList(texture, x, y,opacity,rotationDegrees,256,256,256);
+		addToList(texture, x, y,opacity,rotationDegrees,255,255,255);
 	}
 
 	public static void addToList(String texture, float x, float y,float z,int[] color){
@@ -234,7 +234,7 @@ public class TextureManager {
 		coordsUpdater();
 		for (TextureManager.DrawableObject d : drawables){
 			if (d.texture != null)
-				 drawer(d.texture,d.x,d.y,d.z,d.opacity,d.flipX,d.flipY,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero);
+				drawer(d.texture, d.x, d.y, d.z, d.opacity, d.flipX, d.flipY, d.rotationDegrees, d.scaleX, d.scaleY, d.r, d.g, d.b, d.originZero);
 		}
 		drawablePool.addAll(drawables);
 		drawables.clear();
@@ -281,7 +281,7 @@ public class TextureManager {
 			if (d.texture != null)
 				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero,d.xPercentage,d.flipX,d.flipY);
 		}
-		drawablePool.addAll(drawables);
+		drawablePool.addAll(fixatedDrawables);
 		fixatedDrawables.clear();
 		//Priority Text
 		for (TextureManager.Text t : priorityText){
@@ -307,6 +307,8 @@ public class TextureManager {
 			if (d.texture != null)
 				fixatedScreenDrawer(d.texture,d.x,d.y,d.z,d.opacity,d.rotationDegrees,d.scaleX,d.scaleY,d.r,d.g,d.b,d.originZero,d.xPercentage,d.flipX,d.flipY);
 		}
+
+		drawablePool.addAll(priorityFixatedDrawables);
 		priorityFixatedDrawables.clear();
 
 		// Priority fixated text
@@ -338,7 +340,7 @@ public class TextureManager {
 					drawableClone.add(drawablePool.get((int) i));
 				drawablePool = drawableClone;
 			}
-		}
+		} drawablesThisFrame = 0;
 	}
 
 	static long drawablesAproxAvrg;
@@ -389,8 +391,17 @@ public class TextureManager {
 			TextureManager.text.add(new Text(text,x,y,size,timeTilDisappear));
 	}
 
+	/***
+	 * <h2>Use</h2><h1> ONLY </h1><h2>if the drawable you're going to use isn't a once per frame thing.</h2>
+	 */
+
+	public static DrawableObject getNewDrawable(String texture, float x, float y, float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
+		return new DrawableObject(texture, x, y, z, opacity, rotationDegrees, flipX, flipY, scaleX, scaleY, originZero,r, g, b);
+	}
+
+
 	static long drawablesThisFrame;
-	private static DrawableObject getDrawable(String texture, float x, float y, float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
+	public static DrawableObject getDrawable(String texture, float x, float y, float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
 		drawablesThisFrame++;
 		drawablePool.removeIf(d -> d == null);
 		DrawableObject drawable;
@@ -418,6 +429,11 @@ public class TextureManager {
 		return drawable;
 	}
 
+	public static DrawableObject getDrawable(String texture, float x, float y, float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float... colors){
+		return getDrawable(texture,x,y,z,opacity,rotationDegrees,flipX,flipY,scaleX,scaleY,originZero,
+				colors.length >= 1 ? colors[0]/255 : 255, colors.length >= 2 ? colors[1]/255 : 255, colors.length >= 3 ? colors[2]/1 : 255);
+	}
+
 
 	public static class DrawableObject{
 		public float x,y,z = 0;
@@ -430,39 +446,9 @@ public class TextureManager {
 		public boolean originZero = false;
 		public float xPercentage;
 
-		public DrawableObject(String texture, float x, float y,float z){
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.texture = texture;
-			opacity = 1;
-		}
 
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-		}
 
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,boolean flipX, boolean flipY){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-			this.flipX = flipX;
-			this.flipY = flipY;
-		}
-
-		public DrawableObject(String texture, float x, float y,float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
+		private DrawableObject(String texture, float x, float y,float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
 			this.x = x;
 			this.y = y;
 			this.z = z;
@@ -482,77 +468,6 @@ public class TextureManager {
 			this.b = b/255;
 		}
 
-		public DrawableObject(String texture, float x, float y,float opacity, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float r, float g, float b){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.rotationDegrees = 0;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-			this.flipX = flipX;
-			this.flipY = flipY;
-			this.scaleX = scaleX;
-			this.scaleY = scaleY;
-			this.originZero = originZero;
-			this.r = r/255;
-			this.g = g/255;
-			this.b = b/255;
-		}
-
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float r, float g, float b){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.r = r / 255; this.g = g / 255; this.b = b / 255;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-		}
-
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float r, float g, float b,float scaleX,float scaleY){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.r = r / 255; this.g = g / 255; this.b = b / 255;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-			this.scaleX = scaleX;
-			this.scaleY = scaleY;
-		}
-
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float scaleX,float scaleY){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-			this.scaleX = scaleX;
-			this.scaleY = scaleY;
-		}
-
-		public DrawableObject(String texture, float x, float y,float opacity, float rotationDegrees,float scaleX,float scaleY,boolean originZero){
-			this.x = x;
-			this.y = y;
-			this.texture = texture;
-			this.rotationDegrees = rotationDegrees;
-			if (opacity > 1)
-				this.opacity = opacity / 100;
-			else
-				this.opacity = opacity;
-			this.scaleX = scaleX;
-			this.scaleY = scaleY;
-			this.originZero = originZero;
-		}
 
 	}
 

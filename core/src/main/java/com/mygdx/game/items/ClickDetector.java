@@ -103,9 +103,6 @@ public class ClickDetector  {
 				}
 			}
 
-			if (isDevMode())
-				for (Entity r : rayCheckerList)
-					r.render();
 
 
 			if (pierces)
@@ -223,10 +220,6 @@ public class ClickDetector  {
 				}
 			}
 
-			if (isDevMode())
-				for (Entity r : rayCheckerList)
-					r.render();
-
 
 			if (pierces)
 				for (Ray r : rayCheckerList) {
@@ -326,10 +319,6 @@ public class ClickDetector  {
 							r.y--;
 						r.wallRayCheck();
 					}
-
-					if (isDevMode())
-						for (Ray r : rayCheckerList)
-							r.render();
 					if((rayCheckerCenter.timesRayTouchedWall /* + rayCheckerUpLeft.timesRayTouchedWall +
 							rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +
 							rayCheckerDownRight.timesRayTouchedWall) */ >= globalSize() / 3)) {
@@ -392,6 +381,7 @@ public class ClickDetector  {
 		public Ray(float x, float y){
 			super("FourByFour",x,y,4,4);
 			enemiesThatGotHit = new ArrayList<>();
+			render = false;
 		}
 
 

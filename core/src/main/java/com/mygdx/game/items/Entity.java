@@ -3,6 +3,8 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.TextureManager.drawables;
+import static com.mygdx.game.items.TextureManager.getDrawable;
 import static java.lang.Math.*;
 import static java.lang.Math.abs;
 
@@ -91,7 +93,7 @@ public class Entity {
 
 	public void render(){
 		if(render)
-			TextureManager.addToList(texture,x,y,z);
+			drawables.add(getDrawable(texture, x, y,z,1,0,false,false,1,1,false,255,255,255));
 	}
 
 	public void render(float opacity,float rotation,float r, float g,float b){

@@ -42,12 +42,12 @@ public class ItemsList  {
 		this.x2 = x2;
 		texture = "TextBar";
 		for (int i = 0; i < weapons.length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x , yIni + (size*11*i), 1, 0, size, size,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+			fixatedDrawables.add(TextureManager.getDrawable(texture, x , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
+			fixatedDrawables.add(TextureManager.getDrawable("IconBar", x - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 			if(getClIns(classs.name).getWeaponName() != null && getClIns(classs.name).getWeaponName().equals(weapons[i])){
-				fixatedDrawables.add(new DrawableObject("WeaponMiniIconEquipped", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(getDrawable("WeaponMiniIconEquipped", x - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 			} else
-				fixatedDrawables.add(new DrawableObject("WeaponMiniIcon", x - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(getDrawable("WeaponMiniIcon", x - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 
 			if(texts[i] == null){
 				texts[i] = dynamicFixatedText(weapons[i],0,0,-1,32);
@@ -65,12 +65,12 @@ public class ItemsList  {
 				texts[i].maxVariation = 0;
 		}
 		for (int i = 0; i < shields.length; i++){
-			fixatedDrawables.add(new TextureManager.DrawableObject("IconBar", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture, x2 , yIni + (size*11*i), 1, 0, size, size,true));
+			fixatedDrawables.add(getDrawable("IconBar", x2 - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
+			fixatedDrawables.add(getDrawable(texture, x2 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 			if(getClIns(classs.name).getShieldName() != null && getClIns(classs.name).getShieldName().equals(shields[i])){
-				fixatedDrawables.add(new DrawableObject("ShieldMiniIconEquipped", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(getDrawable("ShieldMiniIconEquipped", x2 - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 			} else
-				fixatedDrawables.add(new DrawableObject("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i), 1, 0, size, size,true));
+				fixatedDrawables.add(getDrawable("ShieldMiniIcon", x2 - size*11 , yIni + (size*11*i),0, 1, 0,false,false, size, size,true));
 			if(texts[i+ weapons.length] == null){
 				texts[i+ weapons.length] = dynamicFixatedText(shields[i],0,0,-1,32);
 			}
@@ -88,7 +88,7 @@ public class ItemsList  {
 		}
 
 		if(hovered > -1 && canHover){
-			fixatedDrawables.add(new TextureManager.DrawableObject("TextBarSelected", hovered >= weapons.length ? x2 : x , yIni + (size*11*(hovered >= weapons.length ? hovered - weapons.length : hovered)), 1, 0, size, size,true));
+			fixatedDrawables.add(getDrawable("TextBarSelected", hovered >= weapons.length ? x2 : x , yIni + (size*11*(hovered >= weapons.length ? hovered - weapons.length : hovered)),0, 1, 0,false,false, size, size,true));
 		}
 		onTouchDetect(touch);
 	}

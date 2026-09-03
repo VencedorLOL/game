@@ -25,9 +25,9 @@ public class ClassesCards extends GUI {
 		this.x = x;
 		this.y = y;
 		texture = selected ? "CardSelected" : hovered ? "CardHovered" : "CardBlank";
-		fixatedDrawables.add(new TextureManager.DrawableObject("CardShadow", x , y, .7f, 0, size, size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(texture, x , y, 1, 0, size, size,true));
-		fixatedDrawables.add(new TextureManager.DrawableObject(secTexture, x , y, 1, 0, size, size,true));
+		fixatedDrawables.add( TextureManager.getDrawable("CardShadow", x , y,0, .7f, 0,false,false, size, size,true));
+		fixatedDrawables.add( TextureManager.getDrawable(texture, x , y,0, 1, 0,false,false, size, size,true));
+		fixatedDrawables.add( TextureManager.getDrawable(secTexture, x , y,0, 1, 0,false,false, size, size,true));
 		onTouchDetect(x,y,touch);
 	}
 

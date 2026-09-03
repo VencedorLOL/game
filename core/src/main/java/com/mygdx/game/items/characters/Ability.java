@@ -10,9 +10,8 @@ import static com.mygdx.game.GameScreen.getCamara;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.*;
 import static com.mygdx.game.items.InputHandler.*;
+import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
-import static com.mygdx.game.items.TextureManager.fixatedDrawables;
-import static com.mygdx.game.items.TextureManager.text;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -76,7 +75,7 @@ public class Ability{
 
 
 	public void renderKey(String key){
-		fixatedDrawables.add(new TextureManager.DrawableObject(key.equals("H") ? "HKey" : "BKey",Gdx.graphics.getWidth() * x / 100 + globalSize()/2f - 28,Gdx.graphics.getHeight() * y / 100 + 24,1,0,1,1,true));
+		fixatedDrawables.add(getDrawable(key.equals("H") ? "HKey" : "BKey",Gdx.graphics.getWidth() * x / 100 + globalSize()/2f - 28,Gdx.graphics.getHeight() * y / 100 + 24,0,1,0,false,false,1,1,true,255,255,255));
 	}
 
 

@@ -40,7 +40,7 @@ public class InputNumbers extends GUI {
 	public void render(){
 		if(!spareFrame) {
 			mathCalculator();
-			fixatedDrawables.add(new TextureManager.DrawableObject(texture, startingX, startingY, 1, false, false, size, size, true, 255, 255, 255));
+			fixatedDrawables.add(TextureManager.getDrawable(texture, startingX, startingY,0, 1,0, false, false, size, size, true, 255, 255, 255));
 			if ((actionConfirmReleased() || Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) && canSend()) {
 				info.number = Integer.parseInt(storedText.split("x")[0]);
 				info.ready = true;

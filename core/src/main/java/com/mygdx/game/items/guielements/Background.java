@@ -276,7 +276,8 @@ public class Background extends GUI {
 	public void render(){
 		if(renderr) {
 			calculateMath();
-			fixatedDrawables.add(new DrawableObject(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 0.5f, 0, sizeX, sizeY));
+			fixatedDrawables.add(getDrawable(texture, Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f,
+					Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f,0 , 0.5f, 0,false,false, sizeX, sizeY,false));
 			hoverCheck();
 
 			counter -= counter > 0 ? 1 : 0;
@@ -293,10 +294,7 @@ public class Background extends GUI {
 						selButtons[i].render(selSizeB, selIniGapXB + i * (selGapXB + selSizeB * 32), selGapYB,true);
 				}
 
-				if (!existsSelCard()) {
-					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
-					renderCursorInfo();
-				}
+
 
 				if (existsSelCard() && getSelCard() != -1) {
 					classesCards[getSelCard()].render(cardSizeB / 32, cardIniGapXB, cardYB, false);
@@ -313,6 +311,11 @@ public class Background extends GUI {
 				else
 					for (int i = 0; i < classesCards.length; i++)
 						classesCards[i].render(cardsSize / 32, cardsIniGapX + i * (cardsGapX + cardsSize) - slider.xCursor * totalXSpace / slider.realWidth, cardsY, counter <= 0);
+
+				if (!existsSelCard()) {
+					slider.render(sliGapX, sliGapY, sliWidth, sliHeight, sliThickness, totalXSpace);
+					renderCursorInfo();
+				}
 
 				if (existsSelCard() && existsSelBox()) {
 					cardFunctionality(classesCards[getSelCard()]);
@@ -344,7 +347,7 @@ public class Background extends GUI {
 				renderCursorInfo();
 				renderEquipmentInfo();
 			}
-			priorityFixatedDrawables.add(new DrawableObject("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f , 1f, 0, sizeX, sizeY));
+			priorityFixatedDrawables.add(getDrawable("GUIBackgroundBorder", Gdx.graphics.getWidth() - (sizeX * globalSize() + globalSize())/2f, Gdx.graphics.getHeight() - (sizeY * globalSize()*.5625f - globalSize())/2f,0 , 1f, 0,false,false, sizeX, sizeY,false));
 			close.render(endSY/globalSize(),endSX,endSY,counter <= 0);
 
 

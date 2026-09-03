@@ -1,0 +1,16 @@
+?5?CharaLeft;
+?10?CharaRight;
+^2;
+?15?CharaLeft:1:1;
+?20?CharaLeft:-1:-1;
+?25?CharaLeft:y1;
+?30?CharaLeft:y-1;
+?240?char:y3/240X0Y-3;
+?480?CharaDiagonalDownRight:-5:5/1000X5Y-5;
+?480?CharaDiagonalDownRight/480X2Y5;
+?45?char<.5>/X4Y;
+?50?char<.3>:y-7.5/X7Y34;
+<-.1>
+^1;
+<+.9>
+?100?char/XY-6;;

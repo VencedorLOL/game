@@ -6,10 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
-import com.mygdx.game.items.stages.CraterStage;
-import com.mygdx.game.items.stages.Labitynth;
-import com.mygdx.game.items.stages.StageOne;
-import com.mygdx.game.items.stages.StagePathfinding;
+import com.mygdx.game.items.stages.*;
 
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;

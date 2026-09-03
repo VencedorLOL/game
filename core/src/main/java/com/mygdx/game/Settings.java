@@ -1,7 +1,10 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.mygdx.game.items.OnVariousScenarios;
+
 
 import static com.mygdx.game.items.OnVariousScenarios.triggerOnVolume;
 import static com.mygdx.game.items.TextureManager.fixatedText;
@@ -21,6 +24,8 @@ public class Settings {
 	static boolean touchedGate;
 	static boolean shouldOverrideEsc;
 	static boolean render;
+	static Lwjgl3ApplicationConfiguration config;
+
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
 	// 2: take enemies in consideration if path is the same lenght or longer by some amount
@@ -57,6 +62,8 @@ public class Settings {
 
 	private static boolean trapsTickOnActorTurn = true;
 
+	public static void setConfig(Lwjgl3ApplicationConfiguration config){Settings.config = config;}
+	public static Lwjgl3ApplicationConfiguration getConfig(){return config;}
 	public static boolean getTrapsTick(){return trapsTickOnActorTurn;}
 	public static void setRender(boolean renderr){render = renderr;}
 	public static boolean getRender(){return render;}

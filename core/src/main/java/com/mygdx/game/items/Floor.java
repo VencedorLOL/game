@@ -3,6 +3,7 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.TextureManager.getDrawable;
 
 public class Floor {
 // Class will be used for floor textures, animations, etc.
@@ -46,11 +47,11 @@ public class Floor {
 	public void setTexture(String texture,float opacity){this.texture = texture; this.opacity = opacity;}
 
 	public void setSecondaryTexture(String texture, float opacity,int rotationDegrees, boolean flipX, boolean flipY, int numberOfTexture){
-		secondTexture[numberOfTexture] = new TextureManager.DrawableObject(texture,0,0,opacity,rotationDegrees,flipX,flipY);
+		secondTexture[numberOfTexture] = getDrawable(texture,0,0,0,opacity,rotationDegrees,flipX,flipY,1,1,true);
 	}
 
 	public void render(float x, float y){
-		TextureManager.addToList(texture,x,y,opacity,0);
+		TextureManager.drawables.add(getDrawable(texture,x,y,0,opacity,0,false,false,1,1,false));
 	}
 
 	public void secondaryReset(){

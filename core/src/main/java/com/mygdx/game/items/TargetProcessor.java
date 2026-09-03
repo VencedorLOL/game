@@ -12,6 +12,7 @@ import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.ClickDetector.wallRayCasting;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.animations;
+import static com.mygdx.game.items.TextureManager.getNewDrawable;
 import static java.lang.Math.*;
 
 public class TargetProcessor {
@@ -558,7 +559,7 @@ public class TargetProcessor {
 			}
 
 			public void setSecondaryTexture(String texture, float opacity,int rotationDegrees, boolean flipX, boolean flipY, int numberOfTexture){
-				this.texture[numberOfTexture] = new TextureManager.DrawableObject(texture,0,0,opacity,rotationDegrees,flipX,flipY);
+				this.texture[numberOfTexture] = getNewDrawable(texture,0,0,0,opacity,rotationDegrees,flipX,flipY,1,1,false,255,255,255);
 			}
 
 			public void secondaryReset(){

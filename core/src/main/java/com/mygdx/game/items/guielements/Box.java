@@ -131,17 +131,17 @@ public class Box extends GUI {
 
 		fixatedDrawables.add(new TextureManager.DrawableObject(sideDA,x+size*32,y,1,false,false,(width/32-size*2),size,true,(float) (r & 0xFF),(float) (g & 0xFF), (float) (b & 0xFF)));
 */
-			fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, sideFinalY, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(defaultTx, sideStartingX, sideFinalY,0, aBg,0, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerA, x, y,0, a,0, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerD, width, y,0, a,0, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerB, x, height,0, a,0, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerC, width, height,0, a,0, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideFinalY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideFinalY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideDA, sideStartingX, y,0, a,0, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideBC, sideStartingX, height,0, a,0, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideAB, x, sideFinalY,0, a,0, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideCD, width, sideFinalY,0, a,0, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
 		} else{
 			float sideStartingX = x + size * szTxtr;
@@ -152,17 +152,17 @@ public class Box extends GUI {
 
 
 
-			fixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, height, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(defaultTx, sideStartingX, height,0, aBg,0, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerA, x, y,0, a,0, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerD, width, y,0, a,0, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerB, x, height,0, a,0, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(cornerC, width, height,0, a,0, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideStartingY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			fixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideStartingY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideDA, sideStartingX, y,0, a,0, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideBC, sideStartingX, height,0, a,0, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideAB, x, sideStartingY,0, a,0, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			fixatedDrawables.add(TextureManager.getDrawable(sideCD, width, sideStartingY,0, a,0, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
 
 
@@ -182,17 +182,17 @@ public class Box extends GUI {
 			float widthSide = (width - sideStartingX) / szTxtr;
 			float heightSide = (sideFinalY - y) / szTxtr;
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, sideFinalY, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(defaultTx, sideStartingX, sideFinalY,0, aBg,0, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerA, x, y,0, a,0, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerD, width, y,0, a,0, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerB, x, height,0, a,0, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerC, width, height,0, a,0, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideFinalY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideFinalY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideDA, sideStartingX, y,0, a,0, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideBC, sideStartingX, height,0, a,0, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideAB, x, sideFinalY,0, a,0, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideCD, width, sideFinalY,0, a,0, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
 		} else{
 			float sideStartingX = x + size * szTxtr;
@@ -203,17 +203,17 @@ public class Box extends GUI {
 
 
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(defaultTx, sideStartingX, height, aBg, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(defaultTx, sideStartingX, height,0, aBg,0, false, false, widthSide, heightSide, true, (float) (rBg & 0xFF), (float) (gBg & 0xFF), (float) (bBg & 0xFF)));
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerA, x, y, a, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerD, width, y, a, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerB, x, height, a, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(cornerC, width, height, a, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerA, x, y,0, a,0, false, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerD, width, y,0, a,0, !true, false, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerB, x, height,0, a,0, false, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(cornerC, width, height,0, a,0, !true, !true, size, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideDA, sideStartingX, y, a, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideBC, sideStartingX, height, a, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideAB, x, sideStartingY, a, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
-			priorityFixatedDrawables.add(new TextureManager.DrawableObject(sideCD, width, sideStartingY, a, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideDA, sideStartingX, y,0, a,0, false, false, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideBC, sideStartingX, height,0, a,0, false, !true, widthSide, size, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideAB, x, sideStartingY,0, a,0, false, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
+			priorityFixatedDrawables.add(TextureManager.getDrawable(sideCD, width, sideStartingY,0, a,0, !true, false, size, heightSide, true, (float) (r & 0xFF), (float) (g & 0xFF), (float) (b & 0xFF)));
 
 
 

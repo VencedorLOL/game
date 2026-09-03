@@ -16,6 +16,8 @@ implement text supporting custom symbols embedded in text with custom notation (
 Camera: impact frames (dramatic but subtle zoom)
 ParticleManager: redo its entire logic its rubbish and laggy as of rn
 
+texturemanager: create different pools of drawableobjects instead of the crappy priority system i've got right now
+
 idea:
 path indicator having same theme as ambient
 
