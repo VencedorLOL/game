@@ -114,6 +114,8 @@ public class Textbox extends GUI {
 		text.render = false;
 		onOpenOverridable();
 		text.setColor(textColor);
+		text.setDefaultAttribute(5,0f);
+		text.updateText(textChunks.get(textLine));
 
 	}
 
@@ -163,7 +165,8 @@ public class Textbox extends GUI {
 				 }
 				 textLine++;
 				 amountOfTextWritten = 0;
-				 text.updateText("");
+				 text.updateText(textChunks.get(textLine));
+				 text.changeAttribute(5,0,textChunks.get(textLine).length(),0f);
 			} else
 				writeTheRestOfTheText();
 		}
@@ -205,7 +208,6 @@ public class Textbox extends GUI {
 		textJumpLine = finalX - thickness*.1f;
 
 
-		beforeTextOverridable();
 		text.render = true;
 		text.x = textInitialX;
 		text.y = textInitialY;
@@ -213,7 +215,7 @@ public class Textbox extends GUI {
 		if (amountOfTextWritten != textChunks.get(textLine).length()){
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
-				text.addToText(textChunks.get(textLine).charAt(amountOfTextWritten++)+"");
+				text.changeAttribute(5,0,amountOfTextWritten++,1);
 			}
 		}
 	}
@@ -246,13 +248,11 @@ public class Textbox extends GUI {
 
 	 @SuppressWarnings("all")
 	public void writeTheRestOfTheText(){
-		while(amountOfTextWritten < textChunks.get(textLine).length())
-			text.addToText(textChunks.get(textLine).charAt(amountOfTextWritten++)+"");
+		text.changeAttribute(5,0,textChunks.get(textLine).length(),1f);
+		amountOfTextWritten = textChunks.get(textLine).length();
 	}
 
 
-	@SuppressWarnings("all")
-	public void beforeTextOverridable(){}
 
 
 }

@@ -10,13 +10,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.*;
-import static com.mygdx.game.Utils.intravalue;
-import static com.mygdx.game.Utils.toFloat;
+import static com.mygdx.game.Utils.*;
 import static com.mygdx.game.items.AttackTextProcessor.coordsUpdater;
 import static java.lang.Math.*;
 
@@ -39,6 +39,9 @@ public class TextureManager {
 	static ArrayList<AtlasAndName> atlases;
 	static ArrayList<DrawableTexture> videos;
 	static ArrayList<DrawableObject> drawablePool;
+
+	static final char SPECIAL_CHAR = '\\';
+
 	static OnVariousScenarios oVE = new OnVariousScenarios(){
 		@Override
 		public void onStageChange() {
@@ -513,8 +516,10 @@ public class TextureManager {
 		public int timeToReachMaxVar;
 		public boolean[] shakingException;
 		public boolean[] coloringException;
+		public float[] opacityList;
 		int rRbow = -1,gRbow = -1,bRbow = -1;
 		int rDflt = -1, gDflt = -1, bDflt = -1;
+		float opacityDflt = 1;
 		boolean shakingDefault;
 		boolean coloringDefault;
 
@@ -547,6 +552,7 @@ public class TextureManager {
 				isUp[i] = random() < .5 ? false : true;
 			}
 			timeToReachMaxVar = time;
+			opacityDflt = opacity;
 		}
 
 
@@ -570,7 +576,7 @@ public class TextureManager {
 			}
 			else
 				superFrames = 0;
-
+			opacityDflt = opacity;
 		}
 
 		public Text(String text, float x, float y,int onScreenTime,int r, int b, int g,float opacity,float vanishingThreshold,float size){
@@ -582,6 +588,7 @@ public class TextureManager {
 			this.opacity = opacity;
 			this.vanishingThreshold = vanishingThreshold;
 			this.realSize = size;
+			opacityDflt = opacity;
 		}
 
 
@@ -594,6 +601,7 @@ public class TextureManager {
 			this.r = null;
 			realSize = size;
 			opacity = 1;
+			opacityDflt = opacity;
 		}
 
 		public Text(){}
@@ -607,23 +615,7 @@ public class TextureManager {
 			this.realSize = size;
 			this.onScreenTime = timeOnScreen;
 			opacity = 1;
-		}
-
-		public int[] listOfExclusion;
-		public void setListOfExclusion(int... list){
-			listOfExclusion = list;
-		}
-
-		public void clearListOfExclusion(){
-			listOfExclusion = null;
-		}
-
-		public boolean isElementExcluded(int element){
-			if(listOfExclusion != null)
-				for(int l : listOfExclusion)
-					if (element == l)
-						return true;
-			return false;
+			opacityDflt = opacity;
 		}
 
 
@@ -671,12 +663,12 @@ public class TextureManager {
 		}
 
 		/**
-		 * @param attribute 0 is shake, 1 is rainbow, 2 is red, 3 is green, 4 is blue
+		 * @param attribute 0 is shake, 1 is rainbow, 2 is red, 3 is green, 4 is blue, 5 is opacity
 		 * @param from First String character is 0
 		 * @param to Self explanatory, preferably higher than {@code from} if you want this to do anything
-		 * @param newValue for {@code attribute} 0,1: {@code 0} = {@code false},  will do, {@code 1} = {@code true} won't do. Else, put a color (range: 0-255)
+		 * @param newValue for {@code attribute} 0,1: {@code 0} = {@code false},  will do, {@code 1} = {@code true} won't do. Else, put a color (range: 0-255) or an alpha (range: 0f-1f)
 		 */
-		public void changeAttribute(int attribute,int from, int to,int newValue){
+		public void changeAttribute(int attribute,int from, int to,float newValue){
 			to = (int) intravalue(from,to,to);
 			if (attribute == 0) {
 				if(shakingException == null || shakingException.length <= to || shakingException.length < text.length()) {
@@ -690,7 +682,7 @@ public class TextureManager {
 					shakingException = temp;
 				}
 				for (int i = from; i <= to; i++)
-					shakingException[i] = newValue == 0 ? false : true;
+					shakingException[i] = (int) newValue == 0 ? false : true;
 			}
 			if (attribute == 1) {
 				if(coloringException == null || coloringException.length <= to || coloringException.length < text.length()) {
@@ -704,7 +696,7 @@ public class TextureManager {
 					coloringException = temp;
 				}
 				for (int i = from; i <= to; i++)
-					coloringException[i] = newValue == 0 ? false : true;
+					coloringException[i] = (int) newValue == 0 ? false : true;
 			}
 			if (attribute == 2) {
 				if(r == null || r.length <= to || r.length < text.length()) {
@@ -718,7 +710,7 @@ public class TextureManager {
 					r = temp;
 				}
 				for (int i = from; i <= to; i++)
-					r[i] = newValue;
+					r[i] = (int) (newValue > 0f && newValue < 1f ? newValue*255 : newValue);
 			}
 			if (attribute == 3) {
 				if(g == null || g.length <= to || g.length < text.length()) {
@@ -732,7 +724,7 @@ public class TextureManager {
 					g = temp;
 				}
 				for (int i = from; i <= to; i++)
-					g[i] = newValue;
+					g[i] = (int) (newValue > 0f && newValue < 1f ? newValue*255 : newValue);
 			}
 			if (attribute == 4) {
 				if(b == null || b.length <= to || b.length < text.length()) {
@@ -746,7 +738,21 @@ public class TextureManager {
 					b = temp;
 				}
 				for (int i = from; i <= to; i++)
-					b[i] = newValue;
+					b[i] = (int) (newValue > 0f && newValue < 1f ? newValue*255 : newValue);
+			}
+			if (attribute == 5) {
+				if(opacityList == null || opacityList.length <= to || opacityList.length < text.length()) {
+					float temp[] = new float[max(to+1,text.length())];
+					for (int i = 0; i < temp.length; i++) {
+						if (opacityList != null && opacityList.length > i)
+							temp[i] = opacityList[i];
+						else
+							temp[i] = opacityDflt;
+					}
+					opacityList = temp;
+				}
+				for (int i = from; i <= to; i++)
+					opacityList[i] = newValue;
 			}
 		}
 
@@ -776,6 +782,7 @@ public class TextureManager {
 			text = newText;
 			boolean[] color = new boolean[max(text.length(),coloringException != null ? coloringException.length : 0)];
 			boolean[] shake = new boolean[max(text.length(), shakingException != null ?  shakingException.length : 0)];
+			float[] opacity = new float[max(text.length(), opacityList  != null ?  opacityList.length  : 0)];
 			for(int i = 0; i < color.length; i++) {
 				if(coloringException != null && coloringException.length > i)
 					color[i] = coloringException[i];
@@ -788,8 +795,15 @@ public class TextureManager {
 				else
 					shake[i] = shakingDefault;
 			}
+			for(int i = 0; i < opacity.length; i++) {
+				if(opacityList != null && opacityList.length > i)
+					opacity[i] = opacityList[i];
+				else
+					opacity[i] = opacityDflt;
+			}
 			shakingException = shake;
 			coloringException = color;
+			opacityList = opacity;
 			int[] r = new int[max(text.length(),this.r != null ? this.r.length : 0)];
 			int[] g = new int[max(text.length(),this.g != null ? this.g.length : 0)];
 			int[] b = new int[max(text.length(),this.b != null ? this.b.length : 0)];
@@ -860,6 +874,33 @@ public class TextureManager {
 			return text;
 		}
 
+
+		private int commandProcessor(String currString, int indexPos){
+			if(currString.charAt(indexPos) != '<') {
+				printErr("[ERROR]\nLocated at commandProcessor(String, int), in class Text, in file TextureManajer.java\nERROR DESCRIPTION: Command passed" +
+						" to commandProcessor(String, int) whose index did not point to a '<' character. " + (currString.contains("<") ? "\n" : "In fact," +
+						" this message has no command inside it.\n")+"[ERROR]");
+				return 0;
+			} if(indexPos != 0 && currString.charAt(indexPos-1) == '\\'){
+				print("Command in string: " + currString + " at: "+ indexPos +" was not run due to it starting with a '\\'.");
+				return 0;
+			} if (!currString.contains(">")){
+				printErr("Malformed command: command did not have a '>' character. Command will not be run."); return 0;
+			} int indexOfClose = indexForwardClosestToTarget('>',currString,indexPos);
+			if (indexOfClose == -1){
+				printErr("Malformed command: command did not have a '>' character after the '<' command opener character. Command will not be run."); return 0;
+			}
+			String command = currString.substring(indexPos+1,indexOfClose);
+			if(command.indexOf("render:") == 0){
+
+			}
+
+			return;
+		}
+
+
+
+
 		public float[][] waveColors;
 		public final static float charSize = 8;
 		public void drawAll(float x, float y, float opacity){
@@ -867,7 +908,7 @@ public class TextureManager {
 			int lineJumps = 0;
 			float addition;
 			if(characters.length > 0)
-				addition = -(realSize/charSize*((getTexture(characters[0]).size+1) +(charSize - getTexture(characters[0]).size)));
+				addition = -(realSize/charSize*((getLetter(characters[0]).size+1) +(charSize - getLetter(characters[0]).size)));
 			else
 				addition = 0;
 			if(jumpsPerTick != 0)
@@ -877,24 +918,25 @@ public class TextureManager {
 			for(int i = 0; i < characters.length; i++){
 				if(characters[i] == '\n'){
 					lineJumps++;
-					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
+					addition = characters.length > i+1? -(realSize/charSize*((getLetter(characters[i+1]).size+1) +(charSize - getLetter(characters[i+1]).size))) : 0;
 					continue;
 				}
+				i += commandProcessor(new String(characters),i);
 				boolean doWave = letterMultiplicator != 0 && !coloringException[i];
 				boolean doRRbow = rRbow != -1 && !coloringException[i];
 				boolean doGRbow = rRbow != -1 && !coloringException[i];
 				boolean doBRbow = rRbow != -1 && !coloringException[i];
-				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
+				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getLetter(characters[i]).size + 1);
 				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0 || shakingException[i])
-					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
-							isElementExcluded(i) ? 0 : opacity, false,false,0, realSize/charSize,realSize/charSize,
+					drawer(getTexture(characters[i]),x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
+							opacityList != null ? opacityList[i] : opacity, false,false,0, realSize/charSize,realSize/charSize,
 							(doWave ? waveColors[i][0]: doRRbow ? rRbow : r == null? 255 : r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow : g == null? 255 : g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b == null? 255 : b[i])/255,
 							true);
 				else {
 					processShake();
-					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
+					drawer(getTexture(characters[i]), x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
-							 isElementExcluded(i) ? 0 : opacity, false, false, 0, realSize / charSize, realSize / charSize,
+							opacityList != null ? opacityList[i] : opacity, false, false, 0, realSize / charSize, realSize / charSize,
 							(doWave ? waveColors[i][0]: doRRbow ? rRbow :r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow :g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b[i])/255,
 							true);
 				}
@@ -981,9 +1023,9 @@ public class TextureManager {
 			char[] letters = text.toCharArray();
 			float counter = 0;
 			if(letters.length > 0)
-				counter = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
+				counter = -(realSize/charSize*((getLetter(letters[0]).size+1) +(charSize - getLetter(letters[0]).size)));
 			for(char c : letters)
-				counter += realSize/charSize*(getTexture(c).size + 1);
+				counter += realSize/charSize*(getLetter(c).size + 1);
 			return counter;
 		}
 
@@ -992,9 +1034,9 @@ public class TextureManager {
 			char[] letters = text.toCharArray();
 			float counter = 0;
 			if(letters.length > 0)
-				counter = -(realSize/charSize*((getTexture(letters[0]).size+1) +(charSize - getTexture(letters[0]).size)));
+				counter = -(realSize/charSize*((getLetter(letters[0]).size+1) +(charSize - getLetter(letters[0]).size)));
 			for(char c : letters)
-				counter += realSize/charSize*(getTexture(c).size + 1);
+				counter += realSize/charSize*(getLetter(c).size + 1);
 			return counter;
 		}
 
@@ -1002,12 +1044,15 @@ public class TextureManager {
 			char[] letters = text.toCharArray();
 			float counter = 0;
 			for(char c : letters)
-				counter += (getTexture(c).size + 1);
+				counter += (getLetter(c).size + 1);
 			return maxXSpace/counter*charSize;
 		}
 
+		public static String getTexture(char character){
+			return getLetter(character).texture;
+		}
 
-		public static Letters getTexture(char character){
+		public static Letters getLetter(char character){
 			switch(character){
 				case 'A': return Letters.A;
 				case 'B': return Letters.B;
@@ -1226,18 +1271,76 @@ public class TextureManager {
 				bDflt = color[2];
 		}
 
-		public void setDefaultAttribute(int attribute, int value){
+		public void setDefaultAttribute(int attribute, float value){
 			if(attribute == 0)
-				shakingDefault = value == 0 ? false : true;
+				shakingDefault = (int)value == 0 ? false : true;
 			if(attribute == 1)
-				coloringDefault = value == 0 ? false : true;
+				coloringDefault = (int)value == 0 ? false : true;
 			if(attribute == 2)
-				rDflt = value;
+				rDflt = (int) (value > 0f && value < 1f ? value*255 : value);
 			if(attribute == 3)
-				gDflt = value;
+				gDflt = (int) (value > 0f && value < 1f ? value*255 : value);
 			if(attribute == 4)
-				bDflt = value;
+				bDflt = (int) (value > 0f && value < 1f ? value*255 : value);
+			if(attribute == 5)
+				opacityDflt = value;
 		}
+
+		/**
+		 *
+		 * @param string
+		 * @return Returns the length of the formatted string
+		 */
+		public static int length(String string) {
+			int nOfCmds = min(numberOfStrings(string, "<"), numberOfStrings(string, ">"));
+			int[] cmdOpener = positionsOfChar(string,'<');
+			int[] cmdCloser = positionsOfChar(string,'>');
+			int closerNoncounter = 0, openerNoncounter = 0;
+			ArrayList<IntAndBool> list = new ArrayList<>();
+			for(int i = 0; i < cmdCloser.length; i++)
+				if (!(cmdOpener.length == 0 || cmdCloser[i] == 0 || cmdCloser[i] < cmdOpener[0] || string.charAt(cmdCloser[i]-1) == SPECIAL_CHAR || (i+1-closerNoncounter > cmdOpener.length)))
+					list.add(new IntAndBool(cmdCloser[i],false));
+
+			for(int i = 0; i < cmdOpener.length; i++)
+				if (!(cmdCloser.length == 0 || cmdOpener[i] == 0 || cmdOpener[i] > cmdCloser[cmdCloser.length-1] || string.charAt(cmdOpener[i]-1) == SPECIAL_CHAR || (i+1-openerNoncounter > cmdCloser.length)))
+					list.add(new IntAndBool(cmdOpener[i],true));
+
+			list.sort((o1, o2) -> Float.compare(o2.intt, o1.intt));
+			Collections.reverse(list);
+			boolean openerIsEven = true;
+			for(int i = 0; i < list.size(); i++)
+				if((i % 2 == 0 && (openerIsEven ^ list.get(i).bool)) || (i % 2 != 0 && (!openerIsEven ^ list.get(i).bool))){
+					list.get(i).intt = -1;
+					openerIsEven = !openerIsEven;
+				}
+			Collections.reverse(list);
+			for(IntAndBool i : list)
+				if(i.intt != -1)
+					continue;
+				else if (i.bool) {
+					i.intt = -1;
+					break;
+				} else break;
+			Collections.reverse(list);
+			int len = 0;
+			for(IntAndBool i : list)
+				if(i.intt != -1)
+					if (len < 0)
+						len += i.intt;
+					else if (len >= 0)
+						len -= i.intt;
+			return string.length() - len;
+		}
+
+		private static class IntAndBool {
+			int intt;
+			boolean bool;
+			IntAndBool (int intt, boolean bool){
+				this.intt = intt; this.bool = bool;
+			}
+		}
+
+
 
 	}
 
@@ -1578,7 +1681,7 @@ public class TextureManager {
 			int lineJumps = 0;
 			float addition;
 			if(characters.length > 0)
-				addition = -(realSize/charSize*((getTexture(characters[0]).size+1) +(charSize - getTexture(characters[0]).size)));
+				addition = -(realSize/charSize*((getLetter(characters[0]).size+1) +(charSize - getLetter(characters[0]).size)));
 			else
 				addition = 0;
 			if(jumpsPerTick != 0)
@@ -1588,20 +1691,20 @@ public class TextureManager {
 			for(int i = 0; i < characters.length; i++){
 				if(characters[i] == '\n'){
 					lineJumps++;
-					addition = characters.length > i+1? -(realSize/charSize*((getTexture(characters[i+1]).size+1) +(charSize - getTexture(characters[i+1]).size))) : 0;
+					addition = characters.length > i+1? -(realSize/charSize*((getLetter(characters[i+1]).size+1) +(charSize - getLetter(characters[i+1]).size))) : 0;
 					continue;
 				}
-				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getTexture(characters[i]).size + 1);
+				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getLetter(characters[i]).size + 1);
 				if(letterMultiplicator != 0)
 					colors = toFloat(rainbowColorCalculationPerLetter(characters.length - i,(int) colors[0],(int) colors[1],(int) colors[2]));
 				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0)
-					drawer(getTexture(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
+					drawer(getLetter(characters[i]).texture,x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
 							isElementExcluded(i) ? 0 : opacity,
 							false,false,0,
 						realSize/charSize,realSize/charSize,colors[0]/255,colors[1]/255,colors[2]/255,true);
 				else {
 					processShake();
-					drawer(getTexture(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
+					drawer(getLetter(characters[i]).texture, x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
 							 isElementExcluded(i) ? 0 : opacity, false, false, 0,
 							realSize / charSize, realSize / charSize, colors[0] / 255, colors[1] / 255, colors[2] / 255, true);

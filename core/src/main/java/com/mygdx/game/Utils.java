@@ -5,7 +5,8 @@ import java.util.Collections;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.items.TextureManager.Text.getTexture;
+import static com.mygdx.game.items.TextureManager.Text.getLetter;
+import static com.mygdx.game.items.TextureManager.Text.length;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 import static java.lang.String.valueOf;
@@ -54,7 +55,7 @@ public class Utils {
 		return -1;
 	}
 
-	public static int numberOfStrings(String objective, String analyzed){
+	public static int numberOfStrings(String analyzed, String objective){
 		int times = 0;
 		while(analyzed.contains(objective)){
 			times++;
@@ -142,6 +143,13 @@ public class Utils {
 		return string.length() - 1 - finalPos;
 	}
 
+	public static int indexForwardClosestToTarget(char target, String string, int position){
+		for(int i = position; i < string.length(); i++)
+			if(string.charAt(i) == target)
+				return i;
+		return -1;
+	}
+
 	public static String replaceCharAt(String original, char newChar, int index){
 		if(index > original.length())
 			return original;
@@ -169,7 +177,7 @@ public class Utils {
 	}
 
 	public static void main(String... args){
-//		//algo word attributes
+/*/		//algo word attributes
 		String str1 = "";
 		String str2 = "";
 		print("Start at: "+ (str1.length()-1) + ", end at: "+  (str2.length()-1));
@@ -185,7 +193,7 @@ public class Utils {
 				counter = 0;
 				continue;
 			}
-			counter += getTexture(size.charAt(i)).getSize() + 1;
+			counter += getLetter(size.charAt(i)).getSize() + 1;
 			if(counter > limit){
 				int index = indexBackClosestToTarget(' ', size, i);
 				size = replaceCharAt(size,'\n',index);
@@ -194,7 +202,7 @@ public class Utils {
 		}
 		print(size);
 		print("\n-----------------------------------------------------\n");
-
+*/
 /*		print("instertStringAt tester:");
 		String stringTest = "ho world";
 		String insertedTest = "ell";
@@ -202,6 +210,12 @@ public class Utils {
 		print("string subject: " +stringTest+" inserted string: " + insertedTest + " position at: " + position);
 		print("result: " + insertStringAt(stringTest,insertedTest,position));
 */
+
+		print("calculator of formatted strings' lenght");
+		String fakeCommand = "<abcde>";
+		String strinTest = "hello world this is a test string with a fake command: " + fakeCommand;
+		print("real len of str: " + strinTest.length() + " length of cmd: " + fakeCommand.length() + " len of formatted: " + length(strinTest));
+
 
 	}
 
@@ -212,7 +226,7 @@ public class Utils {
 				counter = 0;
 				continue;
 			}
-			counter += getTexture(string.charAt(i)).getSize() + 1;
+			counter += getLetter(string.charAt(i)).getSize() + 1;
 			if (counter > pxLimit) {
 				int index = indexBackClosestToTarget(sepChar, string, i);
 				string = replaceCharAt(string, '\n', index);
@@ -242,7 +256,7 @@ public class Utils {
 				counter = 0;
 				continue;
 			}
-			counter += getTexture(string.charAt(i)).getSize() + 1;
+			counter += getLetter(string.charAt(i)).getSize() + 1;
 			if (counter > pxLimit) {
 				if(i != 0) {
 					string = insertStringAt(string,"\n",i-1);
@@ -295,6 +309,18 @@ public class Utils {
 			count += charCount(chara,s);
 		return count;
 
+	}
+
+	public static int[] positionsOfChar(String string, char objective){
+		int[] pos = new int[numberOfStrings(string,objective+"")];
+		int startPos = (string.length() > 0 && string.charAt(0) == objective) ? 1 : 0;
+		for(int i = 0; i < string.length(); i++)
+			if(string.charAt(i) == objective)
+				for(int j = startPos; j < pos.length; j++)
+					if(pos[j] == 0) {
+						pos[j] = i; break;
+					}
+		return pos;
 	}
 
 }
