@@ -1,4 +1,4 @@
-package com.mygdx.game.items.allaies;
+package com.mygdx.game.items.allies;
 
 import com.mygdx.game.items.Actor;
 import com.mygdx.game.items.Friend;

@@ -182,15 +182,11 @@ public class TheEntrance extends Stage {
 				action = new Interactable(this){
 					public void onInteract(Character character) {
 						new Textbox(){
-							public void beforeRenderOverridable() {
-								paralyzeCharacter();
-							}
-
 							public void onRemoval() {
 								iniSoldiersWalking();
 							}
 
-							public void beforeTextOverridable() {
+							public void onOpenOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
 									setText("Anima: Returning from the mission");
@@ -203,15 +199,11 @@ public class TheEntrance extends Stage {
 				action = new Interactable(this){
 					public void onInteract(Character character) {
 						new Textbox(){
-							public void beforeRenderOverridable() {
-								paralyzeCharacter();
-							}
-
 							public void onRemoval() {
 								iniSoldiersWalking();
 							}
 
-							public void beforeTextOverridable() {
+							public void onOpenOverridable() {
 								framesTilNextLetter = 5;
 								if(temp.x == 7*globalSize())
 									setText("Anima: Returning from the mission");
@@ -223,58 +215,44 @@ public class TheEntrance extends Stage {
 				action = new Interactable(this){
 					public void onInteract(Character character) {
 						new Textbox(){
-							boolean init = false;
-							public void beforeRenderOverridable() {
-								paralyzeCharacter();
-							}
 
-							public void onRemoval() {
-								deparalyzeCharacter();
-							}
-
-							public void beforeTextOverridable() {
-								if(!init) {
-									framesTilNextLetter = 5;
-									setText("SpecilTest: You see, I have special text qualities... Sometimes, It shakes. Other times, I choose to tint it rainbow. Rarely, I do both.");
-									text.initiateRainbow(1000, 20);
-									text.initiateShake(3, 2);
-									text.setDefaultAttribute(0, 1);
-									text.setDefaultAttribute(1, 1);
-									text.setColor(255, 255, 255);
-									text.changeAttribute(0, 0, getText().length(), 1);
-									text.changeAttribute(1, 0, getText().length(), 1);
-									text.changeAttribute(1, 108, 115, 0);
-									text.changeAttribute(0, 130, 135, 0);
-									text.changeAttribute(0, 68, 73, 0);
-									text.changeAttribute(1, 130, 135, 0);
-									text.changeAttribute(2, 40, 52, 255);
-									text.changeAttribute(3, 40, 52, 0);
-									text.changeAttribute(4, 40, 52, 0);
-									init = true;
-								}
+							public void onOpenOverridable() {
+								framesTilNextLetter = 5;
+								setText("SpecilTest: You see, I have special text qualities... Sometimes, It shakes. Other times, I choose to tint it rainbow. Rarely, I do both.");
+								text.initiateRainbow(1000, 20);
+								text.initiateShake(3, 2);
+								text.setDefaultAttribute(0, 1);
+								text.setDefaultAttribute(1, 1);
+								text.setColor(255, 255, 255);
+								text.changeAttribute(0, 0, getText().length(), 1);
+								text.changeAttribute(1, 0, getText().length(), 1);
+								text.changeAttribute(1, 108, 115, 0);
+								text.changeAttribute(0, 130, 135, 0);
+								text.changeAttribute(0, 68, 73, 0);
+								text.changeAttribute(1, 130, 135, 0);
+								text.changeAttribute(2, 40, 52, 255);
+								text.changeAttribute(3, 40, 52, 0);
+								text.changeAttribute(4, 40, 52, 0);
 							}};}};}};
 		d = new Soldier(4*globalSize(),3*globalSize()){
 			public void setAction() {
 				action = new Interactable(this){
 					public void onInteract(Character character) {
 						new Textbox(){
-							boolean init = false;
-							public void beforeRenderOverridable() {
-								paralyzeCharacter();
-							}
 
-							public void onRemoval() {
-								deparalyzeCharacter();
-							}
 
-							public void beforeTextOverridable() {
-								if(!init) {
+							public void onOpenOverridable() {
+
 									framesTilNextLetter = 0;
 									setText("hello world, this is a kinda long sentence " +
-											"kinda to test the new algorithm i made at" +
-											"detecting where line breaks should go.");
-									init = true;
-								}
+											"kinda to test the new algorithm i made at " +
+											"detecting where line breaks should go. i, at a later date, added this part of the text you're reading right now " +
+											"to test whether the new part of textboxes i impemented where textboxes would jump to a new textbox to render " +
+											"bigger amounts of text would work. to help me further this goal of testing, i am going to write some random words " +
+											"whose purpose is to let me check accurately that the algorithm i made to detect where a new textbox should start " +
+											"works properly and flawlessly. penguin. scissors. heavy machinery.");
+
+
 							}};}};}};
 		enemy.add(a);
 		enemy.add(b);

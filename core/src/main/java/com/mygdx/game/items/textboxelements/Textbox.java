@@ -5,23 +5,30 @@ import com.mygdx.game.items.GUI;
 import com.mygdx.game.items.TextureManager;
 import com.mygdx.game.items.guielements.Box;
 
-import static com.mygdx.game.Utils.stringCutter;
+import java.util.ArrayList;
+
+import static com.mygdx.game.Utils.*;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
+import static java.lang.Math.max;
 
 public class Textbox extends GUI {
+	public static final int PX_LIMIT = 182;
 
 	public int[] exteriorColor;
 	public int[] interiorColor;
 	public int[] textColor;
 	public TextureManager.Text text;
 	private String storedText;
+	private final ArrayList<String> textChunks = new ArrayList<>();
+	private int textLine = 0;
 	public String cornerTexture;
 	public String sideTexture;
 	public String sideWaysTexture;
 	public String backgroundTexture;
+	public boolean useCutter = false;
 
-	public float thickness;
+	private float thickness;
 	public float widthSide;
 	public float heightSide;
 
@@ -35,15 +42,15 @@ public class Textbox extends GUI {
 	public float sideFinalX;
 	public float sideFinalY;
 
-	public float textSize;
-	public float textInitialX;
-	public float textInitialY;
+	private float textSize;
+	private float textInitialX;
+	private float textInitialY;
 	public float textJumpLine;
 
 	public int amountOfTextWritten = 0;
 	public int framesTilNextLetter;
 	public int framesTilNextLetterCounter;
-	public boolean doFastText;
+	private boolean doFastText;
 
 	private int cooldownToRemove = 10;
 
@@ -53,6 +60,11 @@ public class Textbox extends GUI {
 
 
 	/**
+	 * <h2>WARNING:</h2>
+	 *
+	 * <h3>This class by default paralyzes the character on initialization. Override beforeRenderOverridable() to change this behaviour.</h3>
+	 * <h3>This class also deparalyzes the character on removal. To change this behaviour, override onRemoval().</h3>
+	 *
 	 * <h1>
 	 *     {@code PLEASE:}
 	 * </h1>
@@ -61,7 +73,7 @@ public class Textbox extends GUI {
 	 * </h3>
 	 * <ul>
 	 *     <li>{@code storedText} (remember to break the lines and that each textbox can only have 3 breaklines)
-	 *     WARNING, {@code storedText} IS GOTTA BE INITIALIZED THROUGH setText(String text)!!!!</li>
+	 *     WARNING, {@code storedText} IS GOTTA BE INITIALIZED THROUGH setText(String text). This can be done by overriding onOpenOverridable(), or through other means.</li>
 	 * </ul>
 	 *
 	 * <h4>
@@ -97,9 +109,24 @@ public class Textbox extends GUI {
 		storedText = "NULL TEXTBOX";
 
 		box = new Box(1);
+
+		text = dynamicFixatedText("", textInitialX, textInitialY, -1, textSize);
+		text.render = false;
+		onOpenOverridable();
+		text.setColor(textColor);
+
 	}
 
-	public void beforeRenderOverridable(){}
+	public void onOpenOverridable(){}
+
+
+	public void beforeRenderOverridable(){
+		paralyzeCharacter();
+	}
+
+	public void onRemoval(){
+		deparalyzeCharacter();
+	}
 
 	public void render(){
 		beforeRenderOverridable();
@@ -126,11 +153,17 @@ public class Textbox extends GUI {
 	//Override if another closing mechanism should be used instead
 	public void closeMechanism(){
 		if ((leftClickReleased() || escapePressed() || actionConfirmReleased() || rightClickReleased()) && cooldownToRemove <= 0) {
-			if (amountOfTextWritten >= storedText.length()) {
-				delete(this);
-				text.render = false;
-				text.onScreenTime = 1;
-				text.fakeNull = true;
+			if(amountOfTextWritten >= textChunks.get(textLine).length()){
+				 if(textChunks.size() - 1 <= textLine){
+					 delete(this);
+					 text.render = false;
+					 text.onScreenTime = 1;
+					 text.fakeNull = true;
+				 	return;
+				 }
+				 textLine++;
+				 amountOfTextWritten = 0;
+				 text.updateText("");
 			} else
 				writeTheRestOfTheText();
 		}
@@ -171,26 +204,35 @@ public class Textbox extends GUI {
 		textInitialY = (startingY + thickness*16)*1.01f;
 		textJumpLine = finalX - thickness*.1f;
 
-		if(text == null) {
-			storedText = stringCutter(storedText,203,' ');
-			text = dynamicFixatedText("", textInitialX, textInitialY, -1, textSize);
-			text.setColor(textColor);
-		}
+
 		beforeTextOverridable();
-		stringCutter(storedText,203,' ');
+		text.render = true;
 		text.x = textInitialX;
 		text.y = textInitialY;
 		text.realSize = textSize;
-		if (amountOfTextWritten != storedText.length()){
+		if (amountOfTextWritten != textChunks.get(textLine).length()){
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
-				text.addToText(storedText.charAt(amountOfTextWritten++)+"");
+				text.addToText(textChunks.get(textLine).charAt(amountOfTextWritten++)+"");
 			}
 		}
 	}
 
 	public void setText(String text){
-		storedText = stringCutter(text,203,' ');
+		textChunks.clear();
+		storedText = useCutter ? stringCutter(text,PX_LIMIT + 16) : stringSeparator(text,PX_LIMIT,' ');
+		int counter = 0;
+		for (int i = 0; i < storedText.length(); i++)
+			if(storedText.charAt(i) == '\n' && ++counter % 4 == 0)
+				createChunkAtIndex(i);
+		createChunkAtIndex(storedText.length());
+	}
+
+	private void createChunkAtIndex(int index){
+		int counter = 0;
+		for (String s : textChunks)
+			counter += s.length() + 1;
+		textChunks.add(storedText.substring(counter,index));
 	}
 
 	public String getText(){
@@ -204,8 +246,8 @@ public class Textbox extends GUI {
 
 	 @SuppressWarnings("all")
 	public void writeTheRestOfTheText(){
-		while(amountOfTextWritten < storedText.length())
-			text.addToText(storedText.charAt(amountOfTextWritten++)+"");
+		while(amountOfTextWritten < textChunks.get(textLine).length())
+			text.addToText(textChunks.get(textLine).charAt(amountOfTextWritten++)+"");
 	}
 
 

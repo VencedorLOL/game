@@ -25,15 +25,7 @@ public class Soldier extends Enemy {
 		action = new Interactable(this){
 			public void onInteract(Character character) {
 				new Textbox(){
-					public void beforeRenderOverridable() {
-						paralyzeCharacter();
-					}
-
-					public void onRemoval() {
-						deparalyzeCharacter();
-					}
-
-					public void beforeTextOverridable() {
+					public void onOpenOverridable() {
 						setText("This is the default textbox for the \nsoldier class.");
 					}
 				};

@@ -27,7 +27,7 @@ public class StageOne extends Stage {
 	}
 
 	public void reStage() {
-		screenWarpDestination.add(new one());
+		screenWarpDestination.add(new StageTwo());
 	}
 
 	public void hazardSetter(){

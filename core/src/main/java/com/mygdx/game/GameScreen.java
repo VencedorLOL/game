@@ -43,7 +43,7 @@ public class GameScreen implements Screen{
 		camaraZoom = 1;
 		camara.zoom = 1;
 		camara.camaraStarter(camaraZoom);
-		stage = startAsPathfinding ? new Labitynth() : new StageOne();
+		stage = startAsPathfinding ? new Labitynth() : new TheEntrance();
 		print("start as path is " + startAsPathfinding);
 		chara = new Character(512, 512, globalSize(), globalSize());
 		stage.reseter();

@@ -12,15 +12,10 @@ public class Multicolor extends Textbox {
 		setText("The Rainbow Text");
 	}
 
-	boolean initializedRainbow = false;
-	public void beforeTextOverridable() {
-		if (text != null) {
-			if(!initializedRainbow) {
-				text.initiateRainbow(200, 0);
-				initializedRainbow = true;
-			}
-			textColor = text.getDefaultColor();
-		}
+
+	public void onOpenOverridable() {
+		text.initiateRainbow(200, 0);
+		textColor = text.getDefaultColor();
 	}
 
 	public void onRemoval() {
@@ -34,15 +29,10 @@ public class Multicolor extends Textbox {
 			setText("THE RAINBOW WAVEEEEEEE!!!!!!!!!!!!!!!!");
 		}
 
-		boolean initializedRainbow = false;
-		public void beforeTextOverridable() {
-			if (text != null) {
-				if(!initializedRainbow) {
-					text.initiateRainbow(200, 2f);
-					initializedRainbow = true;
-				}
-				textColor = text.getDefaultColor();
-			}
+		public void onOpenOverridable() {
+			useCutter = true;
+			text.initiateRainbow(200, 2f);
+			textColor = text.getDefaultColor();
 		}
 
 		public void onRemoval() {
@@ -53,18 +43,13 @@ public class Multicolor extends Textbox {
 	public static class SlowRainbow extends Textbox{
 		public SlowRainbow(){
 			framesTilNextLetter = 20;
-			setText("slow... rainbow............................\n...................................................\n...................................................");
+			setText("slow... rainbow..................................................................................................................................");
 		}
 
-		boolean initializedRainbow = false;
-		public void beforeTextOverridable() {
-			if (text != null) {
-				if(!initializedRainbow) {
-					text.initiateRainbow(1000, 20);
-					initializedRainbow = true;
-				}
-				textColor = text.getDefaultColor();
-			}
+		public void onOpenOverridable() {
+			useCutter = true;
+			text.initiateRainbow(1000, 20);
+			textColor = text.getDefaultColor();
 		}
 
 		public void onRemoval() {
@@ -75,18 +60,12 @@ public class Multicolor extends Textbox {
 	public static class FAST_RAINBOW extends Textbox{
 		public FAST_RAINBOW(){
 			framesTilNextLetter = 3;
-			setText("FAST RAINBOW!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			setText("FAST RAINBOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
-		boolean initializedRainbow = false;
-		public void beforeTextOverridable() {
-			if (text != null) {
-				if(!initializedRainbow) {
-					text.initiateRainbow(76.5f, 1);
-					initializedRainbow = true;
-				}
-				textColor = text.getDefaultColor();
-			}
+		public void onOpenOverridable() {
+			useCutter = true;
+			text.initiateRainbow(76.5f, 1);
 		}
 
 		public void onRemoval() {
@@ -97,42 +76,29 @@ public class Multicolor extends Textbox {
 	public static class VERY_FAST_RAINBOW extends Textbox{
 		public VERY_FAST_RAINBOW(){
 			framesTilNextLetter = 1;
-			setText("VERY FAST RAINBOW!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+			setText("VERY FAST RAINBOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
-		boolean initializedRainbow = false;
-		public void beforeTextOverridable() {
-			if (text != null) {
-				if(!initializedRainbow) {
-					text.initiateShake(5,20);
-					text.initiateRainbow(30, 1.5f);
-					initializedRainbow = true;
-				}
-				textColor = text.getDefaultColor();
-			}
+		public void onOpenOverridable() {
+			useCutter = true;
+			text.initiateShake(5,20);
+			text.initiateRainbow(30, 1.5f);
+			textColor = text.getDefaultColor();
 		}
 
-		public void onRemoval() {
-			deparalyzeCharacter();
-		}
 	}
 
 	public static class very_slow_rainbow extends Textbox{
 		public very_slow_rainbow(){
 			framesTilNextLetter = 30;
-			setText("very... slow... rainbow................\n...................................................\n...................................................");
+			setText("very... slow... rainbow......................................................................................................................");
 		}
 
-		boolean initializedRainbow = false;
-		public void beforeTextOverridable() {
-			if (text != null) {
-				if(!initializedRainbow) {
-					text.initiateShake(1,10);
-					text.initiateRainbow(3060, 20);
-					initializedRainbow = true;
-				}
-				textColor = text.getDefaultColor();
-			}
+		public void onOpenOverridable() {
+			useCutter = true;
+			text.initiateShake(1,10);
+			text.initiateRainbow(3060, 20);
+			textColor = text.getDefaultColor();
 		}
 
 		public void onRemoval() {

@@ -1,7 +1,7 @@
 package com.mygdx.game.items.characters.classes;
 
 import com.mygdx.game.items.*;
-import com.mygdx.game.items.allaies.Summon;
+import com.mygdx.game.items.allies.Summon;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
 

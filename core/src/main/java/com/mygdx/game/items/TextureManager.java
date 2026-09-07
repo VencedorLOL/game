@@ -102,6 +102,22 @@ public class TextureManager {
 			sprite.draw(batch);
 	}
 
+	public static int getTextureWidth(String texture){
+		return atlas.findRegion(texture).getRegionWidth();
+	}
+
+
+	public static int getTextureHeight(String texture){
+		return atlas.findRegion(texture).getRegionHeight();
+	}
+
+	/**
+	 * @return Returns -1 if the returned width isn't the same size as the returned height.
+	 */
+	public static int getTextureSize(String texture){
+		return atlas.findRegion(texture).getRegionWidth() == atlas.findRegion(texture).getRegionHeight() ? atlas.findRegion(texture).getRegionHeight() : -1;
+	}
+
 	private static void textureDrawer(Texture texture, float x, float y){
 		batch.draw(texture,x,y);
 	}

@@ -1,7 +1,7 @@
 package com.mygdx.game.items.characters.equipment.weapons;
 
 import com.mygdx.game.items.Conditions;
-import com.mygdx.game.items.allaies.Summon;
+import com.mygdx.game.items.allies.Summon;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.Summoner;
 import com.mygdx.game.items.characters.equipment.Weapons;

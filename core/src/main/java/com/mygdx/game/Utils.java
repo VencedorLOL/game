@@ -1,11 +1,7 @@
 package com.mygdx.game;
 
-import com.mygdx.game.items.TextureManager;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.print;
@@ -150,17 +146,30 @@ public class Utils {
 		if(index > original.length())
 			return original;
 		char[] strBuilder = new char[original.length()];
-		for(int i = 0; i < original.length(); i++){
+		for(int i = 0; i < original.length(); i++)
 			if(i != index)
 				strBuilder[i] = original.charAt(i);
 			else
 				strBuilder[i] = newChar;
-		}
+		return new String(strBuilder);
+	}
+
+	public static String insertStringAt(String original, String fragment, int index){
+		if(index > original.length())
+			return original;
+		char[] strBuilder = new char[original.length() + fragment.length()];
+		for(int i = 0; i <= original.length(); i++)
+			if(i < index)
+				strBuilder[i] = original.charAt(i);
+			else if (i == index) for (int j = 0; j < fragment.length(); j++)
+				strBuilder[i + j] = fragment.charAt(j);
+			else if (i > index)
+				strBuilder[i + fragment.length() - 1] = original.charAt(i - 1);
 		return new String(strBuilder);
 	}
 
 	public static void main(String... args){
-		//algo word attributes
+//		//algo word attributes
 		String str1 = "";
 		String str2 = "";
 		print("Start at: "+ (str1.length()-1) + ", end at: "+  (str2.length()-1));
@@ -185,9 +194,18 @@ public class Utils {
 		}
 		print(size);
 		print("\n-----------------------------------------------------\n");
+
+/*		print("instertStringAt tester:");
+		String stringTest = "ho world";
+		String insertedTest = "ell";
+		int position = 1;
+		print("string subject: " +stringTest+" inserted string: " + insertedTest + " position at: " + position);
+		print("result: " + insertStringAt(stringTest,insertedTest,position));
+*/
+
 	}
 
-	public static String stringCutter(String string, int pxLimit,char sepChar) {
+	public static String stringSeparator(String string, int pxLimit, char sepChar) {
 		float counter = 0;
 		for (int i = 0; i < string.length(); i++) {
 			if (string.charAt(i) == '\n') {
@@ -205,7 +223,7 @@ public class Utils {
 	}
 
 	public static String[] stringSplitter(String string, int pxLimit,char sepChar) {
-		return stringCutter(string,pxLimit,sepChar).split("\n");
+		return stringSeparator(string,pxLimit,sepChar).split("\n");
 	}
 
 
@@ -216,6 +234,25 @@ public class Utils {
 		}
 		return finalIsh.toArray(new String[0]);
 	}
+
+	public static String stringCutter(String string, int pxLimit) {
+		float counter = 0;
+		for (int i = 0; i < string.length(); i++) {
+			if (string.charAt(i) == '\n') {
+				counter = 0;
+				continue;
+			}
+			counter += getTexture(string.charAt(i)).getSize() + 1;
+			if (counter > pxLimit) {
+				if(i != 0) {
+					string = insertStringAt(string,"\n",i-1);
+				}
+				counter = 0;
+			}
+		}
+		return string;
+	}
+
 
 	public static int characterCounter(String string, char character){
 		int counter = 0;

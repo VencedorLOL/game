@@ -21,15 +21,7 @@ public class Dummy extends Enemy {
 		test = new Interactable(x,y,globalSize(),globalSize()){
 			public void onInteract(Character character) {
 				new Textbox(){
-					public void beforeRenderOverridable() {
-						paralyzeCharacter();
-					}
-
-					public void onRemoval() {
-						deparalyzeCharacter();
-					}
-
-					public void beforeTextOverridable() {
+					public void onOpenOverridable() {
 						setText("Hi, I am a dummy!");
 					}
 				};
