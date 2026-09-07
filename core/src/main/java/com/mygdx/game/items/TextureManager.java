@@ -779,6 +779,7 @@ public class TextureManager {
 		}
 
 		public void updateText(String newText){
+			length = -1;
 			text = newText;
 			boolean[] color = new boolean[max(text.length(),coloringException != null ? coloringException.length : 0)];
 			boolean[] shake = new boolean[max(text.length(), shakingException != null ?  shakingException.length : 0)];
@@ -875,6 +876,7 @@ public class TextureManager {
 		}
 
 
+		String renderTexture;
 		private int commandProcessor(String currString, int indexPos){
 			if(currString.charAt(indexPos) != '<') {
 				printErr("[ERROR]\nLocated at commandProcessor(String, int), in class Text, in file TextureManajer.java\nERROR DESCRIPTION: Command passed" +
@@ -892,23 +894,26 @@ public class TextureManager {
 			}
 			String command = currString.substring(indexPos+1,indexOfClose);
 			if(command.indexOf("render:") == 0){
-
+				renderTexture = command.substring(7);
+				wMultip = CHAR_SIZE/getTextureWidth(renderTexture);
+				hMultip = CHAR_SIZE/getTextureHeight(renderTexture);
 			}
 
-			return;
+			return command.length() + 1;
 		}
 
 
 
 
+		public final static float CHAR_SIZE = 8;
 		public float[][] waveColors;
-		public final static float charSize = 8;
+		float wMultip = 1f, hMultip = 1f;
 		public void drawAll(float x, float y, float opacity){
 			char[] characters = text.toCharArray();
 			int lineJumps = 0;
 			float addition;
 			if(characters.length > 0)
-				addition = -(realSize/charSize*((getLetter(characters[0]).size+1) +(charSize - getLetter(characters[0]).size)));
+				addition = -(realSize/ CHAR_SIZE *((getLetter(characters[0]).size+1) +(CHAR_SIZE - getLetter(characters[0]).size)));
 			else
 				addition = 0;
 			if(jumpsPerTick != 0)
@@ -918,25 +923,27 @@ public class TextureManager {
 			for(int i = 0; i < characters.length; i++){
 				if(characters[i] == '\n'){
 					lineJumps++;
-					addition = characters.length > i+1? -(realSize/charSize*((getLetter(characters[i+1]).size+1) +(charSize - getLetter(characters[i+1]).size))) : 0;
+					addition = characters.length > i+1? -(realSize/ CHAR_SIZE *((getLetter(characters[i+1]).size+1) +(CHAR_SIZE - getLetter(characters[i+1]).size))) : 0;
 					continue;
 				}
-				i += commandProcessor(new String(characters),i);
+				wMultip = 1f; hMultip = 1f;
+				if(allowCommands() && characters[i] == '<' && (i == 0 || characters[i-1] != '\\'))
+					i += commandProcessor(new String(characters),i);
 				boolean doWave = letterMultiplicator != 0 && !coloringException[i];
 				boolean doRRbow = rRbow != -1 && !coloringException[i];
 				boolean doGRbow = rRbow != -1 && !coloringException[i];
 				boolean doBRbow = rRbow != -1 && !coloringException[i];
-				addition += characters[i] == '\n' ? 0 : realSize/charSize*(getLetter(characters[i]).size + 1);
+				addition += characters[i] == '\n' ? 0 : realSize/ CHAR_SIZE *(getLetter(characters[i]).size + 1);
 				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0 || shakingException[i])
 					drawer(getTexture(characters[i]),x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
-							opacityList != null ? opacityList[i] : opacity, false,false,0, realSize/charSize,realSize/charSize,
+							opacityList != null ? opacityList[i] : opacity, false,false,0, realSize/ CHAR_SIZE * wMultip,realSize/ CHAR_SIZE * hMultip,
 							(doWave ? waveColors[i][0]: doRRbow ? rRbow : r == null? 255 : r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow : g == null? 255 : g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b == null? 255 : b[i])/255,
 							true);
 				else {
 					processShake();
 					drawer(getTexture(characters[i]), x + (addition), y - lineJumps * realSize*1.5f - realSize + shiftedCoordinates[i]
 							, 0,
-							opacityList != null ? opacityList[i] : opacity, false, false, 0, realSize / charSize, realSize / charSize,
+							opacityList != null ? opacityList[i] : opacity, false, false, 0, realSize / CHAR_SIZE * wMultip, realSize / CHAR_SIZE * hMultip,
 							(doWave ? waveColors[i][0]: doRRbow ? rRbow :r[i])/255,(doWave ? waveColors[i][1]: doGRbow ? gRbow :g[i])/255,(doWave ? waveColors[i][2]: doBRbow ? bRbow : b[i])/255,
 							true);
 				}
@@ -1023,9 +1030,9 @@ public class TextureManager {
 			char[] letters = text.toCharArray();
 			float counter = 0;
 			if(letters.length > 0)
-				counter = -(realSize/charSize*((getLetter(letters[0]).size+1) +(charSize - getLetter(letters[0]).size)));
+				counter = -(realSize/ CHAR_SIZE *((getLetter(letters[0]).size+1) +(CHAR_SIZE - getLetter(letters[0]).size)));
 			for(char c : letters)
-				counter += realSize/charSize*(getLetter(c).size + 1);
+				counter += realSize/ CHAR_SIZE *(getLetter(c).size + 1);
 			return counter;
 		}
 
@@ -1034,9 +1041,9 @@ public class TextureManager {
 			char[] letters = text.toCharArray();
 			float counter = 0;
 			if(letters.length > 0)
-				counter = -(realSize/charSize*((getLetter(letters[0]).size+1) +(charSize - getLetter(letters[0]).size)));
+				counter = -(realSize/ CHAR_SIZE *((getLetter(letters[0]).size+1) +(CHAR_SIZE - getLetter(letters[0]).size)));
 			for(char c : letters)
-				counter += realSize/charSize*(getLetter(c).size + 1);
+				counter += realSize/ CHAR_SIZE *(getLetter(c).size + 1);
 			return counter;
 		}
 
@@ -1045,10 +1052,15 @@ public class TextureManager {
 			float counter = 0;
 			for(char c : letters)
 				counter += (getLetter(c).size + 1);
-			return maxXSpace/counter*charSize;
+			return maxXSpace/counter* CHAR_SIZE;
 		}
 
-		public static String getTexture(char character){
+		public String getTexture(char character){
+			if(renderTexture != null) {
+				String temp = renderTexture;
+				renderTexture = null;
+				return temp;
+			}
 			return getLetter(character).texture;
 		}
 
@@ -1292,44 +1304,53 @@ public class TextureManager {
 		 * @return Returns the length of the formatted string
 		 */
 		public static int length(String string) {
-			int nOfCmds = min(numberOfStrings(string, "<"), numberOfStrings(string, ">"));
-			int[] cmdOpener = positionsOfChar(string,'<');
-			int[] cmdCloser = positionsOfChar(string,'>');
-			int closerNoncounter = 0, openerNoncounter = 0;
-			ArrayList<IntAndBool> list = new ArrayList<>();
-			for(int i = 0; i < cmdCloser.length; i++)
-				if (!(cmdOpener.length == 0 || cmdCloser[i] == 0 || cmdCloser[i] < cmdOpener[0] || string.charAt(cmdCloser[i]-1) == SPECIAL_CHAR || (i+1-closerNoncounter > cmdOpener.length)))
-					list.add(new IntAndBool(cmdCloser[i],false));
+			if(allowCommands()) {
+				int nOfCmds = min(numberOfStrings(string, "<"), numberOfStrings(string, ">"));
+				int[] cmdOpener = positionsOfChar(string, '<');
+				int[] cmdCloser = positionsOfChar(string, '>');
+				int closerNoncounter = 0, openerNoncounter = 0;
+				ArrayList<IntAndBool> list = new ArrayList<>();
+				for (int i = 0; i < cmdCloser.length; i++)
+					if (!(cmdOpener.length == 0 || cmdCloser[i] == 0 || cmdCloser[i] < cmdOpener[0] || string.charAt(cmdCloser[i] - 1) == SPECIAL_CHAR || (i + 1 - closerNoncounter > cmdOpener.length)))
+						list.add(new IntAndBool(cmdCloser[i], false));
 
-			for(int i = 0; i < cmdOpener.length; i++)
-				if (!(cmdCloser.length == 0 || cmdOpener[i] == 0 || cmdOpener[i] > cmdCloser[cmdCloser.length-1] || string.charAt(cmdOpener[i]-1) == SPECIAL_CHAR || (i+1-openerNoncounter > cmdCloser.length)))
-					list.add(new IntAndBool(cmdOpener[i],true));
+				for (int i = 0; i < cmdOpener.length; i++)
+					if (!(cmdCloser.length == 0 || cmdOpener[i] == 0 || cmdOpener[i] > cmdCloser[cmdCloser.length - 1] || string.charAt(cmdOpener[i] - 1) == SPECIAL_CHAR || (i + 1 - openerNoncounter > cmdCloser.length)))
+						list.add(new IntAndBool(cmdOpener[i], true));
 
-			list.sort((o1, o2) -> Float.compare(o2.intt, o1.intt));
-			Collections.reverse(list);
-			boolean openerIsEven = true;
-			for(int i = 0; i < list.size(); i++)
-				if((i % 2 == 0 && (openerIsEven ^ list.get(i).bool)) || (i % 2 != 0 && (!openerIsEven ^ list.get(i).bool))){
-					list.get(i).intt = -1;
-					openerIsEven = !openerIsEven;
-				}
-			Collections.reverse(list);
-			for(IntAndBool i : list)
-				if(i.intt != -1)
-					continue;
-				else if (i.bool) {
-					i.intt = -1;
-					break;
-				} else break;
-			Collections.reverse(list);
-			int len = 0;
-			for(IntAndBool i : list)
-				if(i.intt != -1)
-					if (len < 0)
-						len += i.intt;
-					else if (len >= 0)
-						len -= i.intt;
-			return string.length() - len;
+				list.sort((o1, o2) -> Float.compare(o2.intt, o1.intt));
+				Collections.reverse(list);
+				boolean openerIsEven = true;
+				for (int i = 0; i < list.size(); i++)
+					if ((i % 2 == 0 && (openerIsEven ^ list.get(i).bool)) || (i % 2 != 0 && (!openerIsEven ^ list.get(i).bool))) {
+						list.get(i).intt = -1;
+						openerIsEven = !openerIsEven;
+					}
+				Collections.reverse(list);
+				for (IntAndBool i : list)
+					if (i.intt != -1)
+						continue;
+					else if (i.bool) {
+						i.intt = -1;
+						break;
+					} else break;
+				Collections.reverse(list);
+				int len = 0;
+				for (IntAndBool i : list)
+					if (i.intt != -1)
+						if (len < 0)
+							len += i.intt;
+						else if (len >= 0)
+							len -= i.intt;
+				return string.length() - len;
+			} return string.length();
+		}
+
+		private int length = -1;
+		public int lenght(){
+			if(length == -1)
+			 length = length(text);
+			return length;
 		}
 
 		private static class IntAndBool {

@@ -25,6 +25,7 @@ public class Settings {
 	static boolean shouldOverrideEsc;
 	static boolean render;
 	static Lwjgl3ApplicationConfiguration config;
+	private static boolean allowCommands = true;
 
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
@@ -62,6 +63,7 @@ public class Settings {
 
 	private static boolean trapsTickOnActorTurn = true;
 
+	public static boolean allowCommands(){return allowCommands;}
 	public static void setConfig(Lwjgl3ApplicationConfiguration config){Settings.config = config;}
 	public static Lwjgl3ApplicationConfiguration getConfig(){return config;}
 	public static boolean getTrapsTick(){return trapsTickOnActorTurn;}

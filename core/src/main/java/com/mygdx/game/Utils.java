@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static com.mygdx.game.GameScreen.chara;
+import static com.mygdx.game.Settings.allowCommands;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.TextureManager.Text.getLetter;
 import static com.mygdx.game.items.TextureManager.Text.length;
@@ -226,7 +227,20 @@ public class Utils {
 				counter = 0;
 				continue;
 			}
-			counter += getLetter(string.charAt(i)).getSize() + 1;
+			boolean proceedNormally = true;
+			if(allowCommands())
+				if(string.charAt(i) == '<' && (i == 0 || string.charAt(i-1) != '\\') && i+1 != string.length())
+					for(int j = i+1; j < string.length(); j++)
+						if(string.charAt(j) == '<')
+							break;
+						else if (string.charAt(j) == '>'){
+							counter += 9;
+							proceedNormally = false;
+							i = j;
+							break;
+						}
+			if (proceedNormally)
+				counter += getLetter(string.charAt(i)).getSize() + 1;
 			if (counter > pxLimit) {
 				int index = indexBackClosestToTarget(sepChar, string, i);
 				string = replaceCharAt(string, '\n', index);
@@ -256,7 +270,20 @@ public class Utils {
 				counter = 0;
 				continue;
 			}
-			counter += getLetter(string.charAt(i)).getSize() + 1;
+			boolean proceedNormally = true;
+			if(allowCommands())
+				if(string.charAt(i) == '<' && (i == 0 || string.charAt(i-1) != '\\') && i+1 != string.length())
+					for(int j = i+1; j < string.length(); j++)
+						if(string.charAt(j) == '<')
+							break;
+						else if (string.charAt(j) == '>'){
+							counter += 9;
+							proceedNormally = false;
+							i = j;
+							break;
+						}
+			if (proceedNormally)
+				counter += getLetter(string.charAt(i)).getSize() + 1;
 			if (counter > pxLimit) {
 				if(i != 0) {
 					string = insertStringAt(string,"\n",i-1);
