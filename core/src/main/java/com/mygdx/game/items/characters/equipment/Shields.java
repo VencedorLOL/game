@@ -22,7 +22,7 @@ public class Shields {
 	public String equippableBy;
 	public float aggro;
 
-	public CharacterClasses holder = null;
+	public CharacterClasses holder;
 
 	public Shields(CharacterClasses holder, boolean effectiveInstantiation) {
 		this.holder = holder;
