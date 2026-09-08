@@ -8,7 +8,6 @@ import com.mygdx.game.items.textboxelements.Textbox;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.deparalyzeCharacter;
-import static com.mygdx.game.Utils.paralyzeCharacter;
 
 public class TheEntrance extends Stage {
 	public TheEntrance(){
@@ -281,6 +280,7 @@ public class TheEntrance extends Stage {
 					b.glide(0, globalSize(), 20);
 					new OnVariousScenarios.CounterObject(22) {
 						public void onCounterFinish() {
+							//im pretty sure i put these for floatin point context precision
 							a.x = globalSize()*8;
 							a.y = globalSize()*9;
 							b.x = globalSize()*8;

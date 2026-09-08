@@ -18,6 +18,8 @@ ParticleManager: redo its entire logic its rubbish and laggy as of rn
 
 texturemanager: create different pools of drawableobjects instead of the crappy priority system i've got right now
 
+TestCollision: make this a class that follows the main's coordinates
+
 idea:
 path indicator having same theme as ambient
 
