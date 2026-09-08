@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.allowCommands;
@@ -212,10 +213,11 @@ public class Utils {
 		print("result: " + insertStringAt(stringTest,insertedTest,position));
 */
 
-		print("calculator of formatted strings' lenght");
+/*		print("calculator of formatted strings' lenght");
 		String fakeCommand = "<abcde>";
 		String strinTest = "hello world this is a test string with a fake command: " + fakeCommand;
 		print("real len of str: " + strinTest.length() + " length of cmd: " + fakeCommand.length() + " len of formatted: " + length(strinTest));
+*/
 
 
 	}
