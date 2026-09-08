@@ -218,7 +218,7 @@ public class Utils {
 		String strinTest = "hello world this is a test string with a fake command: " + fakeCommand;
 		print("real len of str: " + strinTest.length() + " length of cmd: " + fakeCommand.length() + " len of formatted: " + length(strinTest));
 */
-
+//this comment is so i can commit something to my git repositories. this is a test.
 
 	}
 
