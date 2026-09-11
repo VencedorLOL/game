@@ -693,7 +693,8 @@ public class Character extends Actor {
 				classes.currentHealth = 1000000;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-				Settings.getConfig().setForegroundFPS(10);
+				Settings.getConfig().setForegroundFPS(120);
+				Settings.getConfig().useVsync(false);
 				print("is app null? " + (Settings.getConfig() == null));
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {

@@ -11,7 +11,6 @@ import static com.mygdx.game.items.TextureManager.Text.getLetter;
 import static com.mygdx.game.items.TextureManager.Text.length;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
-import static java.lang.String.valueOf;
 
 @SuppressWarnings("all")
 public class Utils {

@@ -1,4 +1,4 @@
-Speedster,Earthquaker,Trapper
+StellarExplosion,Imp,Trapper
 0,0
 0,0
 0,0
