@@ -159,7 +159,7 @@ public class Textbox extends GUI {
 				i = endCmd;
 			}
 			print("counter: " + counter + " storedText len: " + storedText.length() + " finalText len: " + finalText.length()
-				+ " difference between finalText and storedText: " storedText.length()-finalText.length());
+				+ " difference between finalText and storedText: " + storedText.length()-finalText.length());
 			storedText = finalText.toString();
 		}
 
