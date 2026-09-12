@@ -518,10 +518,17 @@ public class TextureManager {
 		public boolean[] coloringException;
 		public float[] opacityList;
 		int rRbow = -1,gRbow = -1,bRbow = -1;
-		int rDflt = -1, gDflt = -1, bDflt = -1;
-		float opacityDflt = 1;
-		boolean shakingDefault;
-		boolean coloringDefault;
+		int rDflt = DEF_DEFAULT_RED+1, gDflt = DEF_DEFAULT_GREEN+1, bDflt = DEF_DEFAULT_BLUE+1;
+		float opacityDflt = DEF_DEFAULT_OPACITY;
+		boolean  shakingDefault = DEF_DEFAULT_SHAKING;
+		boolean coloringDefault = DEF_DEFAULT_RAINBOW;
+
+		public final static boolean DEF_DEFAULT_SHAKING = true;
+		public final static boolean DEF_DEFAULT_RAINBOW = true;
+		public final static float DEF_DEFAULT_OPACITY = 1f;
+		public final static int DEF_DEFAULT_RED = 255, DEF_DEFAULT_GREEN = 255, DEF_DEFAULT_BLUE = 255;
+
+
 
 		public Text(String text, float x, float y, float realSize){
 			this.text = text;
@@ -663,7 +670,7 @@ public class TextureManager {
 		}
 
 
-		public static final int MAX_ATTRIBUTES = 5;
+		public static final int MAX_ATTRIBUTES = 6;
 		/**
 		 * @param attribute 0 is shake, 1 is rainbow, 2 is red, 3 is green, 4 is blue, 5 is opacity
 		 * @param from First String character is 0
@@ -758,6 +765,58 @@ public class TextureManager {
 			}
 		}
 
+		public void changeAttribute(int attribute,float[] array){
+			int to = array.length;
+			if (attribute == 0) {
+				if(shakingException == null || shakingException.length < to) shakingException = new boolean[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					shakingException[i] = (int) array[i] == 0 ? false : true;
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						shakingException[i] = shakingDefault;
+			}
+			if (attribute == 1) {
+				if(coloringException == null || coloringException.length < to) coloringException = new boolean[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					coloringException[i] = (int) array[i] == 0 ? false : true;
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						coloringException[i] = coloringDefault;
+			}
+			if (attribute == 2) {
+				if(r == null || r.length < to) r = new int[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					r[i] = (int) (array[i] > 0f && array[i] < 1f ? array[i]*255 : array[i]);
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						r[i] = rDflt;
+				}
+			if (attribute == 3) {
+				if(g == null || g.length < to) g = new int[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					g[i] = (int) (array[i] > 0f && array[i] < 1f ? array[i]*255 : array[i]);
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						g[i] = gDflt;
+			}
+			if (attribute == 4) {
+				if(b == null || b.length < to) b = new int[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					b[i] = (int) (array[i] > 0f && array[i] < 1f ? array[i]*255 : array[i]);
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						b[i] = bDflt;
+			}
+			if (attribute == 5) {
+				if(opacityList == null || opacityList.length < to) opacityList = new float[max(to,text.length())];
+				for (int i = 0; i < to; i++)
+					opacityList[i] = array[i];
+				if(text.length() > to)
+					for(int i = to+1; i < text.length(); i++)
+						opacityList[i] = opacityDflt;
+			}
+		}
+
 		/**
 		 * @param attribute 0 is shake, 1 is rainbow. Else this does nothing.
 		 * @param to Self explanatory, preferably higher than {@code -1} if you want this to do anything
@@ -814,7 +873,7 @@ public class TextureManager {
 				if (this.r != null && this.r.length > i)
 					r[i] = this.r[i];
 				else {
-					if (rDflt != -1)
+					if (rDflt != 256)
 						r[i] = rDflt;
 					else if (this.r != null && this.r.length > 0)
 						r[i] = this.r[0];
@@ -824,7 +883,7 @@ public class TextureManager {
 				if (this.g != null && this.g.length > i)
 					g[i] = this.g[i];
 				else {
-					if (gDflt != -1)
+					if (gDflt != 256)
 						g[i] = gDflt;
 					else if (this.g != null && this.g.length > 0)
 						g[i] = this.g[0];
@@ -834,7 +893,7 @@ public class TextureManager {
 				if(this.b != null && this.b.length > i)
 					b[i] = this.b[i];
 				else {
-					if(bDflt != -1)
+					if(bDflt != 256)
 						b[i] = bDflt;
 					else if (this.b != null && this.b.length > 0)
 						b[i] = this.b[0];
@@ -915,7 +974,7 @@ public class TextureManager {
 			int lineJumps = 0;
 			float addition;
 			if(characters.length > 0)
-				addition = -(realSize/ CHAR_SIZE *((getLetter(characters[0]).size+1) +(CHAR_SIZE - getLetter(characters[0]).size)));
+				addition = -(realSize/ CHAR_SIZE *((getSize(characters[0])+1) +(CHAR_SIZE - getSize(characters[0]))));
 			else
 				addition = 0;
 			if(jumpsPerTick != 0)
@@ -925,7 +984,7 @@ public class TextureManager {
 			for(int i = 0; i < characters.length; i++){
 				if(characters[i] == '\n'){
 					lineJumps++;
-					addition = characters.length > i+1? -(realSize/ CHAR_SIZE *((getLetter(characters[i+1]).size+1) +(CHAR_SIZE - getLetter(characters[i+1]).size))) : 0;
+					addition = characters.length > i+1? -(realSize/ CHAR_SIZE *((getSize(characters[i+1])+1) +(CHAR_SIZE - getSize(characters[i+1])))) : 0;
 					continue;
 				}
 				wMultip = 1f; hMultip = 1f;
@@ -935,7 +994,7 @@ public class TextureManager {
 				boolean doRRbow = rRbow != -1 && !coloringException[i];
 				boolean doGRbow = rRbow != -1 && !coloringException[i];
 				boolean doBRbow = rRbow != -1 && !coloringException[i];
-				addition += characters[i] == '\n' ? 0 : realSize/ CHAR_SIZE *(getLetter(characters[i]).size + 1);
+				addition += characters[i] == '\n' ? 0 : realSize/ CHAR_SIZE *(getSize(characters[i]) + 1);
 				if(shiftedCoordinates == null || shiftedCoordinates.length < characters.length || maxVariation == 0 || shakingException[i])
 					drawer(getTexture(characters[i]),x+(addition),y - lineJumps*realSize*1.5f - realSize,0,
 							opacityList != null ? opacityList[i] : opacity, false,false,0, realSize/ CHAR_SIZE * wMultip,realSize/ CHAR_SIZE * hMultip,
@@ -1064,6 +1123,12 @@ public class TextureManager {
 				return temp;
 			}
 			return getLetter(character).texture;
+		}
+
+		public int getSize(char character){
+			if(renderTexture != null){
+				return 7;
+			} return getLetter(character).size;
 		}
 
 		public static Letters getLetter(char character){

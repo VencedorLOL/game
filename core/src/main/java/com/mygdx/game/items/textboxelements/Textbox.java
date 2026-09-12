@@ -11,12 +11,14 @@ import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.Utils.*;
 import static com.mygdx.game.items.InputHandler.*;
-import static com.mygdx.game.items.TextureManager.Text.MAX_ATTRIBUTES;
+import static com.mygdx.game.items.TextureManager.Text.*;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
-import static java.lang.Math.max;
+import static com.mygdx.game.items.TextureManager.fixatedAnimations;
+import static java.lang.Integer.parseInt;
+import static java.lang.Math.min;
 
 public class Textbox extends GUI {
-	public static final int PX_LIMIT = 182;
+	public static final int PX_LIMIT = 200;
 
 	public int[] exteriorColor;
 	public int[] interiorColor;
@@ -50,6 +52,10 @@ public class Textbox extends GUI {
 	private float textInitialY;
 	public float textJumpLine;
 
+	/**
+	 * At the end of the textbox rendering, this will always be +1 the amount of characters actually written.
+	 */
+	public int totalAmountOfTextWritten = 0;
 	public int amountOfTextWritten = 0;
 	public int framesTilNextLetter;
 	public int framesTilNextLetterCounter;
@@ -62,6 +68,10 @@ public class Textbox extends GUI {
 	public Box box;
 
 	float[][] attributes;
+	float defShake = DEF_DEFAULT_SHAKING ? 1 : 0;
+	float defRainb = DEF_DEFAULT_RAINBOW ? 1 : 0;
+	float defOpacity = DEF_DEFAULT_OPACITY;
+	float defR = DEF_DEFAULT_RED, defG = DEF_DEFAULT_GREEN, defB = DEF_DEFAULT_BLUE;
 
 
 	/**
@@ -118,20 +128,118 @@ public class Textbox extends GUI {
 		text = dynamicFixatedText("", textInitialX, textInitialY, -1, textSize);
 		text.render = false;
 		onOpenOverridable();
-		cmds = new byte[storedText.length()];
-		args = new int[storedText.length()];
-		parseText();
-		print("stored text is; " + storedText);
-		setText(storedText);
 		text.setColor(textColor);
+		createAttributes();
+		fixTextAttr();
+		print("stored text len is; " + storedText.length());
+		setText(storedText);
 		text.setDefaultAttribute(5,0f);
 		text.updateText(textChunks.get(textLine));
 
 	}
 
-	public void changeAttributes(int attribute, int from, int to, float value){
+
+
+	private void createAttributes(){
+		if(attributes == null || attributes.length < storedText.length()){
+			attributes = new float[storedText.length()][MAX_ATTRIBUTES];
+			for(int i = 0; i < attributes.length;i++){
+				attributes[i][0] = defShake;
+				attributes[i][1] = defRainb;
+				attributes[i][2] = defR;
+				attributes[i][3] = defB;
+				attributes[i][4] = defG;
+				attributes[i][5] = defOpacity;
+			}
+		}
+	}
+
+
+	public void changeAttribute(int attribute, int from, int to, float value){
+		if(attribute >= MAX_ATTRIBUTES || attribute < 0)
+			return;
 		if(attributes == null)
 			attributes = new float[storedText.length()][MAX_ATTRIBUTES];
+		float[][] temp;
+		if(attributes.length < storedText.length()) {
+			temp = new float[storedText.length()][MAX_ATTRIBUTES];
+			for (int i = 0; i < attributes.length; i++)
+				System.arraycopy(attributes[i], 0, temp[i], 0, MAX_ATTRIBUTES);
+			for(int i = attributes.length+1; i < storedText.length(); i++) {
+				temp[i][0] = defShake;
+				temp[i][1] = defRainb;
+				temp[i][2] = defR;
+				temp[i][3] = defG;
+				temp[i][4] = defB;
+				temp[i][5] = defOpacity;
+			}
+		}
+		else
+			temp = attributes;
+		to = (min(to+1,temp.length));
+		for(int i = from; i < to; i++)
+			temp[i][attribute] = value;
+		attributes = temp;
+	}
+
+
+	public void initiateRainbow(float cycleTime, float multiplicator){text.initiateRainbow(cycleTime,multiplicator);}
+	public void initiateShake(float yVariation, int time){text.initiateShake(yVariation,time);}
+
+	public void setDefaultAttribute(int attribute, float value){
+		switch (attribute) {
+			case 0: defShake = value; break;
+			case 1: defRainb = value; break;
+			case 2: defR = value; break;
+			case 3: defG = value; break;
+			case 4: defB = value; break;
+			case 5: defOpacity = value; break;
+		}
+	}
+
+	public void setColor(int... color){
+		if(attributes == null) createAttributes();
+		if(color.length > 0) {
+			setDefaultAttribute(2, color[0]);
+			changeAttribute(2, 0, attributes.length, color[0]);
+		} if(color.length > 1) {
+			setDefaultAttribute(3, color[1]);
+			changeAttribute(3,0, attributes.length, color[1]);
+		} if(color.length > 2){
+			setDefaultAttribute(4, color[2]);
+			changeAttribute(4,0, attributes.length, color[2]);
+		}
+	}
+
+	public void fixTextAttr(){
+		int counter = 0;
+		for(int i = 0; i < textLine; i++)
+			counter+=textChunks.get(i).length()+1;
+		float[] isShake = new float[textChunks.get(textLine).length()];
+		float[] isRainb = new float[textChunks.get(textLine).length()];
+		float[] red = new float[textChunks.get(textLine).length()];
+		float[] green = new float[textChunks.get(textLine).length()];
+		float[] blue = new float[textChunks.get(textLine).length()];
+		float[] opacity = new float[textChunks.get(textLine).length()];
+		for(int i = 0; i < isShake.length; i++){
+			isShake[i] = attributes[i+counter][0];
+			isRainb[i] = attributes[i+counter][1];
+			red[i] = attributes[i+counter][2];
+			green[i] = attributes[i+counter][3];
+			blue[i] = attributes[i+counter][4];
+			opacity[i] = attributes[i+counter][5];
+
+		}
+		for(int i = 0; i < MAX_ATTRIBUTES; i++)
+			text.resetAttribute(i);
+		text.changeAttribute(0,isShake);
+		text.changeAttribute(1,isRainb);
+		text.changeAttribute(2,red);
+		text.changeAttribute(3,green);
+		text.changeAttribute(4,blue);
+		if(textLine != 0)
+			text.changeAttribute(5,opacity);
+
 	}
 
 
@@ -139,6 +247,8 @@ public class Textbox extends GUI {
 	byte[] cmds;
 	int[] args;
 	private void parseText(){
+		cmds = new byte[storedText.length()];
+		args = new int[storedText.length()];
 		StringBuilder finalText = new StringBuilder(storedText);
 		int counter = 0;
 		for(int i = 0; i < storedText.length(); i++){
@@ -150,33 +260,68 @@ public class Textbox extends GUI {
 				if(endCmd == i)
 					break;
 				String command = storedText.substring(i+1,endCmd);
-				if(command.indexOf("wait:") == 0){
+				if(command.indexOf("wait:") == 0 || command.indexOf("w:") == 0){
 					try {
-						args[i-counter] = Integer.valueOf(command.substring(5));
+						args[i-counter] = parseInt(command.substring(command.indexOf(":")+1));
 						cmds[i-counter] += 1;
-						print("set number");
+						print("set number to: " + args[i-counter] + " at index " + (i-counter));
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Wait command is not a number.");}
-					finalText.delete(i,endCmd+1);
+					finalText.delete(i-counter,endCmd+1-counter);
 				}
-				if(command.indexOf("setdelay:") == 0){
+				if(command.indexOf("setdelay:") == 0 || command.indexOf("d:") == 0){
 					try {
-						args[i-counter] = Integer.valueOf(command.substring(9));
+						args[i-counter] = parseInt(command.substring(command.indexOf(":")+1));
 						cmds[i-counter] += 2;
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | SetDelay command is not a number.");}
-					finalText.delete(i,endCmd+1);
+					finalText.delete(i-counter,endCmd+1-counter);
+				} if(command.indexOf("halt") == 0 || command.indexOf("stop") == 0 || command.indexOf("break") == 0 || command.indexOf("clear") == 0 || command.indexOf("c") == 0){ //technically the "clear" entry is redundant
+					changeAttribute(0,i-counter,storedText.length(),1);
+					changeAttribute(1,i-counter,storedText.length(),1);
+					changeAttribute(2,i-counter,storedText.length(),255);
+					changeAttribute(3,i-counter,storedText.length(),255);
+					changeAttribute(4,i-counter,storedText.length(),255);
+					changeAttribute(5,i-counter,storedText.length(),1);
+
+					finalText.delete(i-counter,endCmd+1-counter);
+				} if(command.indexOf("shake:") == 0 || command.indexOf("s:") == 0) {
+					try {
+						initiateShake(parseInt(command.substring(command.indexOf(":")+1)),parseInt(command.substring(command.indexOf(",")+1)));
+						changeAttribute(0,i-counter,storedText.length(),0);
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Shake command does not return two numbers.");}
+					finalText.delete(i-counter,endCmd+1-counter);
+				} if(command.indexOf("rainbow:") == 0 || command.indexOf("w:") == 0 || command.indexOf("m:") == 0 || command.indexOf("multicolor:") == 0 || command.indexOf("rbow:") == 0) {
+					try {
+						initiateRainbow(parseInt(command.substring(command.indexOf(":")+1)),parseInt(command.substring(command.indexOf(",")+1)));
+						changeAttribute(1,i-counter,storedText.length(),0);
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Rainbow command does not return two numbers.");}
+					finalText.delete(i-counter,endCmd+1-counter);
+				}if(command.indexOf("red:") == 0 || command.indexOf("r:") == 0) {
+					try {
+						changeAttribute(2,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+						print("command detected at " + (i-counter));
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Red command is not a number.");}
+					finalText.delete(i-counter,endCmd+1-counter);
+				}if(command.indexOf("green:") == 0 || command.indexOf("g:") == 0) {
+					try {
+						changeAttribute(3,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Green command is not a number.");}
+					finalText.delete(i-counter,endCmd+1-counter);
+				}if(command.indexOf("blue:") == 0 || command.indexOf("b:") == 0) {
+					try {
+						changeAttribute(4,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Blue command is not a number.");}
+					finalText.delete(i-counter,endCmd+1-counter);
 				}
 
 
-
-				counter += endCmd-(i+1);
+				counter += endCmd+1-(i);
 				i = endCmd;
 			}
-			print("counter: " + counter + " storedText len: " + storedText.length() + " finalText len: " + finalText.length()
-				+ " difference between finalText and storedText: " + (storedText.length()-finalText.length()));
-			storedText = finalText.toString();
 		}
-
-
+		print("counter: " + counter + " storedText len: " + storedText.length() + " finalText len: " + finalText.length()
+				+ " difference between finalText and storedText: " + (storedText.length()-finalText.length()));
+		storedText = finalText.toString();
+		print(storedText);
 	}
 
 	public void onOpenOverridable(){}
@@ -224,8 +369,10 @@ public class Textbox extends GUI {
 				 	return;
 				 }
 				 textLine++;
+				 totalAmountOfTextWritten--;
 				 amountOfTextWritten = 0;
 				 text.updateText(textChunks.get(textLine));
+				 fixTextAttr();
 				 text.changeAttribute(5,0,textChunks.get(textLine).length(),0f);
 			} else
 				writeTheRestOfTheText();
@@ -273,25 +420,32 @@ public class Textbox extends GUI {
 		text.y = textInitialY;
 		text.realSize = textSize;
 		if (amountOfTextWritten != textChunks.get(textLine).length()){
+			if(totalAmountOfTextWritten == 0)
+				executeCommand(totalAmountOfTextWritten++);
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
-				executeCommand(amountOfTextWritten);
+				executeCommand(totalAmountOfTextWritten++);
 				text.changeAttribute(5,0,amountOfTextWritten++,1);
 			}
 		}
 	}
 
 	private void executeCommand(int index){
-		if(cmds[index] % 2 != 1){
-			framesTilNextLetterCounter -= args[index];
-		} if (cmds[index] >> 1 % 2 != 1){
-			framesTilNextLetter += args[index];
+		if(index < cmds.length){
+			if(cmds[index] % 2 == 1){
+				framesTilNextLetterCounter -= args[index];
+			} if (cmds[index] >> 1 % 2 == 1){
+				framesTilNextLetter += args[index];
+			}
 		}
 	}
 
 	public void setText(String text){
 		textChunks.clear();
-		storedText = useCutter ? stringCutter(text,PX_LIMIT + 16) : stringSeparator(text,PX_LIMIT,' ');
+		storedText = text;
+		if(args == null || cmds == null)
+			parseText();
+		storedText = useCutter ? stringCutter(storedText,PX_LIMIT) : stringSeparator(storedText,PX_LIMIT,' ');
 		int counter = 0;
 		for (int i = 0; i < storedText.length(); i++)
 			if(storedText.charAt(i) == '\n' && ++counter % 4 == 0)

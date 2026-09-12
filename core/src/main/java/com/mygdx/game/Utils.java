@@ -242,13 +242,13 @@ public class Utils {
 						}
 			if (proceedNormally)
 				counter += getLetter(string.charAt(i)).getSize() + 1;
-			if (counter > pxLimit) {
+			if (counter >= pxLimit) {
 				int index = indexBackClosestToTarget(sepChar, string, i);
 				string = replaceCharAt(string, '\n', index);
 				counter = 0;
+				i = index;
 			}
-		}
-		return string;
+		}return string;
 	}
 
 	public static String[] stringSplitter(String string, int pxLimit,char sepChar) {
@@ -285,7 +285,7 @@ public class Utils {
 						}
 			if (proceedNormally)
 				counter += getLetter(string.charAt(i)).getSize() + 1;
-			if (counter > pxLimit) {
+			if (counter >= pxLimit) {
 				if(i != 0) {
 					string = insertStringAt(string,"\n",i-1);
 				}
