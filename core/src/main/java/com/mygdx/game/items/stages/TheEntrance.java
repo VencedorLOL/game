@@ -40,7 +40,7 @@ public class TheEntrance extends Stage {
 		screenWarpDestination.add(new StageOne());
 	}
 
-	public void tilesetCleanup() {		
+	public void tilesetCleanup() {
 			tileset.remove(getTile(18.0,2.0));
 			tileset.remove(getTile(19.0,2.0));
 			tileset.remove(getTile(18.0,3.0));

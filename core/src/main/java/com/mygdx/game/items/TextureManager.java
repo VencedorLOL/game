@@ -662,6 +662,8 @@ public class TextureManager {
 			bRbow = bRbow == -1 ? 0 : bRbow;
 		}
 
+
+		public static final int MAX_ATTRIBUTES = 5;
 		/**
 		 * @param attribute 0 is shake, 1 is rainbow, 2 is red, 3 is green, 4 is blue, 5 is opacity
 		 * @param from First String character is 0

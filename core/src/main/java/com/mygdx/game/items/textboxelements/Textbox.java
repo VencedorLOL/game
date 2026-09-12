@@ -11,6 +11,7 @@ import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.Utils.*;
 import static com.mygdx.game.items.InputHandler.*;
+import static com.mygdx.game.items.TextureManager.Text.MAX_ATTRIBUTES;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static java.lang.Math.max;
 
@@ -59,6 +60,8 @@ public class Textbox extends GUI {
 	public final static float szTxtr = 32;
 
 	public Box box;
+
+	float[][] attributes;
 
 
 	/**
@@ -117,23 +120,32 @@ public class Textbox extends GUI {
 		onOpenOverridable();
 		cmds = new byte[storedText.length()];
 		args = new int[storedText.length()];
+		parseText();
+		print("stored text is; " + storedText);
+		setText(storedText);
 		text.setColor(textColor);
 		text.setDefaultAttribute(5,0f);
 		text.updateText(textChunks.get(textLine));
 
 	}
 
+	public void changeAttributes(int attribute, int from, int to, float value){
+		if(attributes == null)
+			attributes = new float[storedText.length()][MAX_ATTRIBUTES];
+	}
+
+
+
 	byte[] cmds;
 	int[] args;
-	//storedText: filtrar comandos, recortar comandos, guardar el index donde em
 	private void parseText(){
 		StringBuilder finalText = new StringBuilder(storedText);
 		int counter = 0;
 		for(int i = 0; i < storedText.length(); i++){
-			if(storedText.charAt(i) == '>' && (i == 0 || storedText.charAt(i-1) != '\\')) {
+			if(storedText.charAt(i) == '<' && (i == 0 || storedText.charAt(i-1) != '\\')) {
 				int endCmd = i;
 				for (; endCmd < storedText.length(); endCmd++)
-					if (storedText.charAt(endCmd) == '<' && storedText.charAt(endCmd-1) != '\\')
+					if (storedText.charAt(endCmd) == '>' && storedText.charAt(endCmd-1) != '\\')
 						break;
 				if(endCmd == i)
 					break;
@@ -142,24 +154,25 @@ public class Textbox extends GUI {
 					try {
 						args[i-counter] = Integer.valueOf(command.substring(5));
 						cmds[i-counter] += 1;
+						print("set number");
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Wait command is not a number.");}
-					finalText.delete(i+1,endCmd);
+					finalText.delete(i,endCmd+1);
 				}
 				if(command.indexOf("setdelay:") == 0){
 					try {
 						args[i-counter] = Integer.valueOf(command.substring(9));
 						cmds[i-counter] += 2;
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | SetDelay command is not a number.");}
-					finalText.delete(i+1,endCmd);
+					finalText.delete(i,endCmd+1);
 				}
 
 
 
-				counter += i+1-endCmd;
+				counter += endCmd-(i+1);
 				i = endCmd;
 			}
 			print("counter: " + counter + " storedText len: " + storedText.length() + " finalText len: " + finalText.length()
-				+ " difference between finalText and storedText: " + storedText.length()-finalText.length());
+				+ " difference between finalText and storedText: " + (storedText.length()-finalText.length()));
 			storedText = finalText.toString();
 		}
 
@@ -262,6 +275,7 @@ public class Textbox extends GUI {
 		if (amountOfTextWritten != textChunks.get(textLine).length()){
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
+				executeCommand(amountOfTextWritten);
 				text.changeAttribute(5,0,amountOfTextWritten++,1);
 			}
 		}
