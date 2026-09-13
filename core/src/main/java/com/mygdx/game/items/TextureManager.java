@@ -106,12 +106,16 @@ public class TextureManager {
 	}
 
 	public static int getTextureWidth(String texture){
-		return atlas.findRegion(texture).getRegionWidth();
-	}
+		try {
+			return atlas.findRegion(texture).getRegionWidth();
+		}catch(NullPointerException ignored){ printErr("Could not find texture: " + texture); return 0;}
+		}
 
 
 	public static int getTextureHeight(String texture){
-		return atlas.findRegion(texture).getRegionHeight();
+		try {
+			return atlas.findRegion(texture).getRegionHeight();
+		}catch(NullPointerException ignored){ printErr("Could not find texture: " + texture); return 0;}
 	}
 
 	/**

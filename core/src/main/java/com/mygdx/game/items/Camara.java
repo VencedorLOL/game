@@ -118,6 +118,7 @@ public class Camara {
 				difX = 0;
 				difY = 0;
 				lastRotation = 0;
+				camara.up.set(new float[]{0,1,0});
 			}
 		}
 		camara.position.set(x+difX,y+difY,0);

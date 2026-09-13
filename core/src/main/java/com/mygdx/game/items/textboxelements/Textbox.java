@@ -14,6 +14,7 @@ import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.Text.*;
 import static com.mygdx.game.items.TextureManager.dynamicFixatedText;
 import static com.mygdx.game.items.TextureManager.fixatedAnimations;
+import static java.lang.Float.parseFloat;
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.min;
 
@@ -259,6 +260,7 @@ public class Textbox extends GUI {
 						break;
 				if(endCmd == i)
 					break;
+				int size = finalText.length();
 				String command = storedText.substring(i+1,endCmd);
 				if(command.indexOf("wait:") == 0 || command.indexOf("w:") == 0){
 					try {
@@ -268,13 +270,13 @@ public class Textbox extends GUI {
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Wait command is not a number.");}
 					finalText.delete(i-counter,endCmd+1-counter);
 				}
-				if(command.indexOf("setdelay:") == 0 || command.indexOf("d:") == 0){
+				else if(command.indexOf("setdelay:") == 0 || command.indexOf("d:") == 0){
 					try {
 						args[i-counter] = parseInt(command.substring(command.indexOf(":")+1));
 						cmds[i-counter] += 2;
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | SetDelay command is not a number.");}
 					finalText.delete(i-counter,endCmd+1-counter);
-				} if(command.indexOf("halt") == 0 || command.indexOf("stop") == 0 || command.indexOf("break") == 0 || command.indexOf("clear") == 0 || command.indexOf("c") == 0){ //technically the "clear" entry is redundant
+				} else if(command.indexOf("halt") == 0 || command.indexOf("stop") == 0 || command.indexOf("break") == 0 || command.indexOf("clear") == 0 || command.indexOf("c") == 0){ //technically the "clear" entry is redundant
 					changeAttribute(0,i-counter,storedText.length(),1);
 					changeAttribute(1,i-counter,storedText.length(),1);
 					changeAttribute(2,i-counter,storedText.length(),255);
@@ -283,39 +285,48 @@ public class Textbox extends GUI {
 					changeAttribute(5,i-counter,storedText.length(),1);
 
 					finalText.delete(i-counter,endCmd+1-counter);
-				} if(command.indexOf("shake:") == 0 || command.indexOf("s:") == 0) {
+				} else if(command.indexOf("shake:") == 0 || command.indexOf("s:") == 0) {
 					try {
-						initiateShake(parseInt(command.substring(command.indexOf(":")+1)),parseInt(command.substring(command.indexOf(",")+1)));
+						initiateShake(parseFloat(command.substring(command.indexOf(":")+1,command.indexOf(","))),parseInt(command.substring(command.indexOf(",")+1)));
 						changeAttribute(0,i-counter,storedText.length(),0);
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Shake command does not return two numbers.");}
 					finalText.delete(i-counter,endCmd+1-counter);
-				} if(command.indexOf("rainbow:") == 0 || command.indexOf("w:") == 0 || command.indexOf("m:") == 0 || command.indexOf("multicolor:") == 0 || command.indexOf("rbow:") == 0) {
+				} else if(command.indexOf("rainbow:") == 0 || command.indexOf("m:") == 0 || command.indexOf("multicolor:") == 0 || command.indexOf("rbow:") == 0) {
 					try {
-						initiateRainbow(parseInt(command.substring(command.indexOf(":")+1)),parseInt(command.substring(command.indexOf(",")+1)));
+						initiateRainbow(parseFloat(command.substring(command.indexOf(":")+1,command.indexOf(","))),parseFloat(command.substring(command.indexOf(",")+1)));
 						changeAttribute(1,i-counter,storedText.length(),0);
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Rainbow command does not return two numbers.");}
 					finalText.delete(i-counter,endCmd+1-counter);
-				}if(command.indexOf("red:") == 0 || command.indexOf("r:") == 0) {
+				} else if(command.indexOf("red:") == 0 || command.indexOf("r:") == 0) {
 					try {
-						changeAttribute(2,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+						changeAttribute(2,i-counter,storedText.length(),parseFloat(command.substring(command.indexOf(":")+1)));
 						print("command detected at " + (i-counter));
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Red command is not a number.");}
 					finalText.delete(i-counter,endCmd+1-counter);
-				}if(command.indexOf("green:") == 0 || command.indexOf("g:") == 0) {
+				} else if(command.indexOf("green:") == 0 || command.indexOf("g:") == 0) {
 					try {
-						changeAttribute(3,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+						changeAttribute(3,i-counter,storedText.length(),parseFloat(command.substring(command.indexOf(":")+1)));
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Green command is not a number.");}
 					finalText.delete(i-counter,endCmd+1-counter);
-				}if(command.indexOf("blue:") == 0 || command.indexOf("b:") == 0) {
+				} else if(command.indexOf("blue:") == 0 || command.indexOf("b:") == 0) {
 					try {
-						changeAttribute(4,i-counter,storedText.length(),parseInt(command.substring(command.indexOf(":")+1)));
+						changeAttribute(4,i-counter,storedText.length(),parseFloat(command.substring(command.indexOf(":")+1)));
 					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | Blue command is not a number.");}
+					finalText.delete(i-counter,endCmd+1-counter);
+				} else if(command.indexOf("rgb:") == 0 || command.indexOf("color:") == 0){
+					try{
+						changeAttribute(2,i-counter,storedText.length(),parseFloat(command.substring(command.indexOf(":")+1,command.indexOf(","))));
+						changeAttribute(3,i-counter,storedText.length(),parseFloat(command.substring(command.indexOf(",")+1,command.lastIndexOf(","))));
+						changeAttribute(4,i-counter,storedText.length(),parseFloat(command.substring(command.lastIndexOf(",")+1)));
+					} catch (NumberFormatException ignored){printErr("Malformed textbox command at: " + storedText + " | RGB command is not three numbers.");}
 					finalText.delete(i-counter,endCmd+1-counter);
 				}
 
 
-				counter += endCmd+1-(i);
-				i = endCmd;
+				if(size > finalText.length()) {
+					counter += endCmd + 1 - (i);
+					i = endCmd;
+				}
 			}
 		}
 		print("counter: " + counter + " storedText len: " + storedText.length() + " finalText len: " + finalText.length()
@@ -369,8 +380,8 @@ public class Textbox extends GUI {
 				 	return;
 				 }
 				 textLine++;
-				 totalAmountOfTextWritten--;
 				 amountOfTextWritten = 0;
+				 framesTilNextLetterCounter = 0;
 				 text.updateText(textChunks.get(textLine));
 				 fixTextAttr();
 				 text.changeAttribute(5,0,textChunks.get(textLine).length(),0f);
@@ -420,7 +431,7 @@ public class Textbox extends GUI {
 		text.y = textInitialY;
 		text.realSize = textSize;
 		if (amountOfTextWritten != textChunks.get(textLine).length()){
-			if(totalAmountOfTextWritten == 0)
+			if(amountOfTextWritten == 0)
 				executeCommand(totalAmountOfTextWritten++);
 			if(framesTilNextLetterCounter++ >= framesTilNextLetter || doFastText){
 				framesTilNextLetterCounter = 0;
@@ -435,7 +446,7 @@ public class Textbox extends GUI {
 			if(cmds[index] % 2 == 1){
 				framesTilNextLetterCounter -= args[index];
 			} if (cmds[index] >> 1 % 2 == 1){
-				framesTilNextLetter += args[index];
+				framesTilNextLetter = args[index];
 			}
 		}
 	}
@@ -471,9 +482,12 @@ public class Textbox extends GUI {
 
 	 @SuppressWarnings("all")
 	public void writeTheRestOfTheText(){
-		text.changeAttribute(5,0,textChunks.get(textLine).length(),1f);
-		amountOfTextWritten = textChunks.get(textLine).length();
-	}
+		 while(amountOfTextWritten != textChunks.get(textLine).length()) {
+			 executeCommand(totalAmountOfTextWritten++);
+			 text.changeAttribute(5,0,amountOfTextWritten++,1);
+		 }
+
+	 }
 
 
 

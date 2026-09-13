@@ -236,13 +236,13 @@ public class TheEntrance extends Stage {
 						new Textbox(){
 							public void onOpenOverridable() {
 								framesTilNextLetter = 0;
-								setText("<r:150><g:250><b:250>hello world, this is a kinda long sentence " +
-											"kinda<render:anima> to test the new algorithm i made at " +
-											"detecting where line breaks should go. i, at a <red:50>later date, added this part of the text you're reading right now " +
-											"to test whether the new part of textboxes i impemented where textboxes would jump to a new textbox to render " +
-											"bigger amounts of text would work. to help me <red:200><g:150><b:75>further this goal of testing, i am going to write some random words " +
-											"whose purpose is to let me check accurately that the algorithm i made to detect where a new textbox should start " +
-											"works properly and flawlessly. penguin. scissors. heavy machinery.");
+								setText("<c><r:150><g:250><b:250>hello world, this is a kinda long sentence " +
+											"kinda<render:anima>to test the <c><rainbow:200,0>new algorithm <c><r:250><g:20><b:10>i<c> made at " +
+											"detecting where line breaks should go. i, at a <red:50>later date, <r:200><g:200><b:60>added <c><rbow:200,0>this part of the text you're reading right now<c> " +
+											"to <wait:120><red:255>test <c>whether the new part of textboxes <c><r:250><g:20><b:10>i impemented <c>where textboxes would <shake:10,2>jump to a new textbox<c> to render " +
+											"bigger amounts of text would work. to help me <red:200><g:150><b:75>further this goal of testing<c>, <c><r:250><g:20><b:10>i <c>am going to write some random words " +
+											"whose purpose is <r:34><g:134><b:234>to let me check accurately that the <c><m:200,10>algorithm i made<c> <setdelay:2>to detect <setdelay:3>where a new <setdelay:5>textbox should start " +
+											"works <setdelay:10>properly and <setdelay:20>flawlessly. <setdelay:1><c><r:250><g:20><b:10>penguin. <c><r:40><g:250><b:30>scissors. <c><r:60><g:80><b:250>heavy machinery.");
 
 
 							}};}};}};
@@ -254,8 +254,8 @@ public class TheEntrance extends Stage {
 							public void onOpenOverridable() {
 								framesTilNextLetter = 0;
 								setText("texture render text ig:" +
-										"<render:Trigger>-!!!!!!!!!!\n" +
-										"texture render text ig:_-!!!!!!!!!!");
+										"<render:Spawnpoint>-!!!!!!!!!!\n" +
+										"texture render text ig:<render:H>-!!!!!!!!!!<render:SWConfigure><render:crater><render:largeBarricade>");
 
 
 							}};}};}};

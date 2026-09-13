@@ -12,7 +12,6 @@ Text: add custom text gradients and text wave and text bounce
 	camera remaining attached to path if path hasnt been walked yet
 multiplayer.
 Text: trailing colored text, rapidly disapearing and converting into its supposed real color
-implement text supporting custom symbols embedded in text with custom notation (eg.: <sword> draws a sword)
 Camera: impact frames (dramatic but subtle zoom)
 ParticleManager: redo its entire logic its rubbish and laggy as of rn
 
