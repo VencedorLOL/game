@@ -3,9 +3,8 @@ package com.mygdx.game.items;
 import java.util.ArrayList;
 
 import static com.mygdx.game.Settings.globalSize;
+import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
-import static com.mygdx.game.items.TextureManager.addToList;
-import static com.mygdx.game.items.TextureManager.text;
 
 public class AttackTextProcessor {
 	static ArrayList<AttackText> textList = new ArrayList<>();
@@ -27,12 +26,11 @@ public class AttackTextProcessor {
 
 
 	public static void addAttackText(float damage, DamageReasons reason, Entity victim){
-		for (AttackText a : textList){
+		for (AttackText a : textList)
 			if(a.follow == victim) {
 				a.addNew(reason, damage);
 				return;
 			}
-		}
 		textList.add(new AttackText(victim,reason,damage));
 	}
 
@@ -57,11 +55,10 @@ public class AttackTextProcessor {
 
 		public AttackText(Entity follow, DamageReasons reason, float damage){
 			this.follow = follow;
-			TextureManager.Text aidText = new TextureManager.Text();
+			TextureManager.Text aidText = dynamicText();
 			aidText.render = false;
 			aidText.onScreenTime = -1;
 			textDamageAndReason.add(new TextDamageAndReason(aidText,damage,reason));
-			text.add(aidText);
 			process();
 		}
 
@@ -78,14 +75,13 @@ public class AttackTextProcessor {
 			textDamageAndReason.removeIf(t -> !text.contains(t.text));
 			int aid = 0;
 			for (TextDamageAndReason t : textDamageAndReason){
-				t.text.render = true;
 				t.text.setColor(t.reason.getColor());
-				t.text.updateText(String.format("%.2f", t.damage));
+				t.text.updateText(String.format("%.1f", t.damage));
 				t.text.x = follow.x + (globalSize() - textSize(t.text.getText(),40))/2f;
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				t.text.realSize = 40;
 				t.text.opacity = 1;
-				addToList(t.reason.texture, t.text.x - 40, t.text.y - 22,1,0,t.reason.r,t.reason.g,t.reason.b,5,5);
+				addToPriorityList(t.reason.texture, t.text.x - 40, t.text.y - 22,1,0,t.reason.r,t.reason.g,t.reason.b,5,5);
 			}
 		}
 
@@ -101,9 +97,11 @@ public class AttackTextProcessor {
 			textDamageAndReason.removeIf(t -> !text.contains(t.text));
 			int aid = 0;
 			for (TextDamageAndReason t : textDamageAndReason) {
+				t.text.render = true;
 				t.text.x = follow.x + (globalSize() - textSize(t.text.getText(),40))/2f;
 				t.text.y = follow.y + globalSize() + 50 * (++aid);
 				float textureOpacity = t.text.vanishingThreshold >= t.text.onScreenTime && t.text.vanishingThreshold > 0 ? t.text.opacity * (1 - (t.text.vanishingThreshold - t.text.onScreenTime) / (t.text.vanishingThreshold)) : t.text.opacity;
+				t.text.changeAttribute(5,0,t.text.lenght(),textureOpacity);
 				addToList(t.reason.texture, t.text.x - 40, t.text.y - 22,textureOpacity,0,t.reason.r,t.reason.g,t.reason.b,5,5);
 			}
 

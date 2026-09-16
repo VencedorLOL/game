@@ -188,13 +188,10 @@ public class Enemy extends Actor {
 		float damagedFor = getDamagedFor(damage, damageReason);
 		health -= damagedFor;
 
-		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0){
+		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0)
 			ParticleManager.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,10,true,false,10,this);
-		}
-		AttackTextProcessor.addAttackText(damagedFor,damageReason,this);
-		print("remaining health is: " + health);
-		printErr("damaged for " + damagedFor + " damage");
 
+		AttackTextProcessor.addAttackText(damagedFor,damageReason,this);
 	}
 
 	public int getType(){

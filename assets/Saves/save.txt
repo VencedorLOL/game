@@ -1,4 +1,4 @@
-StellarExplosion,Imp,Trapper
+Speedster,Imp,Trapper
 0,0
 0,0
 0,0

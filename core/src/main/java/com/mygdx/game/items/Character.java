@@ -533,9 +533,6 @@ public class Character extends Actor {
 		}
 
 		if(currentStage.equals("Game")) {
-			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-				TurnManager.reset();
-			}
 
 			if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
 				if (!getReleaseVersion()) {
@@ -658,7 +655,7 @@ public class Character extends Actor {
 				print("is cam moving " + getCamara().isCamaraMoving());
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-				getCamara().shake(10,10,1,500,false,true);
+				getCamara().shake(10,10,1,120,false,true);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
 				classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
@@ -693,9 +690,10 @@ public class Character extends Actor {
 				classes.currentHealth = 1000000;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+				print("is appconfig null? " + (Settings.getConfig() == null));
 				Settings.getConfig().setForegroundFPS(120);
 				Settings.getConfig().useVsync(false);
-				print("is app null? " + (Settings.getConfig() == null));
+				this.damage(1, AttackTextProcessor.DamageReasons.MELEE,this);
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
 				for(int i = 0; i < 10000; i++){

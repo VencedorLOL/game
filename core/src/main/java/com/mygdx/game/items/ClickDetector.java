@@ -103,7 +103,9 @@ public class ClickDetector  {
 				}
 			}
 
-
+			if(isDevMode())
+				for(Ray r : rayCheckerList)
+					r.pRender();
 
 			if (pierces)
 				for (Ray r : rayCheckerList) {
@@ -220,6 +222,9 @@ public class ClickDetector  {
 				}
 			}
 
+			if(isDevMode())
+				for(Ray r : rayCheckerList)
+					r.pRender();
 
 			if (pierces)
 				for (Ray r : rayCheckerList) {
@@ -318,6 +323,8 @@ public class ClickDetector  {
 						else
 							r.y--;
 						r.wallRayCheck();
+						if(isDevMode())
+							r.pRender();
 					}
 					if((rayCheckerCenter.timesRayTouchedWall /* + rayCheckerUpLeft.timesRayTouchedWall +
 							rayCheckerDownLeft.timesRayTouchedWall + rayCheckerUpRight.timesRayTouchedWall +

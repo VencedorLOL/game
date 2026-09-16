@@ -76,8 +76,9 @@ public class TurnManager {
 
 
 	public static void finalizedChoosing(Turnable actor){
-		if(valueSearcher(finalizedToChoose,actor) != null)
-			valueSearcher(finalizedToChoose,actor).setBool(true);
+		ActorAndBoolean actr = valueSearcher(finalizedToChoose,actor);
+		if(actr != null)
+			actr.setBool(true);
 		else
 			finalizedToChoose.add(new ActorAndBoolean(true,actor));
 
@@ -86,10 +87,9 @@ public class TurnManager {
 	private static boolean checkForTurn(ArrayList<Actor> listOfActors){
 		listOfActors.removeIf(a -> a.isDead);
 		int numberOfTrueFinalizedChoosers = 0;
-		for (ActorAndBoolean f : finalizedToChoose){
+		for (ActorAndBoolean f : finalizedToChoose)
 			if(f.getBool())
 				numberOfTrueFinalizedChoosers++;
-		}
 		return listOfActors.size() == numberOfTrueFinalizedChoosers && !finalizedToChoose.isEmpty();
 	}
 

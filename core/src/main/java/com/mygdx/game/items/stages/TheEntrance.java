@@ -23,21 +23,24 @@ public class TheEntrance extends Stage {
 		enemySpawnX		= new int[]{4, 11, 12, 16, 17, 16, 15};
 		enemySpawnY 	= new int[]{17, 16, 16, 16, 16, 4, 4};
 		enemyType		= new int[]{3, 3, 3, 3, 3, 3, 3};
-		screenWarpX 	= new int[]{24, 24, 24};
-		screenWarpY	= new int[]{12, 11, 10};
-		screenWarpDestinationSpecification = new byte[]{0, 0, 0};
+		screenWarpX 	= new int[]{24};
+		screenWarpY		= new int[]{10};
+		screenWarpIsHorizontal	= new boolean[]{false};
+		screenWarpAlignment		= new boolean[]{false};
+		screenWarpSize			= new float[]{3};
+		screenWarpType			= new int[]{0};
+		screenWarpDestinationSpecification = new byte[]{0};
 		floorTexture = "Grass";
 		bgTexture = "default";
-		staticCameraXmax = true;
 		staticCameraXmin = true;
-		staticCameraYmax = true;
+		staticCameraXmax = true;
 		staticCameraYmin = true;
+		staticCameraYmax = true;
 		scale();
-		print("Ran throu the TheEntrance constructor as " + this);
 	}
 
 	public void reStage() {
-		screenWarpDestination.add(new StageOne());
+		screenWarpDestination.add(new TheBase());
 	}
 
 	public void tilesetCleanup() {
