@@ -98,11 +98,7 @@ public class Savefile {
 		fileReader.useDelimiter("\n");
 		String line;
 		while (fileReader.hasNext())
-			code.add(fileReader.next());
-		ArrayList<String> code2 = new ArrayList<>();
-		for(String s : code)
-			code2.add(s.replace("\r",""));
-		code = code2;
+			code.add(fileReader.next().replace("\r",""));
 		int flagStart = -1;
 		if(!code.isEmpty()) {
 			for(int i = 0 ; i < code.size(); i++){
