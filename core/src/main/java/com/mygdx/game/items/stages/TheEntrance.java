@@ -1,10 +1,13 @@
 package com.mygdx.game.items.stages;
 
+
+import com.mygdx.game.*;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.enemies.Soldier;
 import com.mygdx.game.items.textboxelements.Textbox;
 
+import static com.mygdx.game.GameScreen.savefile;
 import static com.mygdx.game.Settings.globalSize;
 import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.deparalyzeCharacter;
@@ -267,11 +270,14 @@ public class TheEntrance extends Stage {
 		enemy.add(c);
 		enemy.add(d);
 		enemy.add(e);
+		if(savefile.getFBool(1))
+			iniSoldiersWalking();
 	}
 
 	public void iniSoldiersWalking(){
 		if(!talkedTo) {
 			talkedTo = true;
+			savefile.setFBool(1,true);
 			a.glide(globalSize(), 0, 20);
 			b.glide(globalSize(), 0, 20);
 			new OnVariousScenarios.CounterObject(22) {

@@ -7,6 +7,7 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.guielements.ClassesCards;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +42,7 @@ public class Savefile {
 	 * This returns the requested flag. If it doesn't exist, it makes one with the specified defaultValue.
 	 */
 	public String getOrMakeFlag(int pos, String value, String defaultValue){
-		String valu = getFlag(pos,value);
+		String valu = getFlag(pos);
 		if(valu == null)
 			setFlag(pos,defaultValue);
 		return valu;
@@ -50,22 +51,22 @@ public class Savefile {
 	/**
 	 * This returns the requested flag. If it doesn't exist, it makes one with the specified defaultValue.
 	 */
-	public String getOrMakeFlag(String name, String value, String defaultValue){
-		String valu = getFlag(name,value);
+	public String getOrMakeFlag(String name, String defaultValue){
+		String valu = getFlag(name);
 		if(valu == null)
 			setFlag(name,defaultValue);
 		return valu;
 	}
 
 
-	public String getFlag(int pos, String value){
+	public String getFlag(int pos){
 		for(Flag f : flags){
 			if(f.pos() == pos && pos != MAX_VALUE)
 				return f.value;
 		} printErr("No flag set with the requested position: " + pos); return null;
 	}
 
-	public String getFlag(String name, String value){
+	public String getFlag(String name){
 		for(Flag f : flags){
 			if(f.name == name && name != null)
 				return f.value;
@@ -91,23 +92,27 @@ public class Savefile {
 		flags.add(new Flag(name,value));
 	}
 
-
 	public void readFile() throws FileNotFoundException {
 		Scanner fileReader = new Scanner(new FileReader(savefile));
 		ArrayList<String> code = new ArrayList<>();
+		fileReader.useDelimiter("\n");
 		String line;
 		while (fileReader.hasNext())
 			code.add(fileReader.next());
+		ArrayList<String> code2 = new ArrayList<>();
+		for(String s : code)
+			code2.add(s.replace("\r",""));
+		code = code2;
 		int flagStart = -1;
 		if(!code.isEmpty()) {
 			for(int i = 0 ; i < code.size(); i++){
-				if(flagStart != -1){
+				if(flagStart != -1 && code.get(i).contains(":")){
 					if(code.get(i).indexOf(0) == '\"')
 						flags.add(new Flag(indexForwardClosestToTarget('\"',code.get(i),1),code.get(i).substring(code.get(i).indexOf(":")+2)));
 					else
 						flags.add(new Flag(i-flagStart,code.get(i).substring(code.get(i).indexOf(":")+2)));
 				}
-				if((code.get(i).equals("\n") || code.get(i).equals("")) && flagStart != -1)
+				if((code.get(i).equals("\n") || code.get(i).equals("")) && flagStart == -1)
 					flagStart = i;
 			}
 
@@ -211,7 +216,7 @@ public class Savefile {
 				} else
 					named.add(f);
 
-			for (int i = 0; i < Math.max(biggestPos,flags.size()); i++){
+			for (int i = 1; i <= Math.max(biggestPos,flags.size()); i++){
 				Flag flag = null;
 				for(Flag f : numbered)
 					if(f.pos() == i) {
@@ -228,6 +233,8 @@ public class Savefile {
 						break;
 					} if(flag != null)
 						named.remove(flag);
+					else
+						code.add("");
 				}
 			}
 
@@ -237,45 +244,45 @@ public class Savefile {
 
 
 
-	public float getFFloat(String name, String value){
+	public float getFFloat(String name){
 		try {
-			return Float.valueOf(getFlag(name, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to float the flag named: " + name + " because the flag is: " + value);}
+			return Float.valueOf(getFlag(name));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to float the flag named: " + name + " because the flag is: " + getFlag(name));}
 		return 0;
 	}
 
-	public float getFFloat(int pos, String value){
+	public float getFFloat(int pos){
 		try {
-			return Float.valueOf(getFlag(pos, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to float the flag numbered: " + pos + " because the flag is: " + value);}
+			return Float.valueOf(getFlag(pos));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to float the flag numbered: " + pos + " because the flag is: " + getFlag(pos));}
 		return 0;
 	}
 
-	public int getFInt(String name, String value){
+	public int getFInt(String name){
 		try {
-			return Integer.valueOf(getFlag(name, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to int the flag named: " + name + " because the flag is: " + value);}
+			return Integer.valueOf(getFlag(name));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to int the flag named: " + name + " because the flag is: " + getFlag(name));}
 		return 0;
 	}
 
-	public int getFInt(int pos, String value){
+	public int getFInt(int pos){
 		try {
-			return Integer.valueOf(getFlag(pos, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to int the flag numbered: " + pos + " because the flag is: " + value);}
+			return Integer.valueOf(getFlag(pos));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to int the flag numbered: " + pos + " because the flag is: " + getFlag(pos));}
 		return 0;
 	}
 
-	public boolean getFBool(String name, String value){
+	public boolean getFBool(String name){
 		try {
-			return Boolean.valueOf(getFlag(name, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to boolean the flag named: " + name + " because the flag is: " + value);}
+			return Boolean.valueOf(getFlag(name));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to boolean the flag named: " + name + " because the flag is: " + getFlag(name));}
 		return false;
 	}
 
-	public boolean getFBool(int pos, String value){
+	public boolean getFBool(int pos){
 		try {
-			return Boolean.valueOf(getFlag(pos, value));
-		} catch (NumberFormatException ignored) {printErr("Could not convert to boolean the flag numbered: " + pos + " because the flag is: " + value);}
+			return Boolean.valueOf(getFlag(pos));
+		} catch (NumberFormatException ignored) {printErr("Could not convert to boolean the flag numbered: " + pos + " because the flag is: " + getFlag(pos));}
 		return false;
 	}
 

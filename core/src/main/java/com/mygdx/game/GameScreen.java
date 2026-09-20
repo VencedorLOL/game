@@ -40,6 +40,7 @@ public class GameScreen implements Screen{
 	public static Savefile savefile;
 
 	public void create () {
+		savefile = new Savefile();
 		camaraZoom = 1;
 		camara.zoom = 1;
 		camara.camaraStarter(camaraZoom);
@@ -54,7 +55,6 @@ public class GameScreen implements Screen{
 		handler = new InputHandler();
 		Gdx.input.setInputProcessor(handler);
 		initalized = true;
-		savefile = new Savefile();
 	}
 
 	public GameScreen(){
