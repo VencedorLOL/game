@@ -694,6 +694,15 @@ public class Character extends Actor {
 				Settings.getConfig().setForegroundFPS(120);
 				Settings.getConfig().useVsync(false);
 				this.damage(1, AttackTextProcessor.DamageReasons.MELEE,this);
+				if(savefile.getOrMakeFlag("one","three") == "three") {
+					savefile.getOrMakeFlag(2, "davadadwa");
+					savefile.getOrMakeFlag("ad","a");
+					savefile.getOrMakeFlag("add","a");
+				} else {
+					savefile.getOrMakeFlag("add","a");
+					savefile.getOrMakeFlag("ad","a");
+				}
+
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
 				for(int i = 0; i < 10000; i++){

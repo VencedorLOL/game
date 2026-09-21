@@ -41,7 +41,7 @@ public class Savefile {
 	/**
 	 * This returns the requested flag. If it doesn't exist, it makes one with the specified defaultValue.
 	 */
-	public String getOrMakeFlag(int pos, String value, String defaultValue){
+	public String getOrMakeFlag(int pos, String defaultValue){
 		String valu = getFlag(pos);
 		if(valu == null)
 			setFlag(pos,defaultValue);
@@ -68,7 +68,7 @@ public class Savefile {
 
 	public String getFlag(String name){
 		for(Flag f : flags){
-			if(f.name == name && name != null)
+			if(f.name != null && f.name.equals(name))
 				return f.value;
 		} printErr("No flag set with the requested name: " + name); return null;
 	}
@@ -85,7 +85,7 @@ public class Savefile {
 
 	public void setFlag(String name, String value){
 		for(Flag f : flags)
-			if(f.name == name && name != null) {
+			if(f.name != null && f.name.equals(name)) {
 				f.value = value;
 				return;
 			}
@@ -103,8 +103,8 @@ public class Savefile {
 		if(!code.isEmpty()) {
 			for(int i = 0 ; i < code.size(); i++){
 				if(flagStart != -1 && code.get(i).contains(":")){
-					if(code.get(i).indexOf(0) == '\"')
-						flags.add(new Flag(indexForwardClosestToTarget('\"',code.get(i),1),code.get(i).substring(code.get(i).indexOf(":")+2)));
+					if(code.get(i).indexOf('\"') == 0)
+						flags.add(new Flag(code.get(i).substring(code.get(i).indexOf("\"")+1,indexForwardClosestToTarget('\"',code.get(i),1)),code.get(i).substring(code.get(i).indexOf(":")+2)));
 					else
 						flags.add(new Flag(i-flagStart,code.get(i).substring(code.get(i).indexOf(":")+2)));
 				}
