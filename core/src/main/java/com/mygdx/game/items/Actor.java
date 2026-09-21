@@ -63,7 +63,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public boolean permittedToAct;
 	public boolean controlOfCamara;
 
-	boolean isDead;
+	public boolean isDead;
 
 	public Actor targetActor;
 

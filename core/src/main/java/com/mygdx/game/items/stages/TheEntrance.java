@@ -7,10 +7,13 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.enemies.Soldier;
 import com.mygdx.game.items.textboxelements.Textbox;
 
+import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.savefile;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.deparalyzeCharacter;
+import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 public class TheEntrance extends Stage {
 	public TheEntrance(){
@@ -182,6 +185,22 @@ public class TheEntrance extends Stage {
 	public boolean talkedTo = false;
 	public void customEnemySetter() {
 		a = new Soldier(7*globalSize(),10*globalSize()){
+			public void update(){
+				if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+					statsUpdater();
+					path.getStats(x,y,totalSpeed);
+					loop();
+					onDeath();
+					if(isDead)
+						return;
+					conditions.render();
+					glideProcess();
+					if(chara.x > 12*globalSize() && !executed)
+						finalSoldiersWalking();
+				}
+
+			}
+
 			public void setAction() {
 				Enemy temp = this;
 				action = new Interactable(this){
@@ -193,12 +212,28 @@ public class TheEntrance extends Stage {
 
 							public void onOpenOverridable() {
 								framesTilNextLetter = 5;
-								if(temp.x == 7*globalSize())
+								if(temp.x == 7*globalSize() && !savefile.getFBool(1))
 									setText("Anima: Returning from the mission");
 								else
 									setText("SName Soldier: Understood, Anima.");
 							}};}};}};
 		b = new Soldier(7*globalSize(),11*globalSize()){
+			public void update(){
+				if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
+					statsUpdater();
+					path.getStats(x,y,totalSpeed);
+					loop();
+					onDeath();
+					if(isDead)
+						return;
+					conditions.render();
+					glideProcess();
+					if(chara.x > 12 *globalSize() && !executed)
+						finalSoldiersWalking();
+				}
+
+			}
+
 			public void setAction() {
 				Enemy temp = this;
 				action = new Interactable(this){
@@ -210,7 +245,7 @@ public class TheEntrance extends Stage {
 
 							public void onOpenOverridable() {
 								framesTilNextLetter = 5;
-								if(temp.x == 7*globalSize())
+								if(temp.x == 7*globalSize() && !savefile.getFBool(1))
 									setText("Anima: Returning from the mission");
 								else
 									setText("SName Soldier: Got it, Anima.");
@@ -270,8 +305,12 @@ public class TheEntrance extends Stage {
 		enemy.add(c);
 		enemy.add(d);
 		enemy.add(e);
-		if(savefile.getFBool(1))
-			iniSoldiersWalking();
+		if(savefile.getFBool(1) && !talkedTo)
+			if(chara.x < 7 * globalSize())
+				iniSoldiersWalking();
+			else
+				finalSoldiersWalking();
+
 	}
 
 	public void iniSoldiersWalking(){
@@ -302,5 +341,33 @@ public class TheEntrance extends Stage {
 			};
 		} else deparalyzeCharacter();
 	}
+
+	boolean executed = false;
+	public void finalSoldiersWalking(){
+		talkedTo = true;
+		executed = true;
+		a.glide(0, +globalSize(), 20);
+		b.glide(0, -globalSize(), 20);
+		new OnVariousScenarios.CounterObject(22) {
+			public void onCounterFinish() {
+				a.glide(-globalSize(), 0, 20);
+				b.glide(-globalSize(), 0, 20);
+				new OnVariousScenarios.CounterObject(22) {
+					public void onCounterFinish() {
+						a.x = globalSize()*7;
+						a.y = globalSize()*10;
+						b.x = globalSize()*7;
+						b.y = globalSize()*11;
+						a.testCollision.x = a.x;
+						a.testCollision.y = a.y;
+						b.testCollision.x = b.x;
+						b.testCollision.y = b.y;
+					}
+				};
+			}
+		};
+	}
+
+
 
 }

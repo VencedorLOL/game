@@ -11,9 +11,9 @@ import com.mygdx.game.items.guielements.CAETexts;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import static com.mygdx.game.GameScreen.savefile;
 import static com.mygdx.game.GlobalVariables.classSlots;
-import static com.mygdx.game.Settings.globalSize;
-import static com.mygdx.game.Settings.print;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.ClickDetector.authenticClick;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.addToList;
@@ -107,8 +107,12 @@ public class ClassAndEquipmentChanger {
 		public String texture;
 		public ArrayList weaponer = new ArrayList<Weaponer<?>>();
 		public ArrayList shielder = new ArrayList<Shielder<?>>();
+		public ArrayList universalWeaponer = new ArrayList<Weaponer<?>>();
+		public ArrayList universalShielder = new ArrayList<Shielder<?>>();
 		public CAETexts.Weapons weapons;
 		public CAETexts.Shields shields;
+		int weaponCounter = 1;
+		int shieldCounter = 1;
 
 
 		public void activate(Character character){}
@@ -149,6 +153,63 @@ public class ClassAndEquipmentChanger {
 			return weaponer.size();
 		}
 
+		public void addWeapon(Weaponer<?> weapon, int num){
+			if(savefile != null && savefile.getFBool(name+"W"+num))
+				weaponer.add(weapon);
+			else if(savefile != null && completeSavefile()) {
+				savefile.setFBool(name + "W" + num, true);
+				weaponer.add(weapon);
+			}
+			universalWeaponer.add(weapon);
+		}
+
+		public void addShield(Shielder<?> shield, int num){
+			if(savefile != null && savefile.getFBool(name+"S"+num))
+				shielder.add(shield);
+			else if(savefile != null && completeSavefile()) {
+				savefile.setFBool(name + "S" + num, true);
+				shielder.add(shield);
+			}
+			universalShielder.add(shield);
+		}
+
+		public Weapons getUnivWeapon(int numberOWeapon,Character character){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return ((Weaponer<?>) universalWeaponer.get(numberOWeapon)).getWeapon(character);
+		}
+
+		public Shields getUnivShield(int numberOWeapon,Character character){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return ((Shielder<?>) universalShielder.get(numberOWeapon)).getShield(character);
+		}
+
+		public String getUnivWeaponName(int numberOShield, Character character){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return ((Weaponer<?>) universalWeaponer.get(numberOShield)).getWeaponName(character);
+		}
+
+		public String getUnivShieldName(int numberOWeapon,Character character){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return ((Shielder<?>) universalShielder.get(numberOWeapon)).getShieldName(character);
+		}
+
+		public int shieldUnivAmount(){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return universalShielder.size();
+		}
+
+		public int weaponUnivAmount(){
+			if(universalWeaponer.isEmpty() || universalShielder.isEmpty())
+				helperMaker();
+			return universalWeaponer.size();
+		}
+
+
 		public void helperMaker(){}
 
 		public CAETexts.Weapons getWeaponText(){
@@ -172,8 +233,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<MeleeWeapons.ABat>());
-			shielder.add(new Shielder<MeleeShields.MeleeShield>());
+			addWeapon(new Weaponer<MeleeWeapons.ABat>(),0);
+			addShield(new Shielder<MeleeShields.MeleeShield>(),0);
 		}
 
 		public void activate(Character character){
@@ -193,8 +254,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<SpeedsterWeapons.SpeedsterDagger>());
-			shielder.add(new Shielder<SpeedsterShields.SpeedsterShield>());
+			addWeapon(new Weaponer<SpeedsterWeapons.SpeedsterDagger>(),0);
+			addShield(new Shielder<SpeedsterShields.SpeedsterShield>(),0);
 		}
 
 		public void activate(Character character){
@@ -214,9 +275,9 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<HealerWeapons.BlessedSword>());
-			weaponer.add(new Weaponer<HealerWeapons.BestHealerSword>());
-			shielder.add(new Shielder<HealerShields.BlessedShield>());
+			addWeapon(new Weaponer<HealerWeapons.BlessedSword>(),0);
+			addWeapon(new Weaponer<HealerWeapons.BestHealerSword>(),1);
+			addShield(new Shielder<HealerShields.BlessedShield>(),0);
 		}
 
 		public void activate(Character character){
@@ -236,8 +297,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<TankWeapons.TankSword>());
-			shielder.add(new Shielder<TankShields.TankShield>());
+			addWeapon(new Weaponer<TankWeapons.TankSword>(),0);
+			addShield(new Shielder<TankShields.TankShield>(),0);
 		}
 
 		public void activate(Character character){
@@ -257,8 +318,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<MageWeapons.BasicWand>());
-			shielder.add(new Shielder<MageShields.RoughCrystal>());
+			addWeapon(new Weaponer<MageWeapons.BasicWand>(),0);
+			addShield(new Shielder<MageShields.RoughCrystal>(),0);
 		}
 
 		public void activate(Character character){
@@ -278,8 +339,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<SwordMageWeapons.SwordWand>());
-			shielder.add(new Shielder<SwordMageShields.CrystalizedShield>());
+			addWeapon(new Weaponer<SwordMageWeapons.SwordWand>(),0);
+			addShield(new Shielder<SwordMageShields.CrystalizedShield>(),0);
 		}
 
 		public void activate(Character character){
@@ -299,8 +360,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<SummonerWeapons.SummonerInstrument>());
-			shielder.add(new Shielder<SummonerShields.SummonerFlag>());
+			addWeapon(new Weaponer<SummonerWeapons.SummonerInstrument>(),0);
+			addShield(new Shielder<SummonerShields.SummonerFlag>(),0);
 		}
 
 
@@ -321,13 +382,13 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<ImpWeapons.ImpDagger>());
-			weaponer.add(new Weaponer<ImpWeapons.ImpHastyDagger>());
-			weaponer.add(new Weaponer<ImpWeapons.MassDemonizeDagger>());
-			shielder.add(new Shielder<ImpShields.ImpDemonizeShield>());
-			shielder.add(new Shielder<ImpShields.ImpRitualShield>());
-			shielder.add(new Shielder<ImpShields.DarkWings>());
-			shielder.add(new Shielder<ImpShields.Daredevil>());
+			addWeapon(new Weaponer<ImpWeapons.ImpDagger>(),0);
+			addWeapon(new Weaponer<ImpWeapons.ImpHastyDagger>(),1);
+			addWeapon(new Weaponer<ImpWeapons.MassDemonizeDagger>(),2);
+			addShield(new Shielder<ImpShields.ImpDemonizeShield>(),0);
+			addShield(new Shielder<ImpShields.ImpRitualShield>(),1);
+			addShield(new Shielder<ImpShields.DarkWings>(),2);
+			addShield(new Shielder<ImpShields.Daredevil>(),3);
 		}
 
 		public void activate(Character character){
@@ -347,11 +408,11 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<CatapultAmmo>());
-			weaponer.add(new Weaponer<CatapultAmmo.FlamingRock>());
-			weaponer.add(new Weaponer<CatapultAmmo.HomingRock>());
-			weaponer.add(new Weaponer<CatapultAmmo.ClusterRock>());
-			shielder.add(new Shielder<CatapultParts.MetalBucket>());
+			addWeapon(new Weaponer<CatapultAmmo>(),0);
+			addWeapon(new Weaponer<CatapultAmmo.FlamingRock>(),1);
+			addWeapon(new Weaponer<CatapultAmmo.HomingRock>(),2);
+			addWeapon(new Weaponer<CatapultAmmo.ClusterRock>(),3);
+			addShield(new Shielder<CatapultParts.MetalBucket>(),0);
 		}
 
 		public void activate(Character character){
@@ -371,8 +432,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<StellarExplosionWeapons.EnergyCondensator>());
-			shielder.add(new Shielder<StellarExplosionShields.EnergyAccelerator>());
+			addWeapon(new Weaponer<StellarExplosionWeapons.EnergyCondensator>(),0);
+			addShield(new Shielder<StellarExplosionShields.EnergyAccelerator>(),0);
 		}
 
 		public void activate(Character character){
@@ -392,8 +453,8 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<EarthquakerWeapons.GroundStomper>());
-			shielder.add(new Shielder<EarthquakerShields.StablePlatform>());
+			addWeapon(new Weaponer<EarthquakerWeapons.GroundStomper>(),0);
+			addShield(new Shielder<EarthquakerShields.StablePlatform>(),0);
 		}
 
 		public void activate(Character character){
@@ -413,9 +474,9 @@ public class ClassAndEquipmentChanger {
 
 		@SuppressWarnings("all")
 		public void helperMaker(){
-			weaponer.add(new Weaponer<TrapperWeapons.PrickyStones>());
-			weaponer.add(new Weaponer<TrapperWeapons.Thorns>());
-			shielder.add(new Shielder<TrapperShields.TestShield>());
+			addWeapon(new Weaponer<TrapperWeapons.PrickyStones>(),0);
+			addWeapon(new Weaponer<TrapperWeapons.Thorns>(),1);
+			addShield(new Shielder<TrapperShields.TestShield>(),0);
 		}
 
 		public void activate(Character character){

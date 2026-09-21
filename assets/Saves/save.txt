@@ -1,13 +1,49 @@
 Speedster,Imp,Trapper
 0,0
 0,0
-0,0
+1,0
 0,0
 0,0
 0,0
 0,0
 2,3
-0,0
+3,0
 0,0
 0,0
 1,0
+
+: true
+"MeleeW0": true
+"MeleeS0": true
+"SpeedsterW0": true
+"SpeedsterS0": true
+"HealerW0": true
+"HealerW1": true
+"HealerS0": true
+"TankW0": true
+"TankS0": true
+"MageW0": true
+"MageS0": true
+"SwordMageW0": true
+"SwordMageS0": true
+"SummonerW0": true
+"SummonerS0": true
+"ImpW0": true
+"ImpW1": true
+"ImpW2": true
+"ImpS0": true
+"ImpS1": true
+"ImpS2": true
+"ImpS3": true
+"CatapultW0": true
+"CatapultW1": true
+"CatapultW2": true
+"CatapultW3": true
+"CatapultS0": true
+"StellarExplosionW0": true
+"StellarExplosionS0": true
+"EarthquakerW0": true
+"EarthquakerS0": true
+"TrapperW0": true
+"TrapperW1": true
+"TrapperS0": true

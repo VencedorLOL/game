@@ -1,7 +1,6 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.mygdx.game.items.OnVariousScenarios;
 
@@ -26,6 +25,7 @@ public class Settings {
 	static boolean render;
 	static Lwjgl3ApplicationConfiguration config;
 	private static boolean allowCommands = true;
+	private final static boolean COMPLETE_SAVEFILE = false;
 
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
@@ -63,6 +63,7 @@ public class Settings {
 
 	private static boolean trapsTickOnActorTurn = true;
 
+	public static boolean completeSavefile(){return COMPLETE_SAVEFILE && isDevMode();}
 	public static boolean allowCommands(){return allowCommands;}
 	public static void setConfig(Lwjgl3ApplicationConfiguration config){Settings.config = config;}
 	public static Lwjgl3ApplicationConfiguration getConfig(){return config;}

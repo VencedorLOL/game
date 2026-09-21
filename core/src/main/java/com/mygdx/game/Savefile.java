@@ -92,6 +92,7 @@ public class Savefile {
 		flags.add(new Flag(name,value));
 	}
 
+	int flagStart = -1;
 	public void readFile() throws FileNotFoundException {
 		Scanner fileReader = new Scanner(new FileReader(savefile));
 		ArrayList<String> code = new ArrayList<>();
@@ -99,7 +100,6 @@ public class Savefile {
 		String line;
 		while (fileReader.hasNext())
 			code.add(fileReader.next().replace("\r",""));
-		int flagStart = -1;
 		if(!code.isEmpty()) {
 			for(int i = 0 ; i < code.size(); i++){
 				if(flagStart != -1 && code.get(i).contains(":")){
@@ -132,20 +132,22 @@ public class Savefile {
 			line = code.get(i);
 			if(line.contains(",") && line.indexOf(",") == line.lastIndexOf(",")){
 				if (!line.substring(0, line.indexOf(",")).equals("-1")) {
-					classes[i].setWeapon(ClassesCards.ClsCardObj.values()[i-1].clsObj.getWeapon(Integer.parseInt(line.substring(0, line.indexOf(","))), null));
+					classes[i].setWeapon(ClassesCards.ClsCardObj.values()[i-1].clsObj.getUnivWeapon(Integer.parseInt(line.substring(0, line.indexOf(","))), null));
 				} else
 					classes[i].setWeapon(new Weapons.NoWeapon(null,true));
 				if(!line.substring(line.indexOf(",") + 1).equals("-1")) {
-					classes[i].setShield(ClassesCards.ClsCardObj.values()[i-1].clsObj.getShield(Integer.parseInt(line.substring(line.indexOf(",") + 1)), null));
+					classes[i].setShield(ClassesCards.ClsCardObj.values()[i-1].clsObj.getUnivShield(Integer.parseInt(line.substring(line.indexOf(",") + 1)), null));
 				} else
 					classes[i].setShield(new Shields.NoShield(null,true));
 			}
-
-
 		}
-
-
 	}
+
+
+
+
+
+
 
 	/**
 	 * DO NOT USE. I DID NOT ADAPT IT TO THE NEW SYSTEM.
@@ -170,15 +172,15 @@ public class Savefile {
 	}
 
 	public int getWeapInt(int line){
-		for(int i = 0; i < ClassesCards.ClsCardObj.values()[line-1].clsObj.weaponer.size(); i++)
-			if(classes[line].weaponClass == ClassesCards.ClsCardObj.values()[line-1].clsObj.getWeapon(i,null).getClass())
+		for(int i = 0; i < ClassesCards.ClsCardObj.values()[line-1].clsObj.weaponUnivAmount(); i++)
+			if(classes[line].weaponClass == ClassesCards.ClsCardObj.values()[line-1].clsObj.getUnivWeapon(i,null).getClass())
 				return i;
 		return -1;
 	}
 
 	public int getShieldInt(int line){
-		for(int i = 0; i < ClassesCards.ClsCardObj.values()[line-1].clsObj.shielder.size(); i++)
-			if(classes[line].shieldClass == ClassesCards.ClsCardObj.values()[line-1].clsObj.getShield(i,null).getClass())
+		for(int i = 0; i < ClassesCards.ClsCardObj.values()[line-1].clsObj.shieldUnivAmount(); i++)
+			if(classes[line].shieldClass == ClassesCards.ClsCardObj.values()[line-1].clsObj.getUnivShield(i,null).getClass())
 				return i;
 		return -1;
 	}
