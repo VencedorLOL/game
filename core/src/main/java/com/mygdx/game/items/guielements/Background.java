@@ -6,7 +6,6 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.GUI;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.getCamara;

@@ -1,7 +1,5 @@
 package com.mygdx.game.items.stages;
 
-
-import com.mygdx.game.*;
 import com.mygdx.game.items.*;
 import com.mygdx.game.items.Character;
 import com.mygdx.game.items.enemies.Soldier;
@@ -11,9 +9,6 @@ import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.savefile;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.deparalyzeCharacter;
-import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
 
 public class TheEntrance extends Stage {
 	public TheEntrance(){

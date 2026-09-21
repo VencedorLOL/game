@@ -5,7 +5,6 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.TextureManager;
 
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Utils.intravalue;
 import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.TextureManager.*;

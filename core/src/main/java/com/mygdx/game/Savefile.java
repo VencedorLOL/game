@@ -7,11 +7,8 @@ import com.mygdx.game.items.characters.equipment.Weapons;
 import com.mygdx.game.items.guielements.ClassesCards;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Scanner;
 
 import static com.mygdx.game.GlobalVariables.classSlots;
@@ -20,7 +17,6 @@ import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.Utils.indexForwardClosestToTarget;
 import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.classes;
 import static java.lang.Integer.MAX_VALUE;
-import static java.lang.Integer.valueOf;
 
 @SuppressWarnings("all")
 public class Savefile {
