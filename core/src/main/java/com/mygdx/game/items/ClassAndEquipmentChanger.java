@@ -113,9 +113,19 @@ public class ClassAndEquipmentChanger {
 		public CAETexts.Shields shields;
 		int weaponCounter = 1;
 		int shieldCounter = 1;
+		boolean unlocked;
 
 
 		public void activate(Character character){}
+
+		public boolean checkUnlocked(){
+			if(savefile != null && savefile.getFBool(name))
+				unlocked = true;
+			else if (savefile != null && completeSavefile()) {
+				savefile.setFBool(name, true);
+				unlocked = true;
+			} return unlocked;
+		}
 
 		public Weapons getWeapon(int numberOWeapon,Character character){
 			if(weaponer.isEmpty() || shielder.isEmpty())

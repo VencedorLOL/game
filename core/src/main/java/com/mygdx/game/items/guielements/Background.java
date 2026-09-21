@@ -6,6 +6,7 @@ import com.mygdx.game.items.Character;
 import com.mygdx.game.items.ClassAndEquipmentChanger;
 import com.mygdx.game.items.GUI;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.getCamara;
@@ -196,9 +197,22 @@ public class Background extends GUI {
 			}
 		};
 
-		classesCards = new ClassesCards[ClassesCards.ClsCardObj.values().length];
-		for (int i = 0; i < classesCards.length; i++)
-			classesCards[i] = new ClassesCards(ClassesCards.ClsCardObj.values()[i]){public void onTouchOverridable() {cardFunctionalitySquared(this);}};
+
+
+		boolean[] checker = new boolean[ClassesCards.ClsCardObj.values().length];
+		int sizeCardsArray = 0;
+		for (int i = 0; i < checker.length; i++) {
+			checker[i] = ClassesCards.ClsCardObj.values()[i].clsObj.checkUnlocked();
+			sizeCardsArray = checker[i] ? sizeCardsArray + 1 : sizeCardsArray;
+		}
+
+
+		classesCards = new ClassesCards[sizeCardsArray];
+		for (int i = 0; i < checker.length; i++)
+			if(checker[i])
+				for(int j = 0; j < classesCards.length; j++)
+					if(classesCards[j] == null){
+						classesCards[j] = new ClassesCards(ClassesCards.ClsCardObj.values()[i]){public void onTouchOverridable() {cardFunctionalitySquared(this);}}; break;}
 
 
 	}

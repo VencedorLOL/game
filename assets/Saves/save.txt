@@ -47,3 +47,15 @@ Speedster,Imp,Trapper
 "TrapperW0": true
 "TrapperW1": true
 "TrapperS0": true
+"Melee": true
+"Speedster": true
+"Healer": true
+"Tank": true
+"Mage": true
+"SwordMage": true
+"Summoner": true
+"Imp": true
+"Catapult": true
+"StellarExplosion": true
+"Earthquaker": true
+"Trapper": true
