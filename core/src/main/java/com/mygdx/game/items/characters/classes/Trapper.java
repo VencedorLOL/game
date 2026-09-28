@@ -174,7 +174,10 @@ public class Trapper extends CharacterClasses {
 		@Override
 		public float getHealth(){return hp;}
 
-
+		@Override
+		public float getAggro() {
+			return 1;
+		}
 	}
 
 

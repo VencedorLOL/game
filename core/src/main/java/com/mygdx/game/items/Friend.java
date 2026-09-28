@@ -1,6 +1,9 @@
 package com.mygdx.game.items;
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -9,6 +12,7 @@ import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackIconRenderer.actorsThatAttack;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
+import static com.mygdx.game.items.InputHandler.attackModeJustPressed;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
@@ -33,6 +37,9 @@ public class Friend extends Actor {
 		actorsThatAttack.add(this);
 		if(color == null)
 			color = new int[]{random(0, 255), random(0, 255), random(0, 255)};
+		ArrayList<DamageReceiver> list = new ArrayList<>(friend);
+		list.add(chara);
+		exclusionList = list;
 	}
 
 	public Friend(float x, float y, String texture, float health) {
@@ -81,33 +88,6 @@ public class Friend extends Actor {
 
 	}
 
-	public void getObjectiveTitle(){
-		Tile objective;
-		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
-			try {objective = pathFindAlgorithm.solution.get(totalSpeed / 2 - 1);}
-			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
-			tileToReach[0] = objective.x;tileToReach[1] = objective.y;
-		} else {
-			tileToReach[0] = x; tileToReach[1] = y;
-		}
-		print("Tile to reach is " + tileToReach[0] + " " + tileToReach[1]);
-
-	}
-
-	protected void automatedMovement(){
-		if(targetActor == null && turnMode)
-			targetFinder();
-		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
-			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), allaiesGrid)) {
-				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-				getObjectiveTitle();
-			} return;
-		}
-		targetActor = null;
-		actionDecided();
-
-	}
 
 	private float gridSetter(float coordinate){
 		return (float) (globalSize() * round(coordinate / globalSize()));
@@ -130,24 +110,59 @@ public class Friend extends Actor {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			statsUpdater();
-			path.getStats(x,y,totalSpeed);
-			loop();
-			onDeath();
-			if(isDead)
-				return;
-			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
-				targetFinder();
-			if (targetActor != null && !targetActor.isDead && ((targetActor.totalTeam == -totalTeam && (float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
-				attack();
-			else
-				movement();
-			conditions.render();
-			glideProcess();
+			if(!isControllable){
+				statsUpdater();
+				path.getStats(x, y, totalSpeed);
+				loop();
+				onDeath();
+				if (isDead)
+					return;
+				if ((targetActor == null || targetActor.getIsDead() || targetActor.totalTeam() != -totalTeam) && turnMode && isDecidingWhatToDo(this))
+					targetFinder();
+				if (targetActor != null && !targetActor.getIsDead() && ((targetActor.totalTeam() == -totalTeam && (float) sqrt(pow(targetActor.getX() - x, 2) + pow(targetActor.getY() - y, 2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
+					attack();
+				else
+					movement();
+				conditions.render();
+				glideProcess();
+				print("ran friend non controlalble");
 //*			if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
-//				path.renderLastStep();
+//				path.renderLastStep();}
+			} else {
+				controlOfCamara = active;
+				statsUpdater();
+				path.getStats(x,y,totalSpeed);
+				onDeath();
+				if (attackMode)
+					attack();
+				else
+					movement();
+
+				glideProcess();
+				path.render(active);
+
+				if(attackModeJustPressed() && active && isDecidingWhatToDo(this)) {
+					if (turnMode) {
+						targetProcessor.reset();
+						attackMode = !attackMode;
+						path.pathReset();
+						if (!attackMode)
+							cancelAttackMode();
+					}
+				}
+				if(Gdx.input.isKeyJustPressed(Input.Keys.C))
+					print("color: r: " + color[0] + ", g: " + color[1] + ", b: " + color[2] );
+				renderBall();
+				conditions.render();
+			}
 		}
 	}
+
+	public void renderBall(){
+		if(active)
+			addToList("Ball",x ,y  + height/2 + globalSize()/4f,1,0,color[0],color[1],color[2]);
+	}
+
 
 	public void onDeathOverridable(){
 		if (health <= 0) {
@@ -174,53 +189,7 @@ public class Friend extends Actor {
 
 	}
 
-	// TODO:: Adapt for DamageReceiver interface.
-	public void attackDetector(){
-		ArrayList<DamageReceiver> allMyFriends = new ArrayList<>(friend);
-		allMyFriends.add(chara);
-		allMyFriends.removeIf(e -> e.totalTeam() != 1);
-		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, allMyFriends, pierces, this);
-		if (list != null) {
-			for (DamageReceiver e : list)
-				if ((float) sqrt(pow(e.getX() - x, 2) + pow(e.getY() - y, 2)) / globalSize() <= totalRange && e.totalTeam() != totalTeam) {
-					e.damage(totalDamage, AttackTextProcessor.DamageReasons.MELEE,this);
-					if (!pierces)
-						break;
-				}
-		}
-		else
-			text("Missed!", attacks.get(elementOfAttack -  1).targetX+globalSize()/2f - textSize("Missed!",40) + 40,attacks.get(elementOfAttack -  1).targetY + 240,60, 40,127,127,127,1,30);
-	}
 
-
-
-	public void targetFinder() {
-		ArrayList<ActorAndDistance> targets = new ArrayList<>();
-		for (Actor a : actors)
-			if (!a.isDead && a.totalTeam == totalTeam * -1)
-				targets.add(new ActorAndDistance(a, dC(a.x, a.y) * a.totalAggro));
-		Collections.shuffle(targets);
-		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
-		Collections.reverse(targets);
-		for (ActorAndDistance a : targets) {
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
-				targetActor = a.getActor();
-				return;
-			}
-		}
-		for (Actor a : actors)
-			if (!a.isDead && a.totalTeam == totalTeam && a == chara)
-				targets.add(new ActorAndDistance(a, dC(a.x, a.y)));
-		Collections.shuffle(targets);
-		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
-		Collections.reverse(targets);
-		for (ActorAndDistance a : targets) {
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
-				targetActor = a.getActor();
-				return;
-			}
-		}
-	}
 /*	protected void turnSpeedActuator(){
 *		if (speedLeft[0] > 0) {
 			testCollision.x += thisTurnVSM;

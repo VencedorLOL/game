@@ -113,21 +113,21 @@ public class Path {
 	}
 
 
-	public void render(){
+	public void render(boolean active){
 		ArrayList<PathStep> renderList = new ArrayList<>();
 		for(PathStep p : path)
 			if(p.render)
 				renderList.add(p);
 		for(int i = 0; i < renderList.size(); i++)
 			if(i == 0)
-				renderList.get(renderList.size()-1).texture = "Center";
+				renderList.get(renderList.size()-1).texture = active ? "Center" : "centerInnactive";
 			else
-				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY);
+				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY, active);
 		float r =  renderBlue ? 0   : owner instanceof Friend ? ((Friend) owner).color[0] : 255;
 		float g =  renderBlue ? 255 : owner instanceof Friend ? ((Friend) owner).color[1] : 255;
 		float b =  renderBlue ? 182 : owner instanceof Friend ? ((Friend) owner).color[2] : 255;
 		for (PathStep p : renderList) {
-			p.render(0.95f, p.rotation, r, g, b);
+			p.render(active ? 0.95f : .5f, p.rotation, r, g, b);
 			p.glideProcess();
 		}
 		if(!renderList.isEmpty() && currentNumberOfPaths > 0 && (!renderBlue || currentNumberOfPaths >= steps) && !pathEnded) {
@@ -165,7 +165,7 @@ public class Path {
 		getStats(x, y, speed);
 		if (!areGliding()) {
 
-			if (currentNumberOfPaths != 0 && (typeOfActor instanceof  Character || typeOfActor instanceof ControllableFriend)) {
+			if (currentNumberOfPaths != 0 && (typeOfActor instanceof  Character || typeOfActor.isControllable)) {
 				int temporalX = 0, temporalY = 0;
 				byte counter = directionalBuffer();
 				if (counter % 2 != 0)
@@ -190,7 +190,7 @@ public class Path {
 				renderBlue = true;
 				currentNumberOfPaths = steps;
 
-				if (typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) {
+				if (typeOfActor instanceof Character || typeOfActor.isControllable) {
 					if (getDecidedPathFlexibility() == 1) {
 						int temporalX = 0, temporalY = 0;
 						byte counter = directionalBuffer();
@@ -254,7 +254,7 @@ public class Path {
 				pathReset();
 			}
 
-			if (!(typeOfActor instanceof Character || typeOfActor instanceof ControllableFriend) && !path.isEmpty()) {
+			if (!(typeOfActor instanceof Character || typeOfActor.isControllable) && !path.isEmpty()) {
 				currentNumberOfPaths = 0;
 				return true;
 			}
@@ -328,13 +328,13 @@ public class Path {
 			return directionX == 0 && directionY == 0;
 		}
 
-		public void texturer(float directionX, float directionY){
+		public void texturer(float directionX, float directionY, boolean active){
 			if((directionY != 0 && directionX == 0) || (directionX != 0 && directionY == 0)){
-				texture = "Direction";
+				texture = active ? "Direction" : "directionInnactive";
 				rotation = directionX > 0 ? 0 : directionX < 0 ? 180 : directionY > 0 ? 90 : 270;
 
 			} else if (directionX != 0){
-				texture = "DiagonalDirection";
+				texture = active ? "DiagonalDirection" : "diagonalDirectionInnactive";
 				rotation = directionX < 0 && directionY > 0 ? 90 : directionX < 0 ? 180 : directionY < 0 ? 270 : 0;
 			}
 		}

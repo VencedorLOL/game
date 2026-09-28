@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.mygdx.game.items.enemies.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import static com.badlogic.gdx.math.MathUtils.random;
 import static com.mygdx.game.GameScreen.stage;
 import static com.mygdx.game.Settings.*;
+import static com.mygdx.game.items.InputHandler.attackModeJustPressed;
 import static com.mygdx.game.items.Stage.*;
 import static com.mygdx.game.items.TextureManager.animationToList;
 import static com.mygdx.game.items.Tile.findATile;
@@ -33,40 +36,13 @@ public class Enemy extends Actor {
 
 	}
 
-	public void getObjectiveTitle(){
-		Tile objective;
-		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
-			try {objective = pathFindAlgorithm.solution.get(totalSpeed / 2 - 1);}
-			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
-			tileToReach[0] = objective.x;tileToReach[1] = objective.y;
-		} else {
-			tileToReach[0] = x; tileToReach[1] = y;
-		}
-		print("Tile to reach is " + tileToReach[0] + " " + tileToReach[1]);
-
-	}
-
-	protected void automatedMovement(){
-		if(targetActor == null && turnMode)
-			targetFinder();
-		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
-			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(x, y, gridSetter(targetActor.x), gridSetter(targetActor.y), enemyGrid)) {
-				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-				getObjectiveTitle();
-			} return;
-		}
-		targetActor = null;
-		actionDecided();
-
-	}
-
 	private float gridSetter(float coordinate){
 		return (float) (globalSize() * round(coordinate / globalSize()));
 	}
 
 	{
 		enemies.add(this);
+		exclusionList = enemies;
 	}
 	
 	
@@ -147,20 +123,45 @@ public class Enemy extends Actor {
 
 	public void update(){
 		if (haveWallsBeenRendered && haveEnemiesBeenRendered && hasFloorBeenRendered && haveScreenWarpsBeenRendered && !isDead) {
-			statsUpdater();
-			path.getStats(x,y,totalSpeed);
-			loop();
-			onDeath();
-			if(isDead)
-				return;
-			if ((targetActor == null || targetActor.isDead || targetActor.totalTeam != -totalTeam) && turnMode && isDecidingWhatToDo(this))
-				targetFinder();
-			if (targetActor != null && !targetActor.isDead && (((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
-				attack();
-			else
-				movement();
-			conditions.render();
-			glideProcess();
+			if(!isControllable){
+				statsUpdater();
+				path.getStats(x, y, totalSpeed);
+				loop();
+				onDeath();
+				if (isDead)
+					return;
+				if ((targetActor == null || targetActor.getIsDead() || targetActor.totalTeam() != -totalTeam) && turnMode && isDecidingWhatToDo(this))
+					targetFinder();
+				if (targetActor != null && !targetActor.getIsDead() && (((float) sqrt(pow(targetActor.getX() - x, 2) + pow(targetActor.getY() - y, 2)) / globalSize() <= totalRange && speedLeft[0] == 0 && speedLeft[1] == 0) || !attacks.isEmpty()) && (!attacks.isEmpty() || !permittedToAct) && attackHitsTarget())
+					attack();
+				else
+					movement();
+				conditions.render();
+				glideProcess();
+			} else {
+				controlOfCamara = active;
+				statsUpdater();
+				path.getStats(x,y,totalSpeed);
+				onDeath();
+				if (attackMode)
+					attack();
+				else
+					movement();
+
+				glideProcess();
+				path.render(active);
+
+				if(attackModeJustPressed() && active && isDecidingWhatToDo(this)) {
+					if (turnMode) {
+						targetProcessor.reset();
+						attackMode = !attackMode;
+						path.pathReset();
+						if (!attackMode)
+							cancelAttackMode();
+					}
+				}
+				conditions.render();
+			}
 		}
 	}
 

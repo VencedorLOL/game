@@ -22,6 +22,7 @@ public class TargetProcessor {
 	boolean checkWalkable;
 	boolean rayCast;
 	public Entity targetsTarget;
+	public Entity animationTarget;
 	String targetAnimation;
 	public TextureManager.Animation target;
 	byte r = (byte) 200,g = (byte) 200,b = (byte) 200;
@@ -38,6 +39,7 @@ public class TargetProcessor {
 		this.checkWalkable = checkWalkable;
 		this.rayCast = rayCast;
 		targetsTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
+		animationTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
 		this.firTexture = texture;
 		this.secTexture = secTexture;
 	}
@@ -49,6 +51,7 @@ public class TargetProcessor {
 		this.checkWalkable = checkWalkable;
 		this.rayCast = rayCast;
 		targetsTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
+		animationTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
 		this.targetAnimation = targetAnimation;
 	}
 
@@ -58,6 +61,7 @@ public class TargetProcessor {
 		this.checkWalkable = checkWalkable;
 		this.rayCast = rayCast;
 		targetsTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
+		animationTarget = new Entity(null,fixated.getX(),fixated.getY(),false);
 	}
 
 	public TargetProcessor(float x, float y,float size,boolean checkWalkable, boolean rayCast){
@@ -67,6 +71,7 @@ public class TargetProcessor {
 		this.rayCast = rayCast;
 		this.x = x; this.y = y;
 		targetsTarget = new Entity(null,x,y,false);
+		animationTarget = new Entity(null,x,y,false);
 		opacity = .2f;
 	}
 
@@ -148,8 +153,9 @@ public class TargetProcessor {
 				targetKeyboardMovement();
 
 			if (!circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()) || cursorMoved() || leftClickJustPressed()) {
-				targetsTarget.setX(roundedClick().x);
-				targetsTarget.setY(roundedClick().y);
+//				targetsTarget.setX(roundedClick().x);
+//				targetsTarget.setY(roundedClick().y);
+				move(roundedClick().x,roundedClick().y);
 			}
 			if(circle.isInsideOfCircle(targetsTarget.getX(), targetsTarget.getY()))
 				targetRender();
@@ -167,11 +173,20 @@ public class TargetProcessor {
 //		}
 	}
 
+	public void move(float newX, float newY){
+		animationTarget.glideAbsoluteCoords(newX,newY,8);
+		targetsTarget.x = newX;
+		targetsTarget.y = newY;
+	}
+
+
+
 	public void targetRender(){
+		animationTarget.glideProcess();
 		renderingTarget = true;
 		if(secTexture == null) {
 			if (target == null) {
-				target = new TextureManager.Animation(targetAnimation, targetsTarget) {
+				target = new TextureManager.Animation(targetAnimation, animationTarget) {
 					public void updateOverridable() {
 						if (leftClickReleased() || actionConfirmJustPressed())
 							this.stop();
@@ -180,7 +195,7 @@ public class TargetProcessor {
 				animations.add(target);
 			}
 			if (target.finished) {
-				target = new TextureManager.Animation(targetAnimation, targetsTarget) {
+				target = new TextureManager.Animation(targetAnimation, animationTarget) {
 					public void updateOverridable() {
 						if (leftClickReleased() || actionConfirmJustPressed())
 							this.stop();
@@ -190,7 +205,7 @@ public class TargetProcessor {
 			}
 		} else {
 			if (target == null) {
-				target = new TextureManager.Animation("target", targetsTarget) {
+				target = new TextureManager.Animation("target", animationTarget) {
 					public void updateOverridable() {
 						if (leftClickReleased() || actionConfirmJustPressed())
 							this.stop();
@@ -206,7 +221,7 @@ public class TargetProcessor {
 				animations.add(target);
 			}
 			if (target.finished) {
-				target = new TextureManager.Animation("target", targetsTarget) {
+				target = new TextureManager.Animation("target", animationTarget) {
 					public void updateOverridable() {
 						if (leftClickReleased() || actionConfirmJustPressed())
 							this.stop();
@@ -256,12 +271,11 @@ public class TargetProcessor {
 		if (allowedKey(1))
 			x += globalSize();
 		if(circle.isInsideOfCircle(x,y)) {
-			targetsTarget.x = x;
-			targetsTarget.y = y;
+			move(x,y);
 		} else if (circle.isInsideOfCircle(x,targetsTarget.y))
-			targetsTarget.x = x;
+			move(x,targetsTarget.y);
 		else if (circle.isInsideOfCircle(targetsTarget.x,y))
-			targetsTarget.y = y;
+			move(targetsTarget.x,y);
 	}
 
 	public void reset(){
@@ -271,6 +285,8 @@ public class TargetProcessor {
 		target = null;
 		targetsTarget.setX(fixated.getX());
 		targetsTarget.setY(fixated.getY());
+		animationTarget.setX(fixated.getX());
+		animationTarget.setX(fixated.getY());
 
 	//	getCamara().smoothZoom(1,30);
 	}

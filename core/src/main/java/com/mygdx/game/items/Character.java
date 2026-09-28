@@ -2,7 +2,6 @@ package com.mygdx.game.items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector3;
 import com.mygdx.game.Settings;
 import com.mygdx.game.items.characters.Ability;
 import com.mygdx.game.items.characters.CharacterClasses;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.mygdx.game.GameScreen.*;
-import static com.mygdx.game.GlobalVariables.classSlots;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.Utils.distance;
@@ -36,9 +34,8 @@ public class Character extends Actor {
 	OnVariousScenarios oVS2;
 
 	public boolean attackMode = false;
-	public float lastClickX, lastClickY;
 	public byte lastDamageCounter;
-	public static ArrayList<ControllableFriend> controllableCharacters = new ArrayList<>();
+	public static ArrayList<Actor> controllableCharacters = new ArrayList<>();
 
 	public Animation walkingAnimation;
 	TextureManager.Text text;
@@ -94,34 +91,16 @@ public class Character extends Actor {
 		getCamara().smoothZoom(1,30);
 	}
 
-	protected void automatedMovement(){
-		if(leftClickReleased()){
-			Vector3 temporal = roundedClick();
-			lastClickX = temporal.x;
-			lastClickY = temporal.y;
-			print("last ckik x " + lastClickX + " y " + lastClickY);
-			pathFinding();
-		}
-	}
-
 
 	public void healThis(float heal){
 		classes.healThis(heal);
 	}
 
-	private void pathFinding(){
-		path.pathReset();
-		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, getTakeEnemiesIntoConsideration()))
-			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-		else
-			print("no path found");
-	}
-
 	public void controlProcessor(){
 		controllableCharacters.removeIf(c -> c.isDead);
 		if(!isDecidingWhatToDo(this) && !isTurnRunning()) {
-			for (ControllableFriend c : controllableCharacters) {
-				if (!c.active && isDecidingWhatToDo(c) && !c.isDead) {
+			for (Actor c : actors) {
+				if (c.isControllable && !c.active && isDecidingWhatToDo(c) && !c.isDead) {
 					c.active = true;
 					getCamara().smoothAttachment(c,40);
 					controlOfCamara = false;
@@ -144,17 +123,19 @@ public class Character extends Actor {
 	public void massCancel(){
 		if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
 			boolean isDeciding = false;
-			for(ControllableFriend c : controllableCharacters)
-				if(isDecidingWhatToDo(c)){
+			for(Actor c : actors)
+				if(isDecidingWhatToDo(c) && isControllable){
 					isDeciding = true;
 					break;
 				}
 			if(!isDeciding)
 				return;
-			for(ControllableFriend c : controllableCharacters) {
-				c.cancelDecision();
-				c.active = false;
-				c.targetProcessor.circle = null;
+			for(Actor c : actors) {
+				if(isControllable) {
+					c.cancelDecision();
+					c.active = false;
+					c.targetProcessor.circle = null;
+				}
 			}
 			cancelDecision();
 			for(Ability a : classes.abilities)
@@ -208,7 +189,7 @@ public class Character extends Actor {
 		if(turnMode) {
 			controlProcessor();
 			massCancel();
-			path.render();
+			path.render(isDecidingWhatToDo(this));
 			conditions.render();
 		}
 		textureUpdater();
@@ -323,6 +304,8 @@ public class Character extends Actor {
 	public void attackDetector(){
 		ArrayList<DamageReceiver> temp = new ArrayList<>();
 		temp.add(this);
+		if(!isDevMode())
+			temp.addAll(friend);
 		classes.runAttack();
 		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
 		if (list != null)
@@ -661,8 +644,10 @@ public class Character extends Actor {
 				classes.attacksIgnoreTerrain = !classes.attacksIgnoreTerrain;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
-				new ControllableFriend(x, y + 128, "animaAnnoyed", 100).softlockOverridable(false);
-				print("Name of shield or whatever of thing just done: " + classSlots[0].getShieldName(0, this));
+		//		new ControllableFriend(x, y + 128, "animaAnnoyed", 100).softlockOverridable(false);
+				Friend friend = new Friend(x, y + 128, "animaAnnoyed", 100);
+				friend.softlockOverridable(false);
+				friend.isControllable = true;
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_9)) {
 				addField(FieldEffects.FieldNames.CATACLYSM_GLATIATION);
@@ -693,15 +678,6 @@ public class Character extends Actor {
 				print("is appconfig null? " + (Settings.getConfig() == null));
 				Settings.getConfig().setForegroundFPS(120);
 				Settings.getConfig().useVsync(false);
-				this.damage(1, AttackTextProcessor.DamageReasons.MELEE,this);
-				if(savefile.getOrMakeFlag("one","three") == "three") {
-					savefile.getOrMakeFlag(2, "davadadwa");
-					savefile.getOrMakeFlag("ad","a");
-					savefile.getOrMakeFlag("add","a");
-				} else {
-					savefile.getOrMakeFlag("add","a");
-					savefile.getOrMakeFlag("ad","a");
-				}
 
 			}
 			if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {

@@ -10,10 +10,12 @@ import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.ELECTRIC;
 import static com.mygdx.game.items.ClickDetector.rayCasting;
+import static com.mygdx.game.items.ClickDetector.roundedClick;
 import static com.mygdx.game.items.Enemy.enemies;
 import static com.mygdx.game.items.FieldEffects.getAdditive;
 import static com.mygdx.game.items.FieldEffects.getMultiplier;
 import static com.mygdx.game.items.Friend.friend;
+import static com.mygdx.game.items.InputHandler.*;
 import static com.mygdx.game.items.OnVariousScenarios.*;
 import static com.mygdx.game.items.Stage.betweenStages;
 import static com.mygdx.game.items.TextureManager.Text.textSize;
@@ -21,6 +23,7 @@ import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static com.mygdx.game.items.TurnManager.turnables;
+import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.classes;
 import static java.lang.Math.*;
 
 public class Actor extends Entity implements TurnManager.Turnable, DamageReceiver {
@@ -65,7 +68,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public boolean isDead;
 
-	public Actor targetActor;
+	public DamageReceiver targetActor;
 
 	public static ArrayList<Actor> actors = new ArrayList<>();
 
@@ -83,6 +86,8 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	boolean phasingAttack;
 
+	public ArrayList<? extends DamageReceiver> exclusionList = enemies;
+
 	@Override
 	public float getSpeed() {
 		return totalActingSpeed*100 + totalSpeed;
@@ -94,6 +99,8 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public boolean lockClassTilAnimationFinishes = false;
 
 	public boolean noClip = false;
+
+	public boolean isControllable = false;
 
 	@SuppressWarnings("all")
 	static OnVariousScenarios oVS = new OnVariousScenarios(){
@@ -135,6 +142,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public Actor(String aChar, float x, float y, float base, float height) {
 		super(aChar,x,y,base,height);
+		targetProcessor = new TargetProcessor(this,totalRange,true,false,"target","notarget");
 		pathFindAlgorithm = new PathFinder();
 		actors.add(this);
 		turnables.add(this);
@@ -180,6 +188,8 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public byte totalTeam(){return totalTeam;}
 	@Override
 	public float getHealth(){return health;}
+	@Override
+	public float getAggro(){return aggro;}
 
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
@@ -278,7 +288,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 						conditions.onMove();
 				}
 
-			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && !movementLock)
+			} else if (isDecidingWhatToDo(this) && speedLeft[0] == 0 && speedLeft[1] == 0 && !movementLock && (active || !isControllable))
 				movementInputTurnMode();
 
 		} else {
@@ -405,23 +415,55 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 			actionDecided();
 	}
 
-
+	public float lastClickX, lastClickY;
 	protected void automatedMovement(){
-		if(targetActor == null && turnMode)
-			targetFinder();
-		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
-			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(x, y, targetActor.x, targetActor.y, getTakeEnemiesIntoConsideration()))
-				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-			return;
+		if(!isControllable && !(this instanceof Character)) {
+			if (targetActor == null && turnMode)
+				targetFinder();
+			if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
+				path.pathReset();
+				if (pathFindAlgorithm.quickSolve(x, y, targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
+					path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
+				return;
+			}
+			targetActor = null;
+			actionDecided();
+		} else {
+			if(leftClickReleased()){
+				lastClickX = roundedClick().x;
+				lastClickY = roundedClick().y;
+				print("last ckik x " + lastClickX + " y " + lastClickY);
+				pathFinding();
+			}
 		}
-		targetActor = null;
-		actionDecided();
 	}
+
+	private void pathFinding(){
+		path.pathReset();
+		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, getTakeEnemiesIntoConsideration()))
+			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
+		else
+			print("no path found");
+	}
+
+//	public void getObjectiveTitle(){
+//		Tile objective;
+//		if (pathFindAlgorithm.solution != null && !pathFindAlgorithm.solution.isEmpty()) {
+//			try {objective = pathFindAlgorithm.solution.get(totalSpeed / 2 - 1);}
+//			catch (IndexOutOfBoundsException ignored) {objective = pathFindAlgorithm.solution.get(pathFindAlgorithm.solution.size() - 1);}
+//			tileToReach[0] = objective.x;
+//			tileToReach[1] = objective.y;
+//		} else {
+//			tileToReach[0] = x;
+//			tileToReach[1] = y;
+//		}
+//	}
+
 
 	public void actionDecided(){
 		thisTurnVSM = getVisualSpeedMultiplier();
 		TurnManager.finalizedChoosing(this);
+		active = false;
 	}
 
 	public void finalizedTurn(){
@@ -526,14 +568,14 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public void targetFinder(){
 		ArrayList<ActorAndDistance> targets = new ArrayList<>();
-		for (Actor a : actors)
-			if (!a.isDead && a.totalTeam == totalTeam*-1)
-				targets.add(new ActorAndDistance(a,dC(a.x,a.y)*a.totalAggro));
+		for (DamageReceiver a : damageReceivers)
+			if (!a.getIsDead() && a.totalTeam() == totalTeam*-1)
+				targets.add(new ActorAndDistance(a,dC(a.getX(),a.getY())*a.getAggro()));
 		Collections.shuffle(targets);
 		targets.sort((o1, o2) -> Double.compare(o2.getDistance(), o1.getDistance()));
 		Collections.reverse(targets);
 		for (ActorAndDistance a : targets){
-			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().x, a.getActor().y, getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
+			if (pathFindAlgorithm.quickSolve(x, y, a.getActor().getX(), a.getActor().getY(), getTakeEnemiesIntoConsideration()) && dC(a.getActor().getX(), a.getActor().getY()) <= totalSightRange * globalSize()) {
 				targetActor = a.actor;
 				return;
 			} else if (totalSightRange * globalSize() > dC(a.getActor().getX(), a.getActor().getY()))
@@ -544,15 +586,15 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	@SuppressWarnings("all")
 	static class ActorAndDistance{
-		private Actor actor;
+		private DamageReceiver actor;
 		private double distance;
 
-		ActorAndDistance(Actor actor, double distance){
+		ActorAndDistance(DamageReceiver actor, double distance){
 			this.actor = actor;
 			this.distance = distance;
 		}
 
-		Actor getActor(){return actor;}
+		DamageReceiver getActor(){return actor;}
 		double getDistance() {return distance;}
 
 		private void setActor(Actor actor){this.actor = actor;}
@@ -577,7 +619,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 		if (isPermittedToAct())
 			attackActuator();
 
-		else if (isDecidingWhatToDo(this))
+		else if (isDecidingWhatToDo(this) && (active || !isControllable))
 			attackInput();
 	}
 
@@ -613,9 +655,9 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	}
 
 	public void attackDetector(){
-		ArrayList<DamageReceiver> actuallyEnemies = new ArrayList<>(enemies);
-		actuallyEnemies.removeIf(e -> e.totalTeam() != -1);
-		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, actuallyEnemies, pierces, this);
+		ArrayList<DamageReceiver> excluded = new ArrayList<>(exclusionList);
+		excluded.removeIf(e -> e.totalTeam() != -1);
+		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, excluded, pierces, this);
 		if (list != null) {
 			for (DamageReceiver e : list)
 				if ((float) sqrt(pow(e.getX() - x, 2) + pow(e.getY() - y, 2)) / globalSize() <= totalRange && e.totalTeam() != totalTeam) {
@@ -631,13 +673,44 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public ArrayList<Attack> attacks = new ArrayList<>();
 	protected void attackInput() {
-		if ((float) sqrt(pow(targetActor.x - x,2) + pow(targetActor.y - y,2)) / globalSize() <= totalRange) {
-			attacks.add(new Attack(targetActor.x, targetActor.y,this));
-			thisTurnVSM = getVisualSpeedMultiplier();
-			actionDecided();
+		if(!isControllable && !(this instanceof Character)) {
+			if ((float) sqrt(pow(targetActor.getX() - x, 2) + pow(targetActor.getY() - y, 2)) / globalSize() <= totalRange) {
+				attacks.add(new Attack(targetActor.getX(), targetActor.getY(), this));
+				thisTurnVSM = getVisualSpeedMultiplier();
+				actionDecided();
+			}
+		} else {
+			targetProcessor.changeRadius(totalRange);
+			targetProcessor.render();
+			if(actionConfirmJustPressed() || leftClickReleased()) {
+				if (targetProcessor.findATile(targetProcessor.getTargetX(),targetProcessor.getTargetY()) != null && !(targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)) {
+					attacks.add(new Attack(targetProcessor.getTargetX(), targetProcessor.getTargetY(),this));
+				if (!(this instanceof Character) || ((Character) this).classes.runOnAttackDecided())
+					actionDecided();
+				} else if (targetProcessor.getTargetX() == x && targetProcessor.getTargetY() == y)
+					cancelAttackMode();
+			} else if (escapeJustPressed())
+				cancelAttackMode();
 		}
 	}
 
+//is controllable only
+	public TargetProcessor targetProcessor;
+	public boolean active = false;
+	public boolean attackMode;
+
+	public void cancelAttackMode(){
+		attackMode = false;
+		if (targetProcessor.circle != null)
+			targetProcessor.deleteTexture();
+		targetProcessor.reset();
+		attacks.clear();
+	}
+
+
+
+
+//exit of is controllable
 
 	public final void onDeath(){
 		if(health <= 0) {
@@ -662,7 +735,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public boolean attackHitsTarget(){
 		if(phasingAttack)
 			return true;
-		ArrayList<DamageReceiver> actorss = rayCasting(x,y,targetActor.x,targetActor.y,pierces,this,this);
+		ArrayList<DamageReceiver> actorss = rayCasting(x,y,targetActor.getX(),targetActor.getY(),pierces,this,this);
 		if(actorss != null)
 			for(DamageReceiver d : actorss)
 				if(d==targetActor)
