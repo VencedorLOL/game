@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.Settings;
+
 import java.util.ArrayList;
 
 import static com.mygdx.game.GameScreen.*;
@@ -10,9 +12,13 @@ import static com.mygdx.game.items.Tile.coordentatesInWalkableTile;
 import static com.mygdx.game.items.TurnManager.turnStopTimer;
 
 public class Path {
+
+	public static final float DIAG_COST = 1.3f;
+
 	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());
 	ArrayList<PathStep> path;
 	int steps;
+	float costOfPath = 1;
 	float entityX, entityY;
 	int currentNumberOfPaths = 0;
 	boolean pathEnded;
@@ -36,6 +42,9 @@ public class Path {
 		this.owner = owner;
 	}
 
+	public boolean outOfPath(){
+		return costOfPath > steps && Settings.punishDiagonal();
+	}
 
 	public int[] pathProcess(){
 		if (!pathEnded) {
@@ -45,7 +54,10 @@ public class Path {
 			if (currentNumberOfPaths != 0)
 				path.get(currentNumberOfPaths - 1).setRender(false);
 			int[] speedLeft = new int[2];
-			if (currentNumberOfPaths >= steps) currentNumberOfPaths = 0;
+			if (currentNumberOfPaths >= steps || outOfPath()) {
+				currentNumberOfPaths = 0;
+				costOfPath = 1;
+			}
 			if (cannotContinue(path.get(currentNumberOfPaths).directionX, path.get(currentNumberOfPaths).directionY, owner) || betweenStages) {
 				pathReset();
 				pathEnded = true;
@@ -54,9 +66,11 @@ public class Path {
 			speedLeft[0] = path.get(currentNumberOfPaths).directionX;
 			speedLeft[1] = path.get(currentNumberOfPaths).directionY;
 			currentNumberOfPaths++;
-			if (currentNumberOfPaths >= steps) {
+			costOfPath += (punishDiagonal()&&speedLeft[0] != 0 && speedLeft[1] != 0) ? DIAG_COST : 1;
+			if (currentNumberOfPaths >= steps || outOfPath()) {
 				pathEnded = true;
 				currentNumberOfPaths = 0;
+				costOfPath = 1;
 			}
 			return speedLeft;
 		}
@@ -143,6 +157,7 @@ public class Path {
 
 	public void pathReset(){
 		currentNumberOfPaths = 0;
+		costOfPath = 1;
 		renderBlue = false;
 		for (PathStep p : path){
 			p.reset();
@@ -180,15 +195,17 @@ public class Path {
 				if (getPreviousPathCoords()[0] == temporalX * -1 && getPreviousPathCoords()[1] == temporalY * -1) {
 					path.get(--currentNumberOfPaths).reset();
 					renderBlue = false;
+					costOfPath -= punishDiagonal() && temporalX != 0 && temporalY != 0 ? DIAG_COST : 1;
 					return false;
 				}
 			}
 
 
-			if (currentNumberOfPaths >= steps) {
+			if (currentNumberOfPaths >= steps || outOfPath()) {
 				// set currentNumbe.. to steps for safety and to use getCurrentParthCoords safely
 				renderBlue = true;
-				currentNumberOfPaths = steps;
+				if(currentNumberOfPaths >= steps)
+					currentNumberOfPaths = steps;
 
 				if (typeOfActor instanceof Character || typeOfActor.isControllable) {
 					if (getDecidedPathFlexibility() == 1) {
@@ -207,6 +224,7 @@ public class Path {
 							getCamara().smoothAttachment(chara,12);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
+							costOfPath = 1;
 							return true;
 						}
 					}
@@ -215,18 +233,20 @@ public class Path {
 							getCamara().smoothAttachment(chara,13);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
+							costOfPath = 1;
 							return true;
 						}
 					if (getDecidedPathFlexibility() == 3) {
 						getCamara().smoothAttachment(chara,14);
 						turnStopTimer(10);
 						currentNumberOfPaths = 0;
+						costOfPath = 1;
 						return true;
 					}
 				}
 			}
 
-			if (currentNumberOfPaths < steps) {
+			if (currentNumberOfPaths < steps && !outOfPath()) {
 				try {
 					doNothingSoIntelliJShutsUpAlready(path.get(currentNumberOfPaths));
 				} catch (java.lang.IndexOutOfBoundsException ignored) {
@@ -245,6 +265,7 @@ public class Path {
 				getCamara().smoothAttachment(chara,30);
 				turnStopTimer(10);
 				currentNumberOfPaths = 0;
+				costOfPath = 1;
 				renderBlue = true;
 				return true;
 			}
@@ -256,6 +277,7 @@ public class Path {
 
 			if (!(typeOfActor instanceof Character || typeOfActor.isControllable) && !path.isEmpty()) {
 				currentNumberOfPaths = 0;
+				costOfPath = 1;
 				return true;
 			}
 		}
@@ -289,6 +311,7 @@ public class Path {
 		testCollision.y = y + pathStep.directionY;
 		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection() && coordentatesInWalkableTile(testCollision.x,testCollision.y)){
 			currentNumberOfPaths++;
+			costOfPath += (punishDiagonal() && pathStep.directionX != 0 && pathStep.directionY != 0 ) ? DIAG_COST : 1;
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;
 			pathStep.setRender(true);

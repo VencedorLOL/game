@@ -120,7 +120,7 @@ public class Hazards {
 
 	public final Actor stepTrigger(){
 		for(Actor a : actors)
-			if(a.overlaps(x,y,base,height))
+			if(a.overlaps(x,y,base,height) && !a.airborn)
 				return a;
 		return null;
 	}
@@ -151,6 +151,10 @@ public class Hazards {
 
 	// The isGliding part is to get a character damaged if it just suffered knockback, since I'll probably implement knockback with the gliding mechanic.
 	public final boolean actorVerification(Actor victim){
+		return (victim.isPermittedToAct() || !getTrapsTick() || victim.isGliding) && !victim.airborn;
+	}
+
+	public final boolean actVerifIgnoreAirborn(Actor victim){
 		return victim.isPermittedToAct() || !getTrapsTick() || victim.isGliding;
 	}
 
@@ -215,7 +219,7 @@ public class Hazards {
 				time--;
 				finishedActing();
 			}
-			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && actorVerification(victim))
+			if(victim != null && victim.x % globalSize() == 0 && victim.y % globalSize() == 0 && actVerifIgnoreAirborn(victim))
 				victim.conditions.status(Conditions.ConditionNames.BURNING);
 		}
 

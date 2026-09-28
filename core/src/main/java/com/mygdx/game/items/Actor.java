@@ -88,14 +88,6 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public ArrayList<? extends DamageReceiver> exclusionList = enemies;
 
-	@Override
-	public float getSpeed() {
-		return totalActingSpeed*100 + totalSpeed;
-	}
-
-	public boolean didItAct(){return didItAct;}
-	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
-
 	public boolean lockClassTilAnimationFinishes = false;
 
 	public boolean noClip = false;
@@ -137,6 +129,10 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 				return a;
 		return null;
 	}
+
+	public boolean didItAct(){return didItAct;}
+	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
+
 
 	public boolean getIsDead() { return isDead; }
 
@@ -190,6 +186,11 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 	public float getHealth(){return health;}
 	@Override
 	public float getAggro(){return aggro;}
+
+	@Override
+	public float getSpeed() {
+		return totalActingSpeed*100 + totalSpeed;
+	}
 
 	public float getDamagedFor(float damage, AttackTextProcessor.DamageReasons damageReason) {
 		float damagedFor;
