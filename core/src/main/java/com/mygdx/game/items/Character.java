@@ -81,6 +81,7 @@ public class Character extends Actor {
 		targetProcessor.opacity = .2f;
 		cC = new ClassAndEquipmentChanger(this);
 		path.pathReset();
+		controlOfCamara = true;
 	}
 
 	public void spendTurn(){

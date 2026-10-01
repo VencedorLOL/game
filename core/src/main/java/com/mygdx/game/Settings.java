@@ -26,7 +26,7 @@ public class Settings {
 	static Lwjgl3ApplicationConfiguration config;
 	private static boolean allowCommands = true;
 	private final static boolean COMPLETE_SAVEFILE = false;
-	private final static boolean CHEBYSHEV_OVER_OCTILE = true;
+	private final static boolean CHEBYSHEV_OVER_OCTILE = false;
 
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default

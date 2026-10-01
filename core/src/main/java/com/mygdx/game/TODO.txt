@@ -9,7 +9,6 @@ next turn you cant decide what to do, you will keep moving the ball.
 	A weapon that knocksback enemies so they fall into traps
 Text: add custom text gradients and text wave and text bounce
 
-	camera remaining attached to path if path hasnt been walked yet
 multiplayer.
 Text: trailing colored text, rapidly disapearing and converting into its supposed real color
 Camera: impact frames (dramatic but subtle zoom)

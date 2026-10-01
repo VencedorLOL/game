@@ -18,16 +18,19 @@ public class Path {
 	Entity testCollision = new Entity(null,0,0,globalSize(),globalSize());
 	ArrayList<PathStep> path;
 	int steps;
-	float costOfPath = 1;
+	float realSteps;
+	float costOfPath = 0;
 	float entityX, entityY;
 	int currentNumberOfPaths = 0;
 	boolean pathEnded;
+	boolean pathInProcess;
 	OnVariousScenarios oVS;
 	Actor owner;
 	// 1 = movement
 	// 2 = attack
 
 	boolean renderBlue;
+	int redTimer;
 
 	public Path(float x, float y, int speed,Actor owner){
 		getStats(x,y,speed);
@@ -43,7 +46,7 @@ public class Path {
 	}
 
 	public boolean outOfPath(){
-		return costOfPath > steps && Settings.punishDiagonal();
+		return costOfPath > realSteps && Settings.punishDiagonal();
 	}
 
 	public int[] pathProcess(){
@@ -56,7 +59,7 @@ public class Path {
 			int[] speedLeft = new int[2];
 			if (currentNumberOfPaths >= steps || outOfPath()) {
 				currentNumberOfPaths = 0;
-				costOfPath = 1;
+				costOfPath = 0;
 			}
 			if (cannotContinue(path.get(currentNumberOfPaths).directionX, path.get(currentNumberOfPaths).directionY, owner) || betweenStages) {
 				pathReset();
@@ -70,7 +73,7 @@ public class Path {
 			if (currentNumberOfPaths >= steps || outOfPath()) {
 				pathEnded = true;
 				currentNumberOfPaths = 0;
-				costOfPath = 1;
+				costOfPath = 0;
 			}
 			return speedLeft;
 		}
@@ -137,27 +140,40 @@ public class Path {
 				renderList.get(renderList.size()-1).texture = active ? "Center" : "centerInnactive";
 			else
 				renderList.get(renderList.size()-i-1).texturer(renderList.get(renderList.size()-i).directionX, renderList.get(renderList.size()-i).directionY, active);
-		float r =  renderBlue ? 0   : owner instanceof Friend ? ((Friend) owner).color[0] : 255;
-		float g =  renderBlue ? 255 : owner instanceof Friend ? ((Friend) owner).color[1] : 255;
-		float b =  renderBlue ? 182 : owner instanceof Friend ? ((Friend) owner).color[2] : 255;
+		float[] color = setColor();
 		for (PathStep p : renderList) {
-			p.render(active ? 0.95f : .5f, p.rotation, r, g, b);
+			p.render(active ? 0.95f : .5f, p.rotation, color[0], color[1], color[2]);
 			p.glideProcess();
 		}
-		if(!renderList.isEmpty() && currentNumberOfPaths > 0 && (!renderBlue || currentNumberOfPaths >= steps) && !pathEnded) {
+		if(!renderList.isEmpty() && currentNumberOfPaths > 0 && (!renderBlue || (currentNumberOfPaths >= steps || !costPathAvilable(globalSize(),0))) && !pathEnded && !pathInProcess) {
 			getCamara().smoothAttachment(renderList.get(renderList.size() - 1), 30);
 		} else if (owner.controlOfCamara)
 			getCamara().smoothAttachment(owner,11);
 	}
 
+	public float[] setColor(){
+		boolean renderRed;
+		if(redTimer > 0){
+			redTimer--;
+			renderRed = true;
+		} else
+			renderRed = false;
+		float[] color = new float[3];
+		color[0] = renderBlue ? 10  : renderRed ? 220 : owner instanceof Friend ? ((Friend) owner).color[0] : 255;
+		color[1] = renderBlue ? 255 : renderRed ? 40  : owner instanceof Friend ? ((Friend) owner).color[1] : 255;
+		color[2] = renderBlue ? 182 : renderRed ? 40  : owner instanceof Friend ? ((Friend) owner).color[2] : 255;
+		return color;
+	}
+
 	public void pathStart(){
+		pathInProcess = false;
 		pathEnded = false;
 		pathReset();
 	}
 
 	public void pathReset(){
 		currentNumberOfPaths = 0;
-		costOfPath = 1;
+		costOfPath = 0;
 		renderBlue = false;
 		for (PathStep p : path){
 			p.reset();
@@ -200,8 +216,7 @@ public class Path {
 				}
 			}
 
-
-			if (currentNumberOfPaths >= steps || outOfPath()) {
+			if (currentNumberOfPaths >= steps || outOfPath() || !costPathAvilable(globalSize(),0)) {
 				// set currentNumbe.. to steps for safety and to use getCurrentParthCoords safely
 				renderBlue = true;
 				if(currentNumberOfPaths >= steps)
@@ -224,7 +239,8 @@ public class Path {
 							getCamara().smoothAttachment(chara,12);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
-							costOfPath = 1;
+							costOfPath = 0;
+							pathInProcess = true;
 							return true;
 						}
 					}
@@ -233,14 +249,16 @@ public class Path {
 							getCamara().smoothAttachment(chara,13);
 							turnStopTimer(10);
 							currentNumberOfPaths = 0;
-							costOfPath = 1;
+							costOfPath = 0;
+							pathInProcess = true;
 							return true;
 						}
 					if (getDecidedPathFlexibility() == 3) {
 						getCamara().smoothAttachment(chara,14);
 						turnStopTimer(10);
 						currentNumberOfPaths = 0;
-						costOfPath = 1;
+						costOfPath = 0;
+						pathInProcess = true;
 						return true;
 					}
 				}
@@ -265,8 +283,9 @@ public class Path {
 				getCamara().smoothAttachment(chara,30);
 				turnStopTimer(10);
 				currentNumberOfPaths = 0;
-				costOfPath = 1;
+				costOfPath = 0;
 				renderBlue = true;
+				pathInProcess = true;
 				return true;
 			}
 
@@ -277,7 +296,8 @@ public class Path {
 
 			if (!(typeOfActor instanceof Character || typeOfActor.isControllable) && !path.isEmpty()) {
 				currentNumberOfPaths = 0;
-				costOfPath = 1;
+				costOfPath = 0;
+				pathInProcess = true;
 				return true;
 			}
 		}
@@ -288,9 +308,10 @@ public class Path {
 
 
 	public void getStats(float x, float y, int speed){
-		steps = (speed / 2);
-		if (steps <= 0)
-			steps = 1;
+		realSteps = (speed / 2f);
+		if (realSteps <= 0)
+			realSteps = 1;
+		steps = (int) realSteps;
 		entityX = x;
 		entityY = y;
 	}
@@ -309,15 +330,25 @@ public class Path {
 
 		testCollision.x = x + pathStep.directionX;
 		testCollision.y = y + pathStep.directionY;
-		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection() && coordentatesInWalkableTile(testCollision.x,testCollision.y)){
+		if (!testCollision.overlapsWithWalls(stage,testCollision) && !pathStep.hasNoDirection() && coordentatesInWalkableTile(testCollision.x,testCollision.y)
+				&& costPathAvilable(pathStep.directionX,pathStep.directionY)){
 			currentNumberOfPaths++;
 			costOfPath += (punishDiagonal() && pathStep.directionX != 0 && pathStep.directionY != 0 ) ? DIAG_COST : 1;
 			pathStep.x = testCollision.x;
 			pathStep.y = testCollision.y;
 			pathStep.setRender(true);
 		}
-		else
+		else {
+			if(!costPathAvilable(pathStep.directionX,pathStep.directionY) && (pathStep.directionX != 0 || pathStep.directionY != 0)) {
+				getCamara().shake(10, 10, 0, 40, false, true);
+				redTimer = 40;
+			}
 			pathStep.reset();
+		}
+	}
+
+	public boolean costPathAvilable(float x, float y){
+		return !((x != 0 && y != 0 && punishDiagonal() ? DIAG_COST : 1) + costOfPath > realSteps);
 	}
 
 
