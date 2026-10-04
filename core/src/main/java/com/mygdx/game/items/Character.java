@@ -371,6 +371,7 @@ public class Character extends Actor {
 		}
 	}
 
+	@SuppressWarnings("all")
 	private void animationWalking(){
 		texture = null;
 		String walkingFile = null;
@@ -483,7 +484,10 @@ public class Character extends Actor {
 		return false;
 	}
 
-
+	@Override
+	public String getPortrait() {
+		return "animaPortrait";
+	}
 
 	// Debug
 

@@ -21,6 +21,7 @@ public class TurnManager {
 		}
 	};
 	private static boolean willTurnRun = true;
+	private static TurnSpeedUI ui;
 
 	static void reset(){
 		timer = 0;
@@ -33,6 +34,7 @@ public class TurnManager {
 			a.setDidItAct(false);
 			a.permittedToAct = false;
 		}
+		ui = null;
 
 	}
 
@@ -72,7 +74,7 @@ public class TurnManager {
 		return isTurnApproved;
 	}
 
-	private static ArrayList<Turnable> finalList;
+	public static ArrayList<Turnable> finalList;
 
 
 	public static void finalizedChoosing(Turnable actor){
@@ -120,6 +122,7 @@ public class TurnManager {
 			if(timer == 0) willTurnRun = true;}
 		if (willTurnRun) {
 			if (isTurnApproved) {
+
 				finalList = new ArrayList<>();
 				for (Turnable t : turnables)
 					if(!t.getIsDead())
@@ -145,6 +148,9 @@ public class TurnManager {
 				isTurnApproved = true;
 			}
 		}
+		if(ui == null)
+			ui = new TurnSpeedUI();
+		ui.render();
 	}
 
 
@@ -234,6 +240,8 @@ public class TurnManager {
 		void setDidItAct(boolean didItAct);
 		void permitToAct();
 		void letAct();
+
+		String getPortrait();
 
 
 	}

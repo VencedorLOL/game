@@ -1,9 +1,9 @@
 package com.mygdx.game.items.allies;
 
-import com.mygdx.game.items.Actor;
-import com.mygdx.game.items.Friend;
-import com.mygdx.game.items.TextureManager;
-import com.mygdx.game.items.Tile;
+import com.mygdx.game.items.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.GameScreen.stage;
@@ -34,10 +34,13 @@ public class Summon extends Friend {
 		}
 		if(!isThereAnAliveSetTarget)
 			targetFinder();
+		if(targetActor == null)
+			targetActor = chara;
 		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
+			targetActor = null;
 			return;
 		}
 		if (targetTile != null) {
@@ -63,6 +66,8 @@ public class Summon extends Friend {
 			else
 				movement();
 			glideProcess();
+			if(isDevMode())
+				path.render(false);
 
 //	*		if (!isDecidingWhatToDo(this) && !isTurnRunning() && !path.isListSizeOne())
 //				path.renderLastStep();

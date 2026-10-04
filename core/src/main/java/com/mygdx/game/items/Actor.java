@@ -220,6 +220,11 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 		}
 	}
 
+	@Override
+	public String getPortrait() {
+		return "default";
+	}
+
 	public boolean overlapsWithStage(Stage stage, Entity tester){
 		return overlapsWithStageWithException(stage,tester,null);
 	}
@@ -586,17 +591,17 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 
 	@SuppressWarnings("all")
-	static class ActorAndDistance{
+	protected static class ActorAndDistance{
 		private DamageReceiver actor;
 		private double distance;
 
-		ActorAndDistance(DamageReceiver actor, double distance){
+		public ActorAndDistance(DamageReceiver actor, double distance){
 			this.actor = actor;
 			this.distance = distance;
 		}
 
-		DamageReceiver getActor(){return actor;}
-		double getDistance() {return distance;}
+		public DamageReceiver getActor(){return actor;}
+		public double getDistance() {return distance;}
 
 		private void setActor(Actor actor){this.actor = actor;}
 		private void setDistance(double distance){this.distance = distance;}
@@ -657,7 +662,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	public void attackDetector(){
 		ArrayList<DamageReceiver> excluded = new ArrayList<>(exclusionList);
-		excluded.removeIf(e -> e.totalTeam() != -1);
+		excluded.removeIf(e -> e.totalTeam() != this.totalTeam);
 		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY, excluded, pierces, this);
 		if (list != null) {
 			for (DamageReceiver e : list)

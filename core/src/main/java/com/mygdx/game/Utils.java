@@ -121,7 +121,7 @@ public class Utils {
 		return new ArrayList<?>[]{missingSecond,missingFirst};
 	}
 
-	public static boolean elementExistsInList(ArrayList<Object> list, Object element){
+	public static boolean elementExistsInList(ArrayList<?> list, Object element){
 		for(Object o : list)
 			if(element == o)
 				return true;

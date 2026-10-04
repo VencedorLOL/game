@@ -340,7 +340,7 @@ public class Path {
 		}
 		else {
 			if(!costPathAvilable(pathStep.directionX,pathStep.directionY) && (pathStep.directionX != 0 || pathStep.directionY != 0)) {
-				getCamara().shake(10, 10, 0, 40, false, true);
+				getCamara().shake(10, 10, 0, 40, false, false);
 				redTimer = 40;
 			}
 			pathStep.reset();

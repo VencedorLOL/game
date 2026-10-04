@@ -18,6 +18,8 @@ texturemanager: create different pools of drawableobjects instead of the crappy 
 
 TestCollision: make this a class that follows the main's coordinates
 
+Turn marker like in mewgenics, updating irt as the turn progresses and speeds change, marking the decision part as its own but still keeping the view of last turn's spedd
+
 idea:
 path indicator having same theme as ambient
 

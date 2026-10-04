@@ -1,4 +1,4 @@
-Speedster,Imp,Trapper
+Summoner,Imp,Trapper
 0,0
 0,0
 1,0
@@ -6,7 +6,7 @@ Speedster,Imp,Trapper
 0,0
 0,0
 0,0
-2,3
+0,0
 3,0
 0,0
 0,0

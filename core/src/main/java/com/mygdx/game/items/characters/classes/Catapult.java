@@ -389,6 +389,11 @@ public class Catapult extends CharacterClasses {
 
 			}
 		}
+
+		@Override
+		public String getPortrait() {
+			return "Boulder";
+		}
 	}
 
 
