@@ -5,8 +5,7 @@ import com.mygdx.game.Utils;
 
 import java.util.ArrayList;
 
-import static com.mygdx.game.Settings.print;
-import static com.mygdx.game.Settings.turnMode;
+import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TurnManager.finalList;
 
@@ -202,9 +201,9 @@ public class TurnSpeedUI extends GUI {
 	}
 
 	public void processDead(){
-		dead.removeIf(d -> d.z >= 10);
+		dead.removeIf(d -> d.z >= 20);
 		for(GettingRemoved d : dead){
-			float realCenterX, realCenterY, size, sizePortX, sizePortY, expectedCenterX, expectedCenterY;
+			float realCenterX, realCenterY, size, sizePortX, sizePortY, expectedCenterX, expectedCenterY, realTopY, expectedTopY;
 			size = BOX_SIZE*sizeMultipY*(d.z*0.2f + 1);
 			sizePortX = size/pAdjustX(d.turnable.getPortrait());
 			sizePortY = size/pAdjustY(d.turnable.getPortrait());
@@ -212,17 +211,19 @@ public class TurnSpeedUI extends GUI {
 			realCenterX = d.x*frameWidth + size/2;
 			expectedCenterX = d.x*frameWidth + BOX_SIZE/2f*sizeMultipX;
 			realCenterY = height + size/2;
-			expectedCenterY = height + BOX_SIZE/2f*sizeMultipX;
+			expectedCenterY = height + BOX_SIZE/2f*sizeMultipY;
+			realTopY = height + size;
+			expectedTopY = height + BOX_SIZE*sizeMultipY;
 
 			float fixedX, fixedY;
 
 			fixedX = d.x*frameWidth - ( realCenterX - expectedCenterX );
-			fixedY = height + ( realCenterY - expectedCenterY );
+			fixedY = height + (turnSpeedCapY() ? ( realTopY - expectedTopY ) : ( realCenterY - expectedCenterY ));
 
 
 			renderElement(d.turnable.getPortrait(),fixedX,fixedY,d.z,d.opacity);
-			d.opacity -= .08f;
-			d.z += 0.10f;
+			d.opacity -= .02f;
+			d.z += 0.20f;
 		}
 	}
 

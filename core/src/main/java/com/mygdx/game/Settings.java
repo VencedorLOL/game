@@ -27,6 +27,7 @@ public class Settings {
 	private static boolean allowCommands = true;
 	private final static boolean COMPLETE_SAVEFILE = false;
 	private final static boolean CHEBYSHEV_OVER_OCTILE = false;
+	private final static boolean TURN_SPEED_Y_CAPPED = true;
 
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
@@ -64,66 +65,67 @@ public class Settings {
 
 	private static boolean trapsTickOnActorTurn = true;
 
-	public static boolean punishDiagonal(){return !CHEBYSHEV_OVER_OCTILE;}
-	public static boolean completeSavefile(){return COMPLETE_SAVEFILE && isDevMode();}
-	public static boolean allowCommands(){return allowCommands;}
-	public static void setConfig(Lwjgl3ApplicationConfiguration config){Settings.config = config;}
-	public static Lwjgl3ApplicationConfiguration getConfig(){return config;}
-	public static boolean getTrapsTick(){return trapsTickOnActorTurn;}
-	public static void setRender(boolean renderr){render = renderr;}
-	public static boolean getRender(){return render;}
-	public static float getDesiredGUISize(){return desiredGUISize;}
-	public static float getMinimumGUISize(){return minimumGUISize;}
-	public static void setDesiredGUISize(float size){desiredGUISize = size;}
-	public static void setMinimumGUISize(float size){minimumGUISize = size;}
-	public static boolean getReleaseVersion() {return releaseVersion;}
-	public static boolean getFastMode() {return fastMode;}
-	public static void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
-	public static boolean getPathMode() {return pathPerTurn;}
-	public static void setPathMode(boolean pathPerTurn) {Settings.pathPerTurn = pathPerTurn;}
-	public static int animationSpeedGetter(){
+	public static final boolean turnSpeedCapY(){return TURN_SPEED_Y_CAPPED;}
+	public static final boolean punishDiagonal(){return !CHEBYSHEV_OVER_OCTILE;}
+	public static final boolean completeSavefile(){return COMPLETE_SAVEFILE && isDevMode();}
+	public static final boolean allowCommands(){return allowCommands;}
+	public static final void setConfig(Lwjgl3ApplicationConfiguration config){Settings.config = config;}
+	public static final Lwjgl3ApplicationConfiguration getConfig(){return config;}
+	public static final boolean getTrapsTick(){return trapsTickOnActorTurn;}
+	public static final void setRender(boolean renderr){render = renderr;}
+	public static final boolean getRender(){return render;}
+	public static final float getDesiredGUISize(){return desiredGUISize;}
+	public static final float getMinimumGUISize(){return minimumGUISize;}
+	public static final void setDesiredGUISize(float size){desiredGUISize = size;}
+	public static final void setMinimumGUISize(float size){minimumGUISize = size;}
+	public static final boolean getReleaseVersion() {return releaseVersion;}
+	public static final boolean getFastMode() {return fastMode;}
+	public static final void setFastMode(boolean fastMode) {Settings.fastMode = fastMode;}
+	public static final boolean getPathMode() {return pathPerTurn;}
+	public static final void setPathMode(boolean pathPerTurn) {Settings.pathPerTurn = pathPerTurn;}
+	public static final int animationSpeedGetter(){
 		return animationSpeed;
 	}
-	public static int getVisualSpeedMultiplier(){return visualSpeedMultiplier;}
-	public static boolean isDevMode(){
+	public static final int getVisualSpeedMultiplier(){return visualSpeedMultiplier;}
+	public static final boolean isDevMode(){
 		return DEV_MODE;
 	}
-	public static int globalSize() {return GLOBAL_SIZE; }
-	public static byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
-	public static void setTakeEnemiesIntoConsideration(byte takeEnemiesIntoConsideration) {Settings.takeEnemiesIntoConsideration = takeEnemiesIntoConsideration;}
-	public static byte getExtraAllowedPath() {return extraAllowedPath;}
-	public static boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
-	public static byte getDecidedPathFlexibility() {return decidedPathFlexibility;}
-	public static float getVolume() {return mute ? 0 : volume;}
-	public static float getRealVolume() {return volume;}
-	public static void setVolume(float volume) {Settings.volume = volume;
+	public static final int globalSize() {return GLOBAL_SIZE; }
+	public static final byte getTakeEnemiesIntoConsideration() {return takeEnemiesIntoConsideration; }
+	public static final void setTakeEnemiesIntoConsideration(byte takeEnemiesIntoConsideration) {Settings.takeEnemiesIntoConsideration = takeEnemiesIntoConsideration;}
+	public static final byte getExtraAllowedPath() {return extraAllowedPath;}
+	public static final boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
+	public static final byte getDecidedPathFlexibility() {return decidedPathFlexibility;}
+	public static final float getVolume() {return mute ? 0 : volume;}
+	public static final float getRealVolume() {return volume;}
+	public static final void setVolume(float volume) {Settings.volume = volume;
 		fixatedText(Settings.volume+"",40,50,100, 40);
 		triggerOnVolume();}
-	public static void setMute(boolean mute) {Settings.mute = mute;
+	public static final void setMute(boolean mute) {Settings.mute = mute;
 		fixatedText("mute is now " + mute,40,54,100, 40);
 		triggerOnVolume();}
-	public static boolean getMute() {return mute;}
+	public static final boolean getMute() {return mute;}
 
-	public static long startErrorId(){
+	public static final long startErrorId(){
 		if (errorId % 2 == 0) {
 			throw new IllegalErrorState(errorId);
 		}
 		return ++errorId;
 	}
-	public static long continueErrorId(){
+	public static final long continueErrorId(){
 		if (errorId % 2 != 0) {
 			throw new IllegalErrorState(errorId);
 		}
 		return errorId;
 	}
-	public static long endErrorId() {
+	public static final long endErrorId() {
 		if (errorId % 2 != 0) {
 			throw new IllegalErrorState(errorId);
 		}
 		return errorId++;
 	}
 
-	public static long startAndEndErrorId(){
+	public static final long startAndEndErrorId(){
 		if (errorId % 2 != 0) {
 			throw new IllegalErrorState(errorId);
 		}
@@ -131,7 +133,7 @@ public class Settings {
 		return --errorId;
 	}
 
-	public static void setVisualSpeedMultiplier(int visualSpeedMultiplier) {
+	public static final void setVisualSpeedMultiplier(int visualSpeedMultiplier) {
 		Settings.visualSpeedMultiplier = visualSpeedMultiplier;
 		if(!(GLOBAL_SIZE % Settings.visualSpeedMultiplier == 0)) {
 			if(Settings.visualSpeedMultiplier > GLOBAL_SIZE)
@@ -151,23 +153,23 @@ public class Settings {
 		}
 	}
 
-	public static void print(String text){
+	public static final void print(String text){
 		if (print)
 			System.out.println(text);
 	}
 
-	public static void printErr(String text){
+	public static final void printErr(String text){
 		if (print)
 			System.err.println(text);
 	}
 
-	private static class IllegalErrorState extends Error {
+	private static final class IllegalErrorState extends Error {
 		private IllegalErrorState(long faultyErrorState){
 			super(" CLASS: [Settings] :: The state of the low-relevant errors was caught in an impossible state. Said state is: " + faultyErrorState);
 		}
 	}
 
-	public static boolean touchDetect(){
+	public static final boolean touchDetect(){
 		if (touchedGate) {
 			touchedGate = false;
 			return (Gdx.input.justTouched());
@@ -175,7 +177,7 @@ public class Settings {
 		return false;
 	}
 
-	private static void onCycleStart(){
+	private static final void onCycleStart(){
 		touchedGate = true;
 	}
 
