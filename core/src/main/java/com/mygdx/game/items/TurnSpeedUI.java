@@ -15,6 +15,7 @@ public class TurnSpeedUI extends GUI {
 	public float height;
 	float startPos;
 	static final float FIXD_SZ_CNT = 3f;
+	static final int BOX_SIZE = 32;
 	static final float PX_PER_FRAME = 8f;
 	static final float SCREEN_CNT = 1920f;
 	float sizeMultipX = 3;
@@ -51,13 +52,12 @@ public class TurnSpeedUI extends GUI {
 	}
 
 
-
 	public void math(){
 		frameWidth = Gdx.graphics.getWidth();
 		sizeMultipY = Gdx.graphics.getHeight()/1080f * FIXD_SZ_CNT;
 		sizeMultipX = sizeMultipY;//frameWidth/1920f * FIXD_SZ_CNT;
-		height = (8 + 32)*Gdx.graphics.getHeight()/1080f*sizeMultipY;
-		startPos = frameWidth - ((elements.size()+gettingAdded.size()) * sizeMultipX * 32);
+		height = (8 + BOX_SIZE)*Gdx.graphics.getHeight()/1080f*sizeMultipY;
+		startPos = frameWidth - ((elements.size()+gettingAdded.size()) * sizeMultipX * BOX_SIZE);
 
 	}
 
@@ -93,7 +93,7 @@ public class TurnSpeedUI extends GUI {
 			if((g.x - PX_PER_FRAME)*frameWidth/SCREEN_CNT > startPos+xIndex(g.indexToReach)) {
 				g.x -=PX_PER_FRAME;
 				g.realX = g.x *frameWidth/SCREEN_CNT;
-				maxX = Math.max(g.realX+32*sizeMultipY, maxX);
+				maxX = Math.max(g.realX+BOX_SIZE*sizeMultipY, maxX);
 				minX = Math.min(g.realX,minX);
 				renderElement(g.turnable.getPortrait(),g.realX);
 				print("new element coordinate is " + g.realX);
@@ -120,7 +120,7 @@ public class TurnSpeedUI extends GUI {
 							newDelta[i] = newDelta[i - 1];
 							elementsOnI++;
 						} else if (in == i) {
-							newDelta[0] = gettingAdded.size() * 32;
+							newDelta[0] = gettingAdded.size() * BOX_SIZE;
 							elementsOnI++;
 						} else if (posDelta.length > i - elementsOnI && i != 0)
 							newDelta[i] = posDelta[i - elementsOnI];
@@ -142,8 +142,8 @@ public class TurnSpeedUI extends GUI {
 
 	public boolean indexOverlaps(int index){
 		for(GettingAdded g : gettingAdded)
-			if(g.x*frameWidth/SCREEN_CNT < startPos+xIndex(index)+xNewElement(index)+32*sizeMultipY && 32*sizeMultipY+g.x*frameWidth/SCREEN_CNT > startPos+xIndex(index)+xNewElement(index)
-			&& (g.x*frameWidth/SCREEN_CNT+32*sizeMultipY < frameWidth))
+			if(g.x*frameWidth/SCREEN_CNT < startPos+xIndex(index)+xNewElement(index)+BOX_SIZE*sizeMultipY && BOX_SIZE*sizeMultipY+g.x*frameWidth/SCREEN_CNT > startPos+xIndex(index)+xNewElement(index)
+			&& (g.x*frameWidth/SCREEN_CNT+BOX_SIZE*sizeMultipY < frameWidth))
 				return true;
 		return false;
 	}
@@ -151,7 +151,7 @@ public class TurnSpeedUI extends GUI {
 	public float xNewElement(int index){
 		float returnNum = 0;
 		if (posDelta != null && index < posDelta.length && !gettingAdded.isEmpty())
-			returnNum += posDelta[index]*frameWidth/SCREEN_CNT + gettingAdded.size()*32*sizeMultipY;
+			returnNum += posDelta[index]*frameWidth/SCREEN_CNT + gettingAdded.size()*BOX_SIZE*sizeMultipY;
 		if(!dead.isEmpty())
 			returnNum += deathOffset(index);
 		return returnNum;
@@ -163,7 +163,7 @@ public class TurnSpeedUI extends GUI {
 			if (g.x > lastX)
 				lastX = g.x;
 		}
-		lastX += 32*sizeMultipY/SCREEN_CNT*frameWidth;
+		lastX += BOX_SIZE*sizeMultipY/SCREEN_CNT*frameWidth;
 		int indexObjective = elements.size();
 		for (int i = 0; i < elements.size(); i++)
 			if(elements.get(i).getSpeed() < t.getSpeed()) {
@@ -183,12 +183,12 @@ public class TurnSpeedUI extends GUI {
 	private float deathOffset(int index){
 		if(xDeathOffset == -1)
 			return 0;
-		if(xDeathOffset - deadAffectedBy(index)*32*sizeMultipY >= 0) {
+		if(xDeathOffset - deadAffectedBy(index)*BOX_SIZE*sizeMultipY >= 0) {
 			if(dead.isEmpty())
 				xDeathOffset = -1;
 			return 0;
 		}
-		float returnNumber = (xDeathOffset)*frameWidth/SCREEN_CNT - deadAffectedBy(index)*32*sizeMultipY;
+		float returnNumber = (xDeathOffset)*frameWidth/SCREEN_CNT - deadAffectedBy(index)*BOX_SIZE*sizeMultipY;
 		xDeathOffset += PX_PER_FRAME;
 		return returnNumber;
 	}
@@ -205,14 +205,14 @@ public class TurnSpeedUI extends GUI {
 		dead.removeIf(d -> d.z >= 10);
 		for(GettingRemoved d : dead){
 			float realCenterX, realCenterY, size, sizePortX, sizePortY, expectedCenterX, expectedCenterY;
-			size = 32*sizeMultipY*(d.z*0.2f + 1);
+			size = BOX_SIZE*sizeMultipY*(d.z*0.2f + 1);
 			sizePortX = size/pAdjustX(d.turnable.getPortrait());
 			sizePortY = size/pAdjustY(d.turnable.getPortrait());
 
 			realCenterX = d.x*frameWidth + size/2;
-			expectedCenterX = d.x*frameWidth + 16*sizeMultipX;
+			expectedCenterX = d.x*frameWidth + BOX_SIZE/2f*sizeMultipX;
 			realCenterY = height + size/2;
-			expectedCenterY = height + 16*sizeMultipX;
+			expectedCenterY = height + BOX_SIZE/2f*sizeMultipX;
 
 			float fixedX, fixedY;
 
@@ -227,15 +227,15 @@ public class TurnSpeedUI extends GUI {
 	}
 
 	public float pAdjustX(String texture){
-		return 32f/getTextureWidth(texture);
+		return (float) BOX_SIZE /getTextureWidth(texture);
 	}
 
 	public float pAdjustY(String texture){
-		return 32f/getTextureHeight(texture);
+		return (float) BOX_SIZE /getTextureHeight(texture);
 	}
 
 	public float xIndex(int index){
-		return 32*sizeMultipX*index;
+		return BOX_SIZE*sizeMultipX*index;
 	}
 
 	private boolean elementExistsInList(ArrayList<GettingAdded> list, TurnManager.Turnable element){
