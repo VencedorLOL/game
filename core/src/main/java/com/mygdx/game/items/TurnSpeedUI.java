@@ -5,6 +5,7 @@ import com.mygdx.game.Utils;
 
 import java.util.ArrayList;
 
+import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.Settings.turnMode;
 import static com.mygdx.game.items.TextureManager.*;
 import static com.mygdx.game.items.TurnManager.finalList;
@@ -15,6 +16,7 @@ public class TurnSpeedUI extends GUI {
 	float startPos;
 	static final float FIXD_SZ_CNT = 3f;
 	static final float PX_PER_FRAME = 8f;
+	static final float SCREEN_CNT = 1920f;
 	float sizeMultipX = 3;
 	float sizeMultipY = 3;
 	float alpha = 0.5f;
@@ -44,7 +46,7 @@ public class TurnSpeedUI extends GUI {
 				removeElement(elements.get(i),i);
 			else
 				renderElement(i);
-		} elements.removeIf(TurnManager.Turnable::getIsDead);
+		} elements.removeIf(m -> (m.getIsDead() || elementExistsInDeath(dead,m)));
 		processDead();
 	}
 
@@ -55,42 +57,46 @@ public class TurnSpeedUI extends GUI {
 		sizeMultipY = Gdx.graphics.getHeight()/1080f * FIXD_SZ_CNT;
 		sizeMultipX = sizeMultipY;//frameWidth/1920f * FIXD_SZ_CNT;
 		height = (8 + 32)*Gdx.graphics.getHeight()/1080f*sizeMultipY;
-		startPos = frameWidth - (finalList.size() * sizeMultipX * 32);
+		startPos = frameWidth - ((elements.size()+gettingAdded.size()) * sizeMultipX * 32);
 
 	}
 
 	public void renderElement(int i){
-		renderElement(elements.get(i).getPortrait(),startPos+xIndex(i)+xNewElement(i),0);
+		renderElement(elements.get(i).getPortrait(),startPos+xIndex(i)+xNewElement(i));
 	}
 
-	public void renderElement(String texture, float x,float z){
+	public void renderElement(String texture, float x){
+		renderElement(texture,x,height,0,1);
+	}
+
+	public void renderElement(String texture, float x, float height,float z, float opacity){
 		float pMultX = pAdjustX(texture), pMultY = pAdjustY(texture);
-		fixatedDrawables.add(getDrawable(texture,x,height,z,alphaP,0,false,false,sizeMultipX*pMultX,sizeMultipY*pMultY,true));
-		fixatedDrawables.add(getDrawable(textureBox,x,height,z,alpha,0,false,false,sizeMultipX,sizeMultipY,true));
+		fixatedDrawables.add(getDrawable(texture,x,height,z,alphaP*opacity,0,false,false,sizeMultipX*pMultX,sizeMultipY*pMultY,true));
+		fixatedDrawables.add(getDrawable(textureBox,x,height,z,alpha*opacity,0,false,false,sizeMultipX,sizeMultipY,true));
 
 	}
 
 
 	public void getList(){
-		for(TurnManager.Turnable t : finalList){
+		for(TurnManager.Turnable t : finalList)
 			if(!Utils.elementExistsInList(elements,t) && !elementExistsInList(gettingAdded,t))
 				addElement(t);
-		}
-
 	}
 
 	float[] posDelta;
 	public void processList(){
 		ArrayList<Integer> newPos = new ArrayList<>();
-		float maxX = frameWidth;
+		float minX = frameWidth, maxX = frameWidth;
 		for (GettingAdded g : gettingAdded){
 			while (elements.size() > g.indexToReach && g.turnable.getSpeed() < elements.get(g.indexToReach).getSpeed())
 				g.indexToReach++;
-			if(sizeMultipX*(g.x + PX_PER_FRAME) > startPos+xIndex(g.indexToReach)+xNewElement(g.indexToReach)) {
-				maxX = Math.max(g.x, maxX);
+			if((g.x - PX_PER_FRAME)*frameWidth/SCREEN_CNT > startPos+xIndex(g.indexToReach)) {
 				g.x -=PX_PER_FRAME;
-				g.realX = g.x * sizeMultipX;
-				renderElement(g.turnable.getPortrait(),g.realX,0);
+				g.realX = g.x *frameWidth/SCREEN_CNT;
+				maxX = Math.max(g.realX+32*sizeMultipY, maxX);
+				minX = Math.min(g.realX,minX);
+				renderElement(g.turnable.getPortrait(),g.realX);
+				print("new element coordinate is " + g.realX);
 			}
 			else {
 				newPos.sort(Integer::compare);
@@ -101,56 +107,63 @@ public class TurnSpeedUI extends GUI {
 					}
 				elements.add(g.indexToReach, g.turnable);
 				newPos.add(g.indexToReach);
+				print("Last coordinate is " + g.realX);
 			}
 		} gettingAdded.removeIf(g -> Utils.elementExistsInList(elements,g.turnable));
-		if(posDelta == null || posDelta.length < elements.size()){
-			int elementsOnI = 0;
-			float[] newDelta = new float[elements.size()];
-			for(Integer in : newPos){
-				for (int i = 0; i < newDelta.length; i++) {
-					if(in == i && i != 0) {
-						newDelta[i] = newDelta[i - 1];
-						elementsOnI++;
+		if(!gettingAdded.isEmpty()) {
+			if (posDelta == null || posDelta.length < elements.size()) {
+				int elementsOnI = 0;
+				float[] newDelta = new float[elements.size()];
+				for (Integer in : newPos) {
+					for (int i = 0; i < newDelta.length; i++) {
+						if (in == i && i != 0) {
+							newDelta[i] = newDelta[i - 1];
+							elementsOnI++;
+						} else if (in == i) {
+							newDelta[0] = gettingAdded.size() * 32;
+							elementsOnI++;
+						} else if (posDelta.length > i - elementsOnI && i != 0)
+							newDelta[i] = posDelta[i - elementsOnI];
 					}
-					else if (in == i){
-						newDelta[0] = gettingAdded.size()*32;
-						elementsOnI++;
-					}
-					else if (posDelta.length > i-elementsOnI && i != 0)
-						newDelta[i] = posDelta[i-elementsOnI];
+				}
+				posDelta = newDelta;
+			}
+			for (int i = 0; i < posDelta.length; i++) {
+				if (maxX > frameWidth && minX < frameWidth) {
+					posDelta[i] -= PX_PER_FRAME;
+				}
+				if (indexOverlaps(i)) {
+					posDelta[i] += PX_PER_FRAME;
 				}
 			}
-			posDelta = newDelta;
-		}
-		for (int i = 0; i < posDelta.length; i++){
-			if(maxX > frameWidth) {
-				posDelta[i]-=PX_PER_FRAME;
-			}
-			if (indexOverlaps(i)) {
-				posDelta[i]+=PX_PER_FRAME;
-			}
-		}
+		} else
+			posDelta = null;
 	}
 
 	public boolean indexOverlaps(int index){
 		for(GettingAdded g : gettingAdded)
-			if(g.x*sizeMultipY < startPos+xIndex(index)+xNewElement(index)+32*sizeMultipY && (g.x+32)*sizeMultipY > startPos+xIndex(index)+xNewElement(index))
+			if(g.x*frameWidth/SCREEN_CNT < startPos+xIndex(index)+xNewElement(index)+32*sizeMultipY && 32*sizeMultipY+g.x*frameWidth/SCREEN_CNT > startPos+xIndex(index)+xNewElement(index)
+			&& (g.x*frameWidth/SCREEN_CNT+32*sizeMultipY < frameWidth))
 				return true;
 		return false;
 	}
 
 	public float xNewElement(int index){
-		if(gettingAdded.isEmpty() || index >= elements.size() || index >= posDelta.length)
-			return 0;
-		return posDelta[index]*32*sizeMultipX;
+		float returnNum = 0;
+		if (posDelta != null && index < posDelta.length && !gettingAdded.isEmpty())
+			returnNum += posDelta[index]*frameWidth/SCREEN_CNT + gettingAdded.size()*32*sizeMultipY;
+		if(!dead.isEmpty())
+			returnNum += deathOffset(index);
+		return returnNum;
 	}
 
 	public void addElement(TurnManager.Turnable t) {
-		float lastX = frameWidth;
+		float lastX = 1920f;
 		for(GettingAdded g : gettingAdded){
 			if (g.x > lastX)
 				lastX = g.x;
 		}
+		lastX += 32*sizeMultipY/SCREEN_CNT*frameWidth;
 		int indexObjective = elements.size();
 		for (int i = 0; i < elements.size(); i++)
 			if(elements.get(i).getSpeed() < t.getSpeed()) {
@@ -160,16 +173,57 @@ public class TurnSpeedUI extends GUI {
 		gettingAdded.add(new GettingAdded(t,lastX,indexObjective));
 	}
 
-	public void removeElement(TurnManager.Turnable t, int index){
-		dead.add(new GettingRemoved(t,startPos+xIndex(index)+xNewElement(index)));
+	private void removeElement(TurnManager.Turnable t, int index){
+		xDeathOffset = 0;
+		dead.add(new GettingRemoved(t,(startPos+xIndex(index)+xNewElement(index))/frameWidth,index));
 
 	}
 
+	float xDeathOffset = -1;
+	private float deathOffset(int index){
+		if(xDeathOffset == -1)
+			return 0;
+		if(xDeathOffset - deadAffectedBy(index)*32*sizeMultipY >= 0) {
+			if(dead.isEmpty())
+				xDeathOffset = -1;
+			return 0;
+		}
+		float returnNumber = (xDeathOffset)*frameWidth/SCREEN_CNT - deadAffectedBy(index)*32*sizeMultipY;
+		xDeathOffset += PX_PER_FRAME;
+		return returnNumber;
+	}
+
+	private int deadAffectedBy(int index){
+		int num = 0;
+		for (GettingRemoved d : dead)
+			if(index < d.index)
+				num++;
+		return num;
+	}
+
 	public void processDead(){
+		dead.removeIf(d -> d.z >= 10);
 		for(GettingRemoved d : dead){
-			renderElement(d.turnable.getPortrait(),d.x*sizeMultipY,d.z);
-			d.z += 0.05f;
-		} dead.removeIf(d -> d.z >= 50);
+			float realCenterX, realCenterY, size, sizePortX, sizePortY, expectedCenterX, expectedCenterY;
+			size = 32*sizeMultipY*(d.z*0.2f + 1);
+			sizePortX = size/pAdjustX(d.turnable.getPortrait());
+			sizePortY = size/pAdjustY(d.turnable.getPortrait());
+
+			realCenterX = d.x*frameWidth + size/2;
+			expectedCenterX = d.x*frameWidth + 16*sizeMultipX;
+			realCenterY = height + size/2;
+			expectedCenterY = height + 16*sizeMultipX;
+
+			float fixedX, fixedY;
+
+			fixedX = d.x*frameWidth - ( realCenterX - expectedCenterX );
+			fixedY = height + ( realCenterY - expectedCenterY );
+
+
+			renderElement(d.turnable.getPortrait(),fixedX,fixedY,d.z,d.opacity);
+			d.opacity -= .08f;
+			d.z += 0.10f;
+		}
 	}
 
 	public float pAdjustX(String texture){
@@ -191,7 +245,14 @@ public class TurnSpeedUI extends GUI {
 		return false;
 	}
 
-	private static class GettingAdded{
+	private boolean elementExistsInDeath(ArrayList<GettingRemoved> list, TurnManager.Turnable element){
+		for(GettingRemoved o : list)
+			if(element == o.turnable)
+				return true;
+		return false;
+	}
+
+	private static class GettingAdded {
 		TurnManager.Turnable turnable;
 		float x;
 		float realX;
@@ -208,11 +269,14 @@ public class TurnSpeedUI extends GUI {
 	private static class GettingRemoved{
 		TurnManager.Turnable turnable;
 		float x;
+		int index;
 		float z = 0;
+		float opacity = 1f;
 
-		GettingRemoved(TurnManager.Turnable t, float x){
+		GettingRemoved(TurnManager.Turnable t, float x,int index){
 			turnable = t;
 			this.x = x;
+			this.index = index;
 		}
 	}
 

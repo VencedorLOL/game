@@ -113,6 +113,9 @@ public class TurnManager {
 		} return false;
 	}
 
+	public static boolean willRunTurn(){
+		return willTurnRun && (ui == null || (ui.gettingAdded.isEmpty() && ui.dead.isEmpty()));
+	}
 
 	public static long getTurnCount(){return turnCount;}
 
@@ -120,7 +123,7 @@ public class TurnManager {
 		finalizedToChoose.removeIf(a -> a.actor.getIsDead());
 		if(timer > 0){ timer--;
 			if(timer == 0) willTurnRun = true;}
-		if (willTurnRun) {
+		if (willRunTurn()) {
 			if (isTurnApproved) {
 
 				finalList = new ArrayList<>();

@@ -18,7 +18,12 @@ texturemanager: create different pools of drawableobjects instead of the crappy 
 
 TestCollision: make this a class that follows the main's coordinates
 
-Turn marker like in mewgenics, updating irt as the turn progresses and speeds change, marking the decision part as its own but still keeping the view of last turn's spedd
+Turn marker: more elements in the UI to symbol it's the decision part of a turn and that the turn portraits
+	only corresponds to previous turn's speed order
+	(also make it so it can represent speed ties and it updating IRL whenever one is solved) not necessarily current's,
+	as speed effects can still change the order and the functionality to check what enemy/ally each square
+	is and to make it glow in the map.
+
 
 idea:
 path indicator having same theme as ambient

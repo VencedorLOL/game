@@ -40,7 +40,8 @@ public class Summon extends Friend {
 			path.pathReset();
 			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
-			targetActor = null;
+			if(targetActor == chara)
+				targetActor = null;
 			return;
 		}
 		if (targetTile != null) {
