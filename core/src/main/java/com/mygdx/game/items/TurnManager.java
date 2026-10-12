@@ -1,5 +1,7 @@
 package com.mygdx.game.items;
 
+import com.mygdx.game.Utils;
+
 import java.util.*;
 
 import static com.mygdx.game.Settings.*;
@@ -114,7 +116,7 @@ public class TurnManager {
 	}
 
 	public static boolean willRunTurn(){
-		return willTurnRun && (ui == null || (ui.gettingAdded.isEmpty() && ui.dead.isEmpty()));
+		return willTurnRun && (ui == null || (ui.gettingAdded.isEmpty() && ui.dead.isEmpty() && !ui.isMovement()));
 	}
 
 	public static long getTurnCount(){return turnCount;}
@@ -125,13 +127,18 @@ public class TurnManager {
 			if(timer == 0) willTurnRun = true;}
 		if (willRunTurn()) {
 			if (isTurnApproved) {
-
-				finalList = new ArrayList<>();
+				ArrayList<Turnable> temporal = new ArrayList<>();
+				for(Turnable t : finalList)
+					if(t.didItAct())
+						temporal.add(t);
+				finalList = new ArrayList<>(temporal);
+				temporal.clear();
 				for (Turnable t : turnables)
-					if(!t.getIsDead())
-						finalList.add(t);
-				Collections.shuffle(finalList);
-				finalList.sort((o1, o2) -> Float.compare(o2.getSpeed(), o1.getSpeed()));
+					if(!t.getIsDead() && !Utils.elementExistsInList(finalList,t))
+						temporal.add(t);
+				Collections.shuffle(temporal);
+				temporal.sort((o1, o2) -> Float.compare(o2.getSpeed(), o1.getSpeed()));
+				finalList.addAll(temporal);
 				act();
 				if (canTurnFinish) {
 					canTurnFinish = false;
@@ -172,11 +179,14 @@ public class TurnManager {
 			if (a.didItAct() && a.isPermittedToAct())
 				return;
 
-		for (Turnable a : finalList)
+		for (int i = 0; i < finalList.size(); i++){
+			Turnable a = finalList.get(i);
 			if (a != null && !a.didItAct() && !a.getIsDead()) {
 				a.letAct();
+				ui.permitToCheck(a, i != 0 && finalList.get(i-1).getSpeed() == a.getSpeed());
 				return;
 			}
+		}
 		for (Hazards f : hazards)
 			if (f != null && !f.didHazardAct) {
 				f.canHazardAct = true;
@@ -245,6 +255,7 @@ public class TurnManager {
 		void letAct();
 
 		String getPortrait();
+		int[] portraitColor();
 
 
 	}

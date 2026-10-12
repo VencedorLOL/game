@@ -26,6 +26,14 @@ public class Summon extends Friend {
 		defense = 3;
 	}
 
+	@Override
+	public String getPortrait() {
+		return "PortraitSummon";
+	}
+
+	public int[] portraitColor(){
+		return color;
+	}
 
 	protected void automatedMovement(){
 		if(targetActor != null && targetActor.getIsDead()) {
@@ -34,7 +42,7 @@ public class Summon extends Friend {
 		}
 		if(!isThereAnAliveSetTarget)
 			targetFinder();
-		if(targetActor == null)
+		if(targetActor == null && targetTile == null)
 			targetActor = chara;
 		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();

@@ -222,7 +222,12 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	@Override
 	public String getPortrait() {
-		return "default";
+		return "PortraitDefault";
+	}
+
+	@Override
+	public int[] portraitColor() {
+		return new int[]{255,255,255};
 	}
 
 	public boolean overlapsWithStage(Stage stage, Entity tester){

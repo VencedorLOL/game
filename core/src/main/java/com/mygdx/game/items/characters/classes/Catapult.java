@@ -394,6 +394,10 @@ public class Catapult extends CharacterClasses {
 		public String getPortrait() {
 			return "Boulder";
 		}
+
+		public int[] portraitColor() {
+			return new int[]{255,255,255};
+		}
 	}
 
 

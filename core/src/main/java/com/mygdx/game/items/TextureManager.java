@@ -468,7 +468,7 @@ public class TextureManager {
 
 	public static DrawableObject getDrawable(String texture, float x, float y, float z, float opacity, float rotationDegrees, boolean flipX, boolean flipY, float scaleX, float scaleY, boolean originZero,float... colors){
 		return getDrawable(texture,x,y,z,opacity,rotationDegrees,flipX,flipY,scaleX,scaleY,originZero,
-				colors.length >= 1 ? colors[0]/255 : 255, colors.length >= 2 ? colors[1]/255 : 255, colors.length >= 3 ? colors[2]/1 : 255);
+				colors.length >= 1 ? colors[0] : 255, colors.length >= 2 ? colors[1] : 255, colors.length >= 3 ? colors[2] : 255);
 	}
 
 
