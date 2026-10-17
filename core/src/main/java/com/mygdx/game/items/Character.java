@@ -311,10 +311,9 @@ public class Character extends Actor {
 		ArrayList<DamageReceiver> list = rayCasting(x, y, attacks.get(elementOfAttack - 1).targetX, attacks.get(elementOfAttack - 1).targetY,temp, classes.pierces,this);
 		if (list != null)
 			for (DamageReceiver aa : list) {
-				aa.damage(classes.outgoingDamage(), classes.damageReason,this);
+				float damage = classes.outgoingDamage();
+				aa.damage(damage, classes.damageReason,this);
 				//Impact frames:
-			//	controlOfCamara = false; new OnVariousScenarios.CounterObject(30){public void onCounterFinish() {controlOfCamara = true;}};
-			//	ImpactFrame.startImpact(x,y,aa.getX(),aa.getY());
 				if (!classes.pierces)
 					break;
 			}

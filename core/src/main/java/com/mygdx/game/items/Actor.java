@@ -1,10 +1,11 @@
 package com.mygdx.game.items;
 
+import com.badlogic.gdx.Gdx;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.mygdx.game.GameScreen.chara;
-import static com.mygdx.game.GameScreen.stage;
+import static com.mygdx.game.GameScreen.*;
 import static com.mygdx.game.MainClass.currentStage;
 import static com.mygdx.game.Settings.*;
 import static com.mygdx.game.items.AttackTextProcessor.DamageReasons.EARTHQUAKE;
@@ -23,7 +24,6 @@ import static com.mygdx.game.items.TextureManager.animations;
 import static com.mygdx.game.items.TextureManager.text;
 import static com.mygdx.game.items.TurnManager.isDecidingWhatToDo;
 import static com.mygdx.game.items.TurnManager.turnables;
-import static com.mygdx.game.items.characters.ClassStoredInformation.ClassInstance.classes;
 import static java.lang.Math.*;
 
 public class Actor extends Entity implements TurnManager.Turnable, DamageReceiver {
@@ -129,6 +129,18 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 				return a;
 		return null;
 	}
+
+	public static void damageShake(float damage){
+		if(damage > 0) {
+			float frameX = Gdx.graphics.getWidth() / 1920f, frameY = Gdx.graphics.getHeight() / 1080f;
+			getCamara().shake((float) Math.min(6 * Math.pow(damage, 1 / 3f)* frameX, 120 * frameX) * getShakeMultiplier(),
+					(float) Math.min(6 * Math.pow(damage, 1 / 3f) * frameY, 120 * frameY) * getShakeMultiplier()
+					, (float) Math.min(Math.pow(damage,1/4f)*.8f, 10) * getShakeMultiplier()
+					, (int) Math.min((5 * Math.pow(damage, 1 / 3f)), 160), true, true);
+		}
+	}
+
+
 
 	public boolean didItAct(){return didItAct;}
 	public void setDidItAct(boolean didItAct) {this.didItAct = didItAct;}
@@ -433,7 +445,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 				targetFinder();
 			if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 				path.pathReset();
-				if (pathFindAlgorithm.quickSolve(x, y, targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
+				if (pathFindAlgorithm.quickSolve(x, y, targetActor.getX(), targetActor.getY(), (byte) 1))//getTakeEnemiesIntoConsideration()))
 					path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 				return;
 			}
@@ -451,7 +463,7 @@ public class Actor extends Entity implements TurnManager.Turnable, DamageReceive
 
 	private void pathFinding(){
 		path.pathReset();
-		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, getTakeEnemiesIntoConsideration()))
+		if (pathFindAlgorithm.quickSolve(x,y,lastClickX,lastClickY, (byte) 1))//getTakeEnemiesIntoConsideration()))
 			path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 		else
 			print("no path found");

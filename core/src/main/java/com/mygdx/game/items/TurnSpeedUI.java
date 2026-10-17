@@ -11,13 +11,19 @@ import static com.mygdx.game.items.TurnManager.*;
 public class TurnSpeedUI extends GUI {
 	static final float FIXD_SZ_CNT = 3f;
 	static final int BOX_SIZE = 32;
-	static final float PX_PER_FRAME = 8f;
+	static final float PX_PER_FRAME = 6f;
+	static final float CNST_MOVING_SLOWDOWN = 6f;
+	static final float PX_PER_MOVE = PX_PER_FRAME / CNST_MOVING_SLOWDOWN;
 	static final float SCREEN_CNT = 1920f;
 	static final String BOX_TEXTURE = "Frame1";
 	static final String BOX_TEXTURE_ACTIVE = "Frame1Active";
 	static final String BOX_TR_L = "Frame1STL";
 	static final String BOX_TR_R = "Frame1STR";
 	static final String BOX_TR_LR= "Frame1SRRL";
+	static final String OVRL_TR_L = "Frame1STLRedrawn";
+	static final String OVRL_TR_R = "Frame1STRRedrawn";
+	static final String OVRL_TR_LR= "Frame1STLRRedrawn";
+
 	public float frameWidth;
 	public float height;
 	float startPos;
@@ -26,6 +32,7 @@ public class TurnSpeedUI extends GUI {
 	float alpha = 0.5f;
 	float alphaP = 1f;
 	String textureBox = BOX_TEXTURE;
+	String textureOverlay;
 	ArrayList<GettingRendered> elements = new ArrayList<>();
 	ArrayList<GettingAdded> gettingAdded = new ArrayList<>();
 	ArrayList<GettingRemoved> dead = new ArrayList<>();
@@ -57,6 +64,7 @@ public class TurnSpeedUI extends GUI {
 	}
 
 
+	@SuppressWarnings("all")
 	public void math(){
 		frameWidth = Gdx.graphics.getWidth();
 		sizeMultipY = Gdx.graphics.getHeight()/1080f * FIXD_SZ_CNT;
@@ -76,22 +84,28 @@ public class TurnSpeedUI extends GUI {
 			float[] colors = new float[]{t.turnable.portraitColor()[0],t.turnable.portraitColor()[1],t.turnable.portraitColor()[2]};
 
 			if (!t.active && elements.get(i).z <= 0){
+				t.speedTiesLeft = i != 0 && elements.get(i-1).speedLastTurn == t.speedLastTurn && t.speedLastTurn != -1;
+
+
 				byte speedTiesState = 0;
 				if(i > 0)
 					speedTiesState += elements.get(i).speedTiesLeft ? 1 : (byte) 0;
 				if(i < elements.size()-1)
 					speedTiesState += elements.get(i+1).speedTiesLeft ? 2 : (byte) 0;
 
-				switch (speedTiesState){
-					case 0: textureBox = BOX_TEXTURE; break;
-					case 1: textureBox = BOX_TR_L; break;
-					case 2: textureBox = BOX_TR_R; break;
-					case 3: textureBox = BOX_TR_LR; break;
-					default:
-				}
+				if(!isMovement())
+					switch (speedTiesState){
+						case 0: textureOverlay = null; break;
+						case 1: textureOverlay = OVRL_TR_R; break;
+						case 2: textureOverlay = OVRL_TR_L; break;
+						case 3: textureOverlay = OVRL_TR_LR; break;
+						default:
+					}
 
-
+				if(textureOverlay != null)
+					renderOverlay(x);
 				renderElement(t.getPortrait(), x,colors);
+
 			}
 			else if (!t.active) {
 				textureBox  = BOX_TEXTURE_ACTIVE;
@@ -153,13 +167,19 @@ public class TurnSpeedUI extends GUI {
 
 	}
 
+	public void renderOverlay(float x){
+		fixatedDrawables.add(getDrawable(textureOverlay,x,height,0,1,0,false,false,sizeMultipX,sizeMultipY,true));
+	}
+
 	private Turnable tToCheck;
 	public void permitToCheck(Turnable t, boolean speedTiesLeft){
 		permittedTocheckOrder = true;
 		tToCheck = t;
 		int pos = findElementPosition(t);
-		if(pos != -1)
+		if(pos > -1) {
+			elements.get(pos).speedLastTurn = elements.get(pos).getSpeed();
 			elements.get(pos).speedTiesLeft = speedTiesLeft;
+		}
 	}
 
 
@@ -178,6 +198,20 @@ public class TurnSpeedUI extends GUI {
 					}
 				}
 				elements.removeIf(e -> e == null || e.queueRemoval);
+			} else{
+				print("coudnt order bc there are elements in a list that arent in the other list:");
+				boolean skip = false;
+				for (Turnable f : finalList) {
+					skip = false;
+					for (GettingRendered r : elements){
+						if(r.turnable == f){
+							skip = true;
+							break;
+						}
+					}
+					if(!skip)
+						print("element " + f + " of finalList wasn't on elements");
+				} print("if no print got made then there're elements in elements that arent in finalList");
 			}
 	}
 
@@ -195,6 +229,17 @@ public class TurnSpeedUI extends GUI {
 			elements.add(newPosition,mobile);
 			mobile.mobileFactor = BOX_SIZE * (elementToMove - newPosition);
 			mobile.moving =true;
+		}
+		else{
+			int firstElementToMove = elementToMove+1;
+			GettingRendered mobile = elements.get(elementToMove);
+			for(int i = firstElementToMove; i <= newPosition; i++){
+				elements.get(i).mobileFactor = BOX_SIZE;
+			}
+			elements.remove(elementToMove);
+			elements.add(newPosition, mobile);
+			mobile.mobileFactor = - BOX_SIZE * (newPosition - elementToMove);
+			mobile.moving = true;
 		}
 	}
 
@@ -304,17 +349,17 @@ public class TurnSpeedUI extends GUI {
 				break;
 			}
 		if (mobile == null) {
-			printErr("Literally how [AT: TurnSpeedUI -> updateMovables()]");
+			printErr("Literally how [AT: "+TurnSpeedUI.class +" -> updateMovables()]");
 			return;
 		}
 		if (mobile.mobileFactor == 0)
 			mobile.moving = false;
 		if (mobile.mobileFactor > 0) {
-			mobile.mobileFactor -= PX_PER_FRAME;
+			mobile.mobileFactor -= PX_PER_MOVE;
 			if (mobile.mobileFactor < 0)
 				mobile.mobileFactor = 0;
 		} else if (mobile.mobileFactor < 0) {
-			mobile.mobileFactor += PX_PER_FRAME;
+			mobile.mobileFactor += PX_PER_MOVE;
 			if (mobile.mobileFactor > 0)
 				mobile.mobileFactor = 0;
 		}
@@ -324,11 +369,11 @@ public class TurnSpeedUI extends GUI {
 			if(g != mobile)
 				if(indexOverlapsMobile(i, startPos+xIndex(movIndex)+xNewElement(movIndex)+theMobileFactor(movIndex))) {
 					if (g.mobileFactor > 0) {
-						g.mobileFactor -= PX_PER_FRAME;
+						g.mobileFactor -= PX_PER_MOVE;
 						if (g.mobileFactor < 0)
 							g.mobileFactor = 0;
 					} else if (g.mobileFactor < 0) {
-						g.mobileFactor += PX_PER_FRAME;
+						g.mobileFactor += PX_PER_MOVE;
 						if (g.mobileFactor > 0)
 							g.mobileFactor = 0;
 					}
@@ -345,11 +390,11 @@ public class TurnSpeedUI extends GUI {
 		}
 		lastX += BOX_SIZE*sizeMultipY/SCREEN_CNT*frameWidth;
 		int indexObjective = elements.size();
-		for (int i = 0; i < elements.size(); i++)
+		/*for (int i = 0; i < elements.size(); i++)
 			if(elements.get(i).getSpeed() < t.getSpeed()) {
 				indexObjective = i;
 				break;
-			}
+			} */
 		gettingAdded.add(new GettingAdded(t,lastX,indexObjective));
 	}
 
@@ -486,6 +531,7 @@ public class TurnSpeedUI extends GUI {
 		boolean moving = false;
 		float mobileFactor = 0f;
 		boolean speedTiesLeft = false;
+		float speedLastTurn = -1;
 
 		GettingRendered(TurnManager.Turnable t){
 			turnable = t;

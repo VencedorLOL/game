@@ -196,6 +196,7 @@ public class CharacterClasses {
 		refresh();
 		runHurt(source);
 		float damagedFor = max(overridableDamageTaken(damage, source), 0);
+		Actor.damageShake(damagedFor);
 		tempDefense -= damagedFor;
 		if(tempDefense < 0) {
 			currentHealth += tempDefense;

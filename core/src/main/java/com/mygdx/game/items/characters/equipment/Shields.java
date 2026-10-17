@@ -3,7 +3,7 @@ package com.mygdx.game.items.characters.equipment;
 import com.mygdx.game.items.AttackTextProcessor;
 import com.mygdx.game.items.characters.CharacterClasses;
 
-public class Shields {
+public abstract class Shields {
 
 	public String shieldName;
 	public float shieldHealth;

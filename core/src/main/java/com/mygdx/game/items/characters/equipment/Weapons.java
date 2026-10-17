@@ -5,7 +5,7 @@ import com.mygdx.game.items.characters.CharacterClasses;
 
 import static java.lang.Float.POSITIVE_INFINITY;
 
-public class Weapons {
+public abstract class Weapons {
 
 	public String weaponName;
 	public float weaponHealth;
@@ -72,27 +72,5 @@ public class Weapons {
 		}
 	}
 
-	// VENCEDOR
-	public static class VencedorSword extends Weapons {
-		public VencedorSword(CharacterClasses holder, boolean effectiveInstantiation) {
-			super(holder, effectiveInstantiation);
-			weaponName = "Vencedor's Sword";
-			weaponHealth = 0;
-			weaponDamage = 295;
-			weaponSpeed = 0;
-			weaponAttackSpeed = 0;
-			weaponDefense = POSITIVE_INFINITY;
-			weaponRange = 0;
-			weaponRainbowDefense = 0;
-			weaponMana = 0;
-			weaponMagicDefense = POSITIVE_INFINITY;
-			weaponMagicDamage = 0;
-			weaponManaPerTurn = 0;
-			weaponManaPerUse = 0;
-			weaponMagicHealing = 0;
-			equippableBy = "Vencedor";
-			aggro = 2;
-		}
-	}
 	
 }

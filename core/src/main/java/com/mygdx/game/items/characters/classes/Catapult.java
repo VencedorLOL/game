@@ -319,7 +319,7 @@ public class Catapult extends CharacterClasses {
 			if(finished && !isGliding){
 				destroyListener(ove);
 				destroyListener(lifeOVE);
-				entityList.remove(this);
+				queueForRemoval();
 				turnables.remove(this);
 			}
 		}
@@ -332,22 +332,26 @@ public class Catapult extends CharacterClasses {
 			if(turnsToFall == 0){
 				Rock temp = this;
 				if (!finished)
-					ove = new OnVariousScenarios.CounterObject(60){
-					public void onCounterFinish(){
-						animations.add(new Animation("boulderbreaking",x,y));
-						if(actorInPos(objectiveX,objectiveY) != null)
-							actorInPos(objectiveX,objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED,chara);
-						destroyListener(ove);
-						destroyListener(lifeOVE);
-						entityList.remove(temp);
-						turnables.remove(temp);
-					}
-				};
-
+					ove = new OnVariousScenarios.CounterObject(60) {
+						public void onCounterFinish() {
+							animations.add(new Animation("boulderbreaking", x, y));
+							if (actorInPos(objectiveX, objectiveY) != null)
+								actorInPos(objectiveX, objectiveY).damage(damage, AttackTextProcessor.DamageReasons.RANGED, chara);
+							destroyListener(ove);
+							destroyListener(lifeOVE);
+							entityList.remove(temp);
+							turnables.remove(temp);
+						}
+					};
 				finished = true;
 			}
 			turnsToFall--;
-			permitToAct = false;
+			new OnVariousScenarios.CounterObject(60) {
+				@Override
+				public void onCounterFinish() {
+					permitToAct =false;
+				}
+			};
 		}
 
 		@Override
@@ -362,7 +366,7 @@ public class Catapult extends CharacterClasses {
 
 		@Override
 		public boolean getIsDead() {
-			return false;
+			return finished;
 		}
 
 		@Override

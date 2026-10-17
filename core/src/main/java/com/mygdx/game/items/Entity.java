@@ -18,7 +18,16 @@ public class Entity {
 		for (Entity entity : entityList) {
 			if (entity.generalRender && entity.render)
 				entity.render();
-		}
+		} entityList.removeIf(Entity::remove);
+	}
+
+	private boolean remove(){
+		return removal;
+	}
+
+	private boolean removal = false;
+	public void queueForRemoval(){
+		removal = true;
 	}
 
 	public Entity(String texture, float x, float y, float base, float height){

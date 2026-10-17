@@ -177,7 +177,14 @@ public class Utils {
 		return new String(strBuilder);
 	}
 
+	public interface a<T>{
+		int get(T t);
+	}
+
+
 	public static void main(String... args){
+		a<String> t = "hello"::indexOf;
+		print(""+t.get("e"));
 /*/		//algo word attributes
 		String str1 = "";
 		String str2 = "";

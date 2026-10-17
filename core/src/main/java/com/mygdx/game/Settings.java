@@ -17,7 +17,6 @@ public class Settings {
 	private final static int GLOBAL_SIZE = 128;
 	static boolean print = true;
 	static boolean pathPerTurn = true;
-	static byte takeEnemiesIntoConsideration = 0;
 	static byte extraAllowedPath = 2;
 	static long errorId = 1;
 	static boolean touchedGate;
@@ -28,6 +27,7 @@ public class Settings {
 	private final static boolean COMPLETE_SAVEFILE = false;
 	private final static boolean CHEBYSHEV_OVER_OCTILE = false;
 	private final static boolean TURN_SPEED_Y_CAPPED = true;
+	private static float shakeMultiplier = 1;
 
 	// 0: never take enemies into consideration
 	// 1: take enemies in consideration if path is the same lenght | probably default
@@ -39,13 +39,15 @@ public class Settings {
 	// 0: stage path
 	// 1: actor path
 	// TODO: change to desired implementation
+	static byte takeEnemiesIntoConsideration = 1;
 
-	static byte decidedPathFlexibility = 2;
 	// When should decide a path has been made
 	// 0: exclusively on spacebar. default
 	// 1: on spacebar or if pressed the key of the direction of the last path if path was completed
 	// 2: on spacebar or on any other directional key pressed if path was completed
 	// 3: on spacebar or if path was completed
+	static byte decidedPathFlexibility = 2;
+
 	static boolean fastMode;
 	static float volume = 100;
 	static boolean mute = false;
@@ -96,6 +98,8 @@ public class Settings {
 	public static final byte getExtraAllowedPath() {return extraAllowedPath;}
 	public static final boolean isOverridingEscAllowed() {return shouldOverrideEsc;}
 	public static final byte getDecidedPathFlexibility() {return decidedPathFlexibility;}
+	public static final float getShakeMultiplier(){return shakeMultiplier;}
+	public static final void setShakeMultiplier(float shakeMultiplier){Settings.shakeMultiplier = Math.min(1,shakeMultiplier);}
 	public static final float getVolume() {return mute ? 0 : volume;}
 	public static final float getRealVolume() {return volume;}
 	public static final void setVolume(float volume) {Settings.volume = volume;

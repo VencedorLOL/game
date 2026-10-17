@@ -188,7 +188,7 @@ public class Enemy extends Actor {
 	public void damageOverridable(float damage, AttackTextProcessor.DamageReasons damageReason){
 		float damagedFor = getDamagedFor(damage, damageReason);
 		health -= damagedFor;
-
+		Actor.damageShake(damagedFor);
 		if (damageReason == AttackTextProcessor.DamageReasons.MELEE && damagedFor != 0)
 			ParticleManager.particleEmitter("BLOB",globalSize()/2f, globalSize()/2f,1,10,true,false,10,this);
 

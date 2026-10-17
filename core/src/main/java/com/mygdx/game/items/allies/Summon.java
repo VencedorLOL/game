@@ -46,7 +46,7 @@ public class Summon extends Friend {
 			targetActor = chara;
 		if (targetActor != null && totalFollowRange * globalSize() > dC(targetActor.getX(), targetActor.getY())) {
 			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetActor.getX(), targetActor.getY(), getTakeEnemiesIntoConsideration()))
+			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetActor.getX(), targetActor.getY(), (byte) 1))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 			if(targetActor == chara)
 				targetActor = null;
@@ -54,7 +54,7 @@ public class Summon extends Friend {
 		}
 		if (targetTile != null) {
 			path.pathReset();
-			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetTile.x(), targetTile.y(), getTakeEnemiesIntoConsideration()))
+			if (pathFindAlgorithm.quickSolve(getX(), getY(), targetTile.x(), targetTile.y(), (byte) 1))
 				path.setPathTo(pathFindAlgorithm.convertTileListIntoPath());
 			return;
 		}

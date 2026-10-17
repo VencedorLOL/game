@@ -120,6 +120,9 @@ public class Camara {
 				lastRotation = 0;
 				camara.up.set(new float[]{0,1,0});
 			}
+			intensityX -= doRecovery ? intensityX/timeOfRotation : 0;
+			intensityY -= doRecovery ? intensityY/timeOfRotation : 0;
+			maxRotationDeg -= doRecovery ? maxRotationDeg/timeOfRotation : 0;
 		}
 		camara.position.set(x+difX,y+difY,0);
 		if(Gdx.input.isKeyJustPressed(Input.Keys.T))

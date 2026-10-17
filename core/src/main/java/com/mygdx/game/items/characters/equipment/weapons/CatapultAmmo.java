@@ -76,7 +76,7 @@ public class CatapultAmmo extends Weapons {
 										ArrayList<Catapult.Rock> rocks = new ArrayList<>();
 										for (TargetProcessor.Circle.CircleTile t : simpleCircle(objectiveX,objectiveY,2.5f))
 											rocks.add(new Catapult.Rock(x,y,t.x,t.y,dC(t.x,t.y) > 1.5f*globalSize() ? damage/3 : damage/2,speed){public void changeZ() {zPerTurn = -.5f; turnsToFall = 0; xPerTurn = t.x - x; yPerTurn = t.y - y;}});
-
+										rocks.removeIf(r -> r.x == objectiveX && r.y == objectiveY);
 //										Catapult.Rock[] rocks = {
 //		**									new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY,damage,speed){public void changeZ() {zPerTurn = -.5f;}},
 //											new Catapult.Rock(x,y,objectiveX+globalSize(),objectiveY+globalSize(),damage,speed){public void changeZ() {zPerTurn = -.5f;}},
