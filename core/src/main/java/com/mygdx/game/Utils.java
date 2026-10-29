@@ -2,13 +2,10 @@ package com.mygdx.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Scanner;
 
 import static com.mygdx.game.GameScreen.chara;
 import static com.mygdx.game.Settings.allowCommands;
-import static com.mygdx.game.Settings.print;
 import static com.mygdx.game.items.TextureManager.Text.getLetter;
-import static com.mygdx.game.items.TextureManager.Text.length;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -177,14 +174,9 @@ public class Utils {
 		return new String(strBuilder);
 	}
 
-	public interface a<T>{
-		int get(T t);
-	}
 
 
 	public static void main(String... args){
-		a<String> t = "hello"::indexOf;
-		print(""+t.get("e"));
 /*/		//algo word attributes
 		String str1 = "";
 		String str2 = "";
