@@ -77,6 +77,8 @@ public class CharacterClasses {
 
 	public float aggro;
 
+	public ActiveInventory inventory;
+
 	public CharacterClasses(){
 		abilities = new ArrayList<>();
 		reset();
@@ -97,6 +99,7 @@ public class CharacterClasses {
 
 	public CharacterClasses(Character characteer){
 		this.character = characteer;
+		inventory = characteer.inventory;
 		oVE = new OnVariousScenarios(){
 			@Override
 			public void onTurnPass(){
@@ -134,20 +137,20 @@ public class CharacterClasses {
 
 	public final void totalStatsCalculator(){
 		if (character != null) {
-			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0) + getAdditive(0)) * character.conditions.getMultiplier(0) *getMultiplier(0);
-			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1) + getAdditive(1)) * character.conditions.getMultiplier(1) *getMultiplier(1);
-			totalSpeed = (int) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2) + getAdditive(2))  * character.conditions.getMultiplier(2)*getMultiplier(2));
-			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3) + getAdditive(3)) * character.conditions.getMultiplier(3)*getMultiplier(3));
-			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4) + getAdditive(4)) * character.conditions.getMultiplier(4)*getMultiplier(4);
-			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5) + getAdditive(5)) * character.conditions.getMultiplier(5)*getMultiplier(5));
-			totalMana = (mana + weapon.weaponMana + shield.shieldMana + character.conditions.getAdditive(6) + getAdditive(6)) * character.conditions.getMultiplier(6)*getMultiplier(6);
-			totalManaPerTurn = (manaPerTurn + weapon.weaponManaPerTurn + shield.shieldManaPerTurn + character.conditions.getAdditive(7) + getAdditive(7)) * character.conditions.getMultiplier(7)*getMultiplier(7);
-			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8) + getAdditive(8)) * character.conditions.getMultiplier(8)*getMultiplier(8);
-			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9) + getAdditive(9)) * character.conditions.getMultiplier(9)*getMultiplier(9);
+			totalHealth = (health + shield.shieldHealth + weapon.weaponHealth + character.conditions.getAdditive(0) + getAdditive(0) + inventory.getAddHealth()) * character.conditions.getMultiplier(0) *getMultiplier(0) * inventory.getMultHealth();
+			totalDamage = (damage + shield.shieldDamage + weapon.weaponDamage + character.conditions.getAdditive(1) + getAdditive(1) + inventory.getAddDamage()) * character.conditions.getMultiplier(1) *getMultiplier(1) * inventory.getMultDamage();
+			totalSpeed = (int) ((speed + shield.shieldSpeed + weapon.weaponSpeed + character.conditions.getAdditive(2) + getAdditive(2) + inventory.getAddSpeed())  * character.conditions.getMultiplier(2)*getMultiplier(2) * inventory.getMultSpeed());
+			totalAttackSpeed = (byte) ((attackSpeed + shield.shieldAttackSpeed + weapon.weaponAttackSpeed + character.conditions.getAdditive(3) + getAdditive(3) + inventory.getAddActingSpeed()) * character.conditions.getMultiplier(3)*getMultiplier(3) * inventory.getMultActingSpeed());
+			totalDefense = (defense + shield.shieldDefense + weapon.weaponDefense + character.conditions.getAdditive(4) + getAdditive(4) + inventory.getAddDefense()) * character.conditions.getMultiplier(4)*getMultiplier(4) * inventory.getMultDefense();
+			totalRange = (int) ((range + shield.shieldRange + weapon.weaponRange + character.conditions.getAdditive(5) + getAdditive(5) + inventory.getAddRange()) * character.conditions.getMultiplier(5)*getMultiplier(5) * inventory.getMultRange());
+			totalMana = (mana + weapon.weaponMana + shield.shieldMana + character.conditions.getAdditive(6) + getAdditive(6) + inventory.getAddMana()) * character.conditions.getMultiplier(6)*getMultiplier(6) * inventory.getMultMana();
+			totalManaPerTurn = (manaPerTurn + weapon.weaponManaPerTurn + shield.shieldManaPerTurn + character.conditions.getAdditive(7) + getAdditive(7) + inventory.getAddManaPerTurn()) * character.conditions.getMultiplier(7)*getMultiplier(7) * inventory.getMultManaPerTurn();
+			totalManaPerUse = (manaPerUse + weapon.weaponManaPerUse + shield.shieldManaPerUse + character.conditions.getAdditive(8) + getAdditive(8) + inventory.getAddManaPerUse()) * character.conditions.getMultiplier(8)*getMultiplier(8) * inventory.getMultManaPerUse();
+			totalMagicDamage = (magicDamage + weapon.weaponMagicDamage + shield.shieldMagicDamage + character.conditions.getAdditive(9) + getAdditive(9) + inventory.getAddMagicDamage()) * character.conditions.getMultiplier(9)*getMultiplier(9) * inventory.getMultMagicDamage();
 			totalMagicHealing = (magicHealing + weapon.weaponMagicHealing + shield.shieldMagicHealing);
 			totalRainbowDefense = (rainbowDefense + weapon.weaponRainbowDefense + shield.shieldRainbowDefense);
 			totalMagicDefense = (magicDefense + weapon.weaponMagicDefense + shield.shieldMagicDefense);
-			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11) + getAdditive(11)) * character.conditions.getMultiplier(11) *getMultiplier(11);
+			totalAggro = (aggro + weapon.aggro + shield.aggro + character.conditions.getAdditive(11) + getAdditive(11) + inventory.getAddAggro()) * character.conditions.getMultiplier(11) *getMultiplier(11) * inventory.getMultAggro();
 		}
 		else {
 			totalHealth = health + shield.shieldHealth + weapon.weaponHealth;
@@ -275,6 +278,7 @@ public class CharacterClasses {
 		refresh();
 		weapon.update();
 		shield.update();
+		inventory.update();
 		updateOverridable();
 		refresh();
 	}
@@ -320,6 +324,7 @@ public class CharacterClasses {
 		turnHasPassedOverridable();
 		weapon.turnHasPassed();
 		shield.turnHasPassed();
+		inventory.turnHasPassed();
 	}
 
 	protected void turnHasPassedOverridable() {}
@@ -330,6 +335,7 @@ public class CharacterClasses {
 		weapon.onHurt(source);
 		shield.onHurt(source);
 		character.conditions.onDamaged(source);
+		inventory.onHurt(source);
 	}
 
 	@SuppressWarnings("all")
@@ -339,6 +345,7 @@ public class CharacterClasses {
 		onKill();
 		weapon.onKill();
 		shield.onKill();
+		inventory.onKill();
 	}
 
 	public void onKill(){}
@@ -348,6 +355,7 @@ public class CharacterClasses {
 		weapon.onAttack();
 		shield.onAttack();
 		character.conditions.onAttack();
+		inventory.onAttack();
 	}
 
 	public void onAttack(){}
@@ -358,12 +366,13 @@ public class CharacterClasses {
 		weapon.onMove();
 		shield.onMove();
 		character.conditions.onMove();
+		inventory.onMove();
 	}
 
 	public void onMove(){}
 
 	public boolean runOnAttackDecided(){
-		return onAttackDecided() && weapon.onAttackDecided() && shield.onAttackDecided() && character.conditions.onAttackDecided();
+		return onAttackDecided() && weapon.onAttackDecided() && shield.onAttackDecided() && character.conditions.onAttackDecided() && inventory.onAttackDecided();
 	}
 
 	public boolean onAttackDecided(){return true;}
@@ -390,6 +399,7 @@ public class CharacterClasses {
 		destroyListener(oVE);
 		weapon.destroy();
 		shield.destroy();
+		inventory.destroyAll();
 		destroyOverridable();
 		abilities = null;
 	}

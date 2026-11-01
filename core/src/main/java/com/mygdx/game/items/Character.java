@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.mygdx.game.Settings;
 import com.mygdx.game.items.characters.Ability;
+import com.mygdx.game.items.characters.ActiveInventory;
 import com.mygdx.game.items.characters.CharacterClasses;
 import com.mygdx.game.items.characters.classes.*;
 import com.mygdx.game.items.textboxelements.textboxes.tests.Test1;
@@ -52,6 +53,8 @@ public class Character extends Actor {
 	public Animation idleAnimation;
 	public String idleAnimationFile;
 	public String idleTexture = "anima";
+
+	public ActiveInventory inventory = ActiveInventory.DifferentInventories.ANIMA.inventory;
 
 	public Character(float x, float y, float base, float height) {
 		super("anima",x,y,base,height);

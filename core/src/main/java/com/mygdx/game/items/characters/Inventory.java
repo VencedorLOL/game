@@ -9,8 +9,11 @@ import java.util.Arrays;
 import static com.mygdx.game.GameScreen.savefile;
 import static com.mygdx.game.Settings.printErr;
 import static com.mygdx.game.Utils.indexForwardClosestToTarget;
+
 @SuppressWarnings("all")
 public class Inventory {
+
+	public static Inventory globalInventory = new Inventory();
 
 
 	ArrayList<Items> items = new ArrayList<>();
@@ -43,7 +46,6 @@ public class Inventory {
 	public static final String SIZE = "Size: ";
 
 	public static final String OWNERLESS = "None";
-	public static final String OWNER_ANIMA = "Anima";
 
 	public static final String FLAG_NAME = "Inventory";
 
@@ -70,18 +72,15 @@ public class Inventory {
 			} if (item != null)
 				for (String ss : s) {
 					if (ss.indexOf(OWNER) == 0) {
-						switch (ss.substring(OWNER.length())) {
-							case (OWNERLESS):
-								addItem(item);
+						boolean isInInv = false;
+						for(ActiveInventory.DifferentInventories a : ActiveInventory.DifferentInventories.values())
+							if (a.name == ss.substring(OWNER.length())) {
+								a.inventory.addItem(item);
+								isInInv = true;
 								break;
-							case OWNER_ANIMA:
-								printErr("This shoudda add an item to anima bug like uhh i didnt make that code yet so instead you get like this and such");
-								addItem(item);
-								break;
-							default:
-								addItem(item);
-								break;
-						}
+							}
+						if(!isInInv)
+							addItem(item);
 					}
 					if (ss.indexOf(SIZE) == 0) {
 						if (!(item instanceof Stackable)) {
@@ -104,13 +103,14 @@ public class Inventory {
 					break;
 				}
 			finalData.append(",");
-			//TODO: actually code this so the condition for it being inside Inventory or an ActiveInventory is detected so it can be assigned different values ("None" or "Anima")
-			if(true){
-				finalData.append(OWNER);
-				if(true)
-					finalData.append(OWNERLESS);
-				finalData.append(",");
-			}
+
+			ActiveInventory.DifferentInventories dif = ActiveInventory.DifferentInventories.belongsInAnActive(i);
+			if(dif != null)
+				finalData.append(dif.name);
+			else
+				finalData.append(OWNERLESS);
+			finalData.append(",");
+
 			if(i instanceof Stackable)
 				finalData.append(SIZE).append(((Stackable)i).getStack()).append(",");
 		}

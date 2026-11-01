@@ -7,4 +7,8 @@ public class Backpack extends Items {
 	public Backpack() {super((short) 0);}
 
 
+	public short getAddedSlots(){
+		return 2;
+	}
+
 }
